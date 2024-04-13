@@ -26,17 +26,63 @@ class GassmaController {
     this.endColumNumber = endColumNumber;
   }
 
-  public findRow(findData: FindData) {}
+  private getTitle(): any[] {
+    const columLength = this.endColumNumber - this.startColumNumber + 1;
 
-  public findRows(findData: FindData) {}
+    const tiltes = this.sheet
+      .getRange(this.startRowNumber, this.startColumNumber, 1, columLength)
+      .getValues()[0];
 
-  public updateRow(updateData: UpdateData) {}
+    return tiltes;
+  }
 
-  public updateRows(updateDate: UpdateData) {}
+  public allData(): any[][] {
+    const rowLength = this.sheet.getLastRow() - this.startRowNumber + 1;
+    const columLength = this.endColumNumber - this.startColumNumber + 1;
 
-  public deleteRow(deleteData: DeleteData) {}
+    const data = this.sheet
+      .getRange(
+        this.startRowNumber + 1,
+        this.startColumNumber,
+        rowLength,
+        columLength
+      )
+      .getValues();
 
-  public deleteRows(deleteData: DeleteData) {}
+    return data;
+  }
+
+  public findData(findData: FindData) {
+    const where = findData.where;
+    const allDataList = this.allData();
+    const titles = this.getTitle();
+
+    const wantFindKeys = Object.entries(where).map((oneData) => {
+      return oneData[0];
+    });
+
+    const wantFindIndex = wantFindKeys.map((key) => {
+      return titles.findIndex((title) => {
+        return title === key;
+      });
+    });
+
+    const findedDataIncludeNull = allDataList.map((row) => {
+      const matchRow = wantFindIndex.filter((i) => {
+        return row[i] === where[String(titles[i])];
+      });
+
+      if (matchRow.length === wantFindKeys.length) return row;
+
+      return null;
+    });
+
+    return findedDataIncludeNull.filter((data) => data !== null);
+  }
+
+  public updateData(updateData: UpdateData) {}
+
+  public deleteData(deleteData: DeleteData) {}
 }
 
 export { GassmaController };
