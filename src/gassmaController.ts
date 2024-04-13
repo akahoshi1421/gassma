@@ -36,7 +36,9 @@ class GassmaController {
     return tiltes;
   }
 
-  private getWantFindIndex(wantData: FindData | DeleteData): number[] {
+  private getWantFindIndex(
+    wantData: FindData | DeleteData | UpdateData
+  ): number[] {
     const where = wantData.where;
     const titles = this.getTitle();
 
@@ -51,6 +53,23 @@ class GassmaController {
     });
 
     return wantFindIndex;
+  }
+
+  private getWantUpdateIndex(wantData: UpdateData) {
+    const data = wantData.data;
+    const titles = this.getTitle();
+
+    const wantUpdateKeys = Object.entries(data).map((oneData) => {
+      return oneData[0];
+    });
+
+    const wantUpdateIndex = wantUpdateKeys.map((key) => {
+      return titles.findIndex((title) => {
+        return title === key;
+      });
+    });
+
+    return wantUpdateIndex;
   }
 
   public allData(): any[][] {
@@ -90,7 +109,44 @@ class GassmaController {
     return findedDataIncludeNull.filter((data) => data !== null);
   }
 
-  public updateData(updateData: UpdateData) {}
+  public updateData(updateData: UpdateData) {
+    const where = updateData.where;
+    const data = updateData.data;
+
+    const wantFindIndex = this.getWantFindIndex(updateData);
+    const wantUpdateIndex = this.getWantUpdateIndex(updateData);
+
+    const allDataList = this.allData();
+    const titles = this.getTitle();
+
+    allDataList.forEach((row, rowIndex) => {
+      const matchRow = wantFindIndex.filter((i) => {
+        return row[i] === where[String(titles[i])];
+      });
+
+      if (matchRow.length !== wantFindIndex.length) return;
+
+      const updatedRow = row.map((updateData, updateDataIndex) => {
+        if (!wantUpdateIndex.includes(updateDataIndex)) return updateData;
+
+        return data[String(titles[updateDataIndex])];
+      });
+
+      if (updatedRow.length === 0) return;
+
+      const rowNumber = rowIndex + 1 + this.startRowNumber;
+      const columLength = this.endColumNumber - this.startColumNumber + 1;
+
+      const updateRange = this.sheet.getRange(
+        rowNumber,
+        this.startColumNumber,
+        1,
+        columLength
+      );
+
+      updateRange.setValues([updatedRow]);
+    });
+  }
 
   public deleteData(deleteData: DeleteData) {
     const where = deleteData.where;
