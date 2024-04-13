@@ -3,7 +3,8 @@ import { DeleteData, FindData, UpdateData } from "./types/findTypes";
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
   private startRowNumber: number = 1;
-  private endRowNumber: number = 1;
+  private startColumNumber: number = 1;
+  private endColumNumber: number = 1;
 
   constructor(sheetName: string) {
     const spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -15,9 +16,14 @@ class GassmaController {
     this.sheet = sheet;
   }
 
-  public changeSettings(startRowNumber: number, endRowNumber: number) {
+  public changeSettings(
+    startRowNumber: number,
+    startColumNumber: number,
+    endColumNumber: number
+  ) {
     this.startRowNumber = startRowNumber;
-    this.endRowNumber = endRowNumber;
+    this.startColumNumber = startColumNumber;
+    this.endColumNumber = endColumNumber;
   }
 
   public findRow(findData: FindData) {}
