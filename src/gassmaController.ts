@@ -72,7 +72,7 @@ class GassmaController {
         return row[i] === where[String(titles[i])];
       });
 
-      if (matchRow.length === wantFindKeys.length) return row;
+      if (matchRow.length === wantFindIndex.length) return row;
 
       return null;
     });
@@ -82,7 +82,31 @@ class GassmaController {
 
   public updateData(updateData: UpdateData) {}
 
-  public deleteData(deleteData: DeleteData) {}
+  public deleteData(deleteData: DeleteData) {
+    const where = deleteData.where;
+    const allDataList = this.allData();
+    const titles = this.getTitle();
+
+    const wantFindKeys = Object.entries(where).map((oneData) => {
+      return oneData[0];
+    });
+
+    const wantFindIndex = wantFindKeys.map((key) => {
+      return titles.findIndex((title) => {
+        return title === key;
+      });
+    });
+
+    allDataList.forEach((row, rowIndex) => {
+      const matchRow = wantFindIndex.filter((i) => {
+        return row[i] === where[String(titles[i])];
+      });
+
+      if (matchRow.length !== wantFindIndex.length) return;
+
+      this.sheet.deleteRow(rowIndex + 1 + this.startRowNumber);
+    });
+  }
 }
 
 export { GassmaController };
