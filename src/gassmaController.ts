@@ -97,6 +97,8 @@ class GassmaController {
       });
     });
 
+    let deletedCnt = 0;
+
     allDataList.forEach((row, rowIndex) => {
       const matchRow = wantFindIndex.filter((i) => {
         return row[i] === where[String(titles[i])];
@@ -104,7 +106,8 @@ class GassmaController {
 
       if (matchRow.length !== wantFindIndex.length) return;
 
-      this.sheet.deleteRow(rowIndex + 1 + this.startRowNumber);
+      this.sheet.deleteRow(rowIndex + 1 + this.startRowNumber + deletedCnt);
+      deletedCnt--;
     });
   }
 }
