@@ -37,7 +37,7 @@ class GassmaController {
   }
 
   public allData(): any[][] {
-    const rowLength = this.sheet.getLastRow() - this.startRowNumber + 1;
+    const rowLength = this.sheet.getLastRow() - this.startRowNumber;
     const columLength = this.endColumNumber - this.startColumNumber + 1;
 
     const data = this.sheet
