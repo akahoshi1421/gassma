@@ -88,7 +88,7 @@ class GassmaController {
     return data;
   }
 
-  public findData(findData: FindData) {
+  public findMany(findData: FindData) {
     const where = findData.where;
 
     const wantFindIndex = this.getWantFindIndex(findData);
@@ -120,7 +120,7 @@ class GassmaController {
     return findDataDictArray;
   }
 
-  public updateData(updateData: UpdateData) {
+  public updateMany(updateData: UpdateData) {
     const where = updateData.where;
     const data = updateData.data;
 
@@ -159,7 +159,7 @@ class GassmaController {
     });
   }
 
-  public deleteData(deleteData: DeleteData) {
+  public deleteMany(deleteData: DeleteData) {
     const where = deleteData.where;
 
     const wantFindIndex = this.getWantFindIndex(deleteData);
