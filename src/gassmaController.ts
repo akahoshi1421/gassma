@@ -1,3 +1,4 @@
+import { CreateData } from "./types/createTypes";
 import { DeleteData, FindData, UpdateData } from "./types/findTypes";
 
 class GassmaController {
@@ -55,7 +56,7 @@ class GassmaController {
     return wantFindIndex;
   }
 
-  private getWantUpdateIndex(wantData: UpdateData) {
+  private getWantUpdateIndex(wantData: CreateData | UpdateData) {
     const data = wantData.data;
     const titles = this.getTitle();
 
@@ -72,7 +73,7 @@ class GassmaController {
     return wantUpdateIndex;
   }
 
-  public allData(): any[][] {
+  private allData(): any[][] {
     const rowLength = this.sheet.getLastRow() - this.startRowNumber;
     const columLength = this.endColumNumber - this.startColumNumber + 1;
 
@@ -86,6 +87,24 @@ class GassmaController {
       .getValues();
 
     return data;
+  }
+
+  public create(createdData: CreateData) {
+    const data = createdData.data;
+    const titles = this.getTitle();
+
+    const wantCreateIndex = this.getWantUpdateIndex(createdData).sort();
+
+    const newData = wantCreateIndex.map((index) => {
+      return data[String(titles[index])];
+    });
+
+    const rowNumber = this.sheet.getLastRow() + 1;
+    const columLength = this.endColumNumber - this.startColumNumber + 1;
+
+    this.sheet
+      .getRange(rowNumber, this.startColumNumber, 1, columLength)
+      .setValues([newData]);
   }
 
   public findMany(findData: FindData) {
