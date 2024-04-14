@@ -106,7 +106,18 @@ class GassmaController {
       return null;
     });
 
-    return findedDataIncludeNull.filter((data) => data !== null);
+    const findedData = findedDataIncludeNull.filter((data) => data !== null);
+
+    const findDataDictArray = findedData.map((row) => {
+      const result = {};
+      row.forEach((data, dataIndex) => {
+        result[titles[dataIndex]] = data;
+      });
+
+      return result;
+    });
+
+    return findDataDictArray;
   }
 
   public updateData(updateData: UpdateData) {
