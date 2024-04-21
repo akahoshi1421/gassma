@@ -113,6 +113,31 @@ class GassmaController {
       .setValues([newData]);
   }
 
+  public findFirst(findData: FindData) {
+    const where = findData.where;
+
+    const wantFindIndex = this.getWantFindIndex(findData);
+
+    const allDataList = this.allData();
+    const titles = this.getTitle();
+
+    const findedData = allDataList.find((row) => {
+      const matchRow = wantFindIndex.filter((i) => {
+        return row[i] === where[String(titles[i])];
+      });
+
+      return matchRow.length === wantFindIndex.length;
+    });
+
+    const findedDataDict = {};
+
+    findedData.forEach((data, dataIndex) => {
+      findedDataDict[titles[dataIndex]] = data;
+    });
+
+    return findedDataDict;
+  }
+
   public findMany(findData: FindData) {
     const where = findData.where;
 
