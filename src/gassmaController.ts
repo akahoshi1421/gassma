@@ -1,5 +1,10 @@
 import { CreateData } from "./types/createTypes";
-import { DeleteData, FindData, UpdateData } from "./types/findTypes";
+import {
+  DeleteData,
+  FindData,
+  UpdateData,
+  UpsertData,
+} from "./types/findTypes";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -15,6 +20,8 @@ class GassmaController {
       throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
 
     this.sheet = sheet;
+
+    this.endColumNumber = this.sheet.getLastColumn();
   }
 
   public changeSettings(
@@ -89,6 +96,10 @@ class GassmaController {
     return data;
   }
 
+  public createMany(createdData: CreateData[]) {
+    createdData.forEach((data) => this.create(data));
+  }
+
   public create(createdData: CreateData) {
     const data = createdData.data;
     const titles = this.getTitle();
@@ -105,6 +116,33 @@ class GassmaController {
     this.sheet
       .getRange(rowNumber, this.startColumNumber, 1, columLength)
       .setValues([newData]);
+  }
+
+  public findFirst(findData: FindData) {
+    const where = findData.where;
+
+    const wantFindIndex = this.getWantFindIndex(findData);
+
+    const allDataList = this.allData();
+    const titles = this.getTitle();
+
+    const findedData = allDataList.find((row) => {
+      const matchRow = wantFindIndex.filter((i) => {
+        return row[i] === where[String(titles[i])];
+      });
+
+      return matchRow.length === wantFindIndex.length;
+    });
+
+    if (!findedData) return null;
+
+    const findedDataDict = {};
+
+    findedData.forEach((data, dataIndex) => {
+      findedDataDict[titles[dataIndex]] = data;
+    });
+
+    return findedDataDict;
   }
 
   public findMany(findData: FindData) {
@@ -176,6 +214,30 @@ class GassmaController {
 
       updateRange.setValues([updatedRow]);
     });
+  }
+
+  public upsert(upsertData: UpsertData) {
+    const findData = {
+      where: upsertData.where,
+    } as FindData;
+
+    const findResult = this.findFirst(findData);
+
+    if (!findResult) {
+      const newData = {
+        data: upsertData.create,
+      } as CreateData;
+
+      this.create(newData);
+      return;
+    }
+
+    const updateData = {
+      where: upsertData.where,
+      data: upsertData.update,
+    } as UpdateData;
+
+    this.updateMany(updateData);
   }
 
   public deleteMany(deleteData: DeleteData) {

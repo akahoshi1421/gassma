@@ -18,7 +18,6 @@ coming soon...
 import { GassmaClient } from "gassma";
 
 const gassma = new GassmaClient();
-gassma.sheets.YOUR_SHEET_NAME.changeSettings(1, 1, 4);
 
 // getData from SpreadSheet
 function myFunction(){
@@ -35,4 +34,4 @@ function myFunction(){
 
 ## version
 
-0.4.0
+0.5.0
