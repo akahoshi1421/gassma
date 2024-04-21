@@ -15,6 +15,8 @@ class GassmaController {
       throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
 
     this.sheet = sheet;
+
+    this.endColumNumber = this.sheet.getLastColumn();
   }
 
   public changeSettings(
