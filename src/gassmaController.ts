@@ -91,6 +91,10 @@ class GassmaController {
     return data;
   }
 
+  public createMany(createdData: CreateData[]) {
+    createdData.forEach((data) => this.create(data));
+  }
+
   public create(createdData: CreateData) {
     const data = createdData.data;
     const titles = this.getTitle();
