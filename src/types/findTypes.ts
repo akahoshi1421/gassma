@@ -13,6 +13,18 @@ type UpdateData = {
   };
 };
 
+type UpsertData = {
+  where: {
+    [key: string]: any;
+  };
+  update: {
+    [key: string]: any;
+  };
+  create: {
+    [key: string]: any;
+  };
+};
+
 type DeleteData = FindData;
 
-export { FindData, UpdateData, DeleteData };
+export { FindData, UpdateData, DeleteData, UpsertData };

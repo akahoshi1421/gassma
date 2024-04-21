@@ -1,5 +1,10 @@
 import { CreateData } from "./types/createTypes";
-import { DeleteData, FindData, UpdateData } from "./types/findTypes";
+import {
+  DeleteData,
+  FindData,
+  UpdateData,
+  UpsertData,
+} from "./types/findTypes";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -209,6 +214,30 @@ class GassmaController {
 
       updateRange.setValues([updatedRow]);
     });
+  }
+
+  public upsert(upsertData: UpsertData) {
+    const findData = {
+      where: upsertData.where,
+    } as FindData;
+
+    const findResult = this.findFirst(findData);
+
+    if (!findResult) {
+      const newData = {
+        data: upsertData.create,
+      } as CreateData;
+
+      this.create(newData);
+      return;
+    }
+
+    const updateData = {
+      where: upsertData.where,
+      data: upsertData.update,
+    } as UpdateData;
+
+    this.updateMany(updateData);
   }
 
   public deleteMany(deleteData: DeleteData) {
