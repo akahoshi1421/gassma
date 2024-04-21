@@ -129,6 +129,8 @@ class GassmaController {
       return matchRow.length === wantFindIndex.length;
     });
 
+    if (!findedData) return null;
+
     const findedDataDict = {};
 
     findedData.forEach((data, dataIndex) => {
