@@ -2,6 +2,9 @@ type FindData = {
   where: {
     [key: string]: any;
   };
+  select?: {
+    [key: string]: true;
+  };
 };
 
 type UpdateData = {

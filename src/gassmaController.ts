@@ -80,6 +80,20 @@ class GassmaController {
     return wantUpdateIndex;
   }
 
+  private findedDataSelect(
+    select: { [key: string]: true },
+    row: { [key: string]: any }
+  ) {
+    const result = {};
+    const selectKeys = Object.keys(select);
+
+    selectKeys.forEach((key) => {
+      result[key] = row[key];
+    });
+
+    return result;
+  }
+
   private allData(): any[][] {
     const rowLength = this.sheet.getLastRow() - this.startRowNumber;
     const columLength = this.endColumNumber - this.startColumNumber + 1;
@@ -120,6 +134,7 @@ class GassmaController {
 
   public findFirst(findData: FindData) {
     const where = findData.where;
+    const select = "select" in findData ? findData.select : null;
 
     const wantFindIndex = this.getWantFindIndex(findData);
 
@@ -142,11 +157,14 @@ class GassmaController {
       findedDataDict[titles[dataIndex]] = data;
     });
 
-    return findedDataDict;
+    if (!select) return findedDataDict;
+
+    return this.findedDataSelect(select, findedDataDict);
   }
 
   public findMany(findData: FindData) {
     const where = findData.where;
+    const select = "select" in findData ? findData.select : null;
 
     const wantFindIndex = this.getWantFindIndex(findData);
 
@@ -174,7 +192,13 @@ class GassmaController {
       return result;
     });
 
-    return findDataDictArray;
+    if (!select) return findDataDictArray;
+
+    const findDataDictArraySelected = findDataDictArray.map((row) => {
+      return this.findedDataSelect(select, row);
+    });
+
+    return findDataDictArraySelected;
   }
 
   public updateMany(updateData: UpdateData) {
