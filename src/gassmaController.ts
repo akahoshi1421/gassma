@@ -7,6 +7,7 @@ import {
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { createFunc } from "./util/create/create";
+import { findFirstFunc } from "./util/find/findFirst";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -134,33 +135,7 @@ class GassmaController {
   }
 
   public findFirst(findData: FindData) {
-    const where = findData.where;
-    const select = "select" in findData ? findData.select : null;
-
-    const wantFindIndex = this.getWantFindIndex(findData);
-
-    const allDataList = this.allData();
-    const titles = this.getTitle();
-
-    const findedData = allDataList.find((row) => {
-      const matchRow = wantFindIndex.filter((i) => {
-        return row[i] === where[String(titles[i])];
-      });
-
-      return matchRow.length === wantFindIndex.length;
-    });
-
-    if (!findedData) return null;
-
-    const findedDataDict = {};
-
-    findedData.forEach((data, dataIndex) => {
-      findedDataDict[titles[dataIndex]] = data;
-    });
-
-    if (!select) return findedDataDict;
-
-    return this.findedDataSelect(select, findedDataDict);
+    return findFirstFunc(this.getGassmaControllerUtil(), findData);
   }
 
   public findMany(findData: FindData) {
