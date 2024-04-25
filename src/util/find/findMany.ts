@@ -9,10 +9,12 @@ const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   findData: FindData
 ) => {
-  const where = findData.where;
+  const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
 
-  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
+  let wantFindIndex: number[] = [];
+  if (Object.keys(where).length !== 0)
+    wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
 
   const allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
