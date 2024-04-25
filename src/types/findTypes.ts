@@ -1,28 +1,20 @@
+import { AnyUse, OrderBy, Select } from "./coreTypes";
+
 type FindData = {
-  where: {
-    [key: string]: any;
-  };
+  where: AnyUse;
+  select?: Select;
+  orderBy?: OrderBy | OrderBy[];
 };
 
 type UpdateData = {
-  where: {
-    [key: string]: any;
-  };
-  data: {
-    [key: string]: any;
-  };
+  where: AnyUse;
+  data: AnyUse;
 };
 
 type UpsertData = {
-  where: {
-    [key: string]: any;
-  };
-  update: {
-    [key: string]: any;
-  };
-  create: {
-    [key: string]: any;
-  };
+  where: AnyUse;
+  update: AnyUse;
+  create: AnyUse;
 };
 
 type DeleteData = FindData;

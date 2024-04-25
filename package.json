@@ -4,11 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "push": "npm run build && clasp push"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/google-apps-script": "^1.0.83"
+  },
+  "devDependencies": {
+    "gas-webpack-plugin": "^2.5.0",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
   }
 }
