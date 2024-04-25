@@ -1,27 +1,21 @@
 import { DeleteData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { getAllData } from "../core/getAllData";
+import { getTitle } from "../core/getTitle";
+import { getWantFindIndex } from "../core/getWantFindIndex";
 
 const deleteManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   deleteData: DeleteData
 ) => {
-  const {
-    sheet,
-    startRowNumber,
-    startColumNumber,
-    endColumNumber,
-    getTitle,
-    getWantFindIndex,
-    getWantUpdateIndex,
-    allData,
-  } = gassmaControllerUtil;
+  const { sheet, startRowNumber } = gassmaControllerUtil;
 
   const where = deleteData.where;
 
-  const wantFindIndex = getWantFindIndex(deleteData);
+  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, deleteData);
 
-  const allDataList = allData();
-  const titles = getTitle();
+  const allDataList = getAllData(gassmaControllerUtil);
+  const titles = getTitle(gassmaControllerUtil);
 
   let deletedCnt = 0;
 

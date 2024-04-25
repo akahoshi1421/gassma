@@ -1,29 +1,21 @@
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { getAllData } from "../core/getAllData";
+import { getTitle } from "../core/getTitle";
+import { getWantFindIndex } from "../core/getWantFindIndex";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 
 const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   findData: FindData
 ) => {
-  const {
-    sheet,
-    startRowNumber,
-    startColumNumber,
-    endColumNumber,
-    getTitle,
-    getWantFindIndex,
-    getWantUpdateIndex,
-    allData,
-  } = gassmaControllerUtil;
-
   const where = findData.where;
   const select = "select" in findData ? findData.select : null;
 
-  const wantFindIndex = getWantFindIndex(findData);
+  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
 
-  const allDataList = allData();
-  const titles = getTitle();
+  const allDataList = getAllData(gassmaControllerUtil);
+  const titles = getTitle(gassmaControllerUtil);
 
   const findedDataIncludeNull = allDataList.map((row) => {
     const matchRow = wantFindIndex.filter((i) => {

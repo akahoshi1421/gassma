@@ -1,29 +1,25 @@
 import { UpdateData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { getAllData } from "../core/getAllData";
+import { getTitle } from "../core/getTitle";
+import { getWantFindIndex } from "../core/getWantFindIndex";
+import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 
 const updateManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData
 ) => {
-  const {
-    sheet,
-    startRowNumber,
-    startColumNumber,
-    endColumNumber,
-    getTitle,
-    getWantFindIndex,
-    getWantUpdateIndex,
-    allData,
-  } = gassmaControllerUtil;
+  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
+    gassmaControllerUtil;
 
   const where = updateData.where;
   const data = updateData.data;
 
-  const wantFindIndex = getWantFindIndex(updateData);
-  const wantUpdateIndex = getWantUpdateIndex(updateData);
+  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, updateData);
+  const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);
 
-  const allDataList = allData();
-  const titles = getTitle();
+  const allDataList = getAllData(gassmaControllerUtil);
+  const titles = getTitle(gassmaControllerUtil);
 
   allDataList.forEach((row, rowIndex) => {
     const matchRow = wantFindIndex.filter((i) => {

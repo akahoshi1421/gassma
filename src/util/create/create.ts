@@ -1,25 +1,22 @@
 import { CreateData } from "../../types/createTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { getTitle } from "../core/getTitle";
+import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 
 const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createdData: CreateData
 ) => {
-  const {
-    sheet,
-    startRowNumber,
-    startColumNumber,
-    endColumNumber,
-    getTitle,
-    getWantFindIndex,
-    getWantUpdateIndex,
-    allData,
-  } = gassmaControllerUtil;
+  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
+    gassmaControllerUtil;
 
   const data = createdData.data;
-  const titles = getTitle();
+  const titles = getTitle(gassmaControllerUtil);
 
-  const wantCreateIndex = getWantUpdateIndex(createdData).sort();
+  const wantCreateIndex = getWantUpdateIndex(
+    gassmaControllerUtil,
+    createdData
+  ).sort();
 
   const newData = wantCreateIndex.map((index) => {
     return data[String(titles[index])];

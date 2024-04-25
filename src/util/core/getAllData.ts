@@ -1,18 +1,8 @@
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
-const getAllDataFunc = (
-  gassmaControllerUtil: GassmaControllerUtil
-): any[][] => {
-  const {
-    sheet,
-    startRowNumber,
-    startColumNumber,
-    endColumNumber,
-    getTitle,
-    getWantFindIndex,
-    getWantUpdateIndex,
-    allData,
-  } = gassmaControllerUtil;
+const getAllData = (gassmaControllerUtil: GassmaControllerUtil): any[][] => {
+  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
+    gassmaControllerUtil;
 
   const rowLength = sheet.getLastRow() - startRowNumber;
   const columLength = endColumNumber - startColumNumber + 1;
@@ -24,4 +14,4 @@ const getAllDataFunc = (
   return data;
 };
 
-export { getAllDataFunc };
+export { getAllData };

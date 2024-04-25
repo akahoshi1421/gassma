@@ -6,10 +6,6 @@ type GassmaControllerUtil = {
   startRowNumber: number;
   startColumNumber: number;
   endColumNumber: number;
-  getTitle: () => any[];
-  getWantFindIndex: (wantData: FindData | DeleteData | UpdateData) => number[];
-  getWantUpdateIndex: (wantData: CreateData | UpdateData) => number[];
-  allData: () => any[][];
 };
 
 export { GassmaControllerUtil };

@@ -10,10 +10,6 @@ import { createFunc } from "./util/create/create";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
-import { getAllDataFunc } from "./util/private/allData";
-import { getTitleFunc } from "./util/private/getTitle";
-import { getWantFindIndexFunc } from "./util/private/getWantFindIndex";
-import { getWantUpdateIndexFunc } from "./util/private/getWantUpdateIndex";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertFunc } from "./util/upsert/upsert";
 
@@ -49,31 +45,9 @@ class GassmaController {
     return {
       sheet: this.sheet,
       startRowNumber: this.startRowNumber,
-      startColumNumber: this.startRowNumber,
+      startColumNumber: this.startColumNumber,
       endColumNumber: this.endColumNumber,
-      getTitle: this.getTitle.bind(this),
-      getWantFindIndex: this.getWantFindIndex.bind(this),
-      getWantUpdateIndex: this.getWantUpdateIndex.bind(this),
-      allData: this.allData.bind(this),
     };
-  }
-
-  private getTitle(): any[] {
-    return getTitleFunc(this.getGassmaControllerUtil());
-  }
-
-  private getWantFindIndex(
-    wantData: FindData | DeleteData | UpdateData
-  ): number[] {
-    return getWantFindIndexFunc(this.getGassmaControllerUtil(), wantData);
-  }
-
-  private getWantUpdateIndex(wantData: CreateData | UpdateData): number[] {
-    return getWantUpdateIndexFunc(this.getGassmaControllerUtil(), wantData);
-  }
-
-  private allData(): any[][] {
-    return getAllDataFunc(this.getGassmaControllerUtil());
   }
 
   public createMany(createdData: CreateData[]) {
