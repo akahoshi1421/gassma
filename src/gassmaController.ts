@@ -7,6 +7,7 @@ import {
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { createFunc } from "./util/create/create";
+import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { updateManyFunc } from "./util/update/updateMany";
@@ -140,25 +141,7 @@ class GassmaController {
   }
 
   public deleteMany(deleteData: DeleteData) {
-    const where = deleteData.where;
-
-    const wantFindIndex = this.getWantFindIndex(deleteData);
-
-    const allDataList = this.allData();
-    const titles = this.getTitle();
-
-    let deletedCnt = 0;
-
-    allDataList.forEach((row, rowIndex) => {
-      const matchRow = wantFindIndex.filter((i) => {
-        return row[i] === where[String(titles[i])];
-      });
-
-      if (matchRow.length !== wantFindIndex.length) return;
-
-      this.sheet.deleteRow(rowIndex + 1 + this.startRowNumber + deletedCnt);
-      deletedCnt--;
-    });
+    deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
   }
 }
 
