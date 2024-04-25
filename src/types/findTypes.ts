@@ -1,7 +1,7 @@
 import { AnyUse, OrderBy, Select } from "./coreTypes";
 
 type FindData = {
-  where: AnyUse;
+  where?: AnyUse;
   select?: Select;
   orderBy?: OrderBy | OrderBy[];
 };
