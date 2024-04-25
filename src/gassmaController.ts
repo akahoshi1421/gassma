@@ -12,6 +12,7 @@ import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { getTitleFunc } from "./util/private/getTitle";
 import { getWantFindIndexFunc } from "./util/private/getWantFindIndex";
+import { getWantUpdateIndexFunc } from "./util/private/getWantUpdateIndex";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertFunc } from "./util/upsert/upsert";
 
@@ -66,21 +67,8 @@ class GassmaController {
     return getWantFindIndexFunc(this.getGassmaControllerUtil(), wantData);
   }
 
-  private getWantUpdateIndex(wantData: CreateData | UpdateData) {
-    const data = wantData.data;
-    const titles = this.getTitle();
-
-    const wantUpdateKeys = Object.entries(data).map((oneData) => {
-      return oneData[0];
-    });
-
-    const wantUpdateIndex = wantUpdateKeys.map((key) => {
-      return titles.findIndex((title) => {
-        return title === key;
-      });
-    });
-
-    return wantUpdateIndex;
+  private getWantUpdateIndex(wantData: CreateData | UpdateData): number[] {
+    return getWantUpdateIndexFunc(this.getGassmaControllerUtil(), wantData);
   }
 
   private allData(): any[][] {
