@@ -10,6 +10,7 @@ import { createFunc } from "./util/create/create";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { updateManyFunc } from "./util/update/updateMany";
+import { upsertFunc } from "./util/upsert/upsert";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -135,27 +136,7 @@ class GassmaController {
   }
 
   public upsert(upsertData: UpsertData) {
-    const findData = {
-      where: upsertData.where,
-    } as FindData;
-
-    const findResult = this.findFirst(findData);
-
-    if (!findResult) {
-      const newData = {
-        data: upsertData.create,
-      } as CreateData;
-
-      this.create(newData);
-      return;
-    }
-
-    const updateData = {
-      where: upsertData.where,
-      data: upsertData.update,
-    } as UpdateData;
-
-    this.updateMany(updateData);
+    upsertFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
   public deleteMany(deleteData: DeleteData) {
