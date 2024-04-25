@@ -8,6 +8,7 @@ import {
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { createFunc } from "./util/create/create";
 import { findFirstFunc } from "./util/find/findFirst";
+import { findManyFunc } from "./util/find/findMany";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -96,20 +97,6 @@ class GassmaController {
     return wantUpdateIndex;
   }
 
-  private findedDataSelect(
-    select: { [key: string]: true },
-    row: { [key: string]: any }
-  ) {
-    const result = {};
-    const selectKeys = Object.keys(select);
-
-    selectKeys.forEach((key) => {
-      result[key] = row[key];
-    });
-
-    return result;
-  }
-
   private allData(): any[][] {
     const rowLength = this.sheet.getLastRow() - this.startRowNumber;
     const columLength = this.endColumNumber - this.startColumNumber + 1;
@@ -139,42 +126,7 @@ class GassmaController {
   }
 
   public findMany(findData: FindData) {
-    const where = findData.where;
-    const select = "select" in findData ? findData.select : null;
-
-    const wantFindIndex = this.getWantFindIndex(findData);
-
-    const allDataList = this.allData();
-    const titles = this.getTitle();
-
-    const findedDataIncludeNull = allDataList.map((row) => {
-      const matchRow = wantFindIndex.filter((i) => {
-        return row[i] === where[String(titles[i])];
-      });
-
-      if (matchRow.length === wantFindIndex.length) return row;
-
-      return null;
-    });
-
-    const findedData = findedDataIncludeNull.filter((data) => data !== null);
-
-    const findDataDictArray = findedData.map((row) => {
-      const result = {};
-      row.forEach((data, dataIndex) => {
-        result[titles[dataIndex]] = data;
-      });
-
-      return result;
-    });
-
-    if (!select) return findDataDictArray;
-
-    const findDataDictArraySelected = findDataDictArray.map((row) => {
-      return this.findedDataSelect(select, row);
-    });
-
-    return findDataDictArraySelected;
+    return findManyFunc(this.getGassmaControllerUtil(), findData);
   }
 
   public updateMany(updateData: UpdateData) {
