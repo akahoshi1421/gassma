@@ -6,9 +6,6 @@ const getWantFindIndex = (
   gassmaControllerUtil: GassmaControllerUtil,
   wantData: FindData | DeleteData | UpdateData
 ) => {
-  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
-    gassmaControllerUtil;
-
   const where = wantData.where;
   const titles = getTitle(gassmaControllerUtil);
 

@@ -7,9 +7,6 @@ const getWantUpdateIndex = (
   gassmaControllerUtil: GassmaControllerUtil,
   wantData: CreateData | UpdateData
 ): number[] => {
-  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
-    gassmaControllerUtil;
-
   const data = wantData.data;
   const titles = getTitle(gassmaControllerUtil);
 
