@@ -17,7 +17,7 @@ coming soon...
 ```.ts
 import { GassmaClient } from "gassma";
 
-const gassma = new GassmaClient();
+const gassma = new Gassma.GassmaClient();
 
 // getData from SpreadSheet
 function myFunction(){
