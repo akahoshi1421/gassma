@@ -10,6 +10,7 @@ import { createFunc } from "./util/create/create";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
+import { getTitleFunc } from "./util/private/getTitle";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertFunc } from "./util/upsert/upsert";
 
@@ -55,13 +56,7 @@ class GassmaController {
   }
 
   private getTitle(): any[] {
-    const columLength = this.endColumNumber - this.startColumNumber + 1;
-
-    const tiltes = this.sheet
-      .getRange(this.startRowNumber, this.startColumNumber, 1, columLength)
-      .getValues()[0];
-
-    return tiltes;
+    return getTitleFunc(this.getGassmaControllerUtil());
   }
 
   private getWantFindIndex(
