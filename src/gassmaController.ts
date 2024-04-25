@@ -11,6 +11,7 @@ import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { getTitleFunc } from "./util/private/getTitle";
+import { getWantFindIndexFunc } from "./util/private/getWantFindIndex";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertFunc } from "./util/upsert/upsert";
 
@@ -62,20 +63,7 @@ class GassmaController {
   private getWantFindIndex(
     wantData: FindData | DeleteData | UpdateData
   ): number[] {
-    const where = wantData.where;
-    const titles = this.getTitle();
-
-    const wantFindKeys = Object.entries(where).map((oneData) => {
-      return oneData[0];
-    });
-
-    const wantFindIndex = wantFindKeys.map((key) => {
-      return titles.findIndex((title) => {
-        return title === key;
-      });
-    });
-
-    return wantFindIndex;
+    return getWantFindIndexFunc(this.getGassmaControllerUtil(), wantData);
   }
 
   private getWantUpdateIndex(wantData: CreateData | UpdateData) {
