@@ -10,6 +10,7 @@ import { createFunc } from "./util/create/create";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
+import { getAllDataFunc } from "./util/private/allData";
 import { getTitleFunc } from "./util/private/getTitle";
 import { getWantFindIndexFunc } from "./util/private/getWantFindIndex";
 import { getWantUpdateIndexFunc } from "./util/private/getWantUpdateIndex";
@@ -72,19 +73,7 @@ class GassmaController {
   }
 
   private allData(): any[][] {
-    const rowLength = this.sheet.getLastRow() - this.startRowNumber;
-    const columLength = this.endColumNumber - this.startColumNumber + 1;
-
-    const data = this.sheet
-      .getRange(
-        this.startRowNumber + 1,
-        this.startColumNumber,
-        rowLength,
-        columLength
-      )
-      .getValues();
-
-    return data;
+    return getAllDataFunc(this.getGassmaControllerUtil());
   }
 
   public createMany(createdData: CreateData[]) {
