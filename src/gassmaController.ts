@@ -9,6 +9,7 @@ import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { createFunc } from "./util/create/create";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
+import { updateManyFunc } from "./util/update/updateMany";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -130,42 +131,7 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
-    const where = updateData.where;
-    const data = updateData.data;
-
-    const wantFindIndex = this.getWantFindIndex(updateData);
-    const wantUpdateIndex = this.getWantUpdateIndex(updateData);
-
-    const allDataList = this.allData();
-    const titles = this.getTitle();
-
-    allDataList.forEach((row, rowIndex) => {
-      const matchRow = wantFindIndex.filter((i) => {
-        return row[i] === where[String(titles[i])];
-      });
-
-      if (matchRow.length !== wantFindIndex.length) return;
-
-      const updatedRow = row.map((updateData, updateDataIndex) => {
-        if (!wantUpdateIndex.includes(updateDataIndex)) return updateData;
-
-        return data[String(titles[updateDataIndex])];
-      });
-
-      if (updatedRow.length === 0) return;
-
-      const rowNumber = rowIndex + 1 + this.startRowNumber;
-      const columLength = this.endColumNumber - this.startColumNumber + 1;
-
-      const updateRange = this.sheet.getRange(
-        rowNumber,
-        this.startColumNumber,
-        1,
-        columLength
-      );
-
-      updateRange.setValues([updatedRow]);
-    });
+    updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
   public upsert(upsertData: UpsertData) {
