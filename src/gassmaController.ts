@@ -5,6 +5,8 @@ import {
   UpdateData,
   UpsertData,
 } from "./types/findTypes";
+import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
+import { createFunc } from "./util/create/create";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -32,6 +34,19 @@ class GassmaController {
     this.startRowNumber = startRowNumber;
     this.startColumNumber = startColumNumber;
     this.endColumNumber = endColumNumber;
+  }
+
+  private getGassmaControllerUtil(): GassmaControllerUtil {
+    return {
+      sheet: this.sheet,
+      startRowNumber: this.startRowNumber,
+      startColumNumber: this.startRowNumber,
+      endColumNumber: this.endColumNumber,
+      getTitle: this.getTitle.bind(this),
+      getWantFindIndex: this.getWantFindIndex.bind(this),
+      getWantUpdateIndex: this.getWantUpdateIndex.bind(this),
+      allData: this.allData.bind(this),
+    };
   }
 
   private getTitle(): any[] {
@@ -115,21 +130,7 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
-    const data = createdData.data;
-    const titles = this.getTitle();
-
-    const wantCreateIndex = this.getWantUpdateIndex(createdData).sort();
-
-    const newData = wantCreateIndex.map((index) => {
-      return data[String(titles[index])];
-    });
-
-    const rowNumber = this.sheet.getLastRow() + 1;
-    const columLength = this.endColumNumber - this.startColumNumber + 1;
-
-    this.sheet
-      .getRange(rowNumber, this.startColumNumber, 1, columLength)
-      .setValues([newData]);
+    createFunc(this.getGassmaControllerUtil(), createdData);
   }
 
   public findFirst(findData: FindData) {
