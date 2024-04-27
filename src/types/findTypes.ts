@@ -4,6 +4,8 @@ type FindData = {
   where?: AnyUse;
   select?: Select;
   orderBy?: OrderBy | OrderBy[];
+  take?: number;
+  skip?: number;
 };
 
 type UpdateData = {
