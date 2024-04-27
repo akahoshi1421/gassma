@@ -1,8 +1,8 @@
-import { OrderBy } from "../../../types/coreTypes";
+import { AnyUse, OrderBy } from "../../../types/coreTypes";
 
 const search = (
-  a: {},
-  b: {},
+  a: AnyUse,
+  b: AnyUse,
   keys: [string, "asc" | "desc"][],
   cnt: number = 0
 ) => {
