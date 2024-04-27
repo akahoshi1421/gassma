@@ -11,13 +11,17 @@ const findFirstFunc = (
 ) => {
   const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
+  const skip = "skip" in findData ? findData.skip : null;
 
   let wantFindIndex: number[] = [];
   if (Object.keys(where).length !== 0)
     wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
 
-  const allDataList = getAllData(gassmaControllerUtil);
+  let allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
+
+  if (skip)
+    allDataList = allDataList.filter((_value, index) => index + 1 > skip);
 
   const findedData = allDataList.find((row) => {
     const matchRow = wantFindIndex.filter((i) => {
