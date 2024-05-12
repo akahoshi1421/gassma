@@ -23,11 +23,11 @@ const isFilterConditionsMatch = (
       case "gte":
         return cellData >= filterOptions.gte;
       case "contains":
-        return filterOptions.contains.indexOf(cellData) !== -1;
+        return cellData.match(`${filterOptions.contains}`);
       case "startsWith":
-        return filterOptions.startsWith.match(`^${cellData}`);
+        return cellData.match(`^${filterOptions.startsWith}`);
       case "endsWith":
-        return filterOptions.endsWith.match(`${cellData}$`);
+        return cellData.match(`${filterOptions.endsWith}$`);
     }
   });
 
