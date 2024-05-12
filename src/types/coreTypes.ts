@@ -12,6 +12,9 @@ type AnyUse = {
 
 type WhereUse = {
   [key: string]: any | FilterConditions;
+  AND?: WhereUse[] | WhereUse;
+  OR?: WhereUse[];
+  NOT?: WhereUse[] | WhereUse;
 };
 
 type FilterConditions = {

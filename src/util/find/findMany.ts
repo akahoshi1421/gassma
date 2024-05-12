@@ -1,5 +1,6 @@
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { isLogicMatch } from "../andOrNot/entry";
 import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
 import { getWantFindIndex } from "../core/getWantFindIndex";
@@ -39,7 +40,10 @@ const findManyFunc = (
     return null;
   });
 
-  const findedData = findedDataIncludeNull.filter((data) => data !== null);
+  let findedData = findedDataIncludeNull.filter((data) => data !== null);
+
+  if ("OR" in where || "AND" in where || "NOT" in where)
+    findedData = isLogicMatch(findedData, where, titles, gassmaControllerUtil);
 
   let findDataDictArray = findedData.map((row) => {
     const result = {};
