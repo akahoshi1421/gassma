@@ -1,7 +1,11 @@
+import { AnyUse } from "./coreTypes";
+
 type CreateData = {
-  data: {
-    [key: string]: any;
-  };
+  data: AnyUse;
 };
 
-export { CreateData };
+type CreateManyData = {
+  data: AnyUse[];
+};
+
+export { CreateData, CreateManyData };

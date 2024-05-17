@@ -1,4 +1,4 @@
-import { CreateData } from "./types/createTypes";
+import { CreateData, CreateManyData } from "./types/createTypes";
 import {
   DeleteData,
   FindData,
@@ -7,6 +7,7 @@ import {
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { createFunc } from "./util/create/create";
+import { createManyFunc } from "./util/create/createManyFunc";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
@@ -50,8 +51,8 @@ class GassmaController {
     };
   }
 
-  public createMany(createdData: CreateData[]) {
-    createdData.forEach((data) => this.create(data));
+  public createMany(createdData: CreateManyData) {
+    createManyFunc(this.getGassmaControllerUtil(), createdData);
   }
 
   public create(createdData: CreateData) {
