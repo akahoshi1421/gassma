@@ -7,6 +7,8 @@ const getAllData = (gassmaControllerUtil: GassmaControllerUtil): any[][] => {
   const rowLength = sheet.getLastRow() - startRowNumber;
   const columLength = endColumNumber - startColumNumber + 1;
 
+  if (rowLength === 0) return [];
+
   const data = sheet
     .getRange(startRowNumber + 1, startColumNumber, rowLength, columLength)
     .getValues();
