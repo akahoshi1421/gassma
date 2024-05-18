@@ -15,17 +15,18 @@ const createManyFunc = (
 
   const titles = getTitle(gassmaControllerUtil);
 
-  const createdDataModel = {
-    data: data[0],
-  } as CreateData;
-
-  const wantCreateIndex = getWantUpdateIndex(
-    gassmaControllerUtil,
-    createdDataModel
-  ).sort();
-
   const newData = data.map((row) => {
-    return wantCreateIndex.map((index) => {
+    const createdData = {
+      data: row,
+    } as CreateData;
+
+    const wantCreateIndex = getWantUpdateIndex(
+      gassmaControllerUtil,
+      createdData
+    );
+
+    return titles.map((_, index) => {
+      if (!wantCreateIndex.includes(index)) return "";
       return row[String(titles[index])];
     });
   });

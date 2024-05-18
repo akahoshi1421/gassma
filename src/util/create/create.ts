@@ -13,12 +13,10 @@ const createFunc = (
   const data = createdData.data;
   const titles = getTitle(gassmaControllerUtil);
 
-  const wantCreateIndex = getWantUpdateIndex(
-    gassmaControllerUtil,
-    createdData
-  ).sort();
+  const wantCreateIndex = getWantUpdateIndex(gassmaControllerUtil, createdData);
 
-  const newData = wantCreateIndex.map((index) => {
+  const newData = titles.map((_, index) => {
+    if (!wantCreateIndex.includes(index)) return "";
     return data[String(titles[index])];
   });
 
