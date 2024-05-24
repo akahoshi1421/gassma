@@ -41,7 +41,7 @@ const whereFilter = (
     });
 
     if (matchRow.length === wantFindIndex.length)
-      return { rowNumber: rowNumber, row: row } as HitRowData;
+      return { rowNumber: rowNumber + 1, row: row } as HitRowData;
 
     return null;
   });
