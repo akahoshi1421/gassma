@@ -20,7 +20,11 @@ const getWantUpdateIndex = (
     });
   });
 
-  return wantUpdateIndex;
+  const wantUpdateIndexRemoveMinusOne = wantUpdateIndex.filter(
+    (index) => index !== -1
+  );
+
+  return wantUpdateIndexRemoveMinusOne;
 };
 
 export { getWantUpdateIndex };
