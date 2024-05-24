@@ -33,7 +33,16 @@ const isOrMatch = (
       return null;
     });
 
-    const findedData = findedDataIncludeNull.filter((data) => data !== null);
+    let findedData = findedDataIncludeNull.filter((data) => data !== null);
+
+    if ("OR" in where || "AND" in where || "NOT" in where) {
+      findedData = isLogicMatch(
+        findedData,
+        where,
+        titles,
+        gassmaControllerUtil
+      );
+    }
 
     if (whereArrayIndex === 0) {
       resultRowsData = findedData;
@@ -47,22 +56,6 @@ const isOrMatch = (
     );
 
     resultRowsData = resultRowsData.concat(newInsertedArray);
-
-    if ("OR" in where || "AND" in where || "NOT" in where) {
-      const orAndNotRowsData = isLogicMatch(
-        findedData,
-        where,
-        titles,
-        gassmaControllerUtil
-      );
-
-      const alreadyHitRowNumbers = resultRowsData.map((row) => row.rowNumber);
-      const newInsertedArray = orAndNotRowsData.filter(
-        (row) => !alreadyHitRowNumbers.includes(row.rowNumber)
-      );
-
-      resultRowsData = resultRowsData.concat(newInsertedArray);
-    }
   });
   return resultRowsData;
 };
