@@ -1,11 +1,8 @@
 import { UpdateData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
-import { getWantFindIndex } from "../core/getWantFindIndex";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
-import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
-import { isDict } from "../other/isDict";
+import { whereFilter } from "../core/whereFilter";
 
 const updateManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -17,24 +14,13 @@ const updateManyFunc = (
   const where = updateData.where;
   const data = updateData.data;
 
-  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, updateData);
+  const findedData = whereFilter(where, gassmaControllerUtil);
+
+  const titles = getTitle(gassmaControllerUtil);
   const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);
 
-  const allDataList = getAllData(gassmaControllerUtil);
-  const titles = getTitle(gassmaControllerUtil);
-
-  allDataList.forEach((row, rowIndex) => {
-    const matchRow = wantFindIndex.filter((i) => {
-      const whereOptionContent = where[String(titles[i])];
-      if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(row[i], whereOptionContent);
-
-      return row[i] === whereOptionContent;
-    });
-
-    if (matchRow.length !== wantFindIndex.length) return;
-
-    const updatedRow = row.map((updateData, updateDataIndex) => {
+  findedData.forEach((row) => {
+    const updatedRow = row.row.map((updateData, updateDataIndex) => {
       if (!wantUpdateIndex.includes(updateDataIndex)) return updateData;
 
       return data[String(titles[updateDataIndex])];
@@ -42,7 +28,7 @@ const updateManyFunc = (
 
     if (updatedRow.length === 0) return;
 
-    const rowNumber = rowIndex + 1 + startRowNumber;
+    const rowNumber = row.rowNumber + startRowNumber;
     const columLength = endColumNumber - startColumNumber + 1;
 
     const updateRange = sheet.getRange(
