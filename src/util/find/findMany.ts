@@ -14,6 +14,7 @@ const findManyFunc = (
   const orderBy = "orderBy" in findData ? findData.orderBy : null;
   const take = "take" in findData ? findData.take : null;
   const skip = "skip" in findData ? findData.skip : null;
+  const distinct = "distinct" in findData ? findData.distinct : null;
 
   const findedData = whereFilter(where, gassmaControllerUtil);
   const findedDataRowsOnly = findedData.map((row) => row.row);
@@ -35,6 +36,20 @@ const findManyFunc = (
     );
 
   if (take) findDataDictArray = findDataDictArray.slice(0, take);
+
+  if (distinct) {
+    const distinctArray = Array.isArray(distinct) ? distinct : [distinct];
+
+    distinctArray.forEach((oneDistinct) => {
+      const alreadySearched = [];
+      findDataDictArray = findDataDictArray.filter((row) => {
+        if (alreadySearched.includes(row[oneDistinct])) return false;
+
+        alreadySearched.push(row[oneDistinct]);
+        return true;
+      });
+    });
+  }
 
   if (orderBy)
     findDataDictArray = orderByFunc(

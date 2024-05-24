@@ -6,6 +6,7 @@ type FindData = {
   orderBy?: OrderBy | OrderBy[];
   take?: number;
   skip?: number;
+  distinct?: string | string[];
 };
 
 type UpdateData = {
