@@ -3,6 +3,8 @@ import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
 import { getWantFindIndex } from "../core/getWantFindIndex";
+import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
+import { isDict } from "../other/isDict";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 
 const findFirstFunc = (
@@ -25,7 +27,11 @@ const findFirstFunc = (
 
   const findedData = allDataList.find((row) => {
     const matchRow = wantFindIndex.filter((i) => {
-      return row[i] === where[String(titles[i])];
+      const whereOptionContent = where[String(titles[i])];
+      if (isDict(whereOptionContent))
+        return isFilterConditionsMatch(row[i], whereOptionContent);
+
+      return row[i] === whereOptionContent;
     });
 
     return matchRow.length === wantFindIndex.length;

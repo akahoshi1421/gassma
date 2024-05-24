@@ -1,7 +1,7 @@
-import { AnyUse, OrderBy, Select } from "./coreTypes";
+import { AnyUse, OrderBy, Select, WhereUse } from "./coreTypes";
 
 type FindData = {
-  where?: AnyUse;
+  where?: WhereUse;
   select?: Select;
   orderBy?: OrderBy | OrderBy[];
   take?: number;
@@ -9,12 +9,12 @@ type FindData = {
 };
 
 type UpdateData = {
-  where: AnyUse;
+  where: WhereUse;
   data: AnyUse;
 };
 
 type UpsertData = {
-  where: AnyUse;
+  where: WhereUse;
   update: AnyUse;
   create: AnyUse;
 };

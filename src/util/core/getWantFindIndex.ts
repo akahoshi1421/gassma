@@ -14,12 +14,18 @@ const getWantFindIndex = (
   });
 
   const wantFindIndex = wantFindKeys.map((key) => {
+    if (key === "AND" || key === "OR" || key === "NOT") return -1;
+
     return titles.findIndex((title) => {
       return title === key;
     });
   });
 
-  return wantFindIndex;
+  const wantFindIndexRemovedMinusOne = wantFindIndex.filter(
+    (index) => index !== -1
+  );
+
+  return wantFindIndexRemovedMinusOne;
 };
 
 export { getWantFindIndex };
