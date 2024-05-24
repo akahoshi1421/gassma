@@ -54,7 +54,7 @@ const isLogicMatch = (
     }
   }
 
-  return rowData;
+  return result;
 };
 
 export { isLogicMatch };

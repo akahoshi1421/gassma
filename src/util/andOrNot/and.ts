@@ -14,7 +14,7 @@ const isAndMatch = (
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
-  whereArray.forEach((where, whereArrayIndex) => {
+  whereArray.forEach((where) => {
     const wantFindIndex = getWantFindIndex(gassmaControllerUtil, {
       where: where,
     });
@@ -33,30 +33,14 @@ const isAndMatch = (
       return null;
     });
 
-    const findedData = findedDataIncludeNull.filter((data) => data !== null);
-
-    if (whereArrayIndex === 0) {
-      resultRowsData = findedData;
-      return;
-    }
-
-    const alreadyHitRowNumbers = resultRowsData.map((row) => row.rowNumber);
-
-    resultRowsData = findedData.filter((row) =>
-      alreadyHitRowNumbers.includes(row.rowNumber)
-    );
+    resultRowsData = findedDataIncludeNull.filter((data) => data !== null);
 
     if ("OR" in where || "AND" in where || "NOT" in where) {
-      const orAndNotRowsData = isLogicMatch(
-        findedData,
+      resultRowsData = isLogicMatch(
+        resultRowsData,
         where,
         titles,
         gassmaControllerUtil
-      );
-
-      const alreadyHitRowNumbers = resultRowsData.map((row) => row.rowNumber);
-      resultRowsData = orAndNotRowsData.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber)
       );
     }
   });

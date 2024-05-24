@@ -19,7 +19,7 @@ const isOrMatch = (
       where: where,
     });
 
-    const findedDataIncludeNull = resultRowsData.map((row) => {
+    const findedDataIncludeNull = rowsData.map((row) => {
       const matchRow = wantFindIndex.filter((i) => {
         const whereOptionContent = where[String(titles[i])];
         if (isDict(whereOptionContent))
@@ -64,7 +64,6 @@ const isOrMatch = (
       resultRowsData = resultRowsData.concat(newInsertedArray);
     }
   });
-
   return resultRowsData;
 };
 
