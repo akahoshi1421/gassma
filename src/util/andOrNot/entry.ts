@@ -22,6 +22,38 @@ const isLogicMatch = (
     result = isAndMatch(rowData, andArray, titles, gassmaControllerUtil);
   }
 
+  if (or) {
+    const orResult = isOrMatch(rowData, or, titles, gassmaControllerUtil);
+
+    if (result.length === 0) result = orResult;
+    else {
+      const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
+
+      result = orResult.filter((row) =>
+        alreadyHitRowNumbers.includes(row.rowNumber)
+      );
+    }
+  }
+
+  if (not) {
+    const notArray = Array.isArray(not) ? not : [not];
+    const notResult = isNotMatch(
+      rowData,
+      notArray,
+      titles,
+      gassmaControllerUtil
+    );
+
+    if (result.length === 0) result = notResult;
+    else {
+      const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
+
+      result = notResult.filter((row) =>
+        alreadyHitRowNumbers.includes(row.rowNumber)
+      );
+    }
+  }
+
   return rowData;
 };
 
