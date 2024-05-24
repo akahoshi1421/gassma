@@ -1,11 +1,7 @@
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { isLogicMatch } from "../andOrNot/entry";
-import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
-import { getWantFindIndex } from "../core/getWantFindIndex";
-import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
-import { isDict } from "../other/isDict";
+import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 import { orderByFunc } from "./findUtil/orderBy";
 
@@ -19,33 +15,12 @@ const findManyFunc = (
   const take = "take" in findData ? findData.take : null;
   const skip = "skip" in findData ? findData.skip : null;
 
-  let wantFindIndex: number[] = [];
-  if (Object.keys(where).length !== 0)
-    wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
+  const findedData = whereFilter(where, gassmaControllerUtil);
+  const findedDataRowsOnly = findedData.map((row) => row.row);
 
-  const allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
 
-  const findedDataIncludeNull = allDataList.map((row) => {
-    const matchRow = wantFindIndex.filter((i) => {
-      const whereOptionContent = where[String(titles[i])];
-      if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(row[i], whereOptionContent);
-
-      return row[i] === whereOptionContent;
-    });
-
-    if (matchRow.length === wantFindIndex.length) return row;
-
-    return null;
-  });
-
-  let findedData = findedDataIncludeNull.filter((data) => data !== null);
-
-  if ("OR" in where || "AND" in where || "NOT" in where)
-    findedData = isLogicMatch(findedData, where, titles, gassmaControllerUtil);
-
-  let findDataDictArray = findedData.map((row) => {
+  let findDataDictArray = findedDataRowsOnly.map((row) => {
     const result = {};
     row.forEach((data, dataIndex) => {
       result[titles[dataIndex]] = data;
