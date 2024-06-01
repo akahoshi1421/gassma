@@ -3,22 +3,31 @@ const maxSearch = (
   preMaxIndexes: number[],
   stringUnicodeArray: number[][]
 ): number => {
-  const nowIndexUnicodeArray = preMaxIndexes.map(
-    (num) => stringUnicodeArray[num][searchedIndex]
-  );
+  const nowUnicodeArray = preMaxIndexes.map((num) => {
+    return stringUnicodeArray[num][searchedIndex];
+  });
 
   let maxNumber = -Infinity;
 
-  nowIndexUnicodeArray.forEach((unicodeNum) => {
-    if (maxNumber > unicodeNum) return;
-
-    maxNumber = unicodeNum;
+  nowUnicodeArray.forEach((unicodeNum) => {
+    if (maxNumber < unicodeNum) maxNumber = unicodeNum;
   });
 
   if (maxNumber === -Infinity) return preMaxIndexes[0];
 
-  const nowMaxIndexes = nowIndexUnicodeArray.filter(
-    (unicodeNum) => unicodeNum === maxNumber
+  const nowMaxIndexesIncludeNull = stringUnicodeArray.map(
+    (unicodeArray, index) => {
+      if (
+        unicodeArray[searchedIndex] === maxNumber &&
+        preMaxIndexes.includes(index)
+      )
+        return index;
+      return null;
+    }
+  );
+
+  const nowMaxIndexes = nowMaxIndexesIncludeNull.filter(
+    (nowMax) => nowMax !== null
   );
 
   return maxSearch(searchedIndex + 1, nowMaxIndexes, stringUnicodeArray);
