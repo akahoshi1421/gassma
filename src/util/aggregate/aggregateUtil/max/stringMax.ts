@@ -3,9 +3,9 @@ const maxSearch = (
   preMaxIndexes: number[],
   stringUnicodeArray: number[][]
 ): number => {
-  const nowUnicodeArray = preMaxIndexes.map((num) => {
-    return stringUnicodeArray[num][searchedIndex];
-  });
+  const nowUnicodeArray = preMaxIndexes.map(
+    (num) => stringUnicodeArray[num][searchedIndex]
+  );
 
   let maxNumber = -Infinity;
 

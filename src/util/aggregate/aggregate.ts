@@ -5,6 +5,8 @@ import { findManyFunc } from "../find/findMany";
 import { getAvg } from "./aggregateUtil/avg";
 import { getCount } from "./aggregateUtil/count";
 import { getMax } from "./aggregateUtil/max";
+import { getMin } from "./aggregateUtil/min";
+import { getSum } from "./aggregateUtil/sum";
 
 const aggregateFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -35,8 +37,8 @@ const aggregateFunc = (
   if (avg) aggregateResult["_avg"] = getAvg(findedRows, avg);
   if (count) aggregateResult["_count"] = getCount(findedRows, count);
   if (max) aggregateResult["_max"] = getMax(findedRows, max);
-  if (min) aggregateResult["_min"] = getMax(findedRows, min);
-  if (sum) aggregateResult["_sum"] = getMax(findedRows, sum);
+  if (min) aggregateResult["_min"] = getMin(findedRows, min);
+  if (sum) aggregateResult["_sum"] = getSum(findedRows, sum);
 
   return aggregateResult;
 };

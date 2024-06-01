@@ -13,12 +13,22 @@ const minSearch = (
     if (minNumber > unicodeNum) minNumber = unicodeNum;
   });
 
-  if (minNumber === Infinity) return preMinIndexes[0];
+  const undefinedIndexNum = nowUnicodeArray.findIndex(
+    (unicodeNum) => unicodeNum === undefined
+  );
 
-  const nowMinIndexesIncludeNull = nowUnicodeArray.map((unicodeNum, index) => {
-    if (unicodeNum !== minNumber) return null;
-    return index;
-  });
+  if (undefinedIndexNum !== -1) return preMinIndexes[undefinedIndexNum];
+
+  const nowMinIndexesIncludeNull = stringUnicodeArray.map(
+    (unicodeArray, index) => {
+      if (
+        unicodeArray[searchedIndex] === minNumber &&
+        preMinIndexes.includes(index)
+      )
+        return index;
+      return null;
+    }
+  );
 
   const nowMinIndexes = nowMinIndexesIncludeNull.filter(
     (nowMin) => nowMin !== null
