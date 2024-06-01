@@ -40,3 +40,5 @@ const aggregateFunc = (
 
   return aggregateResult;
 };
+
+export { aggregateFunc };
