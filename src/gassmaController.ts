@@ -82,7 +82,7 @@ class GassmaController {
   }
 
   public aggregate(aggregateData: AggregateData) {
-    aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
+    return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
   }
 }
 
