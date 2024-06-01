@@ -1,6 +1,6 @@
 import {
   GassmaAggregateMaxError,
-  GassmaAggregateMaxTypeError,
+  GassmaAggregateTypeError,
 } from "../../../errors/aggregate/aggregateError";
 import { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
@@ -39,7 +39,7 @@ const getMax = (rows: {}[], avgData: Select) => {
       case false:
         throw new GassmaAggregateMaxError();
       default:
-        throw new GassmaAggregateMaxTypeError();
+        throw new GassmaAggregateTypeError();
     }
   });
 
