@@ -28,6 +28,7 @@ const getAvg = (rows: {}[], avgData: Select) => {
     switch (getHitsDataType(hitsData)) {
       case "number":
         avgResult[key] = getNumberSum(hitsData) / hitsData.length;
+        break;
       case false:
         throw new GassmaAggregateAvgError();
       default:

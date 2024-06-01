@@ -30,12 +30,16 @@ const getMin = (rows: {}[], avgData: Select) => {
     switch (getHitsDataType(hitsData)) {
       case "string":
         minResult[key] = getStringMin(hitsData);
+        break;
       case "Date":
         minResult[key] = getDateMin(hitsData);
+        break;
       case "boolean":
         minResult[key] = getBooleanMin(hitsData);
+        break;
       case "number":
         minResult[key] = Math.min(...hitsData);
+        break;
       case false:
         throw new GassmaAggregateMinError();
       default:

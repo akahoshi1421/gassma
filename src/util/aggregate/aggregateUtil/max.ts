@@ -30,12 +30,16 @@ const getMax = (rows: {}[], avgData: Select) => {
     switch (getHitsDataType(hitsData)) {
       case "string":
         maxResult[key] = getStringMax(hitsData);
+        break;
       case "Date":
         maxResult[key] = getDateMax(hitsData);
+        break;
       case "boolean":
         maxResult[key] = getBooleanMax(hitsData);
+        break;
       case "number":
         maxResult[key] = Math.max(...hitsData);
+        break;
       case false:
         throw new GassmaAggregateMaxError();
       default:
