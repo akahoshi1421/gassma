@@ -4,17 +4,9 @@ class GassmaAggregateMaxError extends Error {
   }
 }
 
-class GassmaAggregateMinError extends Error {
-  constructor() {
-    super("Cannot produce a minimum value of more than one type.");
-  }
-}
-
-class GassmaAggregateSumError extends Error {
-  constructor() {
-    super("Cannot produce a minimum value of more than one type.");
-  }
-}
+class GassmaAggregateMinError extends GassmaAggregateMaxError {}
+class GassmaAggregateSumError extends GassmaAggregateMaxError {}
+class GassmaAggregateAvgError extends GassmaAggregateMaxError {}
 
 class GassmaAggregateTypeError extends Error {
   constructor() {
@@ -30,10 +22,14 @@ class GassmaAggregateSumTypeError extends Error {
   }
 }
 
+class GassmaAggregateAvgTypeError extends GassmaAggregateSumTypeError {}
+
 export {
   GassmaAggregateMaxError,
   GassmaAggregateMinError,
   GassmaAggregateSumError,
+  GassmaAggregateAvgError,
   GassmaAggregateTypeError,
   GassmaAggregateSumTypeError,
+  GassmaAggregateAvgTypeError,
 };
