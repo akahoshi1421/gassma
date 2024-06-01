@@ -2,6 +2,9 @@ import { AggregateData } from "../../types/aggregateType";
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { findManyFunc } from "../find/findMany";
+import { getAvg } from "./aggregateUtil/avg";
+import { getCount } from "./aggregateUtil/count";
+import { getMax } from "./aggregateUtil/max";
 
 const aggregateFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -27,8 +30,13 @@ const aggregateFunc = (
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
-  const result = {};
+  const aggregateResult = {};
 
-  if (avg) {
-  }
+  if (avg) aggregateResult["_avg"] = getAvg(findedRows, avg);
+  if (count) aggregateResult["_count"] = getCount(findedRows, count);
+  if (max) aggregateResult["_max"] = getMax(findedRows, max);
+  if (min) aggregateResult["_min"] = getMax(findedRows, min);
+  if (sum) aggregateResult["_sum"] = getMax(findedRows, sum);
+
+  return aggregateResult;
 };
