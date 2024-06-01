@@ -45,3 +45,5 @@ const getMin = (rows: {}[], avgData: Select) => {
 
   return minResult;
 };
+
+export { getMin };
