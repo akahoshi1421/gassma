@@ -1,4 +1,5 @@
 import { AggregateData } from "./types/aggregateType";
+import { CountData } from "./types/countType";
 import { CreateData, CreateManyData } from "./types/createTypes";
 import {
   DeleteData,
@@ -8,6 +9,7 @@ import {
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { aggregateFunc } from "./util/aggregate/aggregate";
+import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { deleteManyFunc } from "./util/delete/deleteMany";
@@ -83,6 +85,10 @@ class GassmaController {
 
   public aggregate(aggregateData: AggregateData) {
     return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
+  }
+
+  public count(countData: CountData) {
+    return countFunc(this.getGassmaControllerUtil(), countData);
   }
 }
 
