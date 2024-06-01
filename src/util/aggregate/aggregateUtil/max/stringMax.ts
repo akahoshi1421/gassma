@@ -25,13 +25,13 @@ const maxSearch = (
 };
 
 const getStringMax = (stringArray: string[]) => {
-  const numberChagned = stringArray.map((str, index) => {
+  const numberChanged = stringArray.map((str) => {
     return str.split("").map((char) => char.codePointAt(0));
   });
 
-  const indexes = numberChagned.map((_, index) => index);
+  const indexes = numberChanged.map((_, index) => index);
 
-  const maxIndex = maxSearch(0, indexes, numberChagned);
+  const maxIndex = maxSearch(0, indexes, numberChanged);
   return stringArray[maxIndex];
 };
 
