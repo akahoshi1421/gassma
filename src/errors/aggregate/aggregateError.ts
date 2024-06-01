@@ -10,7 +10,7 @@ class GassmaAggregateMinError extends Error {
   }
 }
 
-class GassmaAggregateMaxTypeError extends Error {
+class GassmaAggregateTypeError extends Error {
   constructor() {
     super(
       "Only “number”, “string”, “boolean”, and “Date” types are supported."
@@ -21,5 +21,5 @@ class GassmaAggregateMaxTypeError extends Error {
 export {
   GassmaAggregateMaxError,
   GassmaAggregateMinError,
-  GassmaAggregateMaxTypeError,
+  GassmaAggregateTypeError,
 };
