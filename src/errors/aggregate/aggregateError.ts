@@ -10,6 +10,12 @@ class GassmaAggregateMinError extends Error {
   }
 }
 
+class GassmaAggregateSumError extends Error {
+  constructor() {
+    super("Cannot produce a minimum value of more than one type.");
+  }
+}
+
 class GassmaAggregateTypeError extends Error {
   constructor() {
     super(
@@ -18,8 +24,16 @@ class GassmaAggregateTypeError extends Error {
   }
 }
 
+class GassmaAggregateSumTypeError extends Error {
+  constructor() {
+    super("Only “number” type is supported.");
+  }
+}
+
 export {
   GassmaAggregateMaxError,
   GassmaAggregateMinError,
+  GassmaAggregateSumError,
   GassmaAggregateTypeError,
+  GassmaAggregateSumTypeError,
 };
