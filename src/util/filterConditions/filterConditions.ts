@@ -9,6 +9,8 @@ const isFilterConditionsMatch = (
   cellData: GassmaAny,
   filterOptions: FilterConditions
 ): boolean => {
+  if (cellData === "") return false;
+
   const result = Object.keys(filterOptions).every((optionName) => {
     switch (optionName) {
       case "equals":
