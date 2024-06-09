@@ -1,4 +1,4 @@
-import { WhereUse } from "../../types/coreTypes";
+import { FilterConditions, GassmaAny, WhereUse } from "../../types/coreTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndex } from "../core/getWantFindIndex";
@@ -9,7 +9,7 @@ import { isLogicMatch } from "./entry";
 const isNotMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
-  titles: any[],
+  titles: GassmaAny[],
   gassmaControllerUtil: GassmaControllerUtil
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
@@ -23,7 +23,10 @@ const isNotMatch = (
       const matchRow = wantFindIndex.filter((i) => {
         const whereOptionContent = where[String(titles[i])];
         if (isDict(whereOptionContent))
-          return !isFilterConditionsMatch(row.row[i], whereOptionContent);
+          return !isFilterConditionsMatch(
+            row.row[i],
+            whereOptionContent as FilterConditions
+          );
 
         return row.row[i] !== whereOptionContent;
       });

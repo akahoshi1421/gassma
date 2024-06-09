@@ -1,3 +1,5 @@
+type GassmaAny = string | number | boolean | Date;
+
 type OrderBy = {
   [key: string]: "asc" | "desc";
 };
@@ -7,28 +9,33 @@ type Select = {
 };
 
 type AnyUse = {
-  [key: string]: any;
+  [key: string]: GassmaAny;
 };
 
 type WhereUse = {
-  [key: string]: any | FilterConditions;
+  [key: string]:
+    | GassmaAny
+    | WhereUse
+    | WhereUse[]
+    | undefined
+    | FilterConditions;
   AND?: WhereUse[] | WhereUse;
   OR?: WhereUse[];
   NOT?: WhereUse[] | WhereUse;
 };
 
 type FilterConditions = {
-  equals?: any;
-  not?: any;
-  in?: any[];
-  notIn?: any[];
-  lt?: any;
-  lte?: any;
-  gt?: any;
-  gte?: any;
+  equals?: GassmaAny;
+  not?: GassmaAny;
+  in?: GassmaAny[];
+  notIn?: GassmaAny[];
+  lt?: GassmaAny;
+  lte?: GassmaAny;
+  gt?: GassmaAny;
+  gte?: GassmaAny;
   contains?: String;
   startsWith?: String;
   endsWith?: String;
 };
 
-export { OrderBy, Select, AnyUse, FilterConditions, WhereUse };
+export { GassmaAny, OrderBy, Select, AnyUse, FilterConditions, WhereUse };

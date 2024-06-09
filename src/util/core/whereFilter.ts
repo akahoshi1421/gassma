@@ -1,4 +1,4 @@
-import { WhereUse } from "../../types/coreTypes";
+import { FilterConditions, WhereUse } from "../../types/coreTypes";
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { HitRowData } from "../../types/hitRowDataType";
@@ -35,7 +35,10 @@ const whereFilter = (
     const matchRow = wantFindIndex.filter((i) => {
       const whereOptionContent = where[String(titles[i])];
       if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(row[i], whereOptionContent);
+        return isFilterConditionsMatch(
+          row[i],
+          whereOptionContent as FilterConditions
+        );
 
       return row[i] === whereOptionContent;
     });

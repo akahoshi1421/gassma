@@ -1,6 +1,6 @@
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
-const getTitle = (gassmaControllerUtil: GassmaControllerUtil): any[] => {
+const getTitle = (gassmaControllerUtil: GassmaControllerUtil): string[] => {
   const { sheet, startRowNumber, startColumNumber, endColumNumber } =
     gassmaControllerUtil;
 
@@ -10,7 +10,9 @@ const getTitle = (gassmaControllerUtil: GassmaControllerUtil): any[] => {
     .getRange(startRowNumber, startColumNumber, 1, columLength)
     .getValues()[0];
 
-  return tiltes;
+  const stringTitles = tiltes.map((title) => String(title));
+
+  return stringTitles;
 };
 
 export { getTitle };

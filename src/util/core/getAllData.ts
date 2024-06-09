@@ -1,6 +1,9 @@
+import { GassmaAny } from "../../types/coreTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
-const getAllData = (gassmaControllerUtil: GassmaControllerUtil): any[][] => {
+const getAllData = (
+  gassmaControllerUtil: GassmaControllerUtil
+): GassmaAny[][] => {
   const { sheet, startRowNumber, startColumNumber, endColumNumber } =
     gassmaControllerUtil;
 
