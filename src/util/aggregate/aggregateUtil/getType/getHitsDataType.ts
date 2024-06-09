@@ -1,3 +1,5 @@
+import { GassmaAny } from "../../../../types/coreTypes";
+
 type HitDateType =
   | "string"
   | "number"
@@ -10,7 +12,7 @@ type HitDateType =
   | "Date"
   | false;
 
-const getHitsDataType = (hitsData: any[]): HitDateType | false => {
+const getHitsDataType = (hitsData: GassmaAny[]): HitDateType | false => {
   let hitDataType: HitDateType = typeof hitsData[0];
   if (hitsData[0] instanceof Date) hitDataType = "Date";
 

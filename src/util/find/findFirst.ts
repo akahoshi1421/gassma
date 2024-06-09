@@ -1,3 +1,4 @@
+import { FilterConditions } from "../../types/coreTypes";
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getAllData } from "../core/getAllData";
@@ -29,7 +30,10 @@ const findFirstFunc = (
     const matchRow = wantFindIndex.filter((i) => {
       const whereOptionContent = where[String(titles[i])];
       if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(row[i], whereOptionContent);
+        return isFilterConditionsMatch(
+          row[i],
+          whereOptionContent as FilterConditions
+        );
 
       return row[i] === whereOptionContent;
     });

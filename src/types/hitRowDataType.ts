@@ -1,6 +1,8 @@
+import { GassmaAny } from "./coreTypes";
+
 type HitRowData = {
   rowNumber: number;
-  row: any[];
+  row: GassmaAny[];
 };
 
 export { HitRowData };

@@ -1,4 +1,4 @@
-import { WhereUse } from "../../types/coreTypes";
+import { GassmaAny, WhereUse } from "../../types/coreTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { HitRowData } from "../../types/hitRowDataType";
 import { isAndMatch } from "./and";
@@ -8,7 +8,7 @@ import { isOrMatch } from "./or";
 const isLogicMatch = (
   rowData: HitRowData[],
   where: WhereUse,
-  titles: any[],
+  titles: GassmaAny[],
   gassmaControllerUtil: GassmaControllerUtil
 ) => {
   const and = "AND" in where ? where.AND : null;
