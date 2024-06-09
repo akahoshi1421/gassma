@@ -113,3 +113,5 @@ declare namespace Gassma {
     skip?: number;
   };
 }
+
+export { Gassma };
