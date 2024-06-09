@@ -4,12 +4,14 @@ gassma is Google Apps Script(GAS) of SpreadSheet library that can be used like p
 
 ## Installation
 
-coming soon...
+```
+npm i gassma
+```
 
-## Script ID
+## Gassma Script ID
 
 ```
-1r51w0nT8oUA0sUV7-Pu6jUqkuyWlH3DrAp1413SRvu0rDtntpU2FP50d
+1ZVuWMUYs4hVKDCcP3nVw74AY48VqLm50wRceKIQLFKL0wf4Hyou-FIBH
 ```
 
 ## Getting Started
