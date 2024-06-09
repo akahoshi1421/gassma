@@ -1,8 +1,3 @@
-import {
-  GassmaFilterContainsError,
-  GassmaFilterEndsWithError,
-  GassmaFilterStartsWithError,
-} from "../../errors/filter/filterError";
 import { FilterConditions, GassmaAny } from "../../types/coreTypes";
 
 const isFilterConditionsMatch = (
@@ -28,15 +23,11 @@ const isFilterConditionsMatch = (
       case "gte":
         return cellData >= filterOptions.gte;
       case "contains":
-        if (typeof cellData !== "string") throw new GassmaFilterContainsError();
-        return cellData.match(`${filterOptions.contains}`);
+        return String(cellData).match(`${filterOptions.contains}`);
       case "startsWith":
-        if (typeof cellData !== "string")
-          throw new GassmaFilterStartsWithError();
-        return cellData.match(`^${filterOptions.startsWith}`);
+        return String(cellData).match(`^${filterOptions.startsWith}`);
       case "endsWith":
-        if (typeof cellData !== "string") throw new GassmaFilterEndsWithError();
-        return cellData.match(`${filterOptions.endsWith}$`);
+        return String(cellData).match(`${filterOptions.endsWith}$`);
     }
   });
 
