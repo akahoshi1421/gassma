@@ -1,25 +1,47 @@
-# gassma
+# Gassma
 
-gassma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.
+Gassma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.
 
 ## Installation
 
-coming soon...
+```
+npm i gassma
+```
 
-## Script ID
+## Gassma Script ID
 
 ```
-1r51w0nT8oUA0sUV7-Pu6jUqkuyWlH3DrAp1413SRvu0rDtntpU2FP50d
+1ZVuWMUYs4hVKDCcP3nVw74AY48VqLm50wRceKIQLFKL0wf4Hyou-FIBH
 ```
 
 ## Getting Started
 
+When using Clasp...
+
 ```.ts
-import { GassmaClient } from "gassma";
+import { Gassma } from "gassma";
 
 const gassma = new Gassma.GassmaClient();
 
-// getData from SpreadSheet
+// Getting data from the SpreadSheet
+function myFunction(){
+    const result = gassma.sheets.YOUR_SHEET_NAME.findMany({
+        where: {
+            city: "Tokyo",
+            age: 22
+        }
+    });
+
+    console.log(result);
+}
+```
+
+When using script editor in GAS...
+
+```.gs
+const gassma = new Gassma.GassmaClient();
+
+// Getting data from the SpreadSheet
 function myFunction(){
     const result = gassma.sheets.YOUR_SHEET_NAME.findMany({
         where: {
@@ -34,4 +56,4 @@ function myFunction(){
 
 ## version
 
-0.6.1
+0.7.0
