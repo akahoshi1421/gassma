@@ -1,4 +1,5 @@
 /*/
+!/src/index.d.ts
 .clasp.json
 .gitignore
 package-lock.json
