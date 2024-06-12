@@ -81,7 +81,9 @@ declare namespace Gassma {
     distinct?: string | string[];
   };
 
-  type DeleteData = FindData;
+  type DeleteData = {
+    where?: WhereUse;
+  };
 
   type UpdateData = {
     where: WhereUse;
