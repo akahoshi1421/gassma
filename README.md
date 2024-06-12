@@ -1,6 +1,6 @@
-# GASsma
+# Gassma
 
-GASsma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.
+Gassma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.
 
 ## Installation
 
