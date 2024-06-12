@@ -20,6 +20,8 @@ type UpsertData = {
   create: AnyUse;
 };
 
-type DeleteData = FindData;
+type DeleteData = {
+  where: WhereUse;
+};
 
 export { FindData, UpdateData, DeleteData, UpsertData };
