@@ -24,6 +24,21 @@ type WhereUse = {
   NOT?: WhereUse[] | WhereUse;
 };
 
+type HavingCore = {
+  _avg?: number | FilterConditions;
+  _count?: number | FilterConditions;
+  _max?: GassmaAny | FilterConditions;
+  _min?: GassmaAny | FilterConditions;
+  _sum?: number | FilterConditions;
+};
+
+type HavingUse = {
+  [key: string]: HavingCore | HavingUse[] | HavingUse;
+  AND?: HavingUse[] | HavingUse;
+  OR?: HavingUse[];
+  NOT?: HavingUse[] | HavingUse;
+};
+
 type FilterConditions = {
   equals?: GassmaAny;
   not?: GassmaAny;
@@ -38,4 +53,12 @@ type FilterConditions = {
   endsWith?: String;
 };
 
-export { GassmaAny, OrderBy, Select, AnyUse, FilterConditions, WhereUse };
+export {
+  GassmaAny,
+  OrderBy,
+  Select,
+  AnyUse,
+  FilterConditions,
+  WhereUse,
+  HavingUse,
+};
