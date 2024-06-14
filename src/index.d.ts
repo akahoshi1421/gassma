@@ -1,13 +1,17 @@
 declare namespace Gassma {
   class GassmaClient {
+    constructor(id?: string);
+
     readonly sheets: GassmaSheet;
   }
 
   class GassmaController {
+    constructor(sheetName: string, id?: string);
+
     changeSettings(
       startRowNumber: number,
-      startColumNumber: number,
-      endColumNumber: number
+      startColumnNumber: number,
+      endColumnNumber: number
     ): void;
     createMany(createdData: CreateManyData): void;
     create(createdData: CreateData): void;
@@ -82,7 +86,7 @@ declare namespace Gassma {
   };
 
   type DeleteData = {
-    where?: WhereUse;
+    where: WhereUse;
   };
 
   type UpdateData = {

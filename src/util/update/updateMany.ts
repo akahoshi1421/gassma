@@ -8,7 +8,7 @@ const updateManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData
 ) => {
-  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
+  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
   const where = updateData.where;
@@ -29,13 +29,13 @@ const updateManyFunc = (
     if (updatedRow.length === 0) return;
 
     const rowNumber = row.rowNumber + startRowNumber;
-    const columLength = endColumNumber - startColumNumber + 1;
+    const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
     const updateRange = sheet.getRange(
       rowNumber,
-      startColumNumber,
+      startColumnNumber,
       1,
-      columLength
+      ColumnLength
     );
 
     updateRange.setValues([updatedRow]);

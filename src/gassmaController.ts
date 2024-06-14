@@ -9,6 +9,7 @@ import {
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { aggregateFunc } from "./util/aggregate/aggregate";
+import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
@@ -21,11 +22,13 @@ import { upsertFunc } from "./util/upsert/upsert";
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
   private startRowNumber: number = 1;
-  private startColumNumber: number = 1;
-  private endColumNumber: number = 1;
+  private startColumnNumber: number = 1;
+  private endColumnNumber: number = 1;
 
-  constructor(sheetName: string) {
-    const spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  constructor(sheetName: string, id?: string) {
+    const spreadSheet = id
+      ? SpreadsheetApp.openById(id)
+      : SpreadsheetApp.getActiveSpreadsheet();
     const sheet = spreadSheet.getSheetByName(sheetName);
 
     if (!sheet)
@@ -33,25 +36,29 @@ class GassmaController {
 
     this.sheet = sheet;
 
-    this.endColumNumber = this.sheet.getLastColumn();
+    this.endColumnNumber = this.sheet.getLastColumn();
   }
 
   public changeSettings(
     startRowNumber: number,
-    startColumNumber: number,
-    endColumNumber: number
+    startColumnValue: number | string,
+    endColumnValue: number | string
   ) {
     this.startRowNumber = startRowNumber;
-    this.startColumNumber = startColumNumber;
-    this.endColumNumber = endColumNumber;
+    const { startColumnNumber, endColumnNumber } = changeSettingsFunc(
+      startColumnValue,
+      endColumnValue
+    );
+    this.startColumnNumber = startColumnNumber;
+    this.endColumnNumber = endColumnNumber;
   }
 
   private getGassmaControllerUtil(): GassmaControllerUtil {
     return {
       sheet: this.sheet,
       startRowNumber: this.startRowNumber,
-      startColumNumber: this.startColumNumber,
-      endColumNumber: this.endColumNumber,
+      startColumnNumber: this.startColumnNumber,
+      endColumnNumber: this.endColumnNumber,
     };
   }
 
