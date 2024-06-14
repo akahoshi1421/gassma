@@ -1,13 +1,13 @@
 import { convertToNumber } from "./changeSettingsUtil/convertToNumber";
 
 const changeSettingsFunc = (
-  startColumValue: number | string,
-  endColumValue: number | string
+  startColumnValue: number | string,
+  endColumnValue: number | string
 ) => {
-  const startColumNumber = convertToNumber(startColumValue);
-  const endColumNumber = convertToNumber(endColumValue);
+  const startColumnNumber = convertToNumber(startColumnValue);
+  const endColumnNumber = convertToNumber(endColumnValue);
 
-  return { startColumNumber, endColumNumber };
+  return { startColumnNumber, endColumnNumber };
 };
 
 export { changeSettingsFunc };

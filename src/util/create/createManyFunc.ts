@@ -7,7 +7,7 @@ const createManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData
 ) => {
-  const { sheet, startRowNumber, startColumNumber, endColumNumber } =
+  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
   const data = createManyData.data;
@@ -32,11 +32,11 @@ const createManyFunc = (
   });
 
   const rowNumber = sheet.getLastRow() + 1;
-  const columLength = endColumNumber - startColumNumber + 1;
+  const ColumnLength = endColumnNumber - startColumnNumber + 1;
   const rowLength = newData.length;
 
   sheet
-    .getRange(rowNumber, startColumNumber, rowLength, columLength)
+    .getRange(rowNumber, startColumnNumber, rowLength, ColumnLength)
     .setValues(newData);
 };
 

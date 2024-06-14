@@ -22,8 +22,8 @@ import { upsertFunc } from "./util/upsert/upsert";
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
   private startRowNumber: number = 1;
-  private startColumNumber: number = 1;
-  private endColumNumber: number = 1;
+  private startColumnNumber: number = 1;
+  private endColumnNumber: number = 1;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -36,29 +36,29 @@ class GassmaController {
 
     this.sheet = sheet;
 
-    this.endColumNumber = this.sheet.getLastColumn();
+    this.endColumnNumber = this.sheet.getLastColumn();
   }
 
   public changeSettings(
     startRowNumber: number,
-    startColumValue: number | string,
-    endColumValue: number | string
+    startColumnValue: number | string,
+    endColumnValue: number | string
   ) {
     this.startRowNumber = startRowNumber;
-    const { startColumNumber, endColumNumber } = changeSettingsFunc(
-      startColumValue,
-      endColumValue
+    const { startColumnNumber, endColumnNumber } = changeSettingsFunc(
+      startColumnValue,
+      endColumnValue
     );
-    this.startColumNumber = startColumNumber;
-    this.endColumNumber = endColumNumber;
+    this.startColumnNumber = startColumnNumber;
+    this.endColumnNumber = endColumnNumber;
   }
 
   private getGassmaControllerUtil(): GassmaControllerUtil {
     return {
       sheet: this.sheet,
       startRowNumber: this.startRowNumber,
-      startColumNumber: this.startColumNumber,
-      endColumNumber: this.endColumNumber,
+      startColumnNumber: this.startColumnNumber,
+      endColumnNumber: this.endColumnNumber,
     };
   }
 

@@ -1,12 +1,12 @@
-import { GassmaInValidColumValueError } from "../../../errors/changeSettings/changeSettingsError";
+import { GassmaInValidColumnValueError } from "../../../errors/changeSettings/changeSettingsError";
 
-const convertToNumber = (columValue: number | string) => {
-  if (typeof columValue === "number") return columValue;
+const convertToNumber = (ColumnValue: number | string) => {
+  if (typeof ColumnValue === "number") return ColumnValue;
 
-  if (!columValue.match(/^([a-z]|[A-Z])+$/))
-    throw new GassmaInValidColumValueError();
+  if (!ColumnValue.match(/^([a-z]|[A-Z])+$/))
+    throw new GassmaInValidColumnValueError();
 
-  const upperAlphabets = columValue.toUpperCase();
+  const upperAlphabets = ColumnValue.toUpperCase();
   const alphabetsList = upperAlphabets.split("");
 
   const resultNumber = alphabetsList.reduce((pre, alphabet, index) => {

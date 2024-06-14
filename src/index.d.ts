@@ -10,8 +10,8 @@ declare namespace Gassma {
 
     changeSettings(
       startRowNumber: number,
-      startColumNumber: number,
-      endColumNumber: number
+      startColumnNumber: number,
+      endColumnNumber: number
     ): void;
     createMany(createdData: CreateManyData): void;
     create(createdData: CreateData): void;
