@@ -9,6 +9,7 @@ import {
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import { aggregateFunc } from "./util/aggregate/aggregate";
+import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
@@ -24,8 +25,10 @@ class GassmaController {
   private startColumNumber: number = 1;
   private endColumNumber: number = 1;
 
-  constructor(sheetName: string) {
-    const spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  constructor(sheetName: string, id?: string) {
+    const spreadSheet = id
+      ? SpreadsheetApp.openById(id)
+      : SpreadsheetApp.getActiveSpreadsheet();
     const sheet = spreadSheet.getSheetByName(sheetName);
 
     if (!sheet)
@@ -38,10 +41,14 @@ class GassmaController {
 
   public changeSettings(
     startRowNumber: number,
-    startColumNumber: number,
-    endColumNumber: number
+    startColumValue: number | string,
+    endColumValue: number | string
   ) {
     this.startRowNumber = startRowNumber;
+    const { startColumNumber, endColumNumber } = changeSettingsFunc(
+      startColumValue,
+      endColumValue
+    );
     this.startColumNumber = startColumNumber;
     this.endColumNumber = endColumNumber;
   }

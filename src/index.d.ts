@@ -1,9 +1,13 @@
 declare namespace Gassma {
   class GassmaClient {
+    constructor(id?: string);
+
     readonly sheets: GassmaSheet;
   }
 
   class GassmaController {
+    constructor(sheetName: string, id?: string);
+
     changeSettings(
       startRowNumber: number,
       startColumNumber: number,
