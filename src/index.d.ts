@@ -90,7 +90,7 @@ declare namespace Gassma {
   };
 
   type UpdateData = {
-    where: WhereUse;
+    where?: WhereUse;
     data: AnyUse;
   };
 

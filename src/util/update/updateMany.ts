@@ -11,7 +11,7 @@ const updateManyFunc = (
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
-  const where = updateData.where;
+  const where = "where" in updateData ? updateData.where : {};
   const data = updateData.data;
 
   const findedData = whereFilter(where, gassmaControllerUtil);

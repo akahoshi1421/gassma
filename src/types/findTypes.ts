@@ -10,7 +10,7 @@ type FindData = {
 };
 
 type UpdateData = {
-  where: WhereUse;
+  where?: WhereUse;
   data: AnyUse;
 };
 
