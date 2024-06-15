@@ -19,7 +19,7 @@ const whereFilter = (
   if (Object.keys(where).length === 0) {
     return allDataList.map((row, index) => {
       return {
-        rowNumber: index,
+        rowNumber: index + 1,
         row: row,
       } as HitRowData;
     });
