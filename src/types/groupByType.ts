@@ -3,7 +3,7 @@ import { HavingUse } from "./coreTypes";
 
 type GroupByData = AggregateData & {
   by: string[] | string;
-  having?: HavingUse[] | HavingUse;
+  having?: HavingUse;
 };
 
 export { GroupByData };

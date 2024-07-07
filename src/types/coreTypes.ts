@@ -53,6 +53,22 @@ type FilterConditions = {
   endsWith?: String;
 };
 
+type MatchKeys = {
+  _avg?: Select;
+  _count?: Select;
+  _max?: Select;
+  _min?: Select;
+  _sum?: Select;
+};
+
+type HavingAggregate = {
+  _avg?: AnyUse;
+  _count?: AnyUse;
+  _max?: AnyUse;
+  _min?: AnyUse;
+  _sum?: AnyUse;
+};
+
 export {
   GassmaAny,
   OrderBy,
@@ -61,4 +77,6 @@ export {
   FilterConditions,
   WhereUse,
   HavingUse,
+  MatchKeys,
+  HavingAggregate,
 };
