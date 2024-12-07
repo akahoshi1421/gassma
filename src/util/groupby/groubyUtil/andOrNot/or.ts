@@ -13,7 +13,7 @@ const isOrMatchHaving = (
     willHavingData.concat();
 
   havingArray.forEach((having, havingArrayIndex) => {
-    let findedHavingData = normalHaving(resultHavingData, having);
+    let findedHavingData = normalHaving(willHavingData, having);
 
     if ("OR" in having || "AND" in having || "NOT" in having) {
       findedHavingData = isLogicMatchHaving(findedHavingData, having);
