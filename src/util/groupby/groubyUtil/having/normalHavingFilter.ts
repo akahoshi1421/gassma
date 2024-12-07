@@ -7,6 +7,7 @@ import type {
   TranspositionHavingAggregateWithIndex,
 } from "../../../../types/coreTypes";
 import { isFilterConditionsMatch } from "../../../filterConditions/filterConditions";
+import { isDict } from "../../../other/isDict";
 import { getAggregate } from "../getAggregate";
 
 const transportationUsedHavingData = (
@@ -73,9 +74,11 @@ const normalHaving = (
 
       return Object.keys(itemContent).every((pattern) => {
         const patternContent = itemContent[pattern];
+        const patternData = havingData[item][pattern];
+
         const isFilterConditionsMatchResult = isFilterConditionsMatch(
           patternContent,
-          havingData[item][pattern]
+          isDict(patternData) ? patternData : { equals: patternData }
         );
 
         return isNotProcess
