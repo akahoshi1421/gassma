@@ -1,22 +1,12 @@
 import {
   AnyUse,
-  GassmaAny,
   HavingAggregate,
   HavingUse,
   MatchKeys,
+  TranspositionHavingAggregate,
 } from "../../../types/coreTypes";
-import { isFilterConditionsMatch } from "../../filterConditions/filterConditions";
 import { getAggregate } from "./getAggregate";
-
-type TranspositionHavingAggregate = {
-  [key: string]: {
-    _avg?: GassmaAny;
-    _count?: GassmaAny;
-    _max?: GassmaAny;
-    _min?: GassmaAny;
-    _sum?: GassmaAny;
-  };
-};
+import { normalHaving } from "./having/normalHavingFilter";
 
 const transportationUsedHavingData = (
   useHavingData: HavingAggregate[]
@@ -69,19 +59,12 @@ const havingFilter = (
   const usedHavingAggregateTransported =
     transportationUsedHavingData(usedHavingAggregate);
 
-  const resultIgnoreLogic = usedHavingAggregateTransported.filter((one) =>
-    Object.keys(one).every((item) => {
-      const itemContent = one[item];
-
-      return Object.keys(itemContent).every((pattern) => {
-        const patternContent = itemContent[pattern];
-        return isFilterConditionsMatch(
-          patternContent,
-          havingData[item][pattern]
-        );
-      });
-    })
+  const resultIgnoreLogic = normalHaving(
+    usedHavingAggregateTransported,
+    havingData
   );
+
+  console.log(resultIgnoreLogic);
 };
 
 export { havingFilter };
