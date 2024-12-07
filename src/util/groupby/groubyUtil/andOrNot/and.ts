@@ -1,12 +1,16 @@
-import { AnyUse, HavingUse } from "../../../../types/coreTypes";
+import {
+  HavingUse,
+  HitByClassificationedRowData,
+} from "../../../../types/coreTypes";
 import { normalHaving } from "../having/normalHavingFilter";
 import { isLogicMatchHaving } from "./entry";
 
 const isAndMatchHaving = (
-  willHavingData: AnyUse[][],
+  willHavingData: HitByClassificationedRowData[],
   havingArray: HavingUse[]
 ) => {
-  let resultHavingData: AnyUse[][] = willHavingData.concat();
+  let resultHavingData: HitByClassificationedRowData[] =
+    willHavingData.concat();
 
   havingArray.forEach((having) => {
     resultHavingData = normalHaving(resultHavingData, having);

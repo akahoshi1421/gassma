@@ -2,6 +2,7 @@ import type {
   AnyUse,
   HavingAggregateWithIndex,
   HavingUse,
+  HitByClassificationedRowData,
   MatchKeys,
   TranspositionHavingAggregate,
   TranspositionHavingAggregateWithIndex,
@@ -30,7 +31,7 @@ const transportationUsedHavingData = (
 };
 
 const normalHaving = (
-  byClassificationedRow: AnyUse[][],
+  byClassificationedRow: HitByClassificationedRowData[],
   havingData: HavingUse
 ) => {
   const matchKeys: MatchKeys = {
@@ -53,10 +54,13 @@ const normalHaving = (
   });
 
   const usedHavingAggregate: HavingAggregateWithIndex[] =
-    byClassificationedRow.map((byClassificationedOneRow, index) => {
+    byClassificationedRow.map((byClassificationedOneRow) => {
       return {
-        havingAggregateData: getAggregate(byClassificationedOneRow, matchKeys),
-        index,
+        havingAggregateData: getAggregate(
+          byClassificationedOneRow.row,
+          matchKeys
+        ),
+        index: byClassificationedOneRow.rowNumber,
       };
     });
 

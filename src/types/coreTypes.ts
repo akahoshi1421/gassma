@@ -89,6 +89,11 @@ type TranspositionHavingAggregateWithIndex = {
   index: number;
 };
 
+type HitByClassificationedRowData = {
+  rowNumber: number;
+  row: AnyUse[];
+};
+
 export {
   GassmaAny,
   OrderBy,
@@ -102,4 +107,5 @@ export {
   HavingAggregateWithIndex,
   TranspositionHavingAggregate,
   TranspositionHavingAggregateWithIndex,
+  HitByClassificationedRowData,
 };
