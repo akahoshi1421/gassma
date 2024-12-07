@@ -25,11 +25,11 @@ type WhereUse = {
 };
 
 type HavingCore = {
-  _avg?: number | FilterConditions;
-  _count?: number | FilterConditions;
-  _max?: GassmaAny | FilterConditions;
-  _min?: GassmaAny | FilterConditions;
-  _sum?: number | FilterConditions;
+  _avg?: FilterConditions;
+  _count?: FilterConditions;
+  _max?: FilterConditions;
+  _min?: FilterConditions;
+  _sum?: FilterConditions;
 };
 
 type HavingUse = {

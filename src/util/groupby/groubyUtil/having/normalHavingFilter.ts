@@ -74,11 +74,10 @@ const normalHaving = (
 
       return Object.keys(itemContent).every((pattern) => {
         const patternContent = itemContent[pattern];
-        const patternData = havingData[item][pattern];
 
         const isFilterConditionsMatchResult = isFilterConditionsMatch(
           patternContent,
-          isDict(patternData) ? patternData : { equals: patternData }
+          havingData[item][pattern]
         );
 
         return isNotProcess
