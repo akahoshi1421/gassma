@@ -3,6 +3,7 @@ import {
   HavingUse,
   HitByClassificationedRowData,
 } from "../../../types/coreTypes";
+import { isLogicMatchHaving } from "./andOrNot/entry";
 import { normalHaving } from "./having/normalHavingFilter";
 
 const havingFilter = (
@@ -18,6 +19,11 @@ const havingFilter = (
     byClassificationedRowIncludeIndex,
     havingData
   );
+
+  if (!("OR" in havingData || "AND" in havingData || "NOT" in havingData))
+    return normalHavingFiltered;
+
+  return isLogicMatchHaving(normalHavingFiltered, havingData);
 };
 
 export { havingFilter };
