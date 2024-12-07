@@ -32,7 +32,8 @@ const transportationUsedHavingData = (
 
 const normalHaving = (
   byClassificationedRow: HitByClassificationedRowData[],
-  havingData: HavingUse
+  havingData: HavingUse,
+  isNotProcess: boolean = false
 ) => {
   const matchKeys: MatchKeys = {
     _avg: {},
@@ -73,10 +74,14 @@ const normalHaving = (
 
       return Object.keys(itemContent).every((pattern) => {
         const patternContent = itemContent[pattern];
-        return isFilterConditionsMatch(
+        const isFilterConditionsMatchResult = isFilterConditionsMatch(
           patternContent,
           havingData[item][pattern]
         );
+
+        return isNotProcess
+          ? !isFilterConditionsMatchResult
+          : isFilterConditionsMatchResult;
       });
     })
   );

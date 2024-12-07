@@ -3,6 +3,7 @@ import {
   HitByClassificationedRowData,
 } from "../../../../types/coreTypes";
 import { isAndMatchHaving } from "./and";
+import { isNotMatchHaving } from "./not";
 import { isOrMatchHaving } from "./or";
 
 const isLogicMatchHaving = (
@@ -35,6 +36,16 @@ const isLogicMatchHaving = (
 
   if (not) {
     const notArray = Array.isArray(not) ? not : [not];
+    const notResult = isNotMatchHaving(willHavingData, notArray);
+
+    if (result.length === 0) result = notResult;
+    else {
+      const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
+
+      result = notResult.filter((row) =>
+        alreadyHitRowNumbers.includes(row.rowNumber)
+      );
+    }
   }
 
   return result;
