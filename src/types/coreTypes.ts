@@ -69,6 +69,11 @@ type HavingAggregate = {
   _sum?: AnyUse;
 };
 
+type HavingAggregateWithIndex = {
+  havingAggregateData: HavingAggregate;
+  index: number;
+};
+
 type TranspositionHavingAggregate = {
   [key: string]: {
     _avg?: GassmaAny;
@@ -77,6 +82,11 @@ type TranspositionHavingAggregate = {
     _min?: GassmaAny;
     _sum?: GassmaAny;
   };
+};
+
+type TranspositionHavingAggregateWithIndex = {
+  havingAggregateData: TranspositionHavingAggregate;
+  index: number;
 };
 
 export {
@@ -89,5 +99,7 @@ export {
   HavingUse,
   MatchKeys,
   HavingAggregate,
+  HavingAggregateWithIndex,
   TranspositionHavingAggregate,
+  TranspositionHavingAggregateWithIndex,
 };

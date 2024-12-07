@@ -1,21 +1,23 @@
 import {
   AnyUse,
   HavingAggregate,
+  HavingAggregateWithIndex,
   HavingUse,
   MatchKeys,
   TranspositionHavingAggregate,
+  TranspositionHavingAggregateWithIndex,
 } from "../../../types/coreTypes";
 import { getAggregate } from "./getAggregate";
 import { normalHaving } from "./having/normalHavingFilter";
 
 const transportationUsedHavingData = (
-  useHavingData: HavingAggregate[]
-): TranspositionHavingAggregate[] => {
+  useHavingData: HavingAggregateWithIndex[]
+): TranspositionHavingAggregateWithIndex[] => {
   return useHavingData.map((one) => {
     const oneResult: TranspositionHavingAggregate = {};
 
-    Object.keys(one).forEach((pattern) => {
-      const content = one[pattern];
+    Object.keys(one.havingAggregateData).forEach((pattern) => {
+      const content = one.havingAggregateData[pattern];
 
       Object.keys(content).forEach((item) => {
         if (!(item in oneResult)) oneResult[item] = {};
@@ -24,7 +26,7 @@ const transportationUsedHavingData = (
       });
     });
 
-    return oneResult;
+    return { havingAggregateData: oneResult, index: one.index };
   });
 };
 
@@ -51,20 +53,24 @@ const havingFilter = (
     if ("_sum" in aggregateDataValues) matchKeys._sum[key] = true;
   });
 
-  const usedHavingAggregate = byClassificationedRow.map(
-    (byClassificationedOneRow) =>
-      getAggregate(byClassificationedOneRow, matchKeys)
-  );
+  console.log(byClassificationedRow);
+  const usedHavingAggregate: HavingAggregateWithIndex[] =
+    byClassificationedRow.map((byClassificationedOneRow, index) => {
+      return {
+        havingAggregateData: getAggregate(byClassificationedOneRow, matchKeys),
+        index,
+      };
+    });
 
   const usedHavingAggregateTransported =
     transportationUsedHavingData(usedHavingAggregate);
 
-  const resultIgnoreLogic = normalHaving(
+  const normalHavingResult = normalHaving(
     usedHavingAggregateTransported,
     havingData
   );
 
-  console.log(resultIgnoreLogic);
+  console.dir(normalHavingResult, { depth: null });
 };
 
 export { havingFilter };
