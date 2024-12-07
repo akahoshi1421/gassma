@@ -1,4 +1,4 @@
-import { GassmaAny } from "../../types/coreTypes";
+import { AnyUse, GassmaAny } from "../../types/coreTypes";
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { GroupByData } from "../../types/groupByType";
@@ -37,9 +37,9 @@ const groupByFunc = (
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
-  const byClassificationed = byClassification(findedRows, by) as {}[][];
+  let byClassificationed = byClassification(findedRows, by) as AnyUse[][];
 
-  if (having) havingFilter(byClassificationed, having);
+  if (having) byClassificationed = havingFilter(byClassificationed, having);
 
   const groupByResult = byClassificationed.map((oneClass) => {
     const oneClassFirst = oneClass[0];
@@ -72,6 +72,8 @@ const groupByFunc = (
       groupByResult[index]["_sum"] = sumData;
     }
   });
+
+  return groupByResult;
 };
 
 export { groupByFunc };

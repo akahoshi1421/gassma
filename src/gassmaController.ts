@@ -101,7 +101,7 @@ class GassmaController {
   }
 
   public groupBy(groupByData: GroupByData) {
-    groupByFunc(this.getGassmaControllerUtil(), groupByData);
+    return groupByFunc(this.getGassmaControllerUtil(), groupByData);
   }
 }
 

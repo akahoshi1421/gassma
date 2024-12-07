@@ -6,6 +6,14 @@ import {
 import { isLogicMatchHaving } from "./andOrNot/entry";
 import { normalHaving } from "./having/normalHavingFilter";
 
+const removeIndex = (
+  havingMatchingIncludeIndex: HitByClassificationedRowData[]
+) => {
+  return havingMatchingIncludeIndex.map(
+    (oneHavingMatchingIncludeIndex) => oneHavingMatchingIncludeIndex.row
+  );
+};
+
 const havingFilter = (
   byClassificationedRow: AnyUse[][],
   havingData: HavingUse
@@ -20,10 +28,19 @@ const havingFilter = (
     havingData
   );
 
-  if (!("OR" in havingData || "AND" in havingData || "NOT" in havingData))
-    return normalHavingFiltered;
+  if (!("OR" in havingData || "AND" in havingData || "NOT" in havingData)) {
+    const removeedNormalHavingFiltered = removeIndex(normalHavingFiltered);
 
-  return isLogicMatchHaving(normalHavingFiltered, havingData);
+    return removeedNormalHavingFiltered;
+  }
+
+  const logicMatchHavingResult = isLogicMatchHaving(
+    normalHavingFiltered,
+    havingData
+  );
+  const removedLogicMatchHavingResult = removeIndex(logicMatchHavingResult);
+
+  return removedLogicMatchHavingResult;
 };
 
 export { havingFilter };

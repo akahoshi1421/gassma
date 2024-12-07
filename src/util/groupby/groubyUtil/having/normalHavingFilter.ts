@@ -1,5 +1,4 @@
 import type {
-  AnyUse,
   HavingAggregateWithIndex,
   HavingUse,
   HitByClassificationedRowData,
@@ -88,7 +87,10 @@ const normalHaving = (
 
   const normalHavingFiltered = normalHavingResult.map(
     (oneHavingAggregateData) =>
-      byClassificationedRow[oneHavingAggregateData.index]
+      byClassificationedRow.find(
+        (oneByClassificationedRow) =>
+          oneByClassificationedRow.rowNumber === oneHavingAggregateData.index
+      )
   );
 
   return normalHavingFiltered;
