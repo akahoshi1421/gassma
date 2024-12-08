@@ -22,6 +22,7 @@ declare namespace Gassma {
     deleteMany(deleteData: DeleteData): void;
     aggregate(aggregateData: AggregateData): {};
     count(countData: CountData): number;
+    groupBy(groupBy: GroupByData): {}[];
   }
 
   type GassmaSheet = {
@@ -117,6 +118,26 @@ declare namespace Gassma {
     orderBy?: OrderBy | OrderBy[];
     take?: number;
     skip?: number;
+  };
+
+  type HavingCore = {
+    _avg?: FilterConditions;
+    _count?: FilterConditions;
+    _max?: FilterConditions;
+    _min?: FilterConditions;
+    _sum?: FilterConditions;
+  } & FilterConditions;
+
+  type HavingUse = {
+    [key: string]: HavingCore | HavingUse[] | HavingUse | GassmaAny;
+    AND?: HavingUse[] | HavingUse;
+    OR?: HavingUse[];
+    NOT?: HavingUse[] | HavingUse;
+  };
+
+  type GroupByData = AggregateData & {
+    by: string[] | string;
+    having?: HavingUse;
   };
 }
 
