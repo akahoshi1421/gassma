@@ -25,15 +25,15 @@ type WhereUse = {
 };
 
 type HavingCore = {
-  _avg?: number | FilterConditions;
-  _count?: number | FilterConditions;
-  _max?: GassmaAny | FilterConditions;
-  _min?: GassmaAny | FilterConditions;
-  _sum?: number | FilterConditions;
-};
+  _avg?: FilterConditions;
+  _count?: FilterConditions;
+  _max?: FilterConditions;
+  _min?: FilterConditions;
+  _sum?: FilterConditions;
+} & FilterConditions;
 
 type HavingUse = {
-  [key: string]: HavingCore | HavingUse[] | HavingUse;
+  [key: string]: HavingCore | HavingUse[] | HavingUse | GassmaAny;
   AND?: HavingUse[] | HavingUse;
   OR?: HavingUse[];
   NOT?: HavingUse[] | HavingUse;
@@ -48,9 +48,68 @@ type FilterConditions = {
   lte?: GassmaAny;
   gt?: GassmaAny;
   gte?: GassmaAny;
-  contains?: String;
-  startsWith?: String;
-  endsWith?: String;
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+};
+
+type MatchKeys = {
+  _avg?: Select;
+  _count?: Select;
+  _max?: Select;
+  _min?: Select;
+  _sum?: Select;
+};
+
+type MatchFilterConditionsKeys = {
+  equals?: AnyUse;
+  not?: AnyUse;
+  in?: { [key: string]: GassmaAny[] };
+  notIn?: { [key: string]: GassmaAny[] };
+  lt?: AnyUse;
+  lte?: AnyUse;
+  gt?: AnyUse;
+  gte?: AnyUse;
+  contains?: { [key: string]: string };
+  startsWith?: { [key: string]: string };
+  endsWith?: { [key: string]: string };
+};
+
+type HavingAggregate = {
+  _avg?: AnyUse;
+  _count?: AnyUse;
+  _max?: AnyUse;
+  _min?: AnyUse;
+  _sum?: AnyUse;
+};
+
+type HavingAggregateWithIndex = {
+  havingAggregateData: HavingAggregate;
+  index: number;
+};
+
+type TranspositionHavingAggregate = {
+  [key: string]: {
+    _avg?: GassmaAny;
+    _count?: GassmaAny;
+    _max?: GassmaAny;
+    _min?: GassmaAny;
+    _sum?: GassmaAny;
+  };
+};
+
+type TranspositionHavingAggregateWithIndex = {
+  havingAggregateData: TranspositionHavingAggregate;
+  index: number;
+};
+
+type HitByClassificationedRowData = {
+  rowNumber: number;
+  row: AnyUse[];
+};
+
+type TranspositionHavingConditionKeys = {
+  [key: string]: FilterConditions;
 };
 
 export {
@@ -60,5 +119,14 @@ export {
   AnyUse,
   FilterConditions,
   WhereUse,
+  HavingCore,
   HavingUse,
+  MatchKeys,
+  MatchFilterConditionsKeys,
+  HavingAggregate,
+  HavingAggregateWithIndex,
+  TranspositionHavingAggregate,
+  TranspositionHavingAggregateWithIndex,
+  HitByClassificationedRowData,
+  TranspositionHavingConditionKeys,
 };

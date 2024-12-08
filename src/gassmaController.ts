@@ -8,6 +8,7 @@ import {
   UpsertData,
 } from "./types/findTypes";
 import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
+import { GroupByData } from "./types/groupByType";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { countFunc } from "./util/count/count";
@@ -16,6 +17,7 @@ import { createManyFunc } from "./util/create/createManyFunc";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
+import { groupByFunc } from "./util/groupby/groupby";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertFunc } from "./util/upsert/upsert";
 
@@ -96,6 +98,10 @@ class GassmaController {
 
   public count(countData: CountData) {
     return countFunc(this.getGassmaControllerUtil(), countData);
+  }
+
+  public groupBy(groupByData: GroupByData) {
+    return groupByFunc(this.getGassmaControllerUtil(), groupByData);
   }
 }
 
