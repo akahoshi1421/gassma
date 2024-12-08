@@ -1,4 +1,5 @@
 import {
+  GassmaAny,
   HavingCore,
   HavingUse,
   HitByClassificationedRowData,
@@ -6,6 +7,7 @@ import {
   TranspositionHavingConditionKeys,
 } from "../../../../../types/coreTypes";
 import { isFilterConditionsMatch } from "../../../../filterConditions/filterConditions";
+import { isDict } from "../../../../other/isDict";
 
 const transportationUsedHavingFilterCondition = (
   matchKeys: MatchFilterConditionsKeys
@@ -44,30 +46,40 @@ const notPatternFilter = (
 
   Object.keys(havingData).forEach((key) => {
     if (key === "AND" || key === "OR" || key === "NOT") return;
-    const filterconditionDataValues = havingData[key] as HavingCore;
+    const filterconditionDataValues = havingData[key] as HavingCore | GassmaAny;
+    if (!isDict(filterconditionDataValues)) {
+      matchKeys.equals[key] = filterconditionDataValues as GassmaAny;
+      return;
+    }
 
-    if ("equals" in filterconditionDataValues)
-      matchKeys.equals[key] = filterconditionDataValues.equals;
-    if ("not" in filterconditionDataValues)
-      matchKeys.not[key] = filterconditionDataValues.not;
-    if ("in" in filterconditionDataValues)
-      matchKeys.in[key] = filterconditionDataValues.in;
-    if ("notIn" in filterconditionDataValues)
-      matchKeys.notIn[key] = filterconditionDataValues.notIn;
-    if ("lt" in filterconditionDataValues)
-      matchKeys.lt[key] = filterconditionDataValues.lt;
-    if ("lte" in filterconditionDataValues)
-      matchKeys.lte[key] = filterconditionDataValues.lte;
-    if ("gt" in filterconditionDataValues)
-      matchKeys.gt[key] = filterconditionDataValues.gt;
-    if ("gte" in filterconditionDataValues)
-      matchKeys.gte[key] = filterconditionDataValues.gte;
-    if ("contains" in filterconditionDataValues)
-      matchKeys.contains[key] = filterconditionDataValues.contains;
-    if ("startsWith" in filterconditionDataValues)
-      matchKeys.startsWith[key] = filterconditionDataValues.startsWith;
-    if ("endsWith" in filterconditionDataValues)
-      matchKeys.endsWith[key] = filterconditionDataValues.endsWith;
+    const filterconditionDataValuesRemovedGassmaAny =
+      filterconditionDataValues as HavingCore;
+
+    if ("equals" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.equals[key] = filterconditionDataValuesRemovedGassmaAny.equals;
+    if ("not" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.not[key] = filterconditionDataValuesRemovedGassmaAny.not;
+    if ("in" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.in[key] = filterconditionDataValuesRemovedGassmaAny.in;
+    if ("notIn" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.notIn[key] = filterconditionDataValuesRemovedGassmaAny.notIn;
+    if ("lt" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.lt[key] = filterconditionDataValuesRemovedGassmaAny.lt;
+    if ("lte" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.lte[key] = filterconditionDataValuesRemovedGassmaAny.lte;
+    if ("gt" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.gt[key] = filterconditionDataValuesRemovedGassmaAny.gt;
+    if ("gte" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.gte[key] = filterconditionDataValuesRemovedGassmaAny.gte;
+    if ("contains" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.contains[key] =
+        filterconditionDataValuesRemovedGassmaAny.contains;
+    if ("startsWith" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.startsWith[key] =
+        filterconditionDataValuesRemovedGassmaAny.startsWith;
+    if ("endsWith" in filterconditionDataValuesRemovedGassmaAny)
+      matchKeys.endsWith[key] =
+        filterconditionDataValuesRemovedGassmaAny.endsWith;
   });
 
   const transportedMatchKeys =

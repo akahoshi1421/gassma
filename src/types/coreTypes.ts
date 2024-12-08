@@ -33,7 +33,7 @@ type HavingCore = {
 } & FilterConditions;
 
 type HavingUse = {
-  [key: string]: HavingCore | HavingUse[] | HavingUse;
+  [key: string]: HavingCore | HavingUse[] | HavingUse | GassmaAny;
   AND?: HavingUse[] | HavingUse;
   OR?: HavingUse[];
   NOT?: HavingUse[] | HavingUse;

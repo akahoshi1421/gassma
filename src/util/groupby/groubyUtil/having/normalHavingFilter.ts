@@ -1,5 +1,6 @@
 import type {
   HavingAggregateWithIndex,
+  HavingCore,
   HavingUse,
   HitByClassificationedRowData,
   MatchKeys,
@@ -7,6 +8,7 @@ import type {
   TranspositionHavingAggregateWithIndex,
 } from "../../../../types/coreTypes";
 import { isFilterConditionsMatch } from "../../../filterConditions/filterConditions";
+import { isDict } from "../../../other/isDict";
 import { getAggregate } from "../getAggregate";
 import { notPatternFilter } from "./normalHavingFilter/notPatternFilter";
 
@@ -52,12 +54,24 @@ const normalHaving = (
   Object.keys(havingData).forEach((key) => {
     if (key === "AND" || key === "OR" || key === "NOT") return;
     const aggregateDataValues = havingData[key];
+    if (!Array.isArray(aggregateDataValues) && !isDict(aggregateDataValues))
+      return;
 
-    if ("_avg" in aggregateDataValues) matchKeys._avg[key] = true;
-    if ("_count" in aggregateDataValues) matchKeys._count[key] = true;
-    if ("_max" in aggregateDataValues) matchKeys._max[key] = true;
-    if ("_min" in aggregateDataValues) matchKeys._min[key] = true;
-    if ("_sum" in aggregateDataValues) matchKeys._sum[key] = true;
+    const aggregateDataValuesRemovedGassmaAny = aggregateDataValues as
+      | HavingUse
+      | HavingCore
+      | HavingUse[];
+
+    if ("_avg" in aggregateDataValuesRemovedGassmaAny)
+      matchKeys._avg[key] = true;
+    if ("_count" in aggregateDataValuesRemovedGassmaAny)
+      matchKeys._count[key] = true;
+    if ("_max" in aggregateDataValuesRemovedGassmaAny)
+      matchKeys._max[key] = true;
+    if ("_min" in aggregateDataValuesRemovedGassmaAny)
+      matchKeys._min[key] = true;
+    if ("_sum" in aggregateDataValuesRemovedGassmaAny)
+      matchKeys._sum[key] = true;
   });
 
   const usedHavingAggregate: HavingAggregateWithIndex[] =
