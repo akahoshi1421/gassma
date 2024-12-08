@@ -7,8 +7,8 @@ import type {
   TranspositionHavingAggregateWithIndex,
 } from "../../../../types/coreTypes";
 import { isFilterConditionsMatch } from "../../../filterConditions/filterConditions";
-import { isDict } from "../../../other/isDict";
 import { getAggregate } from "../getAggregate";
+import { notPatternFilter } from "./normalHavingFilter/notPatternFilter";
 
 const transportationUsedHavingData = (
   useHavingData: HavingAggregateWithIndex[]
@@ -35,6 +35,12 @@ const normalHaving = (
   havingData: HavingUse,
   isNotProcess: boolean = false
 ) => {
+  const byClassificationedRowWithoutPattern = notPatternFilter(
+    byClassificationedRow,
+    havingData,
+    isNotProcess
+  );
+
   const matchKeys: MatchKeys = {
     _avg: {},
     _count: {},
@@ -55,7 +61,7 @@ const normalHaving = (
   });
 
   const usedHavingAggregate: HavingAggregateWithIndex[] =
-    byClassificationedRow.map((byClassificationedOneRow) => {
+    byClassificationedRowWithoutPattern.map((byClassificationedOneRow) => {
       return {
         havingAggregateData: getAggregate(
           byClassificationedOneRow.row,
@@ -89,7 +95,7 @@ const normalHaving = (
 
   const normalHavingFiltered = normalHavingResult.map(
     (oneHavingAggregateData) =>
-      byClassificationedRow.find(
+      byClassificationedRowWithoutPattern.find(
         (oneByClassificationedRow) =>
           oneByClassificationedRow.rowNumber === oneHavingAggregateData.index
       )

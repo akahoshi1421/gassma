@@ -30,7 +30,7 @@ type HavingCore = {
   _max?: FilterConditions;
   _min?: FilterConditions;
   _sum?: FilterConditions;
-};
+} & FilterConditions;
 
 type HavingUse = {
   [key: string]: HavingCore | HavingUse[] | HavingUse;
@@ -48,9 +48,9 @@ type FilterConditions = {
   lte?: GassmaAny;
   gt?: GassmaAny;
   gte?: GassmaAny;
-  contains?: String;
-  startsWith?: String;
-  endsWith?: String;
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
 };
 
 type MatchKeys = {
@@ -59,6 +59,20 @@ type MatchKeys = {
   _max?: Select;
   _min?: Select;
   _sum?: Select;
+};
+
+type MatchFilterConditionsKeys = {
+  equals?: AnyUse;
+  not?: AnyUse;
+  in?: { [key: string]: GassmaAny[] };
+  notIn?: { [key: string]: GassmaAny[] };
+  lt?: AnyUse;
+  lte?: AnyUse;
+  gt?: AnyUse;
+  gte?: AnyUse;
+  contains?: { [key: string]: string };
+  startsWith?: { [key: string]: string };
+  endsWith?: { [key: string]: string };
 };
 
 type HavingAggregate = {
@@ -94,6 +108,10 @@ type HitByClassificationedRowData = {
   row: AnyUse[];
 };
 
+type TranspositionHavingConditionKeys = {
+  [key: string]: FilterConditions;
+};
+
 export {
   GassmaAny,
   OrderBy,
@@ -101,11 +119,14 @@ export {
   AnyUse,
   FilterConditions,
   WhereUse,
+  HavingCore,
   HavingUse,
   MatchKeys,
+  MatchFilterConditionsKeys,
   HavingAggregate,
   HavingAggregateWithIndex,
   TranspositionHavingAggregate,
   TranspositionHavingAggregateWithIndex,
   HitByClassificationedRowData,
+  TranspositionHavingConditionKeys,
 };
