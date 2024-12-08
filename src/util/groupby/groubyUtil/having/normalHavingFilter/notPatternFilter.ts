@@ -1,3 +1,4 @@
+import { GassmaGroupByHavingDontWriteByError } from "../../../../../errors/groupBy/groupByError";
 import {
   GassmaAny,
   HavingCore,
@@ -8,6 +9,10 @@ import {
 } from "../../../../../types/coreTypes";
 import { isFilterConditionsMatch } from "../../../../filterConditions/filterConditions";
 import { isDict } from "../../../../other/isDict";
+
+const dontWriteByErrorCheck = (key: string, by: string[]) => {
+  if (!by.includes(key)) throw new GassmaGroupByHavingDontWriteByError();
+};
 
 const transportationUsedHavingFilterCondition = (
   matchKeys: MatchFilterConditionsKeys
@@ -28,7 +33,8 @@ const transportationUsedHavingFilterCondition = (
 const notPatternFilter = (
   byClassificationedRow: HitByClassificationedRowData[],
   havingData: HavingUse,
-  isNotProcess: boolean
+  isNotProcess: boolean,
+  by: string[]
 ) => {
   const matchKeys: MatchFilterConditionsKeys = {
     equals: {},
@@ -49,37 +55,60 @@ const notPatternFilter = (
     const filterconditionDataValues = havingData[key] as HavingCore | GassmaAny;
     if (!isDict(filterconditionDataValues)) {
       matchKeys.equals[key] = filterconditionDataValues as GassmaAny;
+      dontWriteByErrorCheck(key, by);
       return;
     }
 
     const filterconditionDataValuesRemovedGassmaAny =
       filterconditionDataValues as HavingCore;
 
-    if ("equals" in filterconditionDataValuesRemovedGassmaAny)
+    if ("equals" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.equals[key] = filterconditionDataValuesRemovedGassmaAny.equals;
-    if ("not" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("not" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.not[key] = filterconditionDataValuesRemovedGassmaAny.not;
-    if ("in" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("in" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.in[key] = filterconditionDataValuesRemovedGassmaAny.in;
-    if ("notIn" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("notIn" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.notIn[key] = filterconditionDataValuesRemovedGassmaAny.notIn;
-    if ("lt" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("lt" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.lt[key] = filterconditionDataValuesRemovedGassmaAny.lt;
-    if ("lte" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("lte" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.lte[key] = filterconditionDataValuesRemovedGassmaAny.lte;
-    if ("gt" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("gt" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.gt[key] = filterconditionDataValuesRemovedGassmaAny.gt;
-    if ("gte" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("gte" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.gte[key] = filterconditionDataValuesRemovedGassmaAny.gte;
-    if ("contains" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("contains" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.contains[key] =
         filterconditionDataValuesRemovedGassmaAny.contains;
-    if ("startsWith" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("startsWith" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.startsWith[key] =
         filterconditionDataValuesRemovedGassmaAny.startsWith;
-    if ("endsWith" in filterconditionDataValuesRemovedGassmaAny)
+      dontWriteByErrorCheck(key, by);
+    }
+    if ("endsWith" in filterconditionDataValuesRemovedGassmaAny) {
       matchKeys.endsWith[key] =
         filterconditionDataValuesRemovedGassmaAny.endsWith;
+      dontWriteByErrorCheck(key, by);
+    }
   });
 
   const transportedMatchKeys =

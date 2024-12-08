@@ -39,7 +39,7 @@ const groupByFunc = (
 
   let byClassificationed = byClassification(findedRows, by) as AnyUse[][];
 
-  if (having) byClassificationed = havingFilter(byClassificationed, having);
+  if (having) byClassificationed = havingFilter(byClassificationed, having, by);
 
   const groupByResult = byClassificationed.map((oneClass) => {
     const oneClassFirst = oneClass[0];

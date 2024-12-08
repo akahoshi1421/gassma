@@ -16,7 +16,8 @@ const removeIndex = (
 
 const havingFilter = (
   byClassificationedRow: AnyUse[][],
-  havingData: HavingUse
+  havingData: HavingUse,
+  by: string[]
 ) => {
   const byClassificationedRowIncludeIndex: HitByClassificationedRowData[] =
     byClassificationedRow.map((byClassificationedOneRow, index) => {
@@ -25,7 +26,8 @@ const havingFilter = (
 
   const normalHavingFiltered = normalHaving(
     byClassificationedRowIncludeIndex,
-    havingData
+    havingData,
+    by
   );
 
   if (!("OR" in havingData || "AND" in havingData || "NOT" in havingData)) {
@@ -36,7 +38,8 @@ const havingFilter = (
 
   const logicMatchHavingResult = isLogicMatchHaving(
     normalHavingFiltered,
-    havingData
+    havingData,
+    by
   );
   const removedLogicMatchHavingResult = removeIndex(logicMatchHavingResult);
 

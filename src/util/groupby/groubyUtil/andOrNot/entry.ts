@@ -8,7 +8,8 @@ import { isOrMatchHaving } from "./or";
 
 const isLogicMatchHaving = (
   willHavingData: HitByClassificationedRowData[],
-  having: HavingUse
+  having: HavingUse,
+  by: string[]
 ) => {
   const and = having.AND || null;
   const or = having.OR || null;
@@ -18,11 +19,11 @@ const isLogicMatchHaving = (
 
   if (and) {
     const andArray = Array.isArray(and) ? and : [and];
-    result = isAndMatchHaving(willHavingData, andArray);
+    result = isAndMatchHaving(willHavingData, andArray, by);
   }
 
   if (or) {
-    const orResult = isOrMatchHaving(willHavingData, or);
+    const orResult = isOrMatchHaving(willHavingData, or, by);
 
     if (result.length === 0) result = orResult;
     else {
@@ -36,7 +37,7 @@ const isLogicMatchHaving = (
 
   if (not) {
     const notArray = Array.isArray(not) ? not : [not];
-    const notResult = isNotMatchHaving(willHavingData, notArray);
+    const notResult = isNotMatchHaving(willHavingData, notArray, by);
 
     if (result.length === 0) result = notResult;
     else {

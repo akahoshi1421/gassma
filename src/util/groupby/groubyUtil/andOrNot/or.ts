@@ -7,16 +7,17 @@ import { isLogicMatchHaving } from "./entry";
 
 const isOrMatchHaving = (
   willHavingData: HitByClassificationedRowData[],
-  havingArray: HavingUse[]
+  havingArray: HavingUse[],
+  by: string[]
 ) => {
   let resultHavingData: HitByClassificationedRowData[] =
     willHavingData.concat();
 
   havingArray.forEach((having, havingArrayIndex) => {
-    let findedHavingData = normalHaving(willHavingData, having);
+    let findedHavingData = normalHaving(willHavingData, having, by);
 
     if ("OR" in having || "AND" in having || "NOT" in having) {
-      findedHavingData = isLogicMatchHaving(findedHavingData, having);
+      findedHavingData = isLogicMatchHaving(findedHavingData, having, by);
     }
 
     if (havingArrayIndex === 0) {
