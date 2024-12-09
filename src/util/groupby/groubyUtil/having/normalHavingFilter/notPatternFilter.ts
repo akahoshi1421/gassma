@@ -23,7 +23,8 @@ const transportationUsedHavingFilterCondition = (
     const patternContent = matchKeys[pattern];
     Object.keys(patternContent).forEach((item) => {
       const itemContent = patternContent[item];
-      transported[item] = { [pattern]: itemContent };
+      if (transported[item]) transported[item][pattern] = itemContent;
+      else transported[item] = { [pattern]: itemContent };
     });
   });
 
