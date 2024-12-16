@@ -22,7 +22,7 @@ declare namespace Gassma {
     deleteMany(deleteData: DeleteData): void;
     aggregate(aggregateData: AggregateData): {};
     count(countData: CountData): number;
-    groupBy(groupBy: GroupByData): {}[];
+    groupBy(groupByData: GroupByData): {}[];
   }
 
   type GassmaSheet = {
