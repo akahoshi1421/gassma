@@ -65,7 +65,7 @@ class GassmaController {
   }
 
   public createMany(createdData: CreateManyData) {
-    createManyFunc(this.getGassmaControllerUtil(), createdData);
+    return createManyFunc(this.getGassmaControllerUtil(), createdData);
   }
 
   public create(createdData: CreateData) {

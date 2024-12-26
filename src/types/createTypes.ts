@@ -8,4 +8,8 @@ type CreateManyData = {
   data: AnyUse[];
 };
 
-export { CreateData, CreateManyData };
+type CreateManyReturn = {
+  count: number;
+};
+
+export { CreateData, CreateManyData, CreateManyReturn };
