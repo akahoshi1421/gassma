@@ -26,6 +26,7 @@ type DeleteData = {
 
 type UpdateManyReturn = ManyReturn;
 type DeleteManyReturn = ManyReturn;
+type UpsertManyReturn = ManyReturn;
 
 export {
   FindData,
@@ -34,4 +35,5 @@ export {
   UpsertData,
   UpdateManyReturn,
   DeleteManyReturn,
+  UpsertManyReturn,
 };

@@ -1,14 +1,19 @@
 import { CreateData } from "../../types/createTypes";
-import { FindData, UpdateData, UpsertData } from "../../types/findTypes";
+import {
+  FindData,
+  UpdateData,
+  UpsertData,
+  UpsertManyReturn,
+} from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { createFunc } from "../create/create";
 import { findFirstFunc } from "../find/findFirst";
 import { updateManyFunc } from "../update/updateMany";
 
-const upsertFunc = (
+const upsertManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   upsertData: UpsertData
-) => {
+): UpsertManyReturn => {
   const findData = {
     where: upsertData.where,
   } as FindData;
@@ -21,7 +26,8 @@ const upsertFunc = (
     } as CreateData;
 
     createFunc(gassmaControllerUtil, newData);
-    return;
+
+    return { count: 1 };
   }
 
   const updateData = {
@@ -29,7 +35,7 @@ const upsertFunc = (
     data: upsertData.update,
   } as UpdateData;
 
-  updateManyFunc(gassmaControllerUtil, updateData);
+  return updateManyFunc(gassmaControllerUtil, updateData);
 };
 
-export { upsertFunc };
+export { upsertManyFunc };

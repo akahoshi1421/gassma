@@ -19,7 +19,7 @@ import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { updateManyFunc } from "./util/update/updateMany";
-import { upsertFunc } from "./util/upsert/upsert";
+import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -84,8 +84,8 @@ class GassmaController {
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
-  public upsert(upsertData: UpsertData) {
-    upsertFunc(this.getGassmaControllerUtil(), upsertData);
+  public upsertMany(upsertData: UpsertData) {
+    return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
   public deleteMany(deleteData: DeleteData) {
