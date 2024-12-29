@@ -69,7 +69,7 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
-    createFunc(this.getGassmaControllerUtil(), createdData);
+    return createFunc(this.getGassmaControllerUtil(), createdData);
   }
 
   public findFirst(findData: FindData) {
