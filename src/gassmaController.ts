@@ -89,7 +89,7 @@ class GassmaController {
   }
 
   public deleteMany(deleteData: DeleteData) {
-    deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
+    return deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
   }
 
   public aggregate(aggregateData: AggregateData) {
