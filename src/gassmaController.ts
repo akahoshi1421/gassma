@@ -81,7 +81,7 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
-    updateManyFunc(this.getGassmaControllerUtil(), updateData);
+    return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
   public upsert(upsertData: UpsertData) {
