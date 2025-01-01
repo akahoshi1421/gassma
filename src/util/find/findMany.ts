@@ -10,6 +10,7 @@ const findManyFunc = (
   findData: FindData
 ) => {
   const where = "where" in findData ? findData.where : {};
+  const join = "join" in findData ? findData.join : null;
   const select = "select" in findData ? findData.select : null;
   const orderBy = "orderBy" in findData ? findData.orderBy : null;
   const take = "take" in findData ? findData.take : null;

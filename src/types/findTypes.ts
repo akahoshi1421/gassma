@@ -1,7 +1,9 @@
 import { AnyUse, ManyReturn, OrderBy, Select, WhereUse } from "./coreTypes";
+import { JoinUse } from "./joinType";
 
 type FindData = {
   where?: WhereUse;
+  join?: JoinUse;
   select?: Select;
   orderBy?: OrderBy | OrderBy[];
   take?: number;

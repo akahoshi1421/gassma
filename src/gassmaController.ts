@@ -55,7 +55,7 @@ class GassmaController {
     this.endColumnNumber = endColumnNumber;
   }
 
-  private getGassmaControllerUtil(): GassmaControllerUtil {
+  public getGassmaControllerUtil(): GassmaControllerUtil {
     return {
       sheet: this.sheet,
       startRowNumber: this.startRowNumber,
