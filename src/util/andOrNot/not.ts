@@ -23,17 +23,17 @@ const isNotMatch = (
       const matchRow = wantFindIndex.filter((i) => {
         const whereOptionContent = where[String(titles[i])];
         if (isDict(whereOptionContent))
-          return !isFilterConditionsMatch(
+          return isFilterConditionsMatch(
             row.row[i],
             whereOptionContent as FilterConditions
           );
 
-        return row.row[i] !== whereOptionContent;
+        return row.row[i] === whereOptionContent;
       });
 
-      if (matchRow.length === wantFindIndex.length) return row;
+      if (matchRow.length === wantFindIndex.length) return null;
 
-      return null;
+      return row;
     });
 
     resultRowsData = findedDataIncludeNull.filter((data) => data !== null);
