@@ -9,7 +9,8 @@ const isLogicMatch = (
   rowData: HitRowData[],
   where: WhereUse,
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
+  notTrue: boolean // NOTE: {NOT: {NOT: {hoge: "hoge"}}}で反転してくるようにするため
 ) => {
   const and = "AND" in where ? where.AND : null;
   const or = "OR" in where ? where.OR : null;
@@ -19,11 +20,23 @@ const isLogicMatch = (
 
   if (and) {
     const andArray = Array.isArray(and) ? and : [and];
-    result = isAndMatch(rowData, andArray, titles, gassmaControllerUtil);
+    result = isAndMatch(
+      rowData,
+      andArray,
+      titles,
+      gassmaControllerUtil,
+      notTrue
+    );
   }
 
   if (or) {
-    const orResult = isOrMatch(rowData, or, titles, gassmaControllerUtil);
+    const orResult = isOrMatch(
+      rowData,
+      or,
+      titles,
+      gassmaControllerUtil,
+      notTrue
+    );
 
     if (result.length === 0) result = orResult;
     else {
@@ -41,7 +54,8 @@ const isLogicMatch = (
       rowData,
       notArray,
       titles,
-      gassmaControllerUtil
+      gassmaControllerUtil,
+      !notTrue
     );
 
     if (result.length === 0) result = notResult;
