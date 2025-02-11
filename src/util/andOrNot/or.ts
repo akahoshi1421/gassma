@@ -32,9 +32,9 @@ const isOrMatch = (
         return row.row[i] === whereOptionContent;
       });
 
-      if (matchRow.length === wantFindIndex.length) return notTrue ? null : row;
+      if (matchRow.length === wantFindIndex.length) return row;
 
-      return notTrue ? row : null;
+      return null;
     });
 
     let findedData = findedDataIncludeNull.filter((data) => data !== null);
@@ -62,7 +62,18 @@ const isOrMatch = (
 
     resultRowsData = resultRowsData.concat(newInsertedArray);
   });
-  return resultRowsData;
+
+  if (!notTrue) return resultRowsData;
+
+  const resultRowsDataNumbers = resultRowsData.map(
+    (oneRow) => oneRow.rowNumber
+  );
+
+  const notResultRowsData = rowsData.filter(
+    (oneRow) => !resultRowsDataNumbers.includes(oneRow.rowNumber)
+  );
+
+  return notResultRowsData;
 };
 
 export { isOrMatch };
