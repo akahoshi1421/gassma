@@ -10,7 +10,8 @@ const isOrMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
+  notTrue: boolean // NOTE: {NOT: {NOT: {hoge: "hoge"}}}で反転してくるようにするため
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
@@ -43,7 +44,8 @@ const isOrMatch = (
         findedData,
         where,
         titles,
-        gassmaControllerUtil
+        gassmaControllerUtil,
+        notTrue
       );
     }
 
@@ -60,7 +62,18 @@ const isOrMatch = (
 
     resultRowsData = resultRowsData.concat(newInsertedArray);
   });
-  return resultRowsData;
+
+  if (!notTrue) return resultRowsData;
+
+  const resultRowsDataNumbers = resultRowsData.map(
+    (oneRow) => oneRow.rowNumber
+  );
+
+  const notResultRowsData = rowsData.filter(
+    (oneRow) => !resultRowsDataNumbers.includes(oneRow.rowNumber)
+  );
+
+  return notResultRowsData;
 };
 
 export { isOrMatch };

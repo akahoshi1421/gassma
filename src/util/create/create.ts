@@ -1,3 +1,4 @@
+import { AnyUse } from "../../types/coreTypes";
 import { CreateData } from "../../types/createTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
@@ -15,9 +16,16 @@ const createFunc = (
 
   const wantCreateIndex = getWantUpdateIndex(gassmaControllerUtil, createdData);
 
+  const createReturn: AnyUse = {};
+
   const newData = titles.map((_, index) => {
-    if (!wantCreateIndex.includes(index)) return "";
-    return data[String(titles[index])];
+    if (!wantCreateIndex.includes(index)) {
+      createReturn[titles[index]] = null;
+      return "";
+    }
+
+    createReturn[titles[index]] = data[titles[index]];
+    return data[titles[index]];
   });
 
   const rowNumber = sheet.getLastRow() + 1;
@@ -26,6 +34,8 @@ const createFunc = (
   sheet
     .getRange(rowNumber, startColumnNumber, 1, ColumnLength)
     .setValues([newData]);
+
+  return createReturn;
 };
 
 export { createFunc };

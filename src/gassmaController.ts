@@ -19,7 +19,7 @@ import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { updateManyFunc } from "./util/update/updateMany";
-import { upsertFunc } from "./util/upsert/upsert";
+import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -65,11 +65,11 @@ class GassmaController {
   }
 
   public createMany(createdData: CreateManyData) {
-    createManyFunc(this.getGassmaControllerUtil(), createdData);
+    return createManyFunc(this.getGassmaControllerUtil(), createdData);
   }
 
   public create(createdData: CreateData) {
-    createFunc(this.getGassmaControllerUtil(), createdData);
+    return createFunc(this.getGassmaControllerUtil(), createdData);
   }
 
   public findFirst(findData: FindData) {
@@ -81,15 +81,15 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
-    updateManyFunc(this.getGassmaControllerUtil(), updateData);
+    return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
-  public upsert(upsertData: UpsertData) {
-    upsertFunc(this.getGassmaControllerUtil(), upsertData);
+  public upsertMany(upsertData: UpsertData) {
+    return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
   public deleteMany(deleteData: DeleteData) {
-    deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
+    return deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
   }
 
   public aggregate(aggregateData: AggregateData) {

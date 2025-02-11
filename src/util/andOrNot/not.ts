@@ -10,7 +10,8 @@ const isNotMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
+  notTrue: boolean // NOTE: {NOT: {NOT: {hoge: "hoge"}}}で反転してくるようにするため
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
@@ -23,27 +24,29 @@ const isNotMatch = (
       const matchRow = wantFindIndex.filter((i) => {
         const whereOptionContent = where[String(titles[i])];
         if (isDict(whereOptionContent))
-          return !isFilterConditionsMatch(
+          return isFilterConditionsMatch(
             row.row[i],
             whereOptionContent as FilterConditions
           );
 
-        return row.row[i] !== whereOptionContent;
+        return row.row[i] === whereOptionContent;
       });
 
-      if (matchRow.length === wantFindIndex.length) return row;
+      if (matchRow.length === wantFindIndex.length) return notTrue ? null : row;
 
-      return null;
+      return notTrue ? row : null;
     });
 
-    resultRowsData = findedDataIncludeNull.filter((data) => data !== null);
+    if (wantFindIndex.length !== 0)
+      resultRowsData = findedDataIncludeNull.filter((data) => data !== null);
 
     if ("OR" in where || "AND" in where || "NOT" in where) {
       resultRowsData = isLogicMatch(
         resultRowsData,
         where,
         titles,
-        gassmaControllerUtil
+        gassmaControllerUtil,
+        notTrue
       );
     }
   });

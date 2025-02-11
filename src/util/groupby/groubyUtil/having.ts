@@ -39,7 +39,8 @@ const havingFilter = (
   const logicMatchHavingResult = isLogicMatchHaving(
     normalHavingFiltered,
     havingData,
-    by
+    by,
+    false
   );
   const removedLogicMatchHavingResult = removeIndex(logicMatchHavingResult);
 

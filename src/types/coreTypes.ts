@@ -112,6 +112,10 @@ type TranspositionHavingConditionKeys = {
   [key: string]: FilterConditions;
 };
 
+type ManyReturn = {
+  count: number;
+};
+
 export {
   GassmaAny,
   OrderBy,
@@ -129,4 +133,5 @@ export {
   TranspositionHavingAggregateWithIndex,
   HitByClassificationedRowData,
   TranspositionHavingConditionKeys,
+  ManyReturn,
 };

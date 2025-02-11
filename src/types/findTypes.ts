@@ -1,4 +1,4 @@
-import { AnyUse, OrderBy, Select, WhereUse } from "./coreTypes";
+import { AnyUse, ManyReturn, OrderBy, Select, WhereUse } from "./coreTypes";
 
 type FindData = {
   where?: WhereUse;
@@ -24,4 +24,16 @@ type DeleteData = {
   where: WhereUse;
 };
 
-export { FindData, UpdateData, DeleteData, UpsertData };
+type UpdateManyReturn = ManyReturn;
+type DeleteManyReturn = ManyReturn;
+type UpsertManyReturn = ManyReturn;
+
+export {
+  FindData,
+  UpdateData,
+  DeleteData,
+  UpsertData,
+  UpdateManyReturn,
+  DeleteManyReturn,
+  UpsertManyReturn,
+};

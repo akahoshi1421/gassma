@@ -1,4 +1,4 @@
-import { UpdateData } from "../../types/findTypes";
+import { UpdateData, UpdateManyReturn } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
@@ -7,7 +7,7 @@ import { whereFilter } from "../core/whereFilter";
 const updateManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData
-) => {
+): UpdateManyReturn => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
@@ -15,6 +15,7 @@ const updateManyFunc = (
   const data = updateData.data;
 
   const findedData = whereFilter(where, gassmaControllerUtil);
+  const findedDataLength = findedData.length;
 
   const titles = getTitle(gassmaControllerUtil);
   const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);
@@ -40,6 +41,8 @@ const updateManyFunc = (
 
     updateRange.setValues([updatedRow]);
   });
+
+  return { count: findedDataLength };
 };
 
 export { updateManyFunc };

@@ -1,4 +1,8 @@
-import { CreateData, CreateManyData } from "../../types/createTypes";
+import {
+  CreateData,
+  CreateManyData,
+  CreateManyReturn,
+} from "../../types/createTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
@@ -6,12 +10,13 @@ import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 const createManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData
-) => {
+): CreateManyReturn => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
   const data = createManyData.data;
-  if (data.length === 0) return;
+  const dataLength = data.length;
+  if (dataLength === 0) return;
 
   const titles = getTitle(gassmaControllerUtil);
 
@@ -38,6 +43,8 @@ const createManyFunc = (
   sheet
     .getRange(rowNumber, startColumnNumber, rowLength, ColumnLength)
     .setValues(newData);
+
+  return { count: dataLength };
 };
 
 export { createManyFunc };
