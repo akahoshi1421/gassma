@@ -13,13 +13,13 @@ declare namespace Gassma {
       startColumnNumber: number,
       endColumnNumber: number
     ): void;
-    createMany(createdData: CreateManyData): void;
-    create(createdData: CreateData): void;
+    createMany(createdData: CreateManyData): CreateManyReturn;
+    create(createdData: CreateData): AnyUse;
     findFirst(findData: FindData): {};
     findMany(findData: FindData): {}[];
-    updateMany(updateData: UpdateData): void;
-    upsert(upsertData: UpsertData): void;
-    deleteMany(deleteData: DeleteData): void;
+    updateMany(updateData: UpdateData): UpdateManyReturn;
+    upsert(upsertData: UpsertData): UpdateManyReturn;
+    deleteMany(deleteData: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): {};
     count(countData: CountData): number;
     groupBy(groupByData: GroupByData): {}[];
@@ -139,6 +139,15 @@ declare namespace Gassma {
     by: string[] | string;
     having?: HavingUse;
   };
+
+  type ManyReturn = {
+    count: number;
+  };
+
+  type CreateManyReturn = ManyReturn;
+  type UpdateManyReturn = ManyReturn;
+  type DeleteManyReturn = ManyReturn;
+  type UpsertManyReturn = ManyReturn;
 }
 
 export { Gassma };
