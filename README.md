@@ -54,6 +54,12 @@ function myFunction(){
 }
 ```
 
+## How to install type file
+
+```
+$ npm i gassma
+```
+
 ## version
 
-0.7.0
+0.8.0
