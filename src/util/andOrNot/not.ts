@@ -10,8 +10,7 @@ const isNotMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil,
-  notTrue: boolean // NOTE: {NOT: {NOT: {hoge: "hoge"}}}で反転してくるようにするため
+  gassmaControllerUtil: GassmaControllerUtil
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
@@ -45,8 +44,7 @@ const isNotMatch = (
         resultRowsData,
         where,
         titles,
-        gassmaControllerUtil,
-        notTrue
+        gassmaControllerUtil
       );
     }
   });

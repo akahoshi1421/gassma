@@ -102,9 +102,7 @@ const normalHaving = (
           havingData[item][pattern]
         );
 
-        return isNotProcess
-          ? !isFilterConditionsMatchResult
-          : isFilterConditionsMatchResult;
+        return isFilterConditionsMatchResult;
       });
     })
   );
