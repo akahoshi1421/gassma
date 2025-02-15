@@ -8,8 +8,7 @@ import { isLogicMatchHaving } from "./entry";
 const isNotMatchHaving = (
   willHavingData: HitByClassificationedRowData[],
   havingArray: HavingUse[],
-  by: string[],
-  notTrue: boolean // NOTE: {NOT: {NOT: {hoge: "hoge"}}}で反転してくるようにするため
+  by: string[]
 ) => {
   let resultHavingData: HitByClassificationedRowData[] =
     willHavingData.concat();
@@ -18,16 +17,9 @@ const isNotMatchHaving = (
     resultHavingData = normalHaving(resultHavingData, having, by, true);
 
     if ("OR" in having || "AND" in having || "NOT" in having) {
-      resultHavingData = isLogicMatchHaving(
-        resultHavingData,
-        having,
-        by,
-        notTrue
-      );
+      resultHavingData = isLogicMatchHaving(resultHavingData, having, by);
     }
   });
-
-  if (notTrue) return resultHavingData;
 
   const resultHavingDataNumbers = resultHavingData.map(
     (oneHavingData) => oneHavingData.rowNumber

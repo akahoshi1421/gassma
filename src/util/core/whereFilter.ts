@@ -53,7 +53,7 @@ const whereFilter = (
 
   if (!("OR" in where || "AND" in where || "NOT" in where)) return findedData;
 
-  return isLogicMatch(findedData, where, titles, gassmaControllerUtil, false);
+  return isLogicMatch(findedData, where, titles, gassmaControllerUtil);
 };
 
 export { whereFilter };

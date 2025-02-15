@@ -10,8 +10,7 @@ const isNotMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil,
-  notTrue: boolean // NOTE: {NOT: {NOT: {hoge: "hoge"}}}で反転してくるようにするため
+  gassmaControllerUtil: GassmaControllerUtil
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
@@ -32,9 +31,9 @@ const isNotMatch = (
         return row.row[i] === whereOptionContent;
       });
 
-      if (matchRow.length === wantFindIndex.length) return notTrue ? null : row;
+      if (matchRow.length === wantFindIndex.length) return row;
 
-      return notTrue ? row : null;
+      return null;
     });
 
     if (wantFindIndex.length !== 0)
@@ -45,13 +44,20 @@ const isNotMatch = (
         resultRowsData,
         where,
         titles,
-        gassmaControllerUtil,
-        notTrue
+        gassmaControllerUtil
       );
     }
   });
 
-  return resultRowsData;
+  const resultRowsDataNumbers = resultRowsData.map(
+    (oneRow) => oneRow.rowNumber
+  );
+
+  const notResultRowsData = rowsData.filter(
+    (oneRow) => !resultRowsDataNumbers.includes(oneRow.rowNumber)
+  );
+
+  return notResultRowsData;
 };
 
 export { isNotMatch };

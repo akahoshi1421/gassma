@@ -127,9 +127,7 @@ const notPatternFilter = (
           itemContent
         );
 
-        return isNotProcess
-          ? !isFilterConditionsMatchResult
-          : isFilterConditionsMatchResult;
+        return isFilterConditionsMatchResult;
       });
     }
   );
