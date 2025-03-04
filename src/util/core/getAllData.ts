@@ -12,9 +12,13 @@ const getAllData = (
 
   if (rowLength === 0) return [];
 
-  const data = sheet
+  const dataIncludeEmptyString = sheet
     .getRange(startRowNumber + 1, startColumnNumber, rowLength, ColumnLength)
     .getValues();
+
+  const data = dataIncludeEmptyString.map((row) =>
+    row.map((cell) => (cell === "" ? null : cell))
+  );
 
   return data;
 };

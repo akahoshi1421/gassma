@@ -7,37 +7,38 @@ const isFilterConditionsMatch = (
   const result = Object.keys(filterOptions).every((optionName) => {
     switch (optionName) {
       case "equals":
-        const filterEquals = filterOptions.equals ?? "";
+        const filterEquals =
+          filterOptions.equals === "" ? null : filterOptions.equals;
         return filterEquals === cellData;
       case "not":
-        const filterNot = filterOptions.equals ?? "";
+        const filterNot = filterOptions.not === "" ? null : filterOptions.not;
         return filterNot !== cellData;
       case "in":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return filterOptions.in.includes(cellData);
       case "notIn":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return !filterOptions.in.includes(cellData);
       case "lt":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return cellData < filterOptions.lt;
       case "lte":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return cellData <= filterOptions.lte;
       case "gt":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return cellData > filterOptions.gt;
       case "gte":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return cellData >= filterOptions.gte;
       case "contains":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return String(cellData).match(`${filterOptions.contains}`);
       case "startsWith":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return String(cellData).match(`^${filterOptions.startsWith}`);
       case "endsWith":
-        if (cellData === "") return false;
+        if (cellData === null) return false;
         return String(cellData).match(`${filterOptions.endsWith}$`);
     }
   });

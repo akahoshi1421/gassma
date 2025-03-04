@@ -40,7 +40,8 @@ const whereFilter = (
           whereOptionContent as FilterConditions
         );
 
-      const replacedNullWhereOptionContent = whereOptionContent ?? "";
+      const replacedNullWhereOptionContent =
+        whereOptionContent === "" ? null : whereOptionContent;
       return row[i] === replacedNullWhereOptionContent;
     });
 
