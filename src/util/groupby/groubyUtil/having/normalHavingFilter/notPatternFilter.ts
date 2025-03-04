@@ -34,7 +34,6 @@ const transportationUsedHavingFilterCondition = (
 const notPatternFilter = (
   byClassificationedRow: HitByClassificationedRowData[],
   havingData: HavingUse,
-  isNotProcess: boolean,
   by: string[]
 ) => {
   const matchKeys: MatchFilterConditionsKeys = {
