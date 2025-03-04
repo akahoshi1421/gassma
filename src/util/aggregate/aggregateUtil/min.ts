@@ -15,7 +15,7 @@ const getMin = (rows: {}[], avgData: Select) => {
 
   minKeys.forEach((key) => {
     const hitsDataIncludeNull = rows.map((row) => {
-      if (row[key] === "" || row[key] === undefined) return null;
+      if (row[key] === null || row[key] === undefined) return null;
 
       return row[key];
     });
