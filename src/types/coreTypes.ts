@@ -1,4 +1,4 @@
-type GassmaAny = string | number | boolean | Date;
+type GassmaAny = string | number | boolean | Date | null;
 
 type OrderBy = {
   [key: string]: "asc" | "desc";

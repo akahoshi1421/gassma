@@ -40,7 +40,8 @@ const whereFilter = (
           whereOptionContent as FilterConditions
         );
 
-      return row[i] === whereOptionContent;
+      const replacedNullWhereOptionContent = whereOptionContent ?? "";
+      return row[i] === replacedNullWhereOptionContent;
     });
 
     if (matchRow.length === wantFindIndex.length)
