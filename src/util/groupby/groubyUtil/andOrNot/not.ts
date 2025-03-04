@@ -14,7 +14,7 @@ const isNotMatchHaving = (
     willHavingData.concat();
 
   havingArray.forEach((having) => {
-    resultHavingData = normalHaving(resultHavingData, having, by, true);
+    resultHavingData = normalHaving(resultHavingData, having, by);
 
     if ("OR" in having || "AND" in having || "NOT" in having) {
       resultHavingData = isLogicMatchHaving(resultHavingData, having, by);

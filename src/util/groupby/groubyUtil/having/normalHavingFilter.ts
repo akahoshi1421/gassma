@@ -35,13 +35,11 @@ const transportationUsedHavingData = (
 const normalHaving = (
   byClassificationedRow: HitByClassificationedRowData[],
   havingData: HavingUse,
-  by: string[],
-  isNotProcess: boolean = false
+  by: string[]
 ) => {
   const byClassificationedRowWithoutPattern = notPatternFilter(
     byClassificationedRow,
     havingData,
-    isNotProcess,
     by
   );
 
