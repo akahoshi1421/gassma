@@ -18,7 +18,7 @@ const isFilterConditionsMatch = (
         return filterOptions.in.includes(cellData);
       case "notIn":
         if (cellData === null) return false;
-        return !filterOptions.in.includes(cellData);
+        return !filterOptions.notIn.includes(cellData);
       case "lt":
         if (cellData === null) return false;
         return cellData < filterOptions.lt;
