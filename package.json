@@ -5,7 +5,8 @@
   "types": "src/index.d.ts",
   "scripts": {
     "build": "webpack",
-    "push": "npm run build && clasp push"
+    "push": "npm run build && clasp push",
+    "test": "jest"
   },
   "author": "akahoshi1421",
   "license": "MIT",
@@ -19,8 +20,13 @@
     "GASsma"
   ],
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "gas-webpack-plugin": "^2.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2",
     "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
   }
