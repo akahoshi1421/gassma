@@ -11,7 +11,7 @@ const createManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData
 ): CreateManyReturn => {
-  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
+  const { sheet, startColumnNumber, endColumnNumber, schema } =
     gassmaControllerUtil;
 
   const data = createManyData.data;

@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { AggregateData } from "./types/aggregateType";
 import { ChangeSettingsData } from "./types/changeSettingsType";
 import { CountData } from "./types/countType";
@@ -22,15 +21,14 @@ import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
+import { SchemaType } from "./types/core/schemaType";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
   private startRowNumber: number = 1;
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
-  private schema: z.ZodObject<{
-    [key: string]: z.ZodTypeAny;
-  }>;
+  private schema: SchemaType | undefined = undefined;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -67,6 +65,7 @@ class GassmaController {
       startRowNumber: this.startRowNumber,
       startColumnNumber: this.startColumnNumber,
       endColumnNumber: this.endColumnNumber,
+      schema: this.schema,
     };
   }
 

@@ -1,12 +1,10 @@
-import { z } from "zod";
+import { SchemaType } from "./core/schemaType";
 
 type ChangeSettingsData = {
   startRowNumber?: number;
   startColumnValue?: number | string;
   endColumnValue?: number | string;
-  schema?: z.ZodObject<{
-    [ey: string]: z.ZodTypeAny;
-  }>;
+  schema?: SchemaType;
 };
 
 export { ChangeSettingsData };
