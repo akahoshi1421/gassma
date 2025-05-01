@@ -1,11 +1,15 @@
 import { convertToNumber } from "./changeSettingsUtil/convertToNumber";
 
 const changeSettingsFunc = (
-  startColumnValue: number | string,
-  endColumnValue: number | string
+  startColumnValue?: number | string,
+  endColumnValue?: number | string
 ) => {
-  const startColumnNumber = convertToNumber(startColumnValue);
-  const endColumnNumber = convertToNumber(endColumnValue);
+  const startColumnNumber =
+    startColumnValue !== undefined
+      ? convertToNumber(startColumnValue)
+      : undefined;
+  const endColumnNumber =
+    endColumnValue !== undefined ? convertToNumber(endColumnValue) : undefined;
 
   return { startColumnNumber, endColumnNumber };
 };

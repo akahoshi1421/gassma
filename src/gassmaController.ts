@@ -1,4 +1,6 @@
+import { z } from "zod";
 import { AggregateData } from "./types/aggregateType";
+import { ChangeSettingsData } from "./types/changeSettingsType";
 import { CountData } from "./types/countType";
 import { CreateData, CreateManyData } from "./types/createTypes";
 import {
@@ -26,6 +28,9 @@ class GassmaController {
   private startRowNumber: number = 1;
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
+  private schema: z.ZodObject<{
+    [key: string]: z.ZodTypeAny;
+  }>;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -41,18 +46,19 @@ class GassmaController {
     this.endColumnNumber = this.sheet.getLastColumn();
   }
 
-  public changeSettings(
-    startRowNumber: number,
-    startColumnValue: number | string,
-    endColumnValue: number | string
-  ) {
-    this.startRowNumber = startRowNumber;
+  public changeSettings(ChangeSettingsData: ChangeSettingsData) {
+    const { startRowNumber, startColumnValue, endColumnValue, schema } =
+      ChangeSettingsData;
+
+    if (schema !== undefined) this.schema = schema;
+    if (startRowNumber !== undefined) this.startRowNumber = startRowNumber;
     const { startColumnNumber, endColumnNumber } = changeSettingsFunc(
       startColumnValue,
       endColumnValue
     );
-    this.startColumnNumber = startColumnNumber;
-    this.endColumnNumber = endColumnNumber;
+    if (startColumnNumber !== undefined)
+      this.startColumnNumber = startColumnNumber;
+    if (endColumnNumber !== undefined) this.endColumnNumber = endColumnNumber;
   }
 
   private getGassmaControllerUtil(): GassmaControllerUtil {
