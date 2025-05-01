@@ -28,7 +28,7 @@ class GassmaController {
   private startRowNumber: number = 1;
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
-  private schema: SchemaType | undefined = undefined;
+  private schema: SchemaType = undefined;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id

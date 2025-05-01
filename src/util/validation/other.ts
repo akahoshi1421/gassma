@@ -3,7 +3,9 @@ import { SchemaType } from "../../types/core/schemaType";
 import { AnyUse } from "../../types/coreTypes";
 import { isDict } from "../other/isDict";
 
-const otherCreateValidation = (validation: AnyUse, schema: SchemaType) => {
+const otherValidation = (validation: AnyUse, schema: SchemaType) => {
+  if (!schema) return;
+
   Object.keys(validation).forEach((key) => {
     if (key === "AND" || key === "OR" || key === "NOT") return;
 
@@ -22,4 +24,4 @@ const otherCreateValidation = (validation: AnyUse, schema: SchemaType) => {
   });
 };
 
-export { otherCreateValidation };
+export { otherValidation };

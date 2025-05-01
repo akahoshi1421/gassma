@@ -6,6 +6,7 @@ import {
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
+import { createValidation } from "../validation/create";
 
 const createManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -21,6 +22,8 @@ const createManyFunc = (
   const titles = getTitle(gassmaControllerUtil);
 
   const newData = data.map((row) => {
+    createValidation(row, schema);
+
     const createdData = {
       data: row,
     } as CreateData;

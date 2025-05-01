@@ -3,15 +3,18 @@ import { CreateData } from "../../types/createTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
+import { createValidation } from "../validation/create";
 
 const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createdData: CreateData
 ) => {
-  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
+  const { sheet, startColumnNumber, endColumnNumber, schema } =
     gassmaControllerUtil;
 
   const data = createdData.data;
+  createValidation(data, schema);
+
   const titles = getTitle(gassmaControllerUtil);
 
   const wantCreateIndex = getWantUpdateIndex(gassmaControllerUtil, createdData);
