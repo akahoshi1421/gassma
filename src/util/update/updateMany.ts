@@ -3,12 +3,13 @@ import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
+import { updateDataValidation } from "../validation/updateData";
 
 const updateManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData
 ): UpdateManyReturn => {
-  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
+  const { sheet, startRowNumber, startColumnNumber, endColumnNumber, schema } =
     gassmaControllerUtil;
 
   const where = "where" in updateData ? updateData.where : {};
@@ -16,6 +17,7 @@ const updateManyFunc = (
 
   const findedData = whereFilter(where, gassmaControllerUtil);
   const findedDataLength = findedData.length;
+  updateDataValidation(data, schema);
 
   const titles = getTitle(gassmaControllerUtil);
   const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);

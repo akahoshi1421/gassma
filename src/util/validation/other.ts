@@ -20,7 +20,7 @@ const otherValidation = (validation: WhereUse, schema: SchemaType) => {
       });
     }
 
-    oneSchema.parse(validation[key]);
+    oneSchema.parse(value);
   });
 };
 
