@@ -1,9 +1,9 @@
 import { GassmaValidationErrror } from "../../errors/validation/validationError";
 import { SchemaType } from "../../types/core/schemaType";
-import { AnyUse } from "../../types/coreTypes";
+import { WhereUse } from "../../types/coreTypes";
 import { isDict } from "../other/isDict";
 
-const otherValidation = (validation: AnyUse, schema: SchemaType) => {
+const otherValidation = (validation: WhereUse, schema: SchemaType) => {
   if (!schema) return;
 
   Object.keys(validation).forEach((key) => {

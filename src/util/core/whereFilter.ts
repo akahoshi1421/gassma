@@ -5,6 +5,7 @@ import { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
 import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
 import { isDict } from "../other/isDict";
+import { otherValidation } from "../validation/other";
 import { getAllData } from "./getAllData";
 import { getTitle } from "./getTitle";
 import { getWantFindIndex } from "./getWantFindIndex";
@@ -13,6 +14,8 @@ const whereFilter = (
   where: WhereUse,
   gassmaControllerUtil: GassmaControllerUtil
 ) => {
+  const { schema } = gassmaControllerUtil;
+
   const allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
 
@@ -34,6 +37,8 @@ const whereFilter = (
   const findedDataIncludeNull = allDataList.map((row, rowNumber) => {
     const matchRow = wantFindIndex.filter((i) => {
       const whereOptionContent = where[String(titles[i])];
+      otherValidation(whereOptionContent as WhereUse, schema);
+
       if (isDict(whereOptionContent))
         return isFilterConditionsMatch(
           row[i],

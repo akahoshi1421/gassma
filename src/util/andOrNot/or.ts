@@ -4,6 +4,7 @@ import { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndex } from "../core/getWantFindIndex";
 import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
 import { isDict } from "../other/isDict";
+import { otherValidation } from "../validation/other";
 import { isLogicMatch } from "./entry";
 
 const isOrMatch = (
@@ -12,9 +13,12 @@ const isOrMatch = (
   titles: GassmaAny[],
   gassmaControllerUtil: GassmaControllerUtil
 ) => {
+  const { schema } = gassmaControllerUtil;
   let resultRowsData: HitRowData[] = rowsData.concat();
 
   whereArray.forEach((where, whereArrayIndex) => {
+    otherValidation(where, schema);
+
     const wantFindIndex = getWantFindIndex(gassmaControllerUtil, {
       where: where,
     });
