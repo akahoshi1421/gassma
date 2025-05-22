@@ -1,19 +1,8 @@
 import { createValidation } from "../../../app/util/validation/create";
-import { z } from "../../../app/zod";
+import { schema } from "../../const/testSchema";
 
 describe("createValidation", () => {
-  const schema = z.object({
-    name: z.string(),
-    age: z.number().optional().nullable(),
-    postNumber: z
-      .string()
-      .regex(/^\d{3}-\d{4}$/, { message: "XXX-XXXX" })
-      .optional()
-      .nullable(),
-    createdAt: z.date(),
-  });
-
-  test("should not error createValidation", () => {
+  test("should not occor an error createValidation", () => {
     const data = {
       name: "John",
       age: 20,
@@ -24,10 +13,20 @@ describe("createValidation", () => {
     expect(() => createValidation(data, schema)).not.toThrow();
   });
 
-  test("should error createValidation", () => {
+  test("should occor an error createValidation", () => {
     const data = {
       name: 1,
       createdAt: new Date(),
+    };
+
+    expect(() => createValidation(data, schema)).toThrow();
+  });
+
+  test("should occor an error createValidation 2", () => {
+    const data = {
+      name: "John",
+      createdAt: new Date(),
+      invalidKey: true,
     };
 
     expect(() => createValidation(data, schema)).toThrow();
