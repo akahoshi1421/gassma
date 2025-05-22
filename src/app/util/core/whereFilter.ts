@@ -28,6 +28,8 @@ const whereFilter = (
     });
   }
 
+  otherValidation(where, schema);
+
   const findData = {
     where: where,
   } as FindData;
@@ -37,7 +39,6 @@ const whereFilter = (
   const findedDataIncludeNull = allDataList.map((row, rowNumber) => {
     const matchRow = wantFindIndex.filter((i) => {
       const whereOptionContent = where[String(titles[i])];
-      otherValidation(whereOptionContent as WhereUse, schema);
 
       if (isDict(whereOptionContent))
         return isFilterConditionsMatch(

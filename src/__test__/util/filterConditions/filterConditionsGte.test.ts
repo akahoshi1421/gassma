@@ -1,4 +1,4 @@
-import { isFilterConditionsMatch } from "../../../util/filterConditions/filterConditions";
+import { isFilterConditionsMatch } from "../../../app/util/filterConditions/filterConditions";
 
 describe("filterConditionsGte", () => {
   test("should return true for greater than or equal values", () => {

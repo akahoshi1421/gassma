@@ -1,8 +1,10 @@
 {
-  "include": ["src"],
+  "include": ["./src/**/*"],
   "compilerOptions": {
     "lib": ["ES2021"],
     "target": "ES5",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src"
   }
 }

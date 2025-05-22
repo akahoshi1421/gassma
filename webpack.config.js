@@ -2,7 +2,7 @@ const path = require("path");
 const GasPlugin = require("gas-webpack-plugin");
 
 module.exports = {
-  entry: "./src/gassma.ts",
+  entry: "./src/index.ts",
   mode: "development",
   devtool: false,
 
@@ -12,7 +12,6 @@ module.exports = {
   },
 
   resolve: {
-    modules: [path.resolve("./src"), "node_modules"],
     extensions: [".ts", ".js"],
   },
 

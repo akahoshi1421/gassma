@@ -1,4 +1,4 @@
-import { isDict } from "../../../util/other/isDict";
+import { isDict } from "../../../app/util/other/isDict";
 
 describe("isDict", () => {
   test("should return true for an object", () => {

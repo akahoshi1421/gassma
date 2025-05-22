@@ -1,4 +1,4 @@
-import { isFilterConditionsMatch } from "../../../util/filterConditions/filterConditions";
+import { isFilterConditionsMatch } from "../../../app/util/filterConditions/filterConditions";
 
 describe("filterConditionsLte", () => {
   test("should return true for less than or equal values", () => {
