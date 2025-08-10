@@ -6,3 +6,5 @@ package-lock.json
 dist/*
 
 !dist/appsscript.json
+
+LLM/
