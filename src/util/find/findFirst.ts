@@ -1,6 +1,7 @@
 import { FilterConditions } from "../../types/coreTypes";
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
 import { getWantFindIndex } from "../core/getWantFindIndex";
@@ -52,7 +53,7 @@ const findFirstFunc = (
   });
 
   if (select && omit) {
-    throw new Error("Cannot use both select and omit in the same query");
+    throw new GassmaFindSelectOmitConflictError();
   }
 
   if (select) {

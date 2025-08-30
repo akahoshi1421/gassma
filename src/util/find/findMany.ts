@@ -1,5 +1,6 @@
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getTitle } from "../core/getTitle";
 import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
@@ -60,7 +61,7 @@ const findManyFunc = (
     );
 
   if (select && omit) {
-    throw new Error("Cannot use both select and omit in the same query");
+    throw new GassmaFindSelectOmitConflictError();
   }
 
   if (select) {
