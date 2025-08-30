@@ -8,3 +8,7 @@ dist/*
 !dist/appsscript.json
 
 LLM/
+
+# Claude Code関連ファイル
+.claude/
+.mcp.json
