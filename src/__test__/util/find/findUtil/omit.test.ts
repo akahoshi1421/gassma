@@ -1,5 +1,5 @@
 import { omitFunc } from "../../../../util/find/findUtil/omit";
-import { Omit } from "../../../../types/coreTypes";
+import type { Omit } from "../../../../types/coreTypes";
 
 describe("omitFunc", () => {
   const testData = {

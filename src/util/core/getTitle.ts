@@ -1,4 +1,4 @@
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
 const getTitle = (gassmaControllerUtil: GassmaControllerUtil): string[] => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =

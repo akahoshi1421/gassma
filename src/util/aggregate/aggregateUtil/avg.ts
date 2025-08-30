@@ -2,7 +2,7 @@ import {
   GassmaAggregateAvgError,
   GassmaAggregateAvgTypeError,
 } from "../../../errors/aggregate/aggregateError";
-import { Select } from "../../../types/coreTypes";
+import type { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
 import { getNumberSum } from "./sum/numberSum";
 

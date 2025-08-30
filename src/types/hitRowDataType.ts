@@ -1,4 +1,4 @@
-import { GassmaAny } from "./coreTypes";
+import type { GassmaAny } from "./coreTypes";
 
 type HitRowData = {
   rowNumber: number;

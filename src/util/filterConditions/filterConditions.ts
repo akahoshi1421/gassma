@@ -1,4 +1,4 @@
-import { FilterConditions, GassmaAny } from "../../types/coreTypes";
+import type { FilterConditions, GassmaAny } from "../../types/coreTypes";
 
 const isFilterConditionsMatch = (
   cellData: GassmaAny,

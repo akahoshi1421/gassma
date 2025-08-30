@@ -2,7 +2,7 @@ import {
   GassmaAggregateMinError,
   GassmaAggregateTypeError,
 } from "../../../errors/aggregate/aggregateError";
-import { Select } from "../../../types/coreTypes";
+import type { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
 import { getBooleanMin } from "./min/booleanMin";
 import { getDateMin } from "./min/dateMin";

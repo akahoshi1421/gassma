@@ -1,4 +1,4 @@
-import { OrderBy, WhereUse } from "./coreTypes";
+import type { OrderBy, WhereUse } from "./coreTypes";
 
 type CountData = {
   where?: WhereUse;

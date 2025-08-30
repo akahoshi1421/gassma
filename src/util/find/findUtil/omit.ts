@@ -1,4 +1,4 @@
-import { AnyUse, Omit } from "../../../types/coreTypes";
+import type { AnyUse, Omit } from "../../../types/coreTypes";
 
 const omitFunc = (omit: Omit, row: AnyUse) => {
   const result = { ...row };

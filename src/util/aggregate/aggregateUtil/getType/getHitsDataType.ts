@@ -1,4 +1,4 @@
-import { GassmaAny } from "../../../../types/coreTypes";
+import type { GassmaAny } from "../../../../types/coreTypes";
 
 type HitDateType =
   | "string"

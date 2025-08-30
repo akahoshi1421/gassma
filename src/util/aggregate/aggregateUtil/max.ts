@@ -2,7 +2,7 @@ import {
   GassmaAggregateMaxError,
   GassmaAggregateTypeError,
 } from "../../../errors/aggregate/aggregateError";
-import { Select } from "../../../types/coreTypes";
+import type { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
 import { getBooleanMax } from "./max/booleanMax";
 import { getDateMax } from "./max/dateMax";

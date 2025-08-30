@@ -1,6 +1,6 @@
 import { findManyFunc } from "../../../util/find/findMany";
 import { findFirstFunc } from "../../../util/find/findFirst";
-import { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
+import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 
 describe("omit integration tests", () => {
   const mockControllerUtil: GassmaControllerUtil = {

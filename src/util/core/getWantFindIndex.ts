@@ -1,5 +1,5 @@
-import { DeleteData, FindData, UpdateData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { DeleteData, FindData, UpdateData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "./getTitle";
 
 const getWantFindIndex = (

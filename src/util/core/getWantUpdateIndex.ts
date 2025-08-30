@@ -1,6 +1,6 @@
-import { CreateData } from "../../types/createTypes";
-import { UpdateData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { CreateData } from "../../types/createTypes";
+import type { UpdateData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "./getTitle";
 
 const getWantUpdateIndex = (

@@ -1,14 +1,14 @@
-import { AggregateData } from "./types/aggregateType";
-import { CountData } from "./types/countType";
-import { CreateData, CreateManyData } from "./types/createTypes";
-import {
+import type { AggregateData } from "./types/aggregateType";
+import type { CountData } from "./types/countType";
+import type { CreateData, CreateManyData } from "./types/createTypes";
+import type {
   DeleteData,
   FindData,
   UpdateData,
   UpsertData,
 } from "./types/findTypes";
-import { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
-import { GroupByData } from "./types/groupByType";
+import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
+import type { GroupByData } from "./types/groupByType";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { countFunc } from "./util/count/count";

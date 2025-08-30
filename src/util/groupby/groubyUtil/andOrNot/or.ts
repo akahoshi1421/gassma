@@ -1,4 +1,4 @@
-import {
+import type {
   HavingUse,
   HitByClassificationedRowData,
 } from "../../../../types/coreTypes";

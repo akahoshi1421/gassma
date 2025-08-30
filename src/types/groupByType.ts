@@ -1,5 +1,5 @@
-import { AggregateData } from "./aggregateType";
-import { HavingUse } from "./coreTypes";
+import type { AggregateData } from "./aggregateType";
+import type { HavingUse } from "./coreTypes";
 
 type GroupByData = AggregateData & {
   by: string[] | string;

@@ -1,6 +1,6 @@
-import { FilterConditions, GassmaAny, WhereUse } from "../../types/coreTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { HitRowData } from "../../types/hitRowDataType";
+import type { FilterConditions, GassmaAny, WhereUse } from "../../types/coreTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndex } from "../core/getWantFindIndex";
 import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
 import { isDict } from "../other/isDict";

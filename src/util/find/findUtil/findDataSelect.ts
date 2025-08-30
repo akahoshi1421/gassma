@@ -1,4 +1,4 @@
-import { AnyUse, Select } from "../../../types/coreTypes";
+import type { AnyUse, Select } from "../../../types/coreTypes";
 
 const findedDataSelect = (select: Select, row: AnyUse) => {
   const result = {};

@@ -1,7 +1,7 @@
-import { FilterConditions, WhereUse } from "../../types/coreTypes";
-import { FindData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { HitRowData } from "../../types/hitRowDataType";
+import type { FilterConditions, WhereUse } from "../../types/coreTypes";
+import type { FindData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
 import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
 import { isDict } from "../other/isDict";

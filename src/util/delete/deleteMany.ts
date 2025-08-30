@@ -1,5 +1,5 @@
-import { DeleteData, DeleteManyReturn } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { DeleteData, DeleteManyReturn } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { whereFilter } from "../core/whereFilter";
 
 const deleteManyFunc = (

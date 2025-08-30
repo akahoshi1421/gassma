@@ -1,6 +1,6 @@
-import { GassmaAny, WhereUse } from "../../types/coreTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { HitRowData } from "../../types/hitRowDataType";
+import type { GassmaAny, WhereUse } from "../../types/coreTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { HitRowData } from "../../types/hitRowDataType";
 import { isAndMatch } from "./and";
 import { isNotMatch } from "./not";
 import { isOrMatch } from "./or";

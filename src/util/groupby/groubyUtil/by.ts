@@ -1,4 +1,4 @@
-import { GassmaAny } from "../../../types/coreTypes";
+import type { GassmaAny } from "../../../types/coreTypes";
 
 const bySearch = (rows: {}[], byData: string[], depth: number): any[] => {
   if (depth === byData.length) return rows;

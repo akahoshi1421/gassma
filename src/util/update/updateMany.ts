@@ -1,5 +1,5 @@
-import { UpdateData, UpdateManyReturn } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { UpdateData, UpdateManyReturn } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";

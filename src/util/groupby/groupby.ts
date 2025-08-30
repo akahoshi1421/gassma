@@ -1,7 +1,7 @@
-import { AnyUse, GassmaAny } from "../../types/coreTypes";
-import { FindData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { GroupByData } from "../../types/groupByType";
+import type { AnyUse, GassmaAny } from "../../types/coreTypes";
+import type { FindData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { GroupByData } from "../../types/groupByType";
 import { getAvg } from "../aggregate/aggregateUtil/avg";
 import { getCount } from "../aggregate/aggregateUtil/count";
 import { getMax } from "../aggregate/aggregateUtil/max";

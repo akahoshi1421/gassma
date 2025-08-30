@@ -1,5 +1,5 @@
-import { GassmaAny } from "../../types/coreTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { GassmaAny } from "../../types/coreTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
 const getAllData = (
   gassmaControllerUtil: GassmaControllerUtil
