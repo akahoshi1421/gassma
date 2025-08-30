@@ -1,4 +1,4 @@
-import { AnyUse, OrderBy } from "../../../types/coreTypes";
+import type { AnyUse, OrderBy } from "../../../types/coreTypes";
 
 const search = (
   a: AnyUse,

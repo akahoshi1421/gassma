@@ -1,11 +1,11 @@
-import { CreateData } from "../../types/createTypes";
-import {
+import type { CreateData } from "../../types/createTypes";
+import type {
   FindData,
   UpdateData,
   UpsertData,
   UpsertManyReturn,
 } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { createFunc } from "../create/create";
 import { findFirstFunc } from "../find/findFirst";
 import { updateManyFunc } from "../update/updateMany";

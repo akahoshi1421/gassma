@@ -1,4 +1,4 @@
-import { Select } from "../../../types/coreTypes";
+import type { Select } from "../../../types/coreTypes";
 
 const getCount = (rows: {}[], avgData: Select) => {
   const avgKeys = Object.keys(avgData);

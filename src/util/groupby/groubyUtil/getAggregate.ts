@@ -1,4 +1,4 @@
-import { AnyUse, HavingAggregate, MatchKeys } from "../../../types/coreTypes";
+import type { AnyUse, HavingAggregate, MatchKeys } from "../../../types/coreTypes";
 import { getAvg } from "../../aggregate/aggregateUtil/avg";
 import { getCount } from "../../aggregate/aggregateUtil/count";
 import { getMax } from "../../aggregate/aggregateUtil/max";

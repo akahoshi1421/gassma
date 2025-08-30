@@ -1,6 +1,6 @@
-import { FilterConditions } from "../../types/coreTypes";
-import { FindData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { FilterConditions } from "../../types/coreTypes";
+import type { FindData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";

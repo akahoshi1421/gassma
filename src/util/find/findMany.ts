@@ -1,5 +1,5 @@
-import { FindData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { FindData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getTitle } from "../core/getTitle";
 import { whereFilter } from "../core/whereFilter";

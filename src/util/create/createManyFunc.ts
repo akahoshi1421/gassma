@@ -1,9 +1,9 @@
-import {
+import type {
   CreateData,
   CreateManyData,
   CreateManyReturn,
 } from "../../types/createTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 

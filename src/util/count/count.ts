@@ -1,6 +1,6 @@
-import { CountData } from "../../types/countType";
-import { FindData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { CountData } from "../../types/countType";
+import type { FindData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { findManyFunc } from "../find/findMany";
 
 const countFunc = (

@@ -1,5 +1,5 @@
 import { GassmaController } from "./gassmaController";
-import { GassmaSheet } from "./types/gassmaTypes";
+import type { GassmaSheet } from "./types/gassmaTypes";
 
 class GassmaClient {
   public readonly sheets: GassmaSheet = {};

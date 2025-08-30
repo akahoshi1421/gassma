@@ -1,4 +1,4 @@
-import { OrderBy, Select, WhereUse } from "./coreTypes";
+import type { OrderBy, Select, WhereUse } from "./coreTypes";
 
 type AggregateData = {
   where?: WhereUse;

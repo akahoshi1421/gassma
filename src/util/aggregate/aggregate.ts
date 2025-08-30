@@ -1,6 +1,6 @@
-import { AggregateData } from "../../types/aggregateType";
-import { FindData } from "../../types/findTypes";
-import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import type { AggregateData } from "../../types/aggregateType";
+import type { FindData } from "../../types/findTypes";
+import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { findManyFunc } from "../find/findMany";
 import { getAvg } from "./aggregateUtil/avg";
 import { getCount } from "./aggregateUtil/count";
