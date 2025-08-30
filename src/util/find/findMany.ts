@@ -1,8 +1,10 @@
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getTitle } from "../core/getTitle";
 import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
+import { omitFunc } from "./findUtil/omit";
 import { orderByFunc } from "./findUtil/orderBy";
 
 const findManyFunc = (
@@ -11,6 +13,7 @@ const findManyFunc = (
 ) => {
   const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
+  const omit = "omit" in findData ? findData.omit : null;
   const orderBy = "orderBy" in findData ? findData.orderBy : null;
   const take = "take" in findData ? findData.take : null;
   const skip = "skip" in findData ? findData.skip : null;
@@ -57,13 +60,25 @@ const findManyFunc = (
       Array.isArray(orderBy) ? orderBy : [orderBy]
     );
 
-  if (!select) return findDataDictArray;
+  if (select && omit) {
+    throw new GassmaFindSelectOmitConflictError();
+  }
 
-  const findDataDictArraySelected = findDataDictArray.map((row) => {
-    return findedDataSelect(select, row);
-  });
+  if (select) {
+    const findDataDictArraySelected = findDataDictArray.map((row) => {
+      return findedDataSelect(select, row);
+    });
+    return findDataDictArraySelected;
+  }
 
-  return findDataDictArraySelected;
+  if (omit) {
+    const findDataDictArrayOmitted = findDataDictArray.map((row) => {
+      return omitFunc(omit, row);
+    });
+    return findDataDictArrayOmitted;
+  }
+
+  return findDataDictArray;
 };
 
 export { findManyFunc };

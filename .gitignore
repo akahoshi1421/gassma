@@ -6,3 +6,10 @@ package-lock.json
 dist/*
 
 !dist/appsscript.json
+
+# LLM関連
+LLM/
+
+# Claude Code関連ファイル
+.claude/
+.mcp.json

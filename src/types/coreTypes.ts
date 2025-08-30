@@ -8,6 +8,10 @@ type Select = {
   [key: string]: true;
 };
 
+type Omit = {
+  [key: string]: true;
+};
+
 type AnyUse = {
   [key: string]: GassmaAny;
 };
@@ -120,6 +124,7 @@ export {
   GassmaAny,
   OrderBy,
   Select,
+  Omit,
   AnyUse,
   FilterConditions,
   WhereUse,

@@ -1,8 +1,9 @@
-import { AnyUse, ManyReturn, OrderBy, Select, WhereUse } from "./coreTypes";
+import { AnyUse, ManyReturn, Omit, OrderBy, Select, WhereUse } from "./coreTypes";
 
 type FindData = {
   where?: WhereUse;
   select?: Select;
+  omit?: Omit;
   orderBy?: OrderBy | OrderBy[];
   take?: number;
   skip?: number;

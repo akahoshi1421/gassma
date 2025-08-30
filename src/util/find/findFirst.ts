@@ -1,12 +1,14 @@
 import { FilterConditions } from "../../types/coreTypes";
 import { FindData } from "../../types/findTypes";
 import { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
 import { getWantFindIndex } from "../core/getWantFindIndex";
 import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
 import { isDict } from "../other/isDict";
 import { findedDataSelect } from "./findUtil/findDataSelect";
+import { omitFunc } from "./findUtil/omit";
 
 const findFirstFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -14,6 +16,7 @@ const findFirstFunc = (
 ) => {
   const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
+  const omit = "omit" in findData ? findData.omit : null;
   const skip = "skip" in findData ? findData.skip : null;
 
   let wantFindIndex: number[] = [];
@@ -49,9 +52,19 @@ const findFirstFunc = (
     findedDataDict[titles[dataIndex]] = data;
   });
 
-  if (!select) return findedDataDict;
+  if (select && omit) {
+    throw new GassmaFindSelectOmitConflictError();
+  }
 
-  return findedDataSelect(select, findedDataDict);
+  if (select) {
+    return findedDataSelect(select, findedDataDict);
+  }
+
+  if (omit) {
+    return omitFunc(omit, findedDataDict);
+  }
+
+  return findedDataDict;
 };
 
 export { findFirstFunc };
