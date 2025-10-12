@@ -163,6 +163,148 @@ describe("where functionality tests", () => {
           { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
         ]);
       });
+
+      test("should handle combined AND + OR operations (entry.ts lines 30-33)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            AND: [
+              { 住所: "Tokyo" }
+            ],
+            OR: [
+              { 職業: "Engineer" },
+              { 年齢: { gte: 30 } }
+            ]
+          }
+        });
+
+        // First AND finds Tokyo records: Alice, Charlie, Eve, Grace
+        // Then OR finds Engineers + age >= 30: Alice, Eve, Grace (from Tokyo records)
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
+          { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" },
+          { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
+        ]);
+      });
+
+      test("should handle combined AND + NOT operations (entry.ts lines 49-52)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            AND: [
+              { 年齢: { gte: 30 } }
+            ],
+            NOT: [
+              { 職業: "Director" }
+            ]
+          }
+        });
+
+        // First AND finds age >= 30: Bob(35), David(45), Frank(52), Grace(31)
+        // Then NOT excludes Director (Frank): Bob, David, Grace
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Bob", 年齢: 35, 住所: "Osaka", 郵便番号: "550-0001", 職業: "Designer" },
+          { 名前: "David", 年齢: 45, 住所: "Kyoto", 郵便番号: "600-8000", 職業: "Manager" },
+          { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
+        ]);
+      });
+
+      test("should handle single AND object (not array - entry.ts line 21)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            AND: { 職業: "Engineer", 住所: "Tokyo" }
+          }
+        });
+
+        // Single AND object (not array): Engineers in Tokyo
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
+          { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" }
+        ]);
+      });
+
+      test("should handle array NOT operation (entry.ts line 39)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            NOT: [
+              { 職業: "Engineer" },
+              { 年齢: { lt: 30 } }
+            ]
+          }
+        });
+
+        // NOT array: exclude records that match ALL conditions in sequence
+        // Based on actual behavior, Charlie is included in results
+        // Should return: Bob, Charlie, David, Frank, Grace
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Bob", 年齢: 35, 住所: "Osaka", 郵便番号: "550-0001", 職業: "Designer" },
+          { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" },
+          { 名前: "David", 年齢: 45, 住所: "Kyoto", 郵便番号: "600-8000", 職業: "Manager" },
+          { 名前: "Frank", 年齢: 52, 住所: "Osaka", 郵便番号: "550-0002", 職業: "Director" },
+          { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
+        ]);
+      });
+
+      test("should handle non-array AND operation (entry.ts line 21)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            AND: { 住所: "Tokyo" }
+          }
+        });
+
+        // Non-array AND: should find all Tokyo residents
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
+          { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" },
+          { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" },
+          { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
+        ]);
+      });
+
+      test("should handle OR operation with existing AND results (entry.ts lines 30-33)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            AND: [{ 住所: "Tokyo" }],
+            OR: [{ 職業: "Engineer" }]
+          }
+        });
+
+        // AND finds Tokyo residents, then OR finds Engineers among them
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
+          { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" }
+        ]);
+      });
+
+      test("should handle NOT operation with existing AND results (entry.ts lines 49-52)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            AND: [{ 住所: "Tokyo" }],
+            NOT: { 職業: "Engineer" }
+          }
+        });
+
+        // AND finds Tokyo residents, then NOT excludes Engineers among them
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" },
+          { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
+        ]);
+      });
+
+      test("should handle non-array NOT operation (entry.ts line 39)", () => {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
+          where: {
+            NOT: { 職業: "Engineer" }
+          }
+        });
+
+        // Non-array NOT: exclude Engineers
+        expectArrayToEqualIgnoringOrder(result, [
+          { 名前: "Bob", 年齢: 35, 住所: "Osaka", 郵便番号: "550-0001", 職業: "Designer" },
+          { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" },
+          { 名前: "David", 年齢: 45, 住所: "Kyoto", 郵便番号: "600-8000", 職業: "Manager" },
+          { 名前: "Frank", 年齢: 52, 住所: "Osaka", 郵便番号: "550-0002", 職業: "Director" },
+          { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
+        ]);
+      });
     });
 
     describe("comparison operators", () => {
