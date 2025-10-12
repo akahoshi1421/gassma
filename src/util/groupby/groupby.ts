@@ -17,7 +17,7 @@ const groupByFunc = (
 ) => {
   const where = groupByData.where || {};
   const orderBy = groupByData.orderBy || null;
-  const take = groupByData.take || null;
+  const take = "take" in groupByData ? groupByData.take : null;
   const skip = groupByData.skip || null;
   const avg = groupByData._avg || null;
   const count = groupByData._count || null;
@@ -32,7 +32,7 @@ const groupByFunc = (
   };
 
   if (orderBy) findData.orderBy = orderBy;
-  if (take) findData.take = take;
+  if (take !== null && take !== undefined) findData.take = take;
   if (skip) findData.skip = skip;
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
