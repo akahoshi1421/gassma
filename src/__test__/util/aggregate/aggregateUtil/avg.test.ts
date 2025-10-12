@@ -125,4 +125,41 @@ describe("getAvg", () => {
       expect(error.name).toBe("GassmaAggregateAvgError");
     }
   });
+
+  test("should handle single numeric value", () => {
+    const rows = [
+      { field: 42 }
+    ];
+    const result = getAvg(rows, { field: true });
+    
+    expect(result).toEqual({
+      field: 42
+    });
+  });
+
+  test("should handle zero values", () => {
+    const rows = [
+      { field: 0 },
+      { field: 10 },
+      { field: 0 }
+    ];
+    const result = getAvg(rows, { field: true });
+    
+    expect(result).toEqual({
+      field: 10 / 3
+    });
+  });
+
+  test("should handle negative numbers", () => {
+    const rows = [
+      { field: -5 },
+      { field: 10 },
+      { field: -3 }
+    ];
+    const result = getAvg(rows, { field: true });
+    
+    expect(result).toEqual({
+      field: 2 / 3
+    });
+  });
 });
