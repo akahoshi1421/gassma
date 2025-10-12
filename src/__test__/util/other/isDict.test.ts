@@ -84,39 +84,39 @@ describe("isDict", () => {
     expect(isDict(func)).toBe(false);
   });
 
-  test("should return true for RegExp", () => {
+  test("should return false for RegExp", () => {
     const regex = /test/;
-    expect(isDict(regex)).toBe(true);
+    expect(isDict(regex)).toBe(false);
   });
 
-  test("should return true for Error objects", () => {
+  test("should return false for Error objects", () => {
     const error = new Error("test");
-    expect(isDict(error)).toBe(true);
+    expect(isDict(error)).toBe(false);
   });
 
-  test("should return true for Map", () => {
+  test("should return false for Map", () => {
     const map = new Map();
-    expect(isDict(map)).toBe(true);
+    expect(isDict(map)).toBe(false);
   });
 
-  test("should return true for Set", () => {
+  test("should return false for Set", () => {
     const set = new Set();
-    expect(isDict(set)).toBe(true);
+    expect(isDict(set)).toBe(false);
   });
 
-  test("should return true for class instances", () => {
+  test("should return false for class instances", () => {
     class TestClass {}
     const instance = new TestClass();
-    expect(isDict(instance)).toBe(true);
+    expect(isDict(instance)).toBe(false);
   });
 
-  test("should handle objects with circular references", () => {
+  test("should return true for objects with circular references", () => {
     const obj: any = { key: "value" };
     obj.circular = obj;
-    expect(isDict(obj)).toBe(false);
+    expect(isDict(obj)).toBe(true);
   });
 
-  test("should handle objects with non-serializable properties", () => {
+  test("should return true for objects with non-serializable properties", () => {
     const obj = {
       key: "value",
       func: () => {},
@@ -146,20 +146,20 @@ describe("isDict", () => {
     expect(isDict(child)).toBe(true);
   });
 
-  test("should handle BigInt values", () => {
+  test("should return false for BigInt values", () => {
     const bigint = BigInt(123);
     expect(isDict(bigint)).toBe(false);
   });
 
-  test("should handle NaN", () => {
+  test("should return false for NaN", () => {
     expect(isDict(NaN)).toBe(false);
   });
 
-  test("should handle Infinity", () => {
+  test("should return false for Infinity", () => {
     expect(isDict(Infinity)).toBe(false);
   });
 
-  test("should handle -Infinity", () => {
+  test("should return false for -Infinity", () => {
     expect(isDict(-Infinity)).toBe(false);
   });
 });
