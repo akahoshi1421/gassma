@@ -74,9 +74,8 @@ describe("deleteMany functionality tests", () => {
         },
       });
 
-      // 初期データ: 3 Engineers + 2 Designers = 5人削除予定
-      // 実際の削除数をチェック
-      expect(result.count).toBeGreaterThan(0);
+      // 初期データ: 3 Engineers + 2 Designers = 5人
+      expect(result.count).toBe(5);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       
@@ -85,8 +84,8 @@ describe("deleteMany functionality tests", () => {
         (row: any, index: number) => 
           index > 0 && (row[4] === "Engineer" || row[4] === "Designer")
       );
-      // 削除後、Engineer/Designerは残っていないはず
-      expect(engineerDesignerRows.length).toBeLessThanOrEqual(1);
+      // Engineer/Designerは全て削除されているはず
+      expect(engineerDesignerRows).toHaveLength(0);
 
       // Verify remaining records
       const remainingRows = currentData.filter(
@@ -159,6 +158,9 @@ describe("deleteMany functionality tests", () => {
         where: { 年齢: { gte: 30 } },
       });
 
+      // 初期データで年齢30以上: Bob(35), David(45), Grace(31), Frank(52) = 4人
+      expect(result.count).toBe(4);
+
       const currentData = (mockUtil.sheet as any)._getMockData();
       
       // Verify all remaining records have age < 30
@@ -168,8 +170,6 @@ describe("deleteMany functionality tests", () => {
       remainingRows.forEach((row: any) => {
         expect(row[1]).toBeLessThan(30);
       });
-
-      expect(result.count).toBeGreaterThan(0);
     });
 
     test("should handle multiple field conditions", () => {
@@ -377,21 +377,17 @@ describe("deleteMany functionality tests", () => {
       const currentData = (mockUtil.sheet as any)._getMockData();
       expect(currentData).toHaveLength(INITIAL_ROW_COUNT - 5);
 
-      // Verify data integrity after complex deletion
+      // 5人削除後、3人残る（Bob, Charlie, Frank）
       const remainingRows = currentData.filter(
         (row: any, index: number) => index > 0
       );
-      
-      // Just verify that some records remain and the data structure is intact
-      expect(remainingRows.length).toBeGreaterThan(0);
-      expect(remainingRows.length).toBeLessThan(INITIAL_ROW_COUNT - 1);
-      
-      // Verify each remaining record has all expected fields
-      remainingRows.forEach((row: any) => {
-        expect(row).toHaveLength(5); // 名前、年齢、住所、郵便番号、職業
-        expect(row[0]).toBeDefined(); // 名前
-        expect(row[4]).toBeDefined(); // 職業
-      });
+      expect(remainingRows).toHaveLength(3);
+
+      // 残っているレコードを検証
+      const remainingNames = remainingRows.map((row: any) => row[0]);
+      expect(remainingNames).toContain("Bob");
+      expect(remainingNames).toContain("Charlie");
+      expect(remainingNames).toContain("Frank");
     });
 
     test("should maintain data integrity after multiple operations", () => {

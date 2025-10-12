@@ -12,11 +12,14 @@ const deleteManyFunc = (
 
   const findedData = whereFilter(where, gassmaControllerUtil);
   const findedDataLength = findedData.length;
-  let deletedCnt = 0;
 
-  findedData.forEach((row) => {
-    sheet.deleteRow(row.rowNumber + startRowNumber + deletedCnt);
-    deletedCnt--;
+  // 行を後ろから削除することで、削除による行番号のずれを回避
+  // sortDescendingを使って降順にソート
+  const sortedData = findedData.sort((a, b) => b.rowNumber - a.rowNumber);
+
+  sortedData.forEach((row) => {
+    const actualRowNumber = row.rowNumber + startRowNumber;
+    sheet.deleteRow(actualRowNumber);
   });
 
   return { count: findedDataLength };
