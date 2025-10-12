@@ -85,3 +85,4 @@ export const getExtendedMockControllerUtil = (): GassmaControllerUtil => ({
 
 // For backward compatibility
 export const extendedMockControllerUtil = getExtendedMockControllerUtil();
+
