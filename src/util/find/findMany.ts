@@ -42,7 +42,7 @@ const findManyFunc = (
 
   // Apply distinct after orderBy
   if (distinct) {
-    const distinctKeys = Object.keys(distinct);
+    const distinctKeys = Array.isArray(distinct) ? distinct : [distinct];
     const seen = new Set<string>();
     
     findDataDictArray = findDataDictArray.filter((row) => {
@@ -62,8 +62,15 @@ const findManyFunc = (
       (_value, index) => index + 1 > skip
     );
 
-  // Apply take last (handle negative values as no limit)
-  if (take && take > 0) findDataDictArray = findDataDictArray.slice(0, take);
+  // Apply take last (handle negative values as no limit, zero as empty)
+  if (take !== null && take !== undefined) {
+    if (take === 0) {
+      findDataDictArray = [];
+    } else if (take > 0) {
+      findDataDictArray = findDataDictArray.slice(0, take);
+    }
+    // Negative values are treated as no limit (do nothing)
+  }
 
   if (select && omit) {
     throw new GassmaFindSelectOmitConflictError();
