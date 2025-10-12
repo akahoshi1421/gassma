@@ -16,4 +16,10 @@ describe("filterConditionsGte", () => {
     const filterOptions = { gte: 10 };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should return false when cellData is null", () => {
+    const cellData = null;
+    const filterOptions = { gte: 10 };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

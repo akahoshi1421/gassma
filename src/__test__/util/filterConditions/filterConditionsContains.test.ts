@@ -11,4 +11,16 @@ describe("filterConditionsContains", () => {
     const filterOptions = { contains: "not" };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
   });
+
+  test("should return false when cellData is null", () => {
+    const cellData = null;
+    const filterOptions = { contains: "test" };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should handle numeric values converted to string", () => {
+    const cellData = 123;
+    const filterOptions = { contains: "2" };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
 });

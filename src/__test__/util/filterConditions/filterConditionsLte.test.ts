@@ -18,4 +18,10 @@ describe("filterConditionsLte", () => {
     const filterOptions = { lte: 10 };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should return false when cellData is null", () => {
+    const cellData = null;
+    const filterOptions = { lte: 10 };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

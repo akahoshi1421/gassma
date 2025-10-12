@@ -11,4 +11,16 @@ describe("filterConditionsGt", () => {
     const filterOptions = { gt: 10 };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
   });
+
+  test("should return false when cellData is null", () => {
+    const cellData = null;
+    const filterOptions = { gt: 10 };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should return false for equal values", () => {
+    const cellData = 10;
+    const filterOptions = { gt: 10 };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });
