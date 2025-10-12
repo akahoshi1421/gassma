@@ -267,6 +267,27 @@ describe("updateMany functionality tests", () => {
   });
 
   describe("updateMany error handling", () => {
+    test("should handle empty row data gracefully", () => {
+      // Use jest.spyOn to mock the whereFilter function directly
+      const whereFilterSpy = jest.spyOn(require("../../../util/core/whereFilter"), "whereFilter");
+      
+      // Mock whereFilter to return data with empty row to trigger line 30
+      whereFilterSpy.mockReturnValue([
+        { row: [], rowNumber: 1 } // Empty row array
+      ]);
+
+      const result = updateManyFunc(mockUtil, {
+        where: { 名前: "Test" },
+        data: { 職業: "Updated" }
+      });
+
+      // Should return count 1 (the number of rows found by whereFilter)
+      expect(result).toEqual({ count: 1 });
+      
+      // Clean up the mock
+      whereFilterSpy.mockRestore();
+    });
+
     test("should handle non-existent column names gracefully", () => {
       const result = updateManyFunc(mockUtil, {
         where: { 名前: "Alice" },
