@@ -86,3 +86,98 @@ export const getExtendedMockControllerUtil = (): GassmaControllerUtil => ({
 // For backward compatibility
 export const extendedMockControllerUtil = getExtendedMockControllerUtil();
 
+// Function to get mutable mock for create/update/delete tests (maintains state)
+export const getMutableMockControllerUtil = (): GassmaControllerUtil => {
+  let mockData = [
+    ["名前", "年齢", "住所", "郵便番号", "職業"],
+    ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+    ["Bob", 35, "Osaka", "550-0001", "Designer"],
+    ["Charlie", 22, "Tokyo", "100-0002", "Student"],
+    ["David", 45, "Kyoto", "600-8000", "Manager"],
+    ["Eve", 28, "Tokyo", "100-0003", "Engineer"],
+    ["Frank", 52, "Osaka", "550-0002", "Director"],
+    ["Grace", 31, "Tokyo", "100-0004", "Designer"],
+    ["Henry", 28, "Kyoto", "600-8001", "Engineer"]
+  ];
+
+  return {
+    sheet: {
+      getDataRange: jest.fn(() => ({
+        getValues: jest.fn(() => [...mockData])
+      })),
+      getLastRow: jest.fn(() => mockData.length),
+      getLastColumn: jest.fn(() => 5),
+      getRange: jest.fn((row: number, col: number, numRows: number, numCols: number) => {
+        if (row === 1 && numRows === 1) {
+          // Title row request
+          return {
+            getValues: jest.fn(() => [mockData[0]]),
+            setValues: jest.fn((values: any[][]) => {
+              values.forEach((rowValues, i) => {
+                rowValues.forEach((value, j) => {
+                  if (mockData[row - 1 + i]) {
+                    mockData[row - 1 + i][col - 1 + j] = value;
+                  }
+                });
+              });
+            })
+          } as any;
+        } else {
+          // Data manipulation
+          return {
+            getValues: jest.fn(() => {
+              const result = [];
+              for (let i = 0; i < numRows; i++) {
+                if (mockData[row - 1 + i]) {
+                  const rowData = [];
+                  for (let j = 0; j < numCols; j++) {
+                    rowData.push(mockData[row - 1 + i][col - 1 + j]);
+                  }
+                  result.push(rowData);
+                }
+              }
+              return result;
+            }),
+            setValues: jest.fn((values: any[][]) => {
+              values.forEach((rowValues, i) => {
+                // Ensure the row exists in mockData
+                while (mockData.length <= row - 1 + i) {
+                  mockData.push(Array(5).fill(""));
+                }
+                rowValues.forEach((value, j) => {
+                  mockData[row - 1 + i][col - 1 + j] = value;
+                });
+              });
+            })
+          } as any;
+        }
+      }),
+      insertRow: jest.fn((rowIndex: number) => {
+        mockData.splice(rowIndex - 1, 0, Array(5).fill(""));
+      }),
+      deleteRow: jest.fn((rowIndex: number) => {
+        mockData.splice(rowIndex - 1, 1);
+      }),
+      // Helper method to get current mock data state
+      _getMockData: () => [...mockData],
+      // Helper method to reset mock data
+      _resetMockData: () => {
+        mockData = [
+          ["名前", "年齢", "住所", "郵便番号", "職業"],
+          ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+          ["Bob", 35, "Osaka", "550-0001", "Designer"],
+          ["Charlie", 22, "Tokyo", "100-0002", "Student"],
+          ["David", 45, "Kyoto", "600-8000", "Manager"],
+          ["Eve", 28, "Tokyo", "100-0003", "Engineer"],
+          ["Frank", 52, "Osaka", "550-0002", "Director"],
+          ["Grace", 31, "Tokyo", "100-0004", "Designer"],
+          ["Henry", 28, "Kyoto", "600-8001", "Engineer"]
+        ];
+      }
+    } as any,
+    startRowNumber: 1,
+    startColumnNumber: 1,
+    endColumnNumber: 5
+  };
+};
+
