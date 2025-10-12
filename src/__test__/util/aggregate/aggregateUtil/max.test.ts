@@ -267,7 +267,7 @@ describe("max aggregate functionality tests", () => {
       ];
       expect(() => {
         getMax(rows, { value: true });
-      }).toThrow();
+      }).toThrow('Cannot produce a maximum value of more than one type.');
     });
   });
 

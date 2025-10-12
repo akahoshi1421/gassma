@@ -257,7 +257,7 @@ describe("min aggregate functionality tests", () => {
       ];
       expect(() => {
         getMin(rows, { value: true });
-      }).toThrow();
+      }).toThrow('Cannot produce a maximum value of more than one type.');
     });
   });
 
@@ -300,6 +300,16 @@ describe("min aggregate functionality tests", () => {
       ];
       const result = getMin(rows, { value: true });
       expect(result).toEqual({ value: -1 });
+    });
+
+    test("should handle infinity values", () => {
+      const rows = [
+        { value: Number.POSITIVE_INFINITY },
+        { value: 1000 },
+        { value: Number.NEGATIVE_INFINITY }
+      ];
+      const result = getMin(rows, { value: true });
+      expect(result).toEqual({ value: Number.NEGATIVE_INFINITY });
     });
   });
 });
