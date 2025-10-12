@@ -343,6 +343,18 @@ describe("skip functionality tests", () => {
         名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer"
       });
     });
+
+    test("should handle skip: 0 (boundary value)", () => {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
+        where: { 職業: "Engineer" },
+        skip: 0
+      });
+
+      // Should not skip any records, return first Engineer
+      expect(result).toEqual({
+        名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer"
+      });
+    });
   });
 });
 
