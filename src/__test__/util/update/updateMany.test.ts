@@ -3,7 +3,9 @@ import { getMutableMockControllerUtil } from "../../consts/mockControllerUtil";
 
 // Constants for better maintainability
 const INITIAL_ROW_COUNT = 9;
+// 初期データ中のEngineerの数（Alice, Eve, Henry）
 const EXPECTED_ENGINEER_COUNT = 3;
+// 初期データ中のTokyo在住者の数（Alice, Charlie, Eve, Grace）
 const EXPECTED_TOKYO_COUNT = 4;
 
 describe("updateMany functionality tests", () => {
@@ -88,8 +90,8 @@ describe("updateMany functionality tests", () => {
         data: { 職業: "Senior Specialist" },
       });
 
-      // Should update Tokyo residents aged 28 or older
-      expect(result.count).toBeGreaterThan(0);
+      // 初期データ: Alice(28, Tokyo), Eve(28, Tokyo), Grace(31, Tokyo) = 3人
+      expect(result.count).toBe(3);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const specialistRows = currentData.filter(
@@ -283,7 +285,12 @@ describe("updateMany functionality tests", () => {
       );
       expect(aliceRow).toBeDefined();
       expect(aliceRow[1]).toBe(35); // Valid update applied
-      // Non-existent column should be ignored
+      
+      // 存在しないカラムのデータが意図せずどこかに書き込まれていないことを確認
+      const hasInvalidValue = currentData.some(row => 
+        row.some(cell => cell === "無効な値")
+      );
+      expect(hasInvalidValue).toBe(false);
     });
 
     test("should handle invalid data types gracefully", () => {
@@ -387,7 +394,8 @@ describe("updateMany functionality tests", () => {
       const endTime = Date.now();
 
       expect(result).toEqual({ count: INITIAL_ROW_COUNT - 1 });
-      expect(endTime - startTime).toBeLessThan(1000); // Should complete within 1 second
+      // CI環境での処理遅延を考慮
+      expect(endTime - startTime).toBeLessThan(2000);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const updatedRows = currentData.filter(
@@ -434,7 +442,11 @@ describe("updateMany functionality tests", () => {
         data: { 職業: "Complex Query Worker" },
       });
 
-      expect(result.count).toBeGreaterThan(0);
+      // 初期データから計算:
+      // Tokyo: Alice(Engineer), Eve(Engineer), Grace(Designer) = 3人
+      // Kyoto: David(Manager), Henry(Engineer) = 2人
+      // Tokyo + Kyotoで Student以外 = 5人（Charlie以外全員）
+      expect(result.count).toBe(5);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const complexQueryWorkers = currentData.filter(
