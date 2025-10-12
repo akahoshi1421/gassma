@@ -1,5 +1,6 @@
 import { notPatternFilter } from "../../../../../../util/groupby/groubyUtil/having/normalHavingFilter/notPatternFilter";
 import type { HitByClassificationedRowData, HavingUse } from "../../../../../../types/coreTypes";
+import { GassmaGroupByHavingDontWriteByError } from "../../../../../../errors/groupBy/groupByError";
 
 describe("notPatternFilter function tests", () => {
   // Mock data setup
@@ -373,7 +374,7 @@ describe("notPatternFilter function tests", () => {
 
       expect(() => {
         notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-      }).toThrow();
+      }).toThrow(GassmaGroupByHavingDontWriteByError);
     });
 
     test("should throw error for complex condition with field not in by array", () => {
@@ -383,7 +384,7 @@ describe("notPatternFilter function tests", () => {
 
       expect(() => {
         notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-      }).toThrow();
+      }).toThrow(GassmaGroupByHavingDontWriteByError);
     });
 
     test("should handle empty rows array", () => {
@@ -441,6 +442,74 @@ describe("notPatternFilter function tests", () => {
 
       expect(result).toHaveLength(3);
       expect(result.map(r => r.row[0].name)).toEqual(["Alice", "Bob", "David"]);
+    });
+  });
+
+  describe("boundary value testing", () => {
+    test("should include boundary value with lte condition", () => {
+      const havingData: HavingUse = {
+        age: { lte: 25 }
+      };
+
+      const result = notPatternFilter(mockClassificationedRows, havingData, byFields);
+
+      expect(result).toHaveLength(2);
+      expect(result.map(r => r.row[0].name)).toEqual(["Alice", "Charlie"]);
+    });
+
+    test("should exclude boundary value with lt condition", () => {
+      const havingData: HavingUse = {
+        age: { lt: 25 }
+      };
+
+      const result = notPatternFilter(mockClassificationedRows, havingData, byFields);
+
+      expect(result).toHaveLength(1);
+      expect(result.map(r => r.row[0].name)).toEqual(["Charlie"]);
+    });
+
+    test("should include boundary value with gte condition", () => {
+      const havingData: HavingUse = {
+        score: { gte: 85 }
+      };
+
+      const result = notPatternFilter(mockClassificationedRows, havingData, byFields);
+
+      expect(result).toHaveLength(4);
+      expect(result.map(r => r.row[0].name)).toEqual(["Alice", "Bob", "David", "Eve"]);
+    });
+
+    test("should exclude boundary value with gt condition", () => {
+      const havingData: HavingUse = {
+        score: { gt: 85 }
+      };
+
+      const result = notPatternFilter(mockClassificationedRows, havingData, byFields);
+
+      expect(result).toHaveLength(3);
+      expect(result.map(r => r.row[0].name)).toEqual(["Bob", "David", "Eve"]);
+    });
+
+    test("should handle exact boundary match with equals", () => {
+      const havingData: HavingUse = {
+        age: { equals: 28 }
+      };
+
+      const result = notPatternFilter(mockClassificationedRows, havingData, byFields);
+
+      expect(result).toHaveLength(1);
+      expect(result.map(r => r.row[0].name)).toEqual(["Eve"]);
+    });
+
+    test("should exclude exact boundary match with not condition", () => {
+      const havingData: HavingUse = {
+        score: { not: 88 }
+      };
+
+      const result = notPatternFilter(mockClassificationedRows, havingData, byFields);
+
+      expect(result).toHaveLength(4);
+      expect(result.map(r => r.row[0].name)).toEqual(["Alice", "Bob", "Charlie", "Eve"]);
     });
   });
 
