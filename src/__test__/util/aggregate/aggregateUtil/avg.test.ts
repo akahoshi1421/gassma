@@ -1,5 +1,4 @@
 import { getAvg } from "../../../../util/aggregate/aggregateUtil/avg";
-import { GassmaAggregateAvgError, GassmaAggregateAvgTypeError } from "../../../../errors/aggregate/aggregateError";
 
 describe("getAvg", () => {
   test("should calculate average for numeric data", () => {
@@ -54,7 +53,7 @@ describe("getAvg", () => {
       getAvg(rows, { field: true });
       fail("Expected function to throw an error");
     } catch (error: any) {
-      expect(error.message).toBe("Cannot produce a maximum value of more than one type.");
+      expect(error.name).toBe("GassmaAggregateAvgError");
     }
   });
 
@@ -69,7 +68,7 @@ describe("getAvg", () => {
       getAvg(rows, { field: true });
       fail("Expected function to throw an error");
     } catch (error: any) {
-      expect(error.message).toContain("number");
+      expect(error.name).toBe("GassmaAggregateAvgTypeError");
     }
   });
 
@@ -84,7 +83,7 @@ describe("getAvg", () => {
       getAvg(rows, { field: true });
       fail("Expected function to throw an error");
     } catch (error: any) {
-      expect(error.message).toContain("number");
+      expect(error.name).toBe("GassmaAggregateAvgTypeError");
     }
   });
 
@@ -100,7 +99,7 @@ describe("getAvg", () => {
       getAvg(rows, { field: true });
       fail("Expected function to throw an error");
     } catch (error: any) {
-      expect(error.message).toContain("number");
+      expect(error.name).toBe("GassmaAggregateAvgTypeError");
     }
   });
 
@@ -123,7 +122,7 @@ describe("getAvg", () => {
       getAvg(rows, { numeric: true, allNull: true, mixed: true });
       fail("Expected function to throw an error");
     } catch (error: any) {
-      expect(error.message).toBe("Cannot produce a maximum value of more than one type.");
+      expect(error.name).toBe("GassmaAggregateAvgError");
     }
   });
 });
