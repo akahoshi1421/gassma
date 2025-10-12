@@ -1,7 +1,6 @@
 const isDict = (val: any): boolean => {
-  const valCopied = JSON.parse(JSON.stringify(val));
-
   try {
+    const valCopied = JSON.parse(JSON.stringify(val));
     return (
       valCopied !== null &&
       typeof valCopied === "object" &&
