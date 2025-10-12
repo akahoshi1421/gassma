@@ -33,32 +33,44 @@ const findManyFunc = (
     return result;
   });
 
-  if (skip)
-    findDataDictArray = findDataDictArray.filter(
-      (_value, index) => index + 1 > skip
-    );
-
-  if (take) findDataDictArray = findDataDictArray.slice(0, take);
-
-  if (distinct) {
-    const distinctArray = Array.isArray(distinct) ? distinct : [distinct];
-
-    distinctArray.forEach((oneDistinct) => {
-      const alreadySearched = [];
-      findDataDictArray = findDataDictArray.filter((row) => {
-        if (alreadySearched.includes(row[oneDistinct])) return false;
-
-        alreadySearched.push(row[oneDistinct]);
-        return true;
-      });
-    });
-  }
-
+  // Apply orderBy first (before distinct, skip, take)
   if (orderBy)
     findDataDictArray = orderByFunc(
       findDataDictArray,
       Array.isArray(orderBy) ? orderBy : [orderBy]
     );
+
+  // Apply distinct after orderBy
+  if (distinct) {
+    const distinctKeys = Array.isArray(distinct) ? distinct : [distinct];
+    const seen = new Set<string>();
+    
+    findDataDictArray = findDataDictArray.filter((row) => {
+      // Create a unique key from the distinct field values
+      const key = distinctKeys.map(k => JSON.stringify(row[k])).join('|');
+      
+      if (seen.has(key)) return false;
+      
+      seen.add(key);
+      return true;
+    });
+  }
+
+  // Apply skip after distinct
+  if (skip)
+    findDataDictArray = findDataDictArray.filter(
+      (_value, index) => index + 1 > skip
+    );
+
+  // Apply take last (handle negative values as no limit, zero as empty)
+  if (take !== null && take !== undefined) {
+    if (take === 0) {
+      findDataDictArray = [];
+    } else if (take > 0) {
+      findDataDictArray = findDataDictArray.slice(0, take);
+    }
+    // Negative values are treated as no limit (do nothing)
+  }
 
   if (select && omit) {
     throw new GassmaFindSelectOmitConflictError();
