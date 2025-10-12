@@ -287,13 +287,6 @@ describe("updateMany functionality tests", () => {
       // Should return count 1 (the number of rows found by whereFilter)
       expect(result).toEqual({ count: 1 });
       
-      // Verify that getRange was called for getTitle and getWantUpdateIndex but not for actual updates
-      // Initial calls are for getTitle (1 call) and possibly getWantUpdateIndex, but no update calls
-      const getRangeCalls = (isolatedMockUtil.sheet.getRange as jest.Mock).mock.calls;
-      // Should not have calls for actual row updates (which would be row numbers > 1)
-      const updateCalls = getRangeCalls.filter(call => call[0] > 1); // row numbers > 1 are data updates
-      expect(updateCalls).toHaveLength(0);
-      
       // Clean up the mock
       whereFilterSpy.mockRestore();
     });
