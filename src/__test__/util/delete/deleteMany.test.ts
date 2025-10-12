@@ -74,8 +74,8 @@ describe("deleteMany functionality tests", () => {
         },
       });
 
-      // 実際の削除数をチェック（Engineer/Designer削除の実装動作確認）
-      expect(result.count).toBeGreaterThan(0);
+      // 初期データ: 3 Engineers + 2 Designers = 5人
+      expect(result.count).toBe(5);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       
@@ -84,8 +84,8 @@ describe("deleteMany functionality tests", () => {
         (row: any, index: number) => 
           index > 0 && (row[4] === "Engineer" || row[4] === "Designer")
       );
-      // 削除実装の動作に応じて残存レコード数を確認
-      expect(engineerDesignerRows.length).toBeLessThanOrEqual(2);
+      // Engineer/Designerは全て削除されているはず
+      expect(engineerDesignerRows).toHaveLength(0);
 
       // Verify remaining records
       const remainingRows = currentData.filter(
@@ -377,21 +377,17 @@ describe("deleteMany functionality tests", () => {
       const currentData = (mockUtil.sheet as any)._getMockData();
       expect(currentData).toHaveLength(INITIAL_ROW_COUNT - 5);
 
-      // 削除後の残存レコードを確認
+      // 5人削除後、3人残る（Bob, Charlie, Frank）
       const remainingRows = currentData.filter(
         (row: any, index: number) => index > 0
       );
-      
-      // データ構造の整合性を確認
-      expect(remainingRows.length).toBeGreaterThan(0);
-      expect(remainingRows.length).toBeLessThan(INITIAL_ROW_COUNT - 1);
-      
-      // 各残存レコードの完整性を確認
-      remainingRows.forEach((row: any) => {
-        expect(row).toHaveLength(5); // 名前、年齢、住所、郵便番号、職業
-        expect(row[0]).toBeDefined(); // 名前
-        expect(row[4]).toBeDefined(); // 職業
-      });
+      expect(remainingRows).toHaveLength(3);
+
+      // 残っているレコードを検証
+      const remainingNames = remainingRows.map((row: any) => row[0]);
+      expect(remainingNames).toContain("Bob");
+      expect(remainingNames).toContain("Charlie");
+      expect(remainingNames).toContain("Frank");
     });
 
     test("should maintain data integrity after multiple operations", () => {
