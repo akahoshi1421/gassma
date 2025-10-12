@@ -86,8 +86,19 @@ export const getExtendedMockControllerUtil = (): GassmaControllerUtil => ({
 // For backward compatibility
 export const extendedMockControllerUtil = getExtendedMockControllerUtil();
 
+// Type definition for extended mock sheet with helper methods
+interface MockSheetWithHelpers extends GoogleAppsScript.Spreadsheet.Sheet {
+  _getMockData: () => any[][];
+  _resetMockData: () => void;
+}
+
+// Type definition for mutable mock controller util
+interface MutableGassmaControllerUtil extends GassmaControllerUtil {
+  sheet: MockSheetWithHelpers;
+}
+
 // Function to get mutable mock for create/update/delete tests (maintains state)
-export const getMutableMockControllerUtil = (): GassmaControllerUtil => {
+export const getMutableMockControllerUtil = (): MutableGassmaControllerUtil => {
   let mockData = [
     ["名前", "年齢", "住所", "郵便番号", "職業"],
     ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
