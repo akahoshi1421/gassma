@@ -17,6 +17,9 @@ const getHitsDataType = (hitsData: GassmaAny[]): HitDateType | false => {
   if (hitsData[0] instanceof Date) hitDataType = "Date";
 
   const isAllDataTypeSame = hitsData.every((data) => {
+    if (hitDataType === "Date") {
+      return data instanceof Date;
+    }
     return typeof data === hitDataType;
   });
 
