@@ -16,4 +16,16 @@ describe("filterConditionsEndsWith", () => {
     const filterOptions = { endsWith: "te" };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
   });
+
+  test("should return false when cellData is null", () => {
+    const cellData = null;
+    const filterOptions = { endsWith: "test" };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should handle numeric values converted to string", () => {
+    const cellData = 123;
+    const filterOptions = { endsWith: "3" };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
 });
