@@ -1,12 +1,12 @@
 import { findManyFunc } from "../../../util/find/findMany";
 import { findFirstFunc } from "../../../util/find/findFirst";
-import { extendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
 
 describe("orderBy functionality tests", () => {
   describe("findManyFunc with orderBy", () => {
     describe("single field sorting", () => {
       test("should sort by string field in ascending order", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: { 名前: "asc" }
         });
 
@@ -23,7 +23,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should sort by string field in descending order", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: { 名前: "desc" }
         });
 
@@ -40,7 +40,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should sort by numeric field in ascending order", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: { 年齢: "asc" }
         });
 
@@ -57,7 +57,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should sort by numeric field in descending order", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: { 年齢: "desc" }
         });
 
@@ -76,7 +76,7 @@ describe("orderBy functionality tests", () => {
 
     describe("multiple field sorting", () => {
       test("should sort by multiple fields with array syntax", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: [
             { 年齢: "asc" },
             { 名前: "asc" }
@@ -96,7 +96,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should sort by multiple fields with mixed order", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: [
             { 住所: "asc" },
             { 年齢: "desc" }
@@ -116,7 +116,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should sort by three fields with complex ordering", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           orderBy: [
             { 職業: "asc" },
             { 年齢: "desc" },
@@ -139,7 +139,7 @@ describe("orderBy functionality tests", () => {
 
     describe("orderBy with other options", () => {
       test("should work with where condition", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           where: { 住所: "Tokyo" },
           orderBy: { 年齢: "desc" }
         });
@@ -153,7 +153,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should work with select", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           select: { 名前: true, 年齢: true },
           orderBy: { 年齢: "asc" }
         });
@@ -171,7 +171,7 @@ describe("orderBy functionality tests", () => {
       });
 
       test("should work with where, select, and multiple orderBy", () => {
-        const result = findManyFunc(extendedMockControllerUtil, {
+        const result = findManyFunc(getExtendedMockControllerUtil(), {
           where: { 年齢: { gte: 28 } },
           select: { 名前: true, 年齢: true, 職業: true },
           orderBy: [
@@ -195,7 +195,7 @@ describe("orderBy functionality tests", () => {
 
   describe("findFirstFunc with orderBy", () => {
     test("should return first result after sorting by ascending order", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         orderBy: { 年齢: "asc" }
       });
 
@@ -205,7 +205,7 @@ describe("orderBy functionality tests", () => {
     });
 
     test("should return first result after sorting by descending order", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         orderBy: { 年齢: "desc" }
       });
 
@@ -215,7 +215,7 @@ describe("orderBy functionality tests", () => {
     });
 
     test("should work with multiple orderBy fields", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         orderBy: [
           { 年齢: "asc" },
           { 名前: "desc" }
@@ -228,7 +228,7 @@ describe("orderBy functionality tests", () => {
     });
 
     test("should work with where condition and orderBy", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: { 職業: "Engineer" },
         orderBy: { 名前: "desc" }
       });
@@ -239,7 +239,7 @@ describe("orderBy functionality tests", () => {
     });
 
     test("should work with select and orderBy", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true, 職業: true },
         orderBy: { 名前: "asc" }
       });
@@ -250,7 +250,7 @@ describe("orderBy functionality tests", () => {
     });
 
     test("should return null if no match found with orderBy", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
         orderBy: { 年齢: "asc" }
       });

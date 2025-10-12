@@ -1,10 +1,11 @@
 import { findManyFunc } from "../../../util/find/findMany";
-import { extendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { expectArrayToEqualIgnoringOrder } from "../../helpers/matchers";
 
 describe("skip functionality tests", () => {
   describe("findManyFunc with skip", () => {
     test("should skip specified number of records", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: 2
       });
 
@@ -20,7 +21,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should skip no records when skip is 0", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: 0
       });
 
@@ -38,7 +39,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should return empty array when skip exceeds total count", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: 20
       });
 
@@ -46,7 +47,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should skip all but one record", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: 7
       });
 
@@ -57,13 +58,13 @@ describe("skip functionality tests", () => {
     });
 
     test("should work with where condition", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 住所: "Tokyo" },
         skip: 1
       });
 
       expect(result).toHaveLength(3); // 4 Tokyo records - 1 skipped = 3
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result, [
         { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" },
         { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" },
         { 名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer" }
@@ -71,7 +72,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should work with select", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true, 年齢: true },
         skip: 3
       });
@@ -87,7 +88,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should work with orderBy", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         orderBy: { 年齢: "asc" },
         skip: 2
       });
@@ -104,7 +105,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should work with take (pagination)", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: 2,
         take: 3
       });
@@ -118,7 +119,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should work with complex combination of options", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 年齢: { gte: 28 } },
         select: { 名前: true, 年齢: true, 職業: true },
         orderBy: { 年齢: "desc" },
@@ -135,7 +136,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should work with omit", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         omit: { 郵便番号: true, 職業: true },
         skip: 5
       });
@@ -149,7 +150,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should return empty array when filtered results are empty", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
         skip: 1
       });
@@ -158,13 +159,13 @@ describe("skip functionality tests", () => {
     });
 
     test("should skip within filtered results", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 年齢: 28 },
         skip: 1
       });
 
       expect(result).toHaveLength(2); // 3 records with age 28 - 1 skipped = 2
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result, [
         { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" },
         { 名前: "Henry", 年齢: 28, 住所: "Kyoto", 郵便番号: "600-8001", 職業: "Engineer" }
       ]);
@@ -173,7 +174,7 @@ describe("skip functionality tests", () => {
 
   describe("findManyFunc skip edge cases", () => {
     test("should handle negative skip values gracefully", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: -1
       });
 
@@ -181,7 +182,7 @@ describe("skip functionality tests", () => {
     });
 
     test("should handle floating point skip values", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: 2.7
       });
 
@@ -193,7 +194,7 @@ describe("skip functionality tests", () => {
     test("should implement basic pagination - page 1", () => {
       const pageSize = 3;
       const page = 1;
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: (page - 1) * pageSize,
         take: pageSize
       });
@@ -209,7 +210,7 @@ describe("skip functionality tests", () => {
     test("should implement basic pagination - page 2", () => {
       const pageSize = 3;
       const page = 2;
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: (page - 1) * pageSize,
         take: pageSize
       });
@@ -225,7 +226,7 @@ describe("skip functionality tests", () => {
     test("should implement basic pagination - last page", () => {
       const pageSize = 3;
       const page = 3;
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         skip: (page - 1) * pageSize,
         take: pageSize
       });

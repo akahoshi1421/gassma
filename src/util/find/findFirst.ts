@@ -1,14 +1,11 @@
-import type { FilterConditions } from "../../types/coreTypes";
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
-import { getAllData } from "../core/getAllData";
 import { getTitle } from "../core/getTitle";
-import { getWantFindIndex } from "../core/getWantFindIndex";
-import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
-import { isDict } from "../other/isDict";
+import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 import { omitFunc } from "./findUtil/omit";
+import { orderByFunc } from "./findUtil/orderBy";
 
 const findFirstFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -17,54 +14,55 @@ const findFirstFunc = (
   const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
   const omit = "omit" in findData ? findData.omit : null;
+  const orderBy = "orderBy" in findData ? findData.orderBy : null;
   const skip = "skip" in findData ? findData.skip : null;
 
-  let wantFindIndex: number[] = [];
-  if (Object.keys(where).length !== 0)
-    wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
+  // Use whereFilter for consistent behavior with findMany
+  const findedData = whereFilter(where, gassmaControllerUtil);
+  const findedDataRowsOnly = findedData.map((row) => row.row);
 
-  let allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
 
-  if (skip)
-    allDataList = allDataList.filter((_value, index) => index + 1 > skip);
-
-  const findedData = allDataList.find((row) => {
-    const matchRow = wantFindIndex.filter((i) => {
-      const whereOptionContent = where[String(titles[i])];
-      if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(
-          row[i],
-          whereOptionContent as FilterConditions
-        );
-
-      return row[i] === whereOptionContent;
+  let findDataDictArray = findedDataRowsOnly.map((row) => {
+    const result = {};
+    row.forEach((data, dataIndex) => {
+      result[titles[dataIndex]] = data;
     });
 
-    return matchRow.length === wantFindIndex.length;
+    return result;
   });
 
-  if (!findedData) return null;
+  // Apply skip if specified
+  if (skip)
+    findDataDictArray = findDataDictArray.filter(
+      (_value, index) => index + 1 > skip
+    );
 
-  const findedDataDict = {};
+  // Apply orderBy if specified (before taking first)
+  if (orderBy)
+    findDataDictArray = orderByFunc(
+      findDataDictArray,
+      Array.isArray(orderBy) ? orderBy : [orderBy]
+    );
 
-  findedData.forEach((data, dataIndex) => {
-    findedDataDict[titles[dataIndex]] = data;
-  });
+  // Get the first result
+  const firstResult = findDataDictArray[0];
+
+  if (!firstResult) return null;
 
   if (select && omit) {
     throw new GassmaFindSelectOmitConflictError();
   }
 
   if (select) {
-    return findedDataSelect(select, findedDataDict);
+    return findedDataSelect(select, firstResult);
   }
 
   if (omit) {
-    return omitFunc(omit, findedDataDict);
+    return omitFunc(omit, firstResult);
   }
 
-  return findedDataDict;
+  return firstResult;
 };
 
 export { findFirstFunc };

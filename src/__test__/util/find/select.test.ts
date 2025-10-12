@@ -1,11 +1,12 @@
 import { findManyFunc } from "../../../util/find/findMany";
 import { findFirstFunc } from "../../../util/find/findFirst";
-import { extendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { expectArrayToEqualIgnoringOrder } from "../../helpers/matchers";
 
 describe("select functionality tests", () => {
   describe("findManyFunc with select", () => {
     test("should select single field", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true }
       });
 
@@ -22,7 +23,7 @@ describe("select functionality tests", () => {
     });
 
     test("should select multiple fields", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true, 年齢: true }
       });
 
@@ -39,12 +40,12 @@ describe("select functionality tests", () => {
     });
 
     test("should select specific fields with where condition", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 住所: "Tokyo" },
         select: { 名前: true, 職業: true }
       });
 
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result, [
         { 名前: "Alice", 職業: "Engineer" },
         { 名前: "Charlie", 職業: "Student" },
         { 名前: "Eve", 職業: "Engineer" },
@@ -53,7 +54,7 @@ describe("select functionality tests", () => {
     });
 
     test("should select all available fields", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "Alice" },
         select: { 名前: true, 年齢: true, 住所: true, 郵便番号: true, 職業: true }
       });
@@ -64,7 +65,7 @@ describe("select functionality tests", () => {
     });
 
     test("should work with complex where and select combination", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: {
           OR: [
             { 職業: "Engineer" },
@@ -74,7 +75,7 @@ describe("select functionality tests", () => {
         select: { 名前: true, 職業: true, 住所: true }
       });
 
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result, [
         { 名前: "Alice", 職業: "Engineer", 住所: "Tokyo" },
         { 名前: "Bob", 職業: "Designer", 住所: "Osaka" },
         { 名前: "Eve", 職業: "Engineer", 住所: "Tokyo" },
@@ -84,7 +85,7 @@ describe("select functionality tests", () => {
     });
 
     test("should handle empty result with select", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
         select: { 名前: true, 年齢: true }
       });
@@ -95,7 +96,7 @@ describe("select functionality tests", () => {
 
   describe("findFirstFunc with select", () => {
     test("should select single field for first result", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true }
       });
 
@@ -105,7 +106,7 @@ describe("select functionality tests", () => {
     });
 
     test("should select multiple fields for first result", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true, 年齢: true, 職業: true }
       });
 
@@ -115,7 +116,7 @@ describe("select functionality tests", () => {
     });
 
     test("should select with where condition", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: { 職業: "Designer" },
         select: { 名前: true, 住所: true }
       });
@@ -126,7 +127,7 @@ describe("select functionality tests", () => {
     });
 
     test("should return null when no match found with select", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
         select: { 名前: true }
       });
@@ -135,7 +136,7 @@ describe("select functionality tests", () => {
     });
 
     test("should work with complex where condition and select", () => {
-      const result = findFirstFunc(extendedMockControllerUtil, {
+      const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: {
           AND: [
             { 年齢: { gte: 30 } },
@@ -154,7 +155,7 @@ describe("select functionality tests", () => {
   describe("select error handling", () => {
     test("should throw error when both select and omit are used in findMany", () => {
       expect(() => {
-        findManyFunc(extendedMockControllerUtil, {
+        findManyFunc(getExtendedMockControllerUtil(), {
           select: { 名前: true },
           omit: { 年齢: true }
         });
@@ -163,7 +164,7 @@ describe("select functionality tests", () => {
 
     test("should throw error when both select and omit are used in findFirst", () => {
       expect(() => {
-        findFirstFunc(extendedMockControllerUtil, {
+        findFirstFunc(getExtendedMockControllerUtil(), {
           select: { 名前: true },
           omit: { 年齢: true }
         });

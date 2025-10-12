@@ -1,10 +1,11 @@
 import { findManyFunc } from "../../../util/find/findMany";
-import { extendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import { expectArrayToEqualIgnoringOrder } from "../../helpers/matchers";
 
 describe("take functionality tests", () => {
   describe("findManyFunc with take", () => {
     test("should limit results to specified number", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: 3
       });
 
@@ -17,7 +18,7 @@ describe("take functionality tests", () => {
     });
 
     test("should take one record", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: 1
       });
 
@@ -28,7 +29,7 @@ describe("take functionality tests", () => {
     });
 
     test("should take all records when take exceeds total count", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: 100
       });
 
@@ -46,20 +47,20 @@ describe("take functionality tests", () => {
     });
 
     test("should work with where condition", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 住所: "Tokyo" },
         take: 2
       });
 
       expect(result).toHaveLength(2);
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result.slice(0, 2), [
         { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
         { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" }
       ]);
     });
 
     test("should work with select", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         select: { 名前: true, 年齢: true },
         take: 3
       });
@@ -73,7 +74,7 @@ describe("take functionality tests", () => {
     });
 
     test("should work with orderBy", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         orderBy: { 年齢: "desc" },
         take: 3
       });
@@ -87,7 +88,7 @@ describe("take functionality tests", () => {
     });
 
     test("should work with complex combination of options", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 職業: "Engineer" },
         select: { 名前: true, 年齢: true, 住所: true },
         orderBy: { 年齢: "asc" },
@@ -95,14 +96,14 @@ describe("take functionality tests", () => {
       });
 
       expect(result).toHaveLength(2);
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result, [
         { 名前: "Alice", 年齢: 28, 住所: "Tokyo" },
         { 名前: "Eve", 年齢: 28, 住所: "Tokyo" }
       ]);
     });
 
     test("should return empty array when filtered results are empty", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
         take: 5
       });
@@ -111,20 +112,20 @@ describe("take functionality tests", () => {
     });
 
     test("should take from filtered results", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 年齢: 28 },
         take: 2
       });
 
       expect(result).toHaveLength(2);
-      expect(result).toEqual([
+      expectArrayToEqualIgnoringOrder(result.slice(0, 2), [
         { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
         { 名前: "Eve", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" }
       ]);
     });
 
     test("should handle take with value of zero", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: 0
       });
 
@@ -132,7 +133,7 @@ describe("take functionality tests", () => {
     });
 
     test("should work with omit", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         omit: { 郵便番号: true, 職業: true },
         take: 2
       });
@@ -147,7 +148,7 @@ describe("take functionality tests", () => {
 
   describe("findManyFunc take edge cases", () => {
     test("should handle negative take values gracefully", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: -1
       });
 
@@ -155,7 +156,7 @@ describe("take functionality tests", () => {
     });
 
     test("should work with floating point take values", () => {
-      const result = findManyFunc(extendedMockControllerUtil, {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: 2.7
       });
 

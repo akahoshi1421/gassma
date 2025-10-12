@@ -1,7 +1,7 @@
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
-// Basic mock for simple tests
-export const basicMockControllerUtil: GassmaControllerUtil = {
+// Function to get basic mock for simple tests (prevents destructive changes)
+export const getBasicMockControllerUtil = (): GassmaControllerUtil => ({
   sheet: {
     getDataRange: () => ({
       getValues: () => [
@@ -32,10 +32,13 @@ export const basicMockControllerUtil: GassmaControllerUtil = {
   startRowNumber: 1,
   startColumnNumber: 1,
   endColumnNumber: 4
-};
+});
 
-// Extended mock with more comprehensive test data
-export const extendedMockControllerUtil: GassmaControllerUtil = {
+// For backward compatibility
+export const basicMockControllerUtil = getBasicMockControllerUtil();
+
+// Function to get extended mock with more comprehensive test data (prevents destructive changes)
+export const getExtendedMockControllerUtil = (): GassmaControllerUtil => ({
   sheet: {
     getDataRange: () => ({
       getValues: () => [
@@ -78,4 +81,7 @@ export const extendedMockControllerUtil: GassmaControllerUtil = {
   startRowNumber: 1,
   startColumnNumber: 1,
   endColumnNumber: 5
-};
+});
+
+// For backward compatibility
+export const extendedMockControllerUtil = getExtendedMockControllerUtil();
