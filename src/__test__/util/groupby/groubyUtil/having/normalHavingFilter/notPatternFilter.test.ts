@@ -371,9 +371,12 @@ describe("notPatternFilter function tests", () => {
         nonExistentField: "value"
       };
 
-      expect(() => {
+      try {
         notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-      }).toThrow();
+        fail("Expected function to throw an error");
+      } catch (error: any) {
+        expect(error.name).toBe("GassmaGroupByHavingDontWriteByError");
+      }
     });
 
     test("should throw error for complex condition with field not in by array", () => {
@@ -381,9 +384,12 @@ describe("notPatternFilter function tests", () => {
         nonExistentField: { equals: "value" }
       };
 
-      expect(() => {
+      try {
         notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-      }).toThrow();
+        fail("Expected function to throw an error");
+      } catch (error: any) {
+        expect(error.name).toBe("GassmaGroupByHavingDontWriteByError");
+      }
     });
 
     test("should handle empty rows array", () => {
