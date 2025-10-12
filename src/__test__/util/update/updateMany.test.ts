@@ -267,22 +267,32 @@ describe("updateMany functionality tests", () => {
   });
 
   describe("updateMany error handling", () => {
-    test("should handle empty row data gracefully", () => {
+    test("should skip update when whereFilter returns empty row arrays", () => {
+      // Create a separate mock utility to avoid interference with other tests
+      const isolatedMockUtil = getMutableMockControllerUtil();
+      
       // Use jest.spyOn to mock the whereFilter function directly
       const whereFilterSpy = jest.spyOn(require("../../../util/core/whereFilter"), "whereFilter");
       
-      // Mock whereFilter to return data with empty row to trigger line 30
-      whereFilterSpy.mockReturnValue([
+      // Mock whereFilter to return data with empty row to trigger early return when updatedRow.length === 0
+      whereFilterSpy.mockReturnValueOnce([
         { row: [], rowNumber: 1 } // Empty row array
       ]);
 
-      const result = updateManyFunc(mockUtil, {
+      const result = updateManyFunc(isolatedMockUtil, {
         where: { 名前: "Test" },
         data: { 職業: "Updated" }
       });
 
       // Should return count 1 (the number of rows found by whereFilter)
       expect(result).toEqual({ count: 1 });
+      
+      // Verify that getRange was called for getTitle and getWantUpdateIndex but not for actual updates
+      // Initial calls are for getTitle (1 call) and possibly getWantUpdateIndex, but no update calls
+      const getRangeCalls = (isolatedMockUtil.sheet.getRange as jest.Mock).mock.calls;
+      // Should not have calls for actual row updates (which would be row numbers > 1)
+      const updateCalls = getRangeCalls.filter(call => call[0] > 1); // row numbers > 1 are data updates
+      expect(updateCalls).toHaveLength(0);
       
       // Clean up the mock
       whereFilterSpy.mockRestore();
