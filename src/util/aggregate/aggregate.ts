@@ -27,7 +27,7 @@ const aggregateFunc = (
   } as FindData;
 
   if (orderBy) findData.orderBy = orderBy;
-  if (take) findData.take = take;
+  if (take !== null && take !== undefined) findData.take = take;
   if (skip) findData.skip = skip;
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
