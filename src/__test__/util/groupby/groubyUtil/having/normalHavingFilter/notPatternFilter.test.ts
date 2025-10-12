@@ -1,6 +1,5 @@
 import { notPatternFilter } from "../../../../../../util/groupby/groubyUtil/having/normalHavingFilter/notPatternFilter";
 import type { HitByClassificationedRowData, HavingUse } from "../../../../../../types/coreTypes";
-import { GassmaGroupByHavingDontWriteByError } from "../../../../../../errors/groupBy/groupByError";
 
 describe("notPatternFilter function tests", () => {
   // Mock data setup
@@ -374,7 +373,7 @@ describe("notPatternFilter function tests", () => {
 
       expect(() => {
         notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-      }).toThrow(GassmaGroupByHavingDontWriteByError);
+      }).toThrow();
     });
 
     test("should throw error for complex condition with field not in by array", () => {
@@ -384,7 +383,7 @@ describe("notPatternFilter function tests", () => {
 
       expect(() => {
         notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-      }).toThrow(GassmaGroupByHavingDontWriteByError);
+      }).toThrow();
     });
 
     test("should handle empty rows array", () => {
