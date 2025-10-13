@@ -15,14 +15,14 @@ declare namespace Gassma {
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
     create(createdData: CreateData): AnyUse;
-    findFirst(findData: FindData): {};
-    findMany(findData: FindData): {}[];
+    findFirst(findData: FindData): Record<string, any>;
+    findMany(findData: FindData): Record<string, any>[];
     updateMany(updateData: UpdateData): UpdateManyReturn;
     upsert(upsertData: UpsertData): UpdateManyReturn;
     deleteMany(deleteData: DeleteData): DeleteManyReturn;
-    aggregate(aggregateData: AggregateData): {};
+    aggregate(aggregateData: AggregateData): Record<string, any>;
     count(countData: CountData): number;
-    groupBy(groupByData: GroupByData): {}[];
+    groupBy(groupByData: GroupByData): Record<string, any>[];
   }
 
   type GassmaSheet = {
@@ -64,9 +64,9 @@ declare namespace Gassma {
     lte?: GassmaAny;
     gt?: GassmaAny;
     gte?: GassmaAny;
-    contains?: String;
-    startsWith?: String;
-    endsWith?: String;
+    contains?: string;
+    startsWith?: string;
+    endsWith?: string;
   };
 
   type CreateData = {

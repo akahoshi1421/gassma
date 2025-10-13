@@ -6,7 +6,7 @@ import type { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
 import { getNumberSum } from "./sum/numberSum";
 
-const getAvg = (rows: {}[], avgData: Select) => {
+const getAvg = (rows: Record<string, any>[], avgData: Select) => {
   const avgKeys = Object.keys(avgData);
 
   const avgResult = {};

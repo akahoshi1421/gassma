@@ -8,8 +8,7 @@ const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createdData: CreateData,
 ) => {
-  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
-    gassmaControllerUtil;
+  const { sheet, startColumnNumber, endColumnNumber } = gassmaControllerUtil;
 
   const data = createdData.data;
   const titles = getTitle(gassmaControllerUtil);

@@ -13,7 +13,12 @@ export const getBasicMockControllerUtil = (): GassmaControllerUtil => ({
       }) as any,
     getLastRow: () => 3,
     getLastColumn: () => 4,
-    getRange: (row: number, col: number, numRows: number, numCols: number) => {
+    getRange: (
+      row: number,
+      _col: number,
+      numRows: number,
+      _numCols: number,
+    ) => {
       if (row === 1 && numRows === 1) {
         // Title row request
         return {
@@ -57,7 +62,12 @@ export const getExtendedMockControllerUtil = (): GassmaControllerUtil => ({
       }) as any,
     getLastRow: () => 9,
     getLastColumn: () => 5,
-    getRange: (row: number, col: number, numRows: number, numCols: number) => {
+    getRange: (
+      row: number,
+      _col: number,
+      numRows: number,
+      _numCols: number,
+    ) => {
       if (row === 1 && numRows === 1) {
         // Title row request
         return {

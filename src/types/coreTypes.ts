@@ -120,7 +120,7 @@ type ManyReturn = {
   count: number;
 };
 
-export {
+export type {
   GassmaAny,
   OrderBy,
   Select,

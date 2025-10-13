@@ -15,9 +15,7 @@ const getWantUpdateIndex = (
   });
 
   const wantUpdateIndex = wantUpdateKeys.map((key) => {
-    return titles.findIndex((title) => {
-      return title === key;
-    });
+    return titles.indexOf(key);
   });
 
   const wantUpdateIndexRemoveMinusOne = wantUpdateIndex.filter(

@@ -8,7 +8,7 @@ import { getBooleanMax } from "./max/booleanMax";
 import { getDateMax } from "./max/dateMax";
 import { getStringMax } from "./max/stringMax";
 
-const getMax = (rows: {}[], avgData: Select) => {
+const getMax = (rows: Record<string, any>[], avgData: Select) => {
   const maxKeys = Object.keys(avgData);
 
   const maxResult = {};

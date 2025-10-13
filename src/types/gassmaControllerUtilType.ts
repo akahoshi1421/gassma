@@ -5,4 +5,4 @@ type GassmaControllerUtil = {
   endColumnNumber: number;
 };
 
-export { GassmaControllerUtil };
+export type { GassmaControllerUtil };

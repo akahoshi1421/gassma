@@ -1,7 +1,7 @@
-import { GassmaController } from "../gassmaController";
+import type { GassmaController } from "../gassmaController";
 
 type GassmaSheet = {
   [key: string]: GassmaController;
 };
 
-export { GassmaSheet };
+export type { GassmaSheet };

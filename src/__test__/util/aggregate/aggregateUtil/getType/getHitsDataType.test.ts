@@ -148,7 +148,7 @@ describe("getHitsDataType function tests", () => {
     });
 
     test("should handle arrays with function values", () => {
-      const funcs = [() => {}, function () {}, function named() {}] as any[];
+      const funcs = [() => {}, () => {}, function named() {}] as any[];
       const result = getHitsDataType(funcs);
       expect(result).toBe("function");
     });

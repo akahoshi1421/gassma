@@ -10,4 +10,4 @@ type CreateManyData = {
 
 type CreateManyReturn = ManyReturn;
 
-export { CreateData, CreateManyData, CreateManyReturn };
+export type { CreateData, CreateManyData, CreateManyReturn };

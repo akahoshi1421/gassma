@@ -8,7 +8,7 @@ import { getBooleanMin } from "./min/booleanMin";
 import { getDateMin } from "./min/dateMin";
 import { getStringMin } from "./min/stringMin";
 
-const getMin = (rows: {}[], avgData: Select) => {
+const getMin = (rows: Record<string, any>[], avgData: Select) => {
   const minKeys = Object.keys(avgData);
 
   const minResult = {};

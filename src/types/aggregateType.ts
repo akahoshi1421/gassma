@@ -12,4 +12,4 @@ type AggregateData = {
   _sum?: Select;
 };
 
-export { AggregateData };
+export type { AggregateData };

@@ -91,7 +91,7 @@ describe("deleteMany functionality tests", () => {
 
       // Verify remaining records
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0,
+        (_row: any, index: number) => index > 0,
       );
       // Charlie(Student), David(Manager), Frank(Director)が残る
       expect(remainingRows).toHaveLength(3);
@@ -112,7 +112,7 @@ describe("deleteMany functionality tests", () => {
 
       // Verify that only Engineers remain
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0,
+        (_row: any, index: number) => index > 0,
       );
       expect(remainingRows).toHaveLength(3);
       remainingRows.forEach((row: any) => {
@@ -167,7 +167,7 @@ describe("deleteMany functionality tests", () => {
 
       // Verify all remaining records have age < 30
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0,
+        (_row: any, index: number) => index > 0,
       );
       remainingRows.forEach((row: any) => {
         expect(row[1]).toBeLessThan(30);
@@ -387,7 +387,7 @@ describe("deleteMany functionality tests", () => {
 
       // 5人削除後、3人残る（Bob, Charlie, Frank）
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0,
+        (_row: any, index: number) => index > 0,
       );
       expect(remainingRows).toHaveLength(3);
 
@@ -420,7 +420,7 @@ describe("deleteMany functionality tests", () => {
 
       // Verify final state
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0,
+        (_row: any, index: number) => index > 0,
       );
       expect(remainingRows).toHaveLength(3);
 
