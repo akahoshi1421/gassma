@@ -14,8 +14,27 @@
 		"indentWidth": 2
 	},
 	"linter": {
-		"enabled": false
+		"enabled": true,
+		"rules": {
+			"suspicious": {
+				"noExplicitAny": {
+					"level": "off"
+				}
+			}
+		}
 	},
+	"overrides": [
+		{
+			"includes": ["src/__test__/**/*"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	],
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
