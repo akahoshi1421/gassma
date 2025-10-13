@@ -10,11 +10,11 @@ const bySearch = (
   const matches: GassmaAny[] = [];
 
   rows.forEach((row) => {
-    const data = row[byData[depth]];
+    const data: GassmaAny = row[byData[depth]];
 
     if (matches.includes(data)) return;
 
-    matches.push(data as GassmaAny);
+    matches.push(data);
   });
 
   const classificationedMatches = matches.map((match) =>
