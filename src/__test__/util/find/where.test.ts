@@ -1,9 +1,48 @@
 import { findManyFunc } from "../../../util/find/findMany";
 import { findFirstFunc } from "../../../util/find/findFirst";
+import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
 import { expectArrayToEqualIgnoringOrder } from "../../helpers/matchers";
 
 describe("where functionality tests", () => {
+  // Mock data with empty string fields for testing
+  const mockWithEmptyStrings = (): GassmaControllerUtil => ({
+    sheet: {
+      getDataRange: () => ({
+        getValues: () => [
+          ["名前", "年齢", "住所", "郵便番号", "職業"],
+          ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+          ["Bob", 35, "", "550-0001", "Designer"], // Empty string in 住所
+          ["Charlie", 22, "Tokyo", "", "Student"], // Empty string in 郵便番号
+          ["David", 45, "Kyoto", "600-8000", ""], // Empty string in 職業
+          ["", 28, "Tokyo", "100-0003", "Engineer"] // Empty string in 名前
+        ]
+      }) as any,
+      getLastRow: () => 6,
+      getLastColumn: () => 5,
+      getRange: (row: number, col: number, numRows: number, numCols: number) => {
+        if (row === 1 && numRows === 1) {
+          return {
+            getValues: () => [["名前", "年齢", "住所", "郵便番号", "職業"]]
+          } as any;
+        } else {
+          return {
+            getValues: () => [
+              ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+              ["Bob", 35, "", "550-0001", "Designer"],
+              ["Charlie", 22, "Tokyo", "", "Student"],
+              ["David", 45, "Kyoto", "600-8000", ""],
+              ["", 28, "Tokyo", "100-0003", "Engineer"]
+            ]
+          } as any;
+        }
+      }
+    } as any,
+    startRowNumber: 1,
+    startColumnNumber: 1,
+    endColumnNumber: 5
+  });
+
   describe("findManyFunc with where", () => {
     describe("basic search", () => {
       test("should filter by single field - exact match", () => {
@@ -489,6 +528,54 @@ describe("where functionality tests", () => {
       expect(result).toEqual({
         名前: "Grace", 年齢: 31, 住所: "Tokyo", 郵便番号: "100-0004", 職業: "Designer"
       });
+    });
+  });
+
+  describe("empty string handling", () => {
+    test("should treat empty string in where condition as null (testing whereFilter.ts:44 branch)", () => {
+      const mockUtil = mockWithEmptyStrings();
+      // Search for records with empty string fields using empty string as search condition
+      const result = findManyFunc(mockUtil, {
+        where: { 住所: "" } // Empty string should be treated as null in whereFilter
+      });
+
+      // Should find Bob who has empty string (converted to null) in 住所 field
+      expect(result).toEqual([
+        { 名前: "Bob", 年齢: 35, 住所: null, 郵便番号: "550-0001", 職業: "Designer" }
+      ]);
+    });
+
+    test("should find records with empty string in 名前 field", () => {
+      const mockUtil = mockWithEmptyStrings();
+      const result = findManyFunc(mockUtil, {
+        where: { 名前: "" }
+      });
+
+      expect(result).toEqual([
+        { 名前: null, 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0003", 職業: "Engineer" }
+      ]);
+    });
+
+    test("should find records with empty string in 職業 field", () => {
+      const mockUtil = mockWithEmptyStrings();
+      const result = findManyFunc(mockUtil, {
+        where: { 職業: "" }
+      });
+
+      expect(result).toEqual([
+        { 名前: "David", 年齢: 45, 住所: "Kyoto", 郵便番号: "600-8000", 職業: null }
+      ]);
+    });
+
+    test("should combine empty string search with other conditions", () => {
+      const mockUtil = mockWithEmptyStrings();
+      const result = findManyFunc(mockUtil, {
+        where: { 郵便番号: "", 住所: "Tokyo" }
+      });
+
+      expect(result).toEqual([
+        { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: null, 職業: "Student" }
+      ]);
     });
   });
 });
