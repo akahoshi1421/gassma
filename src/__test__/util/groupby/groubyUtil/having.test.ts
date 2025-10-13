@@ -360,8 +360,8 @@ describe("groupByFunc with having clause", () => {
     ]);
   });
 
-  // Basic operations (single logical operators) - for coverage improvement
-  describe("Coverage improvement tests", () => {
+  // Coverage improvement tests for andOrNot entry.ts
+  describe("andOrNot entry.ts coverage improvement", () => {
     test("should handle single AND object conversion to array", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
