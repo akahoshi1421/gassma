@@ -6,13 +6,15 @@ const isFilterConditionsMatch = (
 ): boolean => {
   const result = Object.keys(filterOptions).every((optionName) => {
     switch (optionName) {
-      case "equals":
+      case "equals": {
         const filterEquals =
           filterOptions.equals === "" ? null : filterOptions.equals;
         return filterEquals === cellData;
-      case "not":
+      }
+      case "not": {
         const filterNot = filterOptions.not === "" ? null : filterOptions.not;
         return filterNot !== cellData;
+      }
       case "in":
         if (cellData === null) return false;
         return filterOptions.in.includes(cellData);

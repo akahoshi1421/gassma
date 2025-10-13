@@ -7,4 +7,4 @@ type CountData = {
   skip?: number;
 };
 
-export { CountData };
+export type { CountData };

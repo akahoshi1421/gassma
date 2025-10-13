@@ -1,4 +1,4 @@
-import type { AnyUse, GassmaAny } from "../../types/coreTypes";
+import type { AnyUse } from "../../types/coreTypes";
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { GroupByData } from "../../types/groupByType";
@@ -44,32 +44,34 @@ const groupByFunc = (
   const groupByResult = byClassificationed.map((oneClass) => {
     const oneClassFirst = oneClass[0];
 
-    const oneLineResult = {};
+    const oneLineResult: any = {};
 
-    by.forEach((oneBy) => (oneLineResult[oneBy] = oneClassFirst[oneBy]));
+    by.forEach((oneBy) => {
+      oneLineResult[oneBy] = oneClassFirst[oneBy];
+    });
     return oneLineResult;
   });
 
   byClassificationed.forEach((oneClass, index) => {
     if (avg) {
       const avgData = getAvg(oneClass, avg);
-      groupByResult[index]["_avg"] = avgData;
+      groupByResult[index]._avg = avgData;
     }
     if (count) {
       const countData = getCount(oneClass, count);
-      groupByResult[index]["_count"] = countData;
+      groupByResult[index]._count = countData;
     }
     if (max) {
       const maxData = getMax(oneClass, max);
-      groupByResult[index]["_max"] = maxData;
+      groupByResult[index]._max = maxData;
     }
     if (min) {
       const minData = getMin(oneClass, min);
-      groupByResult[index]["_min"] = minData;
+      groupByResult[index]._min = minData;
     }
     if (sum) {
       const sumData = getSum(oneClass, sum);
-      groupByResult[index]["_sum"] = sumData;
+      groupByResult[index]._sum = sumData;
     }
   });
 

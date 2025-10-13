@@ -25,17 +25,22 @@ const getAggregate = (
     switch (key) {
       case "_avg":
         aggregateResult._avg = getAvg(byClassificationedRow, matchKeys._avg);
+        break;
       case "_count":
         aggregateResult._count = getCount(
           byClassificationedRow,
           matchKeys._count,
         );
+        break;
       case "_max":
         aggregateResult._max = getMax(byClassificationedRow, matchKeys._max);
+        break;
       case "_min":
         aggregateResult._min = getMin(byClassificationedRow, matchKeys._min);
+        break;
       case "_sum":
         aggregateResult._sum = getSum(byClassificationedRow, matchKeys._sum);
+        break;
     }
   });
 

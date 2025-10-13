@@ -6,4 +6,4 @@ type GroupByData = AggregateData & {
   having?: HavingUse;
 };
 
-export { GroupByData };
+export type { GroupByData };

@@ -36,7 +36,7 @@ type UpdateManyReturn = ManyReturn;
 type DeleteManyReturn = ManyReturn;
 type UpsertManyReturn = ManyReturn;
 
-export {
+export type {
   FindData,
   UpdateData,
   DeleteData,

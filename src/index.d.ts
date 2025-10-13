@@ -64,9 +64,9 @@ declare namespace Gassma {
     lte?: GassmaAny;
     gt?: GassmaAny;
     gte?: GassmaAny;
-    contains?: String;
-    startsWith?: String;
-    endsWith?: String;
+    contains?: string;
+    startsWith?: string;
+    endsWith?: string;
   };
 
   type CreateData = {

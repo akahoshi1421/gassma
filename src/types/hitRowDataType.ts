@@ -5,4 +5,4 @@ type HitRowData = {
   row: GassmaAny[];
 };
 
-export { HitRowData };
+export type { HitRowData };
