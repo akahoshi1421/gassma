@@ -24,7 +24,10 @@ const search = (
   return search(a, b, keys, cnt + 1);
 };
 
-const orderByFunc = (result: Record<string, any>[], orderByOptions: OrderBy[]) => {
+const orderByFunc = (
+  result: Record<string, any>[],
+  orderByOptions: OrderBy[],
+) => {
   const orderByOptionArray = orderByOptions.map((option) => {
     return Object.entries(option)[0];
   });

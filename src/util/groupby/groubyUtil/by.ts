@@ -1,6 +1,10 @@
 import type { GassmaAny } from "../../../types/coreTypes";
 
-const bySearch = (rows: Record<string, any>[], byData: string[], depth: number): any[] => {
+const bySearch = (
+  rows: Record<string, any>[],
+  byData: string[],
+  depth: number,
+): any[] => {
   if (depth === byData.length) return rows;
 
   const matches: GassmaAny[] = [];
