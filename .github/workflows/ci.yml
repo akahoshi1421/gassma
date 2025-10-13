@@ -30,17 +30,6 @@ jobs:
     - name: Run tests
       run: npm test
 
-    - name: Run tests with coverage
-      run: npm test -- --coverage
-      if: matrix.node-version == '20.x'
-
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4
-      if: matrix.node-version == '20.x'
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: false
-
   lint:
     runs-on: ubuntu-latest
 
