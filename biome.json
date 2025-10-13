@@ -17,8 +17,8 @@
 		"enabled": true,
 		"rules": {
 			"correctness": {
-				"noUnusedImports": "warn",
-				"noUnusedVariables": "warn"
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error"
 			},
 			"suspicious": {
 				"noExplicitAny": {
