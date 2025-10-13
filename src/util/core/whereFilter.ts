@@ -17,11 +17,11 @@ const whereFilter = (
   const titles = getTitle(gassmaControllerUtil);
 
   if (Object.keys(where).length === 0) {
-    return allDataList.map((row, index) => {
+    return allDataList.map((row, index): HitRowData => {
       return {
         rowNumber: index + 1,
         row: row,
-      } as HitRowData;
+      };
     });
   }
 
@@ -45,8 +45,10 @@ const whereFilter = (
       return row[i] === replacedNullWhereOptionContent;
     });
 
-    if (matchRow.length === wantFindIndex.length)
-      return { rowNumber: rowNumber + 1, row: row } as HitRowData;
+    if (matchRow.length === wantFindIndex.length) {
+      const hitRowData: HitRowData = { rowNumber: rowNumber + 1, row: row };
+      return hitRowData;
+    }
 
     return null;
   });
