@@ -142,7 +142,7 @@ describe("distinct functionality tests", () => {
 
     test("should handle distinct as single string value", () => {
       const result = findManyFunc(distinctMockControllerUtil, {
-        distinct: "年齢" as any
+        distinct: "年齢"
       });
 
       expect(result).toHaveLength(3); // 3 unique ages: 28, 35, 22
