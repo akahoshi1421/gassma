@@ -2,21 +2,21 @@ import { GassmaController } from "./gassmaController";
 import type { GassmaSheet } from "./types/gassmaTypes";
 
 class GassmaClient {
-	public readonly sheets: GassmaSheet = {};
+  public readonly sheets: GassmaSheet = {};
 
-	constructor(id?: string) {
-		const spreadSheet = id
-			? SpreadsheetApp.openById(id)
-			: SpreadsheetApp.getActiveSpreadsheet();
-		const mySheets = spreadSheet.getSheets();
+  constructor(id?: string) {
+    const spreadSheet = id
+      ? SpreadsheetApp.openById(id)
+      : SpreadsheetApp.getActiveSpreadsheet();
+    const mySheets = spreadSheet.getSheets();
 
-		mySheets.forEach((sheet) => {
-			const sheetName = sheet.getName();
-			const sheetController = new GassmaController(sheetName, id);
+    mySheets.forEach((sheet) => {
+      const sheetName = sheet.getName();
+      const sheetController = new GassmaController(sheetName, id);
 
-			this.sheets[sheetName] = sheetController;
-		});
-	}
+      this.sheets[sheetName] = sheetController;
+    });
+  }
 }
 
 export { GassmaClient };

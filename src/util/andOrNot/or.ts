@@ -1,7 +1,7 @@
 import type {
-	FilterConditions,
-	GassmaAny,
-	WhereUse,
+  FilterConditions,
+  GassmaAny,
+  WhereUse,
 } from "../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
@@ -11,61 +11,61 @@ import { isDict } from "../other/isDict";
 import { isLogicMatch } from "./entry";
 
 const isOrMatch = (
-	rowsData: HitRowData[],
-	whereArray: WhereUse[],
-	titles: GassmaAny[],
-	gassmaControllerUtil: GassmaControllerUtil,
+  rowsData: HitRowData[],
+  whereArray: WhereUse[],
+  titles: GassmaAny[],
+  gassmaControllerUtil: GassmaControllerUtil,
 ) => {
-	let resultRowsData: HitRowData[] = rowsData.concat();
+  let resultRowsData: HitRowData[] = rowsData.concat();
 
-	whereArray.forEach((where, whereArrayIndex) => {
-		const wantFindIndex = getWantFindIndex(gassmaControllerUtil, {
-			where: where,
-		});
+  whereArray.forEach((where, whereArrayIndex) => {
+    const wantFindIndex = getWantFindIndex(gassmaControllerUtil, {
+      where: where,
+    });
 
-		const findedDataIncludeNull = rowsData.map((row) => {
-			const matchRow = wantFindIndex.filter((i) => {
-				const whereOptionContent = where[String(titles[i])];
-				if (isDict(whereOptionContent))
-					return isFilterConditionsMatch(
-						row.row[i],
-						whereOptionContent as FilterConditions,
-					);
+    const findedDataIncludeNull = rowsData.map((row) => {
+      const matchRow = wantFindIndex.filter((i) => {
+        const whereOptionContent = where[String(titles[i])];
+        if (isDict(whereOptionContent))
+          return isFilterConditionsMatch(
+            row.row[i],
+            whereOptionContent as FilterConditions,
+          );
 
-				return row.row[i] === whereOptionContent;
-			});
+        return row.row[i] === whereOptionContent;
+      });
 
-			if (matchRow.length === wantFindIndex.length) return row;
+      if (matchRow.length === wantFindIndex.length) return row;
 
-			return null;
-		});
+      return null;
+    });
 
-		let findedData = findedDataIncludeNull.filter((data) => data !== null);
+    let findedData = findedDataIncludeNull.filter((data) => data !== null);
 
-		if ("OR" in where || "AND" in where || "NOT" in where) {
-			findedData = isLogicMatch(
-				findedData,
-				where,
-				titles,
-				gassmaControllerUtil,
-			);
-		}
+    if ("OR" in where || "AND" in where || "NOT" in where) {
+      findedData = isLogicMatch(
+        findedData,
+        where,
+        titles,
+        gassmaControllerUtil,
+      );
+    }
 
-		if (whereArrayIndex === 0) {
-			resultRowsData = findedData;
-			return;
-		}
+    if (whereArrayIndex === 0) {
+      resultRowsData = findedData;
+      return;
+    }
 
-		const alreadyHitRowNumbers = resultRowsData.map((row) => row.rowNumber);
+    const alreadyHitRowNumbers = resultRowsData.map((row) => row.rowNumber);
 
-		const newInsertedArray = findedData.filter(
-			(row) => !alreadyHitRowNumbers.includes(row.rowNumber),
-		);
+    const newInsertedArray = findedData.filter(
+      (row) => !alreadyHitRowNumbers.includes(row.rowNumber),
+    );
 
-		resultRowsData = resultRowsData.concat(newInsertedArray);
-	});
+    resultRowsData = resultRowsData.concat(newInsertedArray);
+  });
 
-	return resultRowsData;
+  return resultRowsData;
 };
 
 export { isOrMatch };

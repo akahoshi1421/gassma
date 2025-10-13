@@ -1,153 +1,153 @@
 declare namespace Gassma {
-	class GassmaClient {
-		constructor(id?: string);
+  class GassmaClient {
+    constructor(id?: string);
 
-		readonly sheets: GassmaSheet;
-	}
+    readonly sheets: GassmaSheet;
+  }
 
-	class GassmaController {
-		constructor(sheetName: string, id?: string);
+  class GassmaController {
+    constructor(sheetName: string, id?: string);
 
-		changeSettings(
-			startRowNumber: number,
-			startColumnNumber: number,
-			endColumnNumber: number,
-		): void;
-		createMany(createdData: CreateManyData): CreateManyReturn;
-		create(createdData: CreateData): AnyUse;
-		findFirst(findData: FindData): {};
-		findMany(findData: FindData): {}[];
-		updateMany(updateData: UpdateData): UpdateManyReturn;
-		upsert(upsertData: UpsertData): UpdateManyReturn;
-		deleteMany(deleteData: DeleteData): DeleteManyReturn;
-		aggregate(aggregateData: AggregateData): {};
-		count(countData: CountData): number;
-		groupBy(groupByData: GroupByData): {}[];
-	}
+    changeSettings(
+      startRowNumber: number,
+      startColumnNumber: number,
+      endColumnNumber: number,
+    ): void;
+    createMany(createdData: CreateManyData): CreateManyReturn;
+    create(createdData: CreateData): AnyUse;
+    findFirst(findData: FindData): {};
+    findMany(findData: FindData): {}[];
+    updateMany(updateData: UpdateData): UpdateManyReturn;
+    upsert(upsertData: UpsertData): UpdateManyReturn;
+    deleteMany(deleteData: DeleteData): DeleteManyReturn;
+    aggregate(aggregateData: AggregateData): {};
+    count(countData: CountData): number;
+    groupBy(groupByData: GroupByData): {}[];
+  }
 
-	type GassmaSheet = {
-		[key: string]: GassmaController;
-	};
+  type GassmaSheet = {
+    [key: string]: GassmaController;
+  };
 
-	type GassmaAny = string | number | boolean | Date;
+  type GassmaAny = string | number | boolean | Date;
 
-	type OrderBy = {
-		[key: string]: "asc" | "desc";
-	};
+  type OrderBy = {
+    [key: string]: "asc" | "desc";
+  };
 
-	type Select = {
-		[key: string]: true;
-	};
+  type Select = {
+    [key: string]: true;
+  };
 
-	type AnyUse = {
-		[key: string]: GassmaAny;
-	};
+  type AnyUse = {
+    [key: string]: GassmaAny;
+  };
 
-	type WhereUse = {
-		[key: string]:
-			| GassmaAny
-			| FilterConditions
-			| WhereUse[]
-			| WhereUse
-			| undefined;
-		AND?: WhereUse[] | WhereUse;
-		OR?: WhereUse[];
-		NOT?: WhereUse[] | WhereUse;
-	};
+  type WhereUse = {
+    [key: string]:
+      | GassmaAny
+      | FilterConditions
+      | WhereUse[]
+      | WhereUse
+      | undefined;
+    AND?: WhereUse[] | WhereUse;
+    OR?: WhereUse[];
+    NOT?: WhereUse[] | WhereUse;
+  };
 
-	type FilterConditions = {
-		equals?: GassmaAny;
-		not?: GassmaAny;
-		in?: GassmaAny[];
-		notIn?: GassmaAny[];
-		lt?: GassmaAny;
-		lte?: GassmaAny;
-		gt?: GassmaAny;
-		gte?: GassmaAny;
-		contains?: String;
-		startsWith?: String;
-		endsWith?: String;
-	};
+  type FilterConditions = {
+    equals?: GassmaAny;
+    not?: GassmaAny;
+    in?: GassmaAny[];
+    notIn?: GassmaAny[];
+    lt?: GassmaAny;
+    lte?: GassmaAny;
+    gt?: GassmaAny;
+    gte?: GassmaAny;
+    contains?: String;
+    startsWith?: String;
+    endsWith?: String;
+  };
 
-	type CreateData = {
-		data: AnyUse;
-	};
+  type CreateData = {
+    data: AnyUse;
+  };
 
-	type CreateManyData = {
-		data: AnyUse[];
-	};
+  type CreateManyData = {
+    data: AnyUse[];
+  };
 
-	type FindData = {
-		where?: WhereUse;
-		select?: Select;
-		orderBy?: OrderBy | OrderBy[];
-		take?: number;
-		skip?: number;
-		distinct?: string | string[];
-	};
+  type FindData = {
+    where?: WhereUse;
+    select?: Select;
+    orderBy?: OrderBy | OrderBy[];
+    take?: number;
+    skip?: number;
+    distinct?: string | string[];
+  };
 
-	type DeleteData = {
-		where: WhereUse;
-	};
+  type DeleteData = {
+    where: WhereUse;
+  };
 
-	type UpdateData = {
-		where?: WhereUse;
-		data: AnyUse;
-	};
+  type UpdateData = {
+    where?: WhereUse;
+    data: AnyUse;
+  };
 
-	type UpsertData = {
-		where: WhereUse;
-		update: AnyUse;
-		create: AnyUse;
-	};
+  type UpsertData = {
+    where: WhereUse;
+    update: AnyUse;
+    create: AnyUse;
+  };
 
-	type AggregateData = {
-		where?: WhereUse;
-		orderBy?: OrderBy | OrderBy[];
-		take?: number;
-		skip?: number;
-		_avg?: Select;
-		_count?: Select;
-		_max?: Select;
-		_min?: Select;
-		_sum?: Select;
-	};
+  type AggregateData = {
+    where?: WhereUse;
+    orderBy?: OrderBy | OrderBy[];
+    take?: number;
+    skip?: number;
+    _avg?: Select;
+    _count?: Select;
+    _max?: Select;
+    _min?: Select;
+    _sum?: Select;
+  };
 
-	type CountData = {
-		where?: WhereUse;
-		orderBy?: OrderBy | OrderBy[];
-		take?: number;
-		skip?: number;
-	};
+  type CountData = {
+    where?: WhereUse;
+    orderBy?: OrderBy | OrderBy[];
+    take?: number;
+    skip?: number;
+  };
 
-	type HavingCore = {
-		_avg?: FilterConditions;
-		_count?: FilterConditions;
-		_max?: FilterConditions;
-		_min?: FilterConditions;
-		_sum?: FilterConditions;
-	} & FilterConditions;
+  type HavingCore = {
+    _avg?: FilterConditions;
+    _count?: FilterConditions;
+    _max?: FilterConditions;
+    _min?: FilterConditions;
+    _sum?: FilterConditions;
+  } & FilterConditions;
 
-	type HavingUse = {
-		[key: string]: HavingCore | HavingUse[] | HavingUse | GassmaAny;
-		AND?: HavingUse[] | HavingUse;
-		OR?: HavingUse[];
-		NOT?: HavingUse[] | HavingUse;
-	};
+  type HavingUse = {
+    [key: string]: HavingCore | HavingUse[] | HavingUse | GassmaAny;
+    AND?: HavingUse[] | HavingUse;
+    OR?: HavingUse[];
+    NOT?: HavingUse[] | HavingUse;
+  };
 
-	type GroupByData = AggregateData & {
-		by: string[] | string;
-		having?: HavingUse;
-	};
+  type GroupByData = AggregateData & {
+    by: string[] | string;
+    having?: HavingUse;
+  };
 
-	type ManyReturn = {
-		count: number;
-	};
+  type ManyReturn = {
+    count: number;
+  };
 
-	type CreateManyReturn = ManyReturn;
-	type UpdateManyReturn = ManyReturn;
-	type DeleteManyReturn = ManyReturn;
-	type UpsertManyReturn = ManyReturn;
+  type CreateManyReturn = ManyReturn;
+  type UpdateManyReturn = ManyReturn;
+  type DeleteManyReturn = ManyReturn;
+  type UpsertManyReturn = ManyReturn;
 }
 
 export { Gassma };

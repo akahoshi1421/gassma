@@ -2,25 +2,25 @@ import type { GassmaAny } from "../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
 const getAllData = (
-	gassmaControllerUtil: GassmaControllerUtil,
+  gassmaControllerUtil: GassmaControllerUtil,
 ): GassmaAny[][] => {
-	const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
-		gassmaControllerUtil;
+  const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
+    gassmaControllerUtil;
 
-	const rowLength = sheet.getLastRow() - startRowNumber;
-	const ColumnLength = endColumnNumber - startColumnNumber + 1;
+  const rowLength = sheet.getLastRow() - startRowNumber;
+  const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
-	if (rowLength === 0) return [];
+  if (rowLength === 0) return [];
 
-	const dataIncludeEmptyString = sheet
-		.getRange(startRowNumber + 1, startColumnNumber, rowLength, ColumnLength)
-		.getValues();
+  const dataIncludeEmptyString = sheet
+    .getRange(startRowNumber + 1, startColumnNumber, rowLength, ColumnLength)
+    .getValues();
 
-	const data = dataIncludeEmptyString.map((row) =>
-		row.map((cell) => (cell === "" ? null : cell)),
-	);
+  const data = dataIncludeEmptyString.map((row) =>
+    row.map((cell) => (cell === "" ? null : cell)),
+  );
 
-	return data;
+  return data;
 };
 
 export { getAllData };

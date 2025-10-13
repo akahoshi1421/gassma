@@ -12,68 +12,68 @@ import { byClassification } from "./groubyUtil/by";
 import { havingFilter } from "./groubyUtil/having";
 
 const groupByFunc = (
-	gassmaControllerUtil: GassmaControllerUtil,
-	groupByData: GroupByData,
+  gassmaControllerUtil: GassmaControllerUtil,
+  groupByData: GroupByData,
 ) => {
-	const where = groupByData.where || {};
-	const orderBy = groupByData.orderBy || null;
-	const take = "take" in groupByData ? groupByData.take : null;
-	const skip = groupByData.skip || null;
-	const avg = groupByData._avg || null;
-	const count = groupByData._count || null;
-	const max = groupByData._max || null;
-	const min = groupByData._min || null;
-	const sum = groupByData._sum || null;
-	const by = Array.isArray(groupByData.by) ? groupByData.by : [groupByData.by];
-	const having = groupByData.having || null;
+  const where = groupByData.where || {};
+  const orderBy = groupByData.orderBy || null;
+  const take = "take" in groupByData ? groupByData.take : null;
+  const skip = groupByData.skip || null;
+  const avg = groupByData._avg || null;
+  const count = groupByData._count || null;
+  const max = groupByData._max || null;
+  const min = groupByData._min || null;
+  const sum = groupByData._sum || null;
+  const by = Array.isArray(groupByData.by) ? groupByData.by : [groupByData.by];
+  const having = groupByData.having || null;
 
-	const findData: FindData = {
-		where: where,
-	};
+  const findData: FindData = {
+    where: where,
+  };
 
-	if (orderBy) findData.orderBy = orderBy;
-	if (take !== null && take !== undefined) findData.take = take;
-	if (skip) findData.skip = skip;
+  if (orderBy) findData.orderBy = orderBy;
+  if (take !== null && take !== undefined) findData.take = take;
+  if (skip) findData.skip = skip;
 
-	const findedRows = findManyFunc(gassmaControllerUtil, findData);
+  const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
-	let byClassificationed = byClassification(findedRows, by) as AnyUse[][];
+  let byClassificationed = byClassification(findedRows, by) as AnyUse[][];
 
-	if (having) byClassificationed = havingFilter(byClassificationed, having, by);
+  if (having) byClassificationed = havingFilter(byClassificationed, having, by);
 
-	const groupByResult = byClassificationed.map((oneClass) => {
-		const oneClassFirst = oneClass[0];
+  const groupByResult = byClassificationed.map((oneClass) => {
+    const oneClassFirst = oneClass[0];
 
-		const oneLineResult = {};
+    const oneLineResult = {};
 
-		by.forEach((oneBy) => (oneLineResult[oneBy] = oneClassFirst[oneBy]));
-		return oneLineResult;
-	});
+    by.forEach((oneBy) => (oneLineResult[oneBy] = oneClassFirst[oneBy]));
+    return oneLineResult;
+  });
 
-	byClassificationed.forEach((oneClass, index) => {
-		if (avg) {
-			const avgData = getAvg(oneClass, avg);
-			groupByResult[index]["_avg"] = avgData;
-		}
-		if (count) {
-			const countData = getCount(oneClass, count);
-			groupByResult[index]["_count"] = countData;
-		}
-		if (max) {
-			const maxData = getMax(oneClass, max);
-			groupByResult[index]["_max"] = maxData;
-		}
-		if (min) {
-			const minData = getMin(oneClass, min);
-			groupByResult[index]["_min"] = minData;
-		}
-		if (sum) {
-			const sumData = getSum(oneClass, sum);
-			groupByResult[index]["_sum"] = sumData;
-		}
-	});
+  byClassificationed.forEach((oneClass, index) => {
+    if (avg) {
+      const avgData = getAvg(oneClass, avg);
+      groupByResult[index]["_avg"] = avgData;
+    }
+    if (count) {
+      const countData = getCount(oneClass, count);
+      groupByResult[index]["_count"] = countData;
+    }
+    if (max) {
+      const maxData = getMax(oneClass, max);
+      groupByResult[index]["_max"] = maxData;
+    }
+    if (min) {
+      const minData = getMin(oneClass, min);
+      groupByResult[index]["_min"] = minData;
+    }
+    if (sum) {
+      const sumData = getSum(oneClass, sum);
+      groupByResult[index]["_sum"] = sumData;
+    }
+  });
 
-	return groupByResult;
+  return groupByResult;
 };
 
 export { groupByFunc };
