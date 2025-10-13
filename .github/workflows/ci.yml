@@ -68,7 +68,7 @@ jobs:
       run: npx tsc --noEmit
 
     - name: Run Biome linter
-      run: npx biome lint src
+      run: npm run lint
 
   build:
     runs-on: ubuntu-latest
