@@ -531,8 +531,8 @@ describe("where functionality tests", () => {
     });
   });
 
-  describe("empty string handling", () => {
-    test("should treat empty string in where condition as null (testing whereFilter.ts:44 branch)", () => {
+  describe("empty string handling (testing whereFilter.ts:44 branch)", () => {
+    test("should treat empty string in where condition as null", () => {
       const mockUtil = mockWithEmptyStrings();
       // Search for records with empty string fields using empty string as search condition
       const result = findManyFunc(mockUtil, {
@@ -576,6 +576,107 @@ describe("where functionality tests", () => {
       expect(result).toEqual([
         { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: null, 職業: "Student" }
       ]);
+    });
+
+    describe("edge cases", () => {
+      test("should handle null and empty string coexistence in dataset", () => {
+        // Mock with both null and empty string values
+        const mockWithNullAndEmpty = (): GassmaControllerUtil => ({
+          sheet: {
+            getDataRange: () => ({
+              getValues: () => [
+                ["名前", "年齢", "住所", "郵便番号", "職業"],
+                ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+                ["Bob", 35, "", "550-0001", "Designer"], // Empty string
+                ["Charlie", 22, null, "100-0002", "Student"], // Actual null
+                ["David", 45, "Kyoto", "", "Manager"] // Empty string in different field
+              ]
+            }) as any,
+            getLastRow: () => 5,
+            getLastColumn: () => 5,
+            getRange: (row: number, col: number, numRows: number, numCols: number) => {
+              if (row === 1 && numRows === 1) {
+                return {
+                  getValues: () => [["名前", "年齢", "住所", "郵便番号", "職業"]]
+                } as any;
+              } else {
+                return {
+                  getValues: () => [
+                    ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+                    ["Bob", 35, "", "550-0001", "Designer"],
+                    ["Charlie", 22, null, "100-0002", "Student"],
+                    ["David", 45, "Kyoto", "", "Manager"]
+                  ]
+                } as any;
+              }
+            }
+          } as any,
+          startRowNumber: 1,
+          startColumnNumber: 1,
+          endColumnNumber: 5
+        });
+
+        const mockUtil = mockWithNullAndEmpty();
+        const result = findManyFunc(mockUtil, {
+          where: { 住所: "" } // Should match both empty string and null
+        });
+
+        // Both Bob (empty string) and Charlie (null) should be found
+        expect(result).toHaveLength(2);
+        expect(result).toEqual(
+          expect.arrayContaining([
+            { 名前: "Bob", 年齢: 35, 住所: null, 郵便番号: "550-0001", 職業: "Designer" },
+            { 名前: "Charlie", 年齢: 22, 住所: null, 郵便番号: "100-0002", 職業: "Student" }
+          ])
+        );
+      });
+
+      test("should handle multiple empty string conditions simultaneously", () => {
+        const mockWithMultipleEmpties = (): GassmaControllerUtil => ({
+          sheet: {
+            getDataRange: () => ({
+              getValues: () => [
+                ["名前", "年齢", "住所", "郵便番号", "職業"],
+                ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+                ["Bob", 35, "", "", "Designer"], // Multiple empty strings
+                ["Charlie", 22, "", "100-0002", ""], // Different combination
+                ["David", 45, "Kyoto", "", ""] // Another combination
+              ]
+            }) as any,
+            getLastRow: () => 5,
+            getLastColumn: () => 5,
+            getRange: (row: number, col: number, numRows: number, numCols: number) => {
+              if (row === 1 && numRows === 1) {
+                return {
+                  getValues: () => [["名前", "年齢", "住所", "郵便番号", "職業"]]
+                } as any;
+              } else {
+                return {
+                  getValues: () => [
+                    ["Alice", 28, "Tokyo", "100-0001", "Engineer"],
+                    ["Bob", 35, "", "", "Designer"],
+                    ["Charlie", 22, "", "100-0002", ""],
+                    ["David", 45, "Kyoto", "", ""]
+                  ]
+                } as any;
+              }
+            }
+          } as any,
+          startRowNumber: 1,
+          startColumnNumber: 1,
+          endColumnNumber: 5
+        });
+
+        const mockUtil = mockWithMultipleEmpties();
+        const result = findManyFunc(mockUtil, {
+          where: { 住所: "", 郵便番号: "" } // Multiple empty string conditions
+        });
+
+        // Should find Bob who has empty strings in both 住所 and 郵便番号
+        expect(result).toEqual([
+          { 名前: "Bob", 年齢: 35, 住所: null, 郵便番号: null, 職業: "Designer" }
+        ]);
+      });
     });
   });
 });
