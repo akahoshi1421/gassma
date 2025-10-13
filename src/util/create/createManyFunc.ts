@@ -20,9 +20,9 @@ const createManyFunc = (
   const titles = getTitle(gassmaControllerUtil);
 
   const newData = data.map((row) => {
-    const createdData = {
+    const createdData: CreateData = {
       data: row,
-    } as CreateData;
+    };
 
     const wantCreateIndex = getWantUpdateIndex(
       gassmaControllerUtil,

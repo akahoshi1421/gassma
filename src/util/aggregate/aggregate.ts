@@ -22,9 +22,9 @@ const aggregateFunc = (
   const min = "_min" in aggregateData ? aggregateData._min : null;
   const sum = "_sum" in aggregateData ? aggregateData._sum : null;
 
-  const findData = {
+  const findData: FindData = {
     where: where,
-  } as FindData;
+  };
 
   if (orderBy) findData.orderBy = orderBy;
   if (take !== null && take !== undefined) findData.take = take;
