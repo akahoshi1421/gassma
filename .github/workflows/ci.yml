@@ -67,6 +67,9 @@ jobs:
     - name: Check TypeScript compilation
       run: npx tsc --noEmit
 
+    - name: Run Biome linter
+      run: npx biome lint src
+
   build:
     runs-on: ubuntu-latest
     needs: [test, lint]
