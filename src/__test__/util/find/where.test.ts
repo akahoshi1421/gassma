@@ -531,7 +531,7 @@ describe("where functionality tests", () => {
     });
   });
 
-  describe("empty string handling (testing whereFilter.ts:44 branch)", () => {
+  describe("empty string handling (testing whereFilter.ts empty string conversion branch)", () => {
     test("should treat empty string in where condition as null", () => {
       const mockUtil = mockWithEmptyStrings();
       // Search for records with empty string fields using empty string as search condition
