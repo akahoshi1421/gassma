@@ -8,7 +8,8 @@
     "push": "npm run build && clasp push",
     "test": "jest",
     "format": "biome format --write src",
-    "format:check": "biome format src"
+    "format:check": "biome format src",
+    "prepare": "husky"
   },
   "author": "akahoshi1421",
   "license": "MIT",
@@ -25,6 +26,7 @@
     "@biomejs/biome": "2.2.6",
     "@types/jest": "^29.5.14",
     "gas-webpack-plugin": "^2.5.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.2",
     "ts-loader": "^9.5.1",
