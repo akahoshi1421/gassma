@@ -1,6 +1,10 @@
 # GASsma
 
+[日本語](docs/README.ja.md) | English
+
 GASsma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.
+
+GASsma allows you to treat Google Sheets as a database with Prisma-like syntax. You can perform CRUD operations, filtering, sorting, and aggregation on your spreadsheet data using familiar TypeScript/JavaScript methods. Perfect for building applications that need simple data persistence without setting up a traditional database.
 
 ## Installation
 
@@ -59,6 +63,10 @@ function myFunction(){
 ```
 $ npm i gassma
 ```
+
+## Official Reference
+
+https://akahoshi1421.github.io/gassma-reference/
 
 ## version
 
