@@ -7,7 +7,7 @@ describe("select functionality tests", () => {
   describe("findManyFunc with select", () => {
     test("should select single field", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
-        select: { 名前: true }
+        select: { 名前: true },
       });
 
       expect(result).toEqual([
@@ -18,13 +18,13 @@ describe("select functionality tests", () => {
         { 名前: "Eve" },
         { 名前: "Frank" },
         { 名前: "Grace" },
-        { 名前: "Henry" }
+        { 名前: "Henry" },
       ]);
     });
 
     test("should select multiple fields", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
-        select: { 名前: true, 年齢: true }
+        select: { 名前: true, 年齢: true },
       });
 
       expect(result).toEqual([
@@ -35,44 +35,53 @@ describe("select functionality tests", () => {
         { 名前: "Eve", 年齢: 28 },
         { 名前: "Frank", 年齢: 52 },
         { 名前: "Grace", 年齢: 31 },
-        { 名前: "Henry", 年齢: 28 }
+        { 名前: "Henry", 年齢: 28 },
       ]);
     });
 
     test("should select specific fields with where condition", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 住所: "Tokyo" },
-        select: { 名前: true, 職業: true }
+        select: { 名前: true, 職業: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 名前: "Alice", 職業: "Engineer" },
         { 名前: "Charlie", 職業: "Student" },
         { 名前: "Eve", 職業: "Engineer" },
-        { 名前: "Grace", 職業: "Designer" }
+        { 名前: "Grace", 職業: "Designer" },
       ]);
     });
 
     test("should select all available fields", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "Alice" },
-        select: { 名前: true, 年齢: true, 住所: true, 郵便番号: true, 職業: true }
+        select: {
+          名前: true,
+          年齢: true,
+          住所: true,
+          郵便番号: true,
+          職業: true,
+        },
       });
 
       expect(result).toEqual([
-        { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" }
+        {
+          名前: "Alice",
+          年齢: 28,
+          住所: "Tokyo",
+          郵便番号: "100-0001",
+          職業: "Engineer",
+        },
       ]);
     });
 
     test("should work with complex where and select combination", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: {
-          OR: [
-            { 職業: "Engineer" },
-            { 職業: "Designer" }
-          ]
+          OR: [{ 職業: "Engineer" }, { 職業: "Designer" }],
         },
-        select: { 名前: true, 職業: true, 住所: true }
+        select: { 名前: true, 職業: true, 住所: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
@@ -80,14 +89,14 @@ describe("select functionality tests", () => {
         { 名前: "Bob", 職業: "Designer", 住所: "Osaka" },
         { 名前: "Eve", 職業: "Engineer", 住所: "Tokyo" },
         { 名前: "Grace", 職業: "Designer", 住所: "Tokyo" },
-        { 名前: "Henry", 職業: "Engineer", 住所: "Kyoto" }
+        { 名前: "Henry", 職業: "Engineer", 住所: "Kyoto" },
       ]);
     });
 
     test("should handle empty result with select", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
-        select: { 名前: true, 年齢: true }
+        select: { 名前: true, 年齢: true },
       });
 
       expect(result).toEqual([]);
@@ -97,39 +106,42 @@ describe("select functionality tests", () => {
   describe("findFirstFunc with select", () => {
     test("should select single field for first result", () => {
       const result = findFirstFunc(getExtendedMockControllerUtil(), {
-        select: { 名前: true }
+        select: { 名前: true },
       });
 
       expect(result).toEqual({
-        名前: "Alice"
+        名前: "Alice",
       });
     });
 
     test("should select multiple fields for first result", () => {
       const result = findFirstFunc(getExtendedMockControllerUtil(), {
-        select: { 名前: true, 年齢: true, 職業: true }
+        select: { 名前: true, 年齢: true, 職業: true },
       });
 
       expect(result).toEqual({
-        名前: "Alice", 年齢: 28, 職業: "Engineer"
+        名前: "Alice",
+        年齢: 28,
+        職業: "Engineer",
       });
     });
 
     test("should select with where condition", () => {
       const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: { 職業: "Designer" },
-        select: { 名前: true, 住所: true }
+        select: { 名前: true, 住所: true },
       });
 
       expect(result).toEqual({
-        名前: "Bob", 住所: "Osaka"
+        名前: "Bob",
+        住所: "Osaka",
       });
     });
 
     test("should return null when no match found with select", () => {
       const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: { 名前: "NonExistent" },
-        select: { 名前: true }
+        select: { 名前: true },
       });
 
       expect(result).toBeNull();
@@ -138,16 +150,14 @@ describe("select functionality tests", () => {
     test("should work with complex where condition and select", () => {
       const result = findFirstFunc(getExtendedMockControllerUtil(), {
         where: {
-          AND: [
-            { 年齢: { gte: 30 } },
-            { 住所: "Tokyo" }
-          ]
+          AND: [{ 年齢: { gte: 30 } }, { 住所: "Tokyo" }],
         },
-        select: { 名前: true, 年齢: true }
+        select: { 名前: true, 年齢: true },
       });
 
       expect(result).toEqual({
-        名前: "Grace", 年齢: 31
+        名前: "Grace",
+        年齢: 31,
       });
     });
   });
@@ -157,7 +167,7 @@ describe("select functionality tests", () => {
       expect(() => {
         findManyFunc(getExtendedMockControllerUtil(), {
           select: { 名前: true },
-          omit: { 年齢: true }
+          omit: { 年齢: true },
         });
       }).toThrow("Cannot use both select and omit in the same query");
     });
@@ -166,10 +176,9 @@ describe("select functionality tests", () => {
       expect(() => {
         findFirstFunc(getExtendedMockControllerUtil(), {
           select: { 名前: true },
-          omit: { 年齢: true }
+          omit: { 年齢: true },
         });
       }).toThrow("Cannot use both select and omit in the same query");
     });
   });
 });
-

@@ -2,7 +2,7 @@ import type { FilterConditions, GassmaAny } from "../../types/coreTypes";
 
 const isFilterConditionsMatch = (
   cellData: GassmaAny,
-  filterOptions: FilterConditions
+  filterOptions: FilterConditions,
 ): boolean => {
   const result = Object.keys(filterOptions).every((optionName) => {
     switch (optionName) {

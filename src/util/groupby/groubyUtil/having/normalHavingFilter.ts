@@ -13,7 +13,7 @@ import { getAggregate } from "../getAggregate";
 import { notPatternFilter } from "./normalHavingFilter/notPatternFilter";
 
 const transportationUsedHavingData = (
-  useHavingData: HavingAggregateWithIndex[]
+  useHavingData: HavingAggregateWithIndex[],
 ): TranspositionHavingAggregateWithIndex[] => {
   return useHavingData.map((one) => {
     const oneResult: TranspositionHavingAggregate = {};
@@ -35,12 +35,12 @@ const transportationUsedHavingData = (
 const normalHaving = (
   byClassificationedRow: HitByClassificationedRowData[],
   havingData: HavingUse,
-  by: string[]
+  by: string[],
 ) => {
   const byClassificationedRowWithoutPattern = notPatternFilter(
     byClassificationedRow,
     havingData,
-    by
+    by,
   );
 
   const matchKeys: MatchKeys = {
@@ -79,7 +79,7 @@ const normalHaving = (
       return {
         havingAggregateData: getAggregate(
           byClassificationedOneRow.row,
-          matchKeys
+          matchKeys,
         ),
         index: byClassificationedOneRow.rowNumber,
       };
@@ -97,20 +97,20 @@ const normalHaving = (
 
         const isFilterConditionsMatchResult = isFilterConditionsMatch(
           patternContent,
-          havingData[item][pattern]
+          havingData[item][pattern],
         );
 
         return isFilterConditionsMatchResult;
       });
-    })
+    }),
   );
 
   const normalHavingFiltered = normalHavingResult.map(
     (oneHavingAggregateData) =>
       byClassificationedRowWithoutPattern.find(
         (oneByClassificationedRow) =>
-          oneByClassificationedRow.rowNumber === oneHavingAggregateData.index
-      )
+          oneByClassificationedRow.rowNumber === oneHavingAggregateData.index,
+      ),
   );
 
   return normalHavingFiltered;

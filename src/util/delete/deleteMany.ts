@@ -4,7 +4,7 @@ import { whereFilter } from "../core/whereFilter";
 
 const deleteManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  deleteData: DeleteData
+  deleteData: DeleteData,
 ): DeleteManyReturn => {
   const { sheet, startRowNumber } = gassmaControllerUtil;
 

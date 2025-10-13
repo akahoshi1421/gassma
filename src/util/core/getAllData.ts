@@ -2,7 +2,7 @@ import type { GassmaAny } from "../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 
 const getAllData = (
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
 ): GassmaAny[][] => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
@@ -17,7 +17,7 @@ const getAllData = (
     .getValues();
 
   const data = dataIncludeEmptyString.map((row) =>
-    row.map((cell) => (cell === "" ? null : cell))
+    row.map((cell) => (cell === "" ? null : cell)),
   );
 
   return data;

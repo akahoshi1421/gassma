@@ -9,7 +9,7 @@ import { isOrMatchHaving } from "./or";
 const isLogicMatchHaving = (
   willHavingData: HitByClassificationedRowData[],
   having: HavingUse,
-  by: string[]
+  by: string[],
 ) => {
   const and = having.AND || null;
   const or = having.OR || null;
@@ -30,7 +30,7 @@ const isLogicMatchHaving = (
       const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
 
       result = orResult.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber)
+        alreadyHitRowNumbers.includes(row.rowNumber),
       );
     }
   }
@@ -44,7 +44,7 @@ const isLogicMatchHaving = (
       const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
 
       result = notResult.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber)
+        alreadyHitRowNumbers.includes(row.rowNumber),
       );
     }
   }

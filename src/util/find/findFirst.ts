@@ -9,7 +9,7 @@ import { orderByFunc } from "./findUtil/orderBy";
 
 const findFirstFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  findData: FindData
+  findData: FindData,
 ) => {
   const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
@@ -35,14 +35,14 @@ const findFirstFunc = (
   // Apply skip if specified
   if (skip)
     findDataDictArray = findDataDictArray.filter(
-      (_value, index) => index + 1 > skip
+      (_value, index) => index + 1 > skip,
     );
 
   // Apply orderBy if specified (before taking first)
   if (orderBy)
     findDataDictArray = orderByFunc(
       findDataDictArray,
-      Array.isArray(orderBy) ? orderBy : [orderBy]
+      Array.isArray(orderBy) ? orderBy : [orderBy],
     );
 
   // Get the first result

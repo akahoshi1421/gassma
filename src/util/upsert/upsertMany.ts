@@ -12,7 +12,7 @@ import { updateManyFunc } from "../update/updateMany";
 
 const upsertManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  upsertData: UpsertData
+  upsertData: UpsertData,
 ): UpsertManyReturn => {
   const findData = {
     where: upsertData.where,

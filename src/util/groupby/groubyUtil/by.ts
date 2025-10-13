@@ -18,11 +18,11 @@ const bySearch = (rows: {}[], byData: string[], depth: number): any[] => {
       const data = row[byData[depth]];
 
       return data === match;
-    })
+    }),
   );
 
   const result = classificationedMatches.map((classificationedMatch) =>
-    bySearch(classificationedMatch, byData, depth + 1)
+    bySearch(classificationedMatch, byData, depth + 1),
   );
 
   return result;

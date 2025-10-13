@@ -8,7 +8,7 @@ import { isLogicMatchHaving } from "./entry";
 const isAndMatchHaving = (
   willHavingData: HitByClassificationedRowData[],
   havingArray: HavingUse[],
-  by: string[]
+  by: string[],
 ) => {
   let resultHavingData: HitByClassificationedRowData[] =
     willHavingData.concat();

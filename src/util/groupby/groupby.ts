@@ -13,7 +13,7 @@ import { havingFilter } from "./groubyUtil/having";
 
 const groupByFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  groupByData: GroupByData
+  groupByData: GroupByData,
 ) => {
   const where = groupByData.where || {};
   const orderBy = groupByData.orderBy || null;

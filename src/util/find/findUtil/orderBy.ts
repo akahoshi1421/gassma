@@ -4,7 +4,7 @@ const search = (
   a: AnyUse,
   b: AnyUse,
   keys: [string, "asc" | "desc"][],
-  cnt: number = 0
+  cnt: number = 0,
 ) => {
   const key = keys[cnt][0];
   const ascOrDesc = keys[cnt][1];

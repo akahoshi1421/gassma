@@ -5,7 +5,7 @@ import { getTitle } from "./getTitle";
 
 const getWantUpdateIndex = (
   gassmaControllerUtil: GassmaControllerUtil,
-  wantData: CreateData | UpdateData
+  wantData: CreateData | UpdateData,
 ): number[] => {
   const data = wantData.data;
   const titles = getTitle(gassmaControllerUtil);
@@ -21,7 +21,7 @@ const getWantUpdateIndex = (
   });
 
   const wantUpdateIndexRemoveMinusOne = wantUpdateIndex.filter(
-    (index) => index !== -1
+    (index) => index !== -1,
   );
 
   return wantUpdateIndexRemoveMinusOne;

@@ -6,7 +6,7 @@ describe("filterConditionsNotIn", () => {
     const filterOptions = { notIn: ["test", "test2"] };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
-  
+
   test("should return false for matching values", () => {
     const cellData = "test";
     const filterOptions = { notIn: ["test", "test2"] };

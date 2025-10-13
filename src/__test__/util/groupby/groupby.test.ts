@@ -6,19 +6,19 @@ describe("groupBy functionality tests", () => {
   describe("groupByFunc with basic grouping", () => {
     test("should group by a single field", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
-        by: "住所"
+        by: "住所",
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo" },
         { 住所: "Osaka" },
-        { 住所: "Kyoto" }
+        { 住所: "Kyoto" },
       ]);
     });
 
     test("should group by multiple fields", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
-        by: ["住所", "職業"]
+        by: ["住所", "職業"],
       });
 
       expectArrayToEqualIgnoringOrder(result, [
@@ -28,13 +28,13 @@ describe("groupBy functionality tests", () => {
         { 住所: "Kyoto", 職業: "Manager" },
         { 住所: "Osaka", 職業: "Director" },
         { 住所: "Tokyo", 職業: "Designer" },
-        { 住所: "Kyoto", 職業: "Engineer" }
+        { 住所: "Kyoto", 職業: "Engineer" },
       ]);
     });
 
     test("should handle string parameter for by", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
-        by: "職業"
+        by: "職業",
       });
 
       expectArrayToEqualIgnoringOrder(result, [
@@ -42,7 +42,7 @@ describe("groupBy functionality tests", () => {
         { 職業: "Designer" },
         { 職業: "Student" },
         { 職業: "Manager" },
-        { 職業: "Director" }
+        { 職業: "Director" },
       ]);
     });
   });
@@ -51,26 +51,26 @@ describe("groupBy functionality tests", () => {
     test("should calculate _avg for grouped data", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
-        _avg: { 年齢: true }
+        _avg: { 年齢: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo", _avg: { 年齢: (28 + 22 + 28 + 31) / 4 } },
         { 住所: "Osaka", _avg: { 年齢: (35 + 52) / 2 } },
-        { 住所: "Kyoto", _avg: { 年齢: (45 + 28) / 2 } }
+        { 住所: "Kyoto", _avg: { 年齢: (45 + 28) / 2 } },
       ]);
     });
 
     test("should calculate _count for grouped data", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo", _count: { 名前: 4 } },
         { 住所: "Osaka", _count: { 名前: 2 } },
-        { 住所: "Kyoto", _count: { 名前: 2 } }
+        { 住所: "Kyoto", _count: { 名前: 2 } },
       ]);
     });
 
@@ -78,20 +78,20 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         _max: { 年齢: true },
-        _min: { 年齢: true }
+        _min: { 年齢: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo", _max: { 年齢: 31 }, _min: { 年齢: 22 } },
         { 住所: "Osaka", _max: { 年齢: 52 }, _min: { 年齢: 35 } },
-        { 住所: "Kyoto", _max: { 年齢: 45 }, _min: { 年齢: 28 } }
+        { 住所: "Kyoto", _max: { 年齢: 45 }, _min: { 年齢: 28 } },
       ]);
     });
 
     test("should calculate _sum for grouped data", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "職業",
-        _sum: { 年齢: true }
+        _sum: { 年齢: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
@@ -99,7 +99,7 @@ describe("groupBy functionality tests", () => {
         { 職業: "Designer", _sum: { 年齢: 35 + 31 } },
         { 職業: "Student", _sum: { 年齢: 22 } },
         { 職業: "Manager", _sum: { 年齢: 45 } },
-        { 職業: "Director", _sum: { 年齢: 52 } }
+        { 職業: "Director", _sum: { 年齢: 52 } },
       ]);
     });
 
@@ -108,28 +108,28 @@ describe("groupBy functionality tests", () => {
         by: "住所",
         _avg: { 年齢: true },
         _count: { 名前: true },
-        _max: { 年齢: true }
+        _max: { 年齢: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
-        { 
-          住所: "Tokyo", 
-          _avg: { 年齢: (28 + 22 + 28 + 31) / 4 }, 
+        {
+          住所: "Tokyo",
+          _avg: { 年齢: (28 + 22 + 28 + 31) / 4 },
           _count: { 名前: 4 },
-          _max: { 年齢: 31 }
+          _max: { 年齢: 31 },
         },
-        { 
-          住所: "Osaka", 
-          _avg: { 年齢: (35 + 52) / 2 }, 
+        {
+          住所: "Osaka",
+          _avg: { 年齢: (35 + 52) / 2 },
           _count: { 名前: 2 },
-          _max: { 年齢: 52 }
+          _max: { 年齢: 52 },
         },
-        { 
-          住所: "Kyoto", 
-          _avg: { 年齢: (45 + 28) / 2 }, 
+        {
+          住所: "Kyoto",
+          _avg: { 年齢: (45 + 28) / 2 },
           _count: { 名前: 2 },
-          _max: { 年齢: 45 }
-        }
+          _max: { 年齢: 45 },
+        },
       ]);
     });
   });
@@ -139,13 +139,13 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         where: { 年齢: { gte: 30 } },
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Osaka", _count: { 名前: 2 } },
         { 住所: "Kyoto", _count: { 名前: 1 } },
-        { 住所: "Tokyo", _count: { 名前: 1 } }
+        { 住所: "Tokyo", _count: { 名前: 1 } },
       ]);
     });
 
@@ -153,13 +153,13 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "職業",
         where: { 住所: "Tokyo" },
-        _avg: { 年齢: true }
+        _avg: { 年齢: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
         { 職業: "Engineer", _avg: { 年齢: 28 } },
         { 職業: "Student", _avg: { 年齢: 22 } },
-        { 職業: "Designer", _avg: { 年齢: 31 } }
+        { 職業: "Designer", _avg: { 年齢: 31 } },
       ]);
     });
   });
@@ -169,14 +169,14 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         orderBy: { 年齢: "desc" },
-        _avg: { 年齢: true }
+        _avg: { 年齢: true },
       });
 
       // orderBy should not affect the grouping results, only the order of processing
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo", _avg: { 年齢: (28 + 22 + 28 + 31) / 4 } },
         { 住所: "Osaka", _avg: { 年齢: (35 + 52) / 2 } },
-        { 住所: "Kyoto", _avg: { 年齢: (45 + 28) / 2 } }
+        { 住所: "Kyoto", _avg: { 年齢: (45 + 28) / 2 } },
       ]);
     });
 
@@ -184,14 +184,14 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         skip: 2,
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       // Skip should affect the input data before grouping
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo", _count: { 名前: 3 } },
         { 住所: "Kyoto", _count: { 名前: 2 } },
-        { 住所: "Osaka", _count: { 名前: 1 } }
+        { 住所: "Osaka", _count: { 名前: 1 } },
       ]);
     });
 
@@ -199,14 +199,14 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         take: 4,
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       // Take should limit input data before grouping
       expectArrayToEqualIgnoringOrder(result, [
         { 住所: "Tokyo", _count: { 名前: 2 } },
         { 住所: "Osaka", _count: { 名前: 1 } },
-        { 住所: "Kyoto", _count: { 名前: 1 } }
+        { 住所: "Kyoto", _count: { 名前: 1 } },
       ]);
     });
   });
@@ -216,7 +216,7 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         where: { 名前: "NonExistent" },
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       expect(result).toEqual([]);
@@ -226,7 +226,7 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         take: 0,
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       expect(result).toEqual([]);
@@ -236,7 +236,7 @@ describe("groupBy functionality tests", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
         skip: 20,
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       expect(result).toEqual([]);
@@ -250,7 +250,7 @@ describe("groupBy functionality tests", () => {
         _count: { 名前: true },
         _max: { 年齢: true },
         _min: { 年齢: true },
-        _sum: { 年齢: true }
+        _sum: { 年齢: true },
       });
 
       expect(result).toEqual([
@@ -260,8 +260,8 @@ describe("groupBy functionality tests", () => {
           _count: { 名前: 3 },
           _max: { 年齢: 28 },
           _min: { 年齢: 28 },
-          _sum: { 年齢: 84 }
-        }
+          _sum: { 年齢: 84 },
+        },
       ]);
     });
   });
@@ -272,16 +272,29 @@ describe("groupBy functionality tests", () => {
         by: ["住所", "職業"],
         where: { 住所: "Tokyo" },
         _avg: { 年齢: true },
-        _count: { 名前: true }
+        _count: { 名前: true },
       });
 
       expectArrayToEqualIgnoringOrder(result, [
-        { 住所: "Tokyo", 職業: "Engineer", _avg: { 年齢: 28 }, _count: { 名前: 2 } },
-        { 住所: "Tokyo", 職業: "Student", _avg: { 年齢: 22 }, _count: { 名前: 1 } },
-        { 住所: "Tokyo", 職業: "Designer", _avg: { 年齢: 31 }, _count: { 名前: 1 } }
+        {
+          住所: "Tokyo",
+          職業: "Engineer",
+          _avg: { 年齢: 28 },
+          _count: { 名前: 2 },
+        },
+        {
+          住所: "Tokyo",
+          職業: "Student",
+          _avg: { 年齢: 22 },
+          _count: { 名前: 1 },
+        },
+        {
+          住所: "Tokyo",
+          職業: "Designer",
+          _avg: { 年齢: 31 },
+          _count: { 名前: 1 },
+        },
       ]);
     });
-
   });
 });
-

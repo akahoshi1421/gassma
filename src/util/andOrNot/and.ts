@@ -1,4 +1,8 @@
-import type { FilterConditions, GassmaAny, WhereUse } from "../../types/coreTypes";
+import type {
+  FilterConditions,
+  GassmaAny,
+  WhereUse,
+} from "../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndex } from "../core/getWantFindIndex";
@@ -10,7 +14,7 @@ const isAndMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
@@ -25,7 +29,7 @@ const isAndMatch = (
         if (isDict(whereOptionContent))
           return isFilterConditionsMatch(
             row.row[i],
-            whereOptionContent as FilterConditions
+            whereOptionContent as FilterConditions,
           );
 
         return row.row[i] === whereOptionContent;
@@ -43,7 +47,7 @@ const isAndMatch = (
         resultRowsData,
         where,
         titles,
-        gassmaControllerUtil
+        gassmaControllerUtil,
       );
     }
   });

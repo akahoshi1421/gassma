@@ -10,7 +10,7 @@ import { getSum } from "./aggregateUtil/sum";
 
 const aggregateFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  aggregateData: AggregateData
+  aggregateData: AggregateData,
 ) => {
   const where = "where" in aggregateData ? aggregateData.where : {};
   const orderBy = "orderBy" in aggregateData ? aggregateData.orderBy : null;

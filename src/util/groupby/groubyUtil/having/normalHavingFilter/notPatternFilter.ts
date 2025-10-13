@@ -15,7 +15,7 @@ const dontWriteByErrorCheck = (key: string, by: string[]) => {
 };
 
 const transportationUsedHavingFilterCondition = (
-  matchKeys: MatchFilterConditionsKeys
+  matchKeys: MatchFilterConditionsKeys,
 ) => {
   const transported: TranspositionHavingConditionKeys = {};
 
@@ -34,7 +34,7 @@ const transportationUsedHavingFilterCondition = (
 const notPatternFilter = (
   byClassificationedRow: HitByClassificationedRowData[],
   havingData: HavingUse,
-  by: string[]
+  by: string[],
 ) => {
   const matchKeys: MatchFilterConditionsKeys = {
     equals: {},
@@ -123,12 +123,12 @@ const notPatternFilter = (
 
         const isFilterConditionsMatchResult = isFilterConditionsMatch(
           rowData[0][oneItem],
-          itemContent
+          itemContent,
         );
 
         return isFilterConditionsMatchResult;
       });
-    }
+    },
   );
 
   return usedHavingFiltercondition;

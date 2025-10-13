@@ -9,7 +9,7 @@ import { orderByFunc } from "./findUtil/orderBy";
 
 const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  findData: FindData
+  findData: FindData,
 ) => {
   const where = "where" in findData ? findData.where : {};
   const select = "select" in findData ? findData.select : null;
@@ -37,20 +37,20 @@ const findManyFunc = (
   if (orderBy)
     findDataDictArray = orderByFunc(
       findDataDictArray,
-      Array.isArray(orderBy) ? orderBy : [orderBy]
+      Array.isArray(orderBy) ? orderBy : [orderBy],
     );
 
   // Apply distinct after orderBy
   if (distinct) {
     const distinctKeys = Array.isArray(distinct) ? distinct : [distinct];
     const seen = new Set<string>();
-    
+
     findDataDictArray = findDataDictArray.filter((row) => {
       // Create a unique key from the distinct field values
-      const key = distinctKeys.map(k => JSON.stringify(row[k])).join('|');
-      
+      const key = distinctKeys.map((k) => JSON.stringify(row[k])).join("|");
+
       if (seen.has(key)) return false;
-      
+
       seen.add(key);
       return true;
     });
@@ -59,7 +59,7 @@ const findManyFunc = (
   // Apply skip after distinct
   if (skip)
     findDataDictArray = findDataDictArray.filter(
-      (_value, index) => index + 1 > skip
+      (_value, index) => index + 1 > skip,
     );
 
   // Apply take last (handle negative values as no limit, zero as empty)

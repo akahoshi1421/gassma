@@ -4,7 +4,7 @@ import { getTitle } from "./getTitle";
 
 const getWantFindIndex = (
   gassmaControllerUtil: GassmaControllerUtil,
-  wantData: FindData | DeleteData | UpdateData
+  wantData: FindData | DeleteData | UpdateData,
 ) => {
   const where = wantData.where;
   const titles = getTitle(gassmaControllerUtil);
@@ -22,7 +22,7 @@ const getWantFindIndex = (
   });
 
   const wantFindIndexRemovedMinusOne = wantFindIndex.filter(
-    (index) => index !== -1
+    (index) => index !== -1,
   );
 
   return wantFindIndexRemovedMinusOne;

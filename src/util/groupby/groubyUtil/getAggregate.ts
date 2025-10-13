@@ -1,4 +1,8 @@
-import type { AnyUse, HavingAggregate, MatchKeys } from "../../../types/coreTypes";
+import type {
+  AnyUse,
+  HavingAggregate,
+  MatchKeys,
+} from "../../../types/coreTypes";
 import { getAvg } from "../../aggregate/aggregateUtil/avg";
 import { getCount } from "../../aggregate/aggregateUtil/count";
 import { getMax } from "../../aggregate/aggregateUtil/max";
@@ -7,7 +11,7 @@ import { getSum } from "../../aggregate/aggregateUtil/sum";
 
 const getAggregate = (
   byClassificationedRow: AnyUse[],
-  matchKeys: MatchKeys
+  matchKeys: MatchKeys,
 ): HavingAggregate => {
   const aggregateResult = {
     _avg: {},
@@ -24,7 +28,7 @@ const getAggregate = (
       case "_count":
         aggregateResult._count = getCount(
           byClassificationedRow,
-          matchKeys._count
+          matchKeys._count,
         );
       case "_max":
         aggregateResult._max = getMax(byClassificationedRow, matchKeys._max);

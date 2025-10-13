@@ -1,4 +1,11 @@
-import type { AnyUse, ManyReturn, Omit, OrderBy, Select, WhereUse } from "./coreTypes";
+import type {
+  AnyUse,
+  ManyReturn,
+  Omit,
+  OrderBy,
+  Select,
+  WhereUse,
+} from "./coreTypes";
 
 type FindData = {
   where?: WhereUse;

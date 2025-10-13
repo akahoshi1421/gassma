@@ -1,10 +1,10 @@
 const maxSearch = (
   searchedIndex: number,
   preMaxIndexes: number[],
-  stringUnicodeArray: number[][]
+  stringUnicodeArray: number[][],
 ): number => {
   const nowUnicodeArray = preMaxIndexes.map(
-    (num) => stringUnicodeArray[num][searchedIndex]
+    (num) => stringUnicodeArray[num][searchedIndex],
   );
 
   let maxNumber = -Infinity;
@@ -23,11 +23,11 @@ const maxSearch = (
       )
         return index;
       return null;
-    }
+    },
   );
 
   const nowMaxIndexes = nowMaxIndexesIncludeNull.filter(
-    (nowMax) => nowMax !== null
+    (nowMax) => nowMax !== null,
   );
 
   return maxSearch(searchedIndex + 1, nowMaxIndexes, stringUnicodeArray);

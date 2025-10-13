@@ -21,7 +21,7 @@ describe("getHitsDataType function tests", () => {
       const dates = [
         new Date("2023-01-01"),
         new Date("2023-06-01"),
-        new Date("2022-12-01")
+        new Date("2022-12-01"),
       ];
       const result = getHitsDataType(dates);
       expect(result).toBe("Date");
@@ -33,7 +33,11 @@ describe("getHitsDataType function tests", () => {
     });
 
     test("should return 'object' for object arrays (non-Date)", () => {
-      const result = getHitsDataType([{} as any, { key: "value" } as any, { a: 1 } as any]);
+      const result = getHitsDataType([
+        {} as any,
+        { key: "value" } as any,
+        { a: 1 } as any,
+      ]);
       expect(result).toBe("object");
     });
   });
@@ -88,12 +92,12 @@ describe("getHitsDataType function tests", () => {
 
     test("should return false for complex mixed types", () => {
       const result = getHitsDataType([
-        "string", 
-        123, 
-        true, 
-        new Date(), 
+        "string",
+        123,
+        true,
+        new Date(),
         { key: "value" } as any,
-        undefined
+        undefined,
       ]);
       expect(result).toBe(false);
     });
@@ -104,7 +108,7 @@ describe("getHitsDataType function tests", () => {
       const dates = [
         new Date("2023-01-01T00:00:00Z"),
         new Date("2023-06-15T12:30:45Z"),
-        new Date("2022-12-31T23:59:59Z")
+        new Date("2022-12-31T23:59:59Z"),
       ];
       const result = getHitsDataType(dates);
       expect(result).toBe("Date");
@@ -114,18 +118,14 @@ describe("getHitsDataType function tests", () => {
       const mixed = [
         new Date("2023-01-01"),
         { notADate: true } as any,
-        new Date("2023-06-01")
+        new Date("2023-06-01"),
       ];
       const result = getHitsDataType(mixed);
       expect(result).toBe(false);
     });
 
     test("should return false when Date is mixed with primitives", () => {
-      const mixed = [
-        new Date("2023-01-01"),
-        "2023-01-01",
-        123456789
-      ];
+      const mixed = [new Date("2023-01-01"), "2023-01-01", 123456789];
       const result = getHitsDataType(mixed);
       expect(result).toBe(false);
     });
@@ -134,7 +134,7 @@ describe("getHitsDataType function tests", () => {
       const dates = [
         new Date(2023, 0, 1), // Year, month (0-indexed), day
         new Date("2023-06-15"),
-        new Date(1672531200000) // Timestamp
+        new Date(1672531200000), // Timestamp
       ];
       const result = getHitsDataType(dates);
       expect(result).toBe("Date");
@@ -148,7 +148,7 @@ describe("getHitsDataType function tests", () => {
     });
 
     test("should handle arrays with function values", () => {
-      const funcs = [() => {}, function() {}, function named() {}] as any[];
+      const funcs = [() => {}, function () {}, function named() {}] as any[];
       const result = getHitsDataType(funcs);
       expect(result).toBe("function");
     });

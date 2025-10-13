@@ -6,12 +6,7 @@ import { getStringMax } from "../../../../util/aggregate/aggregateUtil/max/strin
 describe("max aggregate functionality tests", () => {
   describe("getMax function", () => {
     test("should calculate max for number field", () => {
-      const rows = [
-        { age: 25 },
-        { age: 30 },
-        { age: 20 },
-        { age: 35 }
-      ];
+      const rows = [{ age: 25 }, { age: 30 }, { age: 20 }, { age: 35 }];
       const result = getMax(rows, { age: true });
       expect(result).toEqual({ age: 35 });
     });
@@ -21,18 +16,14 @@ describe("max aggregate functionality tests", () => {
         { name: "Charlie" },
         { name: "Alice" },
         { name: "Bob" },
-        { name: "David" }
+        { name: "David" },
       ];
       const result = getMax(rows, { name: true });
       expect(result).toEqual({ name: "David" });
     });
 
     test("should calculate max for boolean field", () => {
-      const rows = [
-        { active: true },
-        { active: false },
-        { active: true }
-      ];
+      const rows = [{ active: true }, { active: false }, { active: true }];
       const result = getMax(rows, { active: true });
       expect(result).toEqual({ active: true });
     });
@@ -41,11 +32,7 @@ describe("max aggregate functionality tests", () => {
       const date1 = new Date("2023-01-01");
       const date2 = new Date("2023-06-01");
       const date3 = new Date("2022-12-01");
-      const rows = [
-        { created: date1 },
-        { created: date2 },
-        { created: date3 }
-      ];
+      const rows = [{ created: date1 }, { created: date2 }, { created: date3 }];
       const result = getMax(rows, { created: true });
       expect(result).toEqual({ created: date2 });
     });
@@ -56,18 +43,14 @@ describe("max aggregate functionality tests", () => {
         { age: null },
         { age: undefined },
         { age: 20 },
-        { age: 30 }
+        { age: 30 },
       ];
       const result = getMax(rows, { age: true });
       expect(result).toEqual({ age: 30 });
     });
 
     test("should return null when all values are null or undefined", () => {
-      const rows = [
-        { age: null },
-        { age: undefined },
-        { age: null }
-      ];
+      const rows = [{ age: null }, { age: undefined }, { age: null }];
       const result = getMax(rows, { age: true });
       expect(result).toEqual({ age: null });
     });
@@ -82,17 +65,14 @@ describe("max aggregate functionality tests", () => {
       const rows = [
         { age: 30, name: "Charlie", active: true },
         { age: 25, name: "Alice", active: false },
-        { age: 35, name: "Bob", active: true }
+        { age: 35, name: "Bob", active: true },
       ];
       const result = getMax(rows, { age: true, name: true, active: true });
       expect(result).toEqual({ age: 35, name: "Charlie", active: true });
     });
 
     test("should throw error for unsupported data types", () => {
-      const rows = [
-        { obj: { value: 1 } },
-        { obj: { value: 2 } }
-      ];
+      const rows = [{ obj: { value: 1 } }, { obj: { value: 2 } }];
       expect(() => {
         getMax(rows, { obj: true });
       }).toThrow();
@@ -240,10 +220,7 @@ describe("max aggregate functionality tests", () => {
 
   describe("getMax error handling", () => {
     test("should handle array data type gracefully", () => {
-      const rows = [
-        { tags: ["a", "b"] },
-        { tags: ["c", "d"] }
-      ];
+      const rows = [{ tags: ["a", "b"] }, { tags: ["c", "d"] }];
       expect(() => {
         getMax(rows, { tags: true });
       }).toThrow();
@@ -252,7 +229,7 @@ describe("max aggregate functionality tests", () => {
     test("should handle object data type gracefully", () => {
       const rows = [
         { metadata: { key: "value1" } },
-        { metadata: { key: "value2" } }
+        { metadata: { key: "value2" } },
       ];
       expect(() => {
         getMax(rows, { metadata: true });
@@ -260,14 +237,10 @@ describe("max aggregate functionality tests", () => {
     });
 
     test("should handle mixed data types gracefully", () => {
-      const rows = [
-        { value: "string" },
-        { value: 123 },
-        { value: true }
-      ];
+      const rows = [{ value: "string" }, { value: 123 }, { value: true }];
       expect(() => {
         getMax(rows, { value: true });
-      }).toThrow('Cannot produce a maximum value of more than one type.');
+      }).toThrow("Cannot produce a maximum value of more than one type.");
     });
   });
 
@@ -276,38 +249,26 @@ describe("max aggregate functionality tests", () => {
       const rows = [
         { value: Number.MAX_SAFE_INTEGER },
         { value: Number.MAX_SAFE_INTEGER - 1 },
-        { value: Number.MAX_SAFE_INTEGER - 2 }
+        { value: Number.MAX_SAFE_INTEGER - 2 },
       ];
       const result = getMax(rows, { value: true });
       expect(result).toEqual({ value: Number.MAX_SAFE_INTEGER });
     });
 
     test("should handle negative numbers", () => {
-      const rows = [
-        { value: -10 },
-        { value: -5 },
-        { value: -20 }
-      ];
+      const rows = [{ value: -10 }, { value: -5 }, { value: -20 }];
       const result = getMax(rows, { value: true });
       expect(result).toEqual({ value: -5 });
     });
 
     test("should handle decimal numbers", () => {
-      const rows = [
-        { value: 3.14 },
-        { value: 2.71 },
-        { value: 1.41 }
-      ];
+      const rows = [{ value: 3.14 }, { value: 2.71 }, { value: 1.41 }];
       const result = getMax(rows, { value: true });
       expect(result).toEqual({ value: 3.14 });
     });
 
     test("should handle zero values", () => {
-      const rows = [
-        { value: 0 },
-        { value: 1 },
-        { value: -1 }
-      ];
+      const rows = [{ value: 0 }, { value: 1 }, { value: -1 }];
       const result = getMax(rows, { value: true });
       expect(result).toEqual({ value: 1 });
     });
@@ -316,7 +277,7 @@ describe("max aggregate functionality tests", () => {
       const rows = [
         { value: Number.POSITIVE_INFINITY },
         { value: 1000 },
-        { value: Number.NEGATIVE_INFINITY }
+        { value: Number.NEGATIVE_INFINITY },
       ];
       const result = getMax(rows, { value: true });
       expect(result).toEqual({ value: Number.POSITIVE_INFINITY });

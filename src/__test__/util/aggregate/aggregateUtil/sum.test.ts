@@ -5,26 +5,26 @@ describe("getSum", () => {
     const rows = [
       { age: 10, score: 80 },
       { age: 20, score: 90 },
-      { age: 30, score: 70 }
+      { age: 30, score: 70 },
     ];
     const result = getSum(rows, { age: true, score: true });
-    
+
     expect(result).toEqual({
       age: 60,
-      score: 240
+      score: 240,
     });
   });
 
   test("should return null for fields with no data after filtering nulls", () => {
     const rows = [
       { age: null, score: undefined },
-      { age: null, score: null }
+      { age: null, score: null },
     ];
     const result = getSum(rows, { age: true, score: true });
-    
+
     expect(result).toEqual({
       age: null,
-      score: null
+      score: null,
     });
   });
 
@@ -32,23 +32,19 @@ describe("getSum", () => {
     const rows = [
       { age: 10, score: null },
       { age: null, score: 80 },
-      { age: 30, score: 90 }
+      { age: 30, score: 90 },
     ];
     const result = getSum(rows, { age: true, score: true });
-    
+
     expect(result).toEqual({
       age: 40,
-      score: 170
+      score: 170,
     });
   });
 
   test("should throw GassmaAggregateSumError for mixed data types", () => {
-    const rows = [
-      { field: 10 },
-      { field: "string" },
-      { field: 30 }
-    ];
-    
+    const rows = [{ field: 10 }, { field: "string" }, { field: 30 }];
+
     try {
       getSum(rows, { field: true });
       fail("Expected function to throw an error");
@@ -61,9 +57,9 @@ describe("getSum", () => {
     const rows = [
       { field: "string1" },
       { field: "string2" },
-      { field: "string3" }
+      { field: "string3" },
     ];
-    
+
     try {
       getSum(rows, { field: true });
       fail("Expected function to throw an error");
@@ -73,12 +69,8 @@ describe("getSum", () => {
   });
 
   test("should throw GassmaAggregateSumTypeError for boolean data", () => {
-    const rows = [
-      { field: true },
-      { field: false },
-      { field: true }
-    ];
-    
+    const rows = [{ field: true }, { field: false }, { field: true }];
+
     try {
       getSum(rows, { field: true });
       fail("Expected function to throw an error");
@@ -90,11 +82,8 @@ describe("getSum", () => {
   test("should throw GassmaAggregateSumTypeError for Date data", () => {
     const date1 = new Date("2023-01-01");
     const date2 = new Date("2023-01-02");
-    const rows = [
-      { field: date1 },
-      { field: date2 }
-    ];
-    
+    const rows = [{ field: date1 }, { field: date2 }];
+
     try {
       getSum(rows, { field: true });
       fail("Expected function to throw an error");
@@ -106,55 +95,45 @@ describe("getSum", () => {
   test("should handle empty rows array", () => {
     const rows: any[] = [];
     const result = getSum(rows, { age: true });
-    
+
     expect(result).toEqual({
-      age: null
+      age: null,
     });
   });
 
   test("should handle single numeric value", () => {
-    const rows = [
-      { field: 42 }
-    ];
+    const rows = [{ field: 42 }];
     const result = getSum(rows, { field: true });
-    
+
     expect(result).toEqual({
-      field: 42
+      field: 42,
     });
   });
 
   test("should handle zero values", () => {
-    const rows = [
-      { field: 0 },
-      { field: 10 },
-      { field: 0 }
-    ];
+    const rows = [{ field: 0 }, { field: 10 }, { field: 0 }];
     const result = getSum(rows, { field: true });
-    
+
     expect(result).toEqual({
-      field: 10
+      field: 10,
     });
   });
 
   test("should handle negative numbers", () => {
-    const rows = [
-      { field: -5 },
-      { field: 10 },
-      { field: -3 }
-    ];
+    const rows = [{ field: -5 }, { field: 10 }, { field: -3 }];
     const result = getSum(rows, { field: true });
-    
+
     expect(result).toEqual({
-      field: 2
+      field: 2,
     });
   });
 
   test("should handle multiple fields with different scenarios", () => {
     const rows = [
       { numeric: 10, allNull: null, mixed: 5 },
-      { numeric: 20, allNull: null, mixed: "string" }
+      { numeric: 20, allNull: null, mixed: "string" },
     ];
-    
+
     try {
       getSum(rows, { numeric: true, allNull: true, mixed: true });
       fail("Expected function to throw an error");

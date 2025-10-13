@@ -16,7 +16,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 職業: "Engineer" },
           update: { 職業: "Senior Engineer" },
-          create: { 名前: "New Engineer", 年齢: 30, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Senior Engineer" }
+          create: {
+            名前: "New Engineer",
+            年齢: 30,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "Senior Engineer",
+          },
         });
 
         // Should update existing Engineer records (Alice, Eve, Henry - 3 records)
@@ -25,7 +31,7 @@ describe("upsertMany functionality tests", () => {
         // Verify that Engineer records were updated to Senior Engineer
         const currentData = (mockUtil.sheet as any)._getMockData();
         const seniorEngineerRows = currentData.filter(
-          (row, index) => index > 0 && row[4] === "Senior Engineer"
+          (row, index) => index > 0 && row[4] === "Senior Engineer",
         );
         expect(seniorEngineerRows).toHaveLength(3);
 
@@ -37,7 +43,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 住所: "Tokyo", 職業: "Engineer" },
           update: { 年齢: 35 },
-          create: { 名前: "New Tokyo Engineer", 年齢: 35, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" }
+          create: {
+            名前: "New Tokyo Engineer",
+            年齢: 35,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "Engineer",
+          },
         });
 
         // Should update Tokyo Engineers (Alice, Eve - 2 records)
@@ -46,11 +58,12 @@ describe("upsertMany functionality tests", () => {
         // Verify that Tokyo Engineer records were updated
         const currentData = (mockUtil.sheet as any)._getMockData();
         const tokyoEngineers = currentData.filter(
-          (row, index) => index > 0 && row[2] === "Tokyo" && row[4] === "Engineer"
+          (row, index) =>
+            index > 0 && row[2] === "Tokyo" && row[4] === "Engineer",
         );
-        
+
         // Both Tokyo Engineers should now have age 35
-        tokyoEngineers.forEach(row => {
+        tokyoEngineers.forEach((row) => {
           expect(row[1]).toBe(35);
         });
       });
@@ -59,7 +72,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 年齢: 28 },
           update: { 年齢: 29 },
-          create: { 名前: "Age 28", 年齢: 29, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Worker" }
+          create: {
+            名前: "Age 28",
+            年齢: 29,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "Worker",
+          },
         });
 
         // Should update records with age 28 (Alice, Eve, Henry - 3 records)
@@ -68,7 +87,7 @@ describe("upsertMany functionality tests", () => {
         // Verify that age 28 records were updated to age 29
         const currentData = (mockUtil.sheet as any)._getMockData();
         const age29Records = currentData.filter(
-          (row, index) => index > 0 && row[1] === 29
+          (row, index) => index > 0 && row[1] === 29,
         );
         expect(age29Records).toHaveLength(3);
       });
@@ -77,7 +96,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 名前: "Alice" },
           update: { 年齢: 30, 住所: "Shibuya", 職業: "Tech Lead" },
-          create: { 名前: "Alice", 年齢: 30, 住所: "Shibuya", 郵便番号: "150-0001", 職業: "Tech Lead" }
+          create: {
+            名前: "Alice",
+            年齢: 30,
+            住所: "Shibuya",
+            郵便番号: "150-0001",
+            職業: "Tech Lead",
+          },
         });
 
         // Should update Alice's record
@@ -86,16 +111,28 @@ describe("upsertMany functionality tests", () => {
         // Verify Alice's record was updated
         const currentData = (mockUtil.sheet as any)._getMockData();
         const aliceRecord = currentData.find(
-          (row, index) => index > 0 && row[0] === "Alice"
+          (row, index) => index > 0 && row[0] === "Alice",
         );
-        expect(aliceRecord).toEqual(["Alice", 30, "Shibuya", "100-0001", "Tech Lead"]);
+        expect(aliceRecord).toEqual([
+          "Alice",
+          30,
+          "Shibuya",
+          "100-0001",
+          "Tech Lead",
+        ]);
       });
 
       test("should preserve existing data not specified in update", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 名前: "Alice" },
           update: { 職業: "Team Lead" }, // Only update job title
-          create: { 名前: "Alice", 年齢: 25, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Team Lead" }
+          create: {
+            名前: "Alice",
+            年齢: 25,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "Team Lead",
+          },
         });
 
         // Should update Alice's record
@@ -104,10 +141,16 @@ describe("upsertMany functionality tests", () => {
         // Verify only job title was updated, other fields preserved
         const currentData = (mockUtil.sheet as any)._getMockData();
         const aliceRecord = currentData.find(
-          (row, index) => index > 0 && row[0] === "Alice"
+          (row, index) => index > 0 && row[0] === "Alice",
         );
         // Age (28), address (Tokyo), and postal code (100-0001) should be preserved
-        expect(aliceRecord).toEqual(["Alice", 28, "Tokyo", "100-0001", "Team Lead"]);
+        expect(aliceRecord).toEqual([
+          "Alice",
+          28,
+          "Tokyo",
+          "100-0001",
+          "Team Lead",
+        ]);
       });
     });
 
@@ -116,7 +159,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 職業: "CEO" }, // Non-existent job title
           update: { 職業: "Chief Executive Officer" },
-          create: { 名前: "New CEO", 年齢: 50, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "CEO" }
+          create: {
+            名前: "New CEO",
+            年齢: 50,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "CEO",
+          },
         });
 
         // Should create a new record since no CEO exists
@@ -135,7 +184,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 住所: "Nagoya", 職業: "Engineer" }, // No Nagoya Engineers exist
           update: { 年齢: 40 },
-          create: { 名前: "Nagoya Engineer", 年齢: 40, 住所: "Nagoya", 郵便番号: "460-0001", 職業: "Engineer" }
+          create: {
+            名前: "Nagoya Engineer",
+            年齢: 40,
+            住所: "Nagoya",
+            郵便番号: "460-0001",
+            職業: "Engineer",
+          },
         });
 
         // Should create a new record since no Nagoya Engineers exist
@@ -147,14 +202,26 @@ describe("upsertMany functionality tests", () => {
 
         // Verify the new record with create data
         const newRecord = currentData[9];
-        expect(newRecord).toEqual(["Nagoya Engineer", 40, "Nagoya", "460-0001", "Engineer"]);
+        expect(newRecord).toEqual([
+          "Nagoya Engineer",
+          40,
+          "Nagoya",
+          "460-0001",
+          "Engineer",
+        ]);
       });
 
       test("should create record when numeric where condition does not match", () => {
         const result = upsertManyFunc(mockUtil, {
           where: { 年齢: 99 }, // Non-existent age
           update: { 年齢: 100 },
-          create: { 名前: "Centenarian", 年齢: 99, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Retiree" }
+          create: {
+            名前: "Centenarian",
+            年齢: 99,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "Retiree",
+          },
         });
 
         // Should create a new record since no one is age 99
@@ -165,7 +232,13 @@ describe("upsertMany functionality tests", () => {
         expect(currentData).toHaveLength(10);
 
         const newRecord = currentData[9];
-        expect(newRecord).toEqual(["Centenarian", 99, "Tokyo", "100-0001", "Retiree"]);
+        expect(newRecord).toEqual([
+          "Centenarian",
+          99,
+          "Tokyo",
+          "100-0001",
+          "Retiree",
+        ]);
       });
     });
 
@@ -174,7 +247,13 @@ describe("upsertMany functionality tests", () => {
         const result = upsertManyFunc(mockUtil, {
           where: {}, // Empty where condition
           update: { 職業: "Updated" },
-          create: { 名前: "Empty Where", 年齢: 0, 住所: "Unknown", 郵便番号: "000-0000", 職業: "Updated" }
+          create: {
+            名前: "Empty Where",
+            年齢: 0,
+            住所: "Unknown",
+            郵便番号: "000-0000",
+            職業: "Updated",
+          },
         });
 
         // With empty where condition, findFirst should return the first record

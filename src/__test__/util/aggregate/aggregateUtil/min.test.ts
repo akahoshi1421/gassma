@@ -6,12 +6,7 @@ import { getStringMin } from "../../../../util/aggregate/aggregateUtil/min/strin
 describe("min aggregate functionality tests", () => {
   describe("getMin function", () => {
     test("should calculate min for number field", () => {
-      const rows = [
-        { age: 25 },
-        { age: 30 },
-        { age: 20 },
-        { age: 35 }
-      ];
+      const rows = [{ age: 25 }, { age: 30 }, { age: 20 }, { age: 35 }];
       const result = getMin(rows, { age: true });
       expect(result).toEqual({ age: 20 });
     });
@@ -21,18 +16,14 @@ describe("min aggregate functionality tests", () => {
         { name: "Charlie" },
         { name: "Alice" },
         { name: "Bob" },
-        { name: "David" }
+        { name: "David" },
       ];
       const result = getMin(rows, { name: true });
       expect(result).toEqual({ name: "Alice" });
     });
 
     test("should calculate min for boolean field", () => {
-      const rows = [
-        { active: true },
-        { active: false },
-        { active: true }
-      ];
+      const rows = [{ active: true }, { active: false }, { active: true }];
       const result = getMin(rows, { active: true });
       expect(result).toEqual({ active: false });
     });
@@ -41,11 +32,7 @@ describe("min aggregate functionality tests", () => {
       const date1 = new Date("2023-01-01");
       const date2 = new Date("2023-06-01");
       const date3 = new Date("2022-12-01");
-      const rows = [
-        { created: date1 },
-        { created: date2 },
-        { created: date3 }
-      ];
+      const rows = [{ created: date1 }, { created: date2 }, { created: date3 }];
       const result = getMin(rows, { created: true });
       expect(result).toEqual({ created: date3 });
     });
@@ -56,18 +43,14 @@ describe("min aggregate functionality tests", () => {
         { age: null },
         { age: undefined },
         { age: 20 },
-        { age: 30 }
+        { age: 30 },
       ];
       const result = getMin(rows, { age: true });
       expect(result).toEqual({ age: 20 });
     });
 
     test("should return null when all values are null or undefined", () => {
-      const rows = [
-        { age: null },
-        { age: undefined },
-        { age: null }
-      ];
+      const rows = [{ age: null }, { age: undefined }, { age: null }];
       const result = getMin(rows, { age: true });
       expect(result).toEqual({ age: null });
     });
@@ -82,17 +65,14 @@ describe("min aggregate functionality tests", () => {
       const rows = [
         { age: 30, name: "Charlie", active: true },
         { age: 25, name: "Alice", active: false },
-        { age: 35, name: "Bob", active: true }
+        { age: 35, name: "Bob", active: true },
       ];
       const result = getMin(rows, { age: true, name: true, active: true });
       expect(result).toEqual({ age: 25, name: "Alice", active: false });
     });
 
     test("should throw error for unsupported data types", () => {
-      const rows = [
-        { obj: { value: 1 } },
-        { obj: { value: 2 } }
-      ];
+      const rows = [{ obj: { value: 1 } }, { obj: { value: 2 } }];
       expect(() => {
         getMin(rows, { obj: true });
       }).toThrow();
@@ -230,10 +210,7 @@ describe("min aggregate functionality tests", () => {
 
   describe("getMin error handling", () => {
     test("should handle array data type gracefully", () => {
-      const rows = [
-        { tags: ["a", "b"] },
-        { tags: ["c", "d"] }
-      ];
+      const rows = [{ tags: ["a", "b"] }, { tags: ["c", "d"] }];
       expect(() => {
         getMin(rows, { tags: true });
       }).toThrow();
@@ -242,7 +219,7 @@ describe("min aggregate functionality tests", () => {
     test("should handle object data type gracefully", () => {
       const rows = [
         { metadata: { key: "value1" } },
-        { metadata: { key: "value2" } }
+        { metadata: { key: "value2" } },
       ];
       expect(() => {
         getMin(rows, { metadata: true });
@@ -250,14 +227,10 @@ describe("min aggregate functionality tests", () => {
     });
 
     test("should handle mixed data types gracefully", () => {
-      const rows = [
-        { value: "string" },
-        { value: 123 },
-        { value: true }
-      ];
+      const rows = [{ value: "string" }, { value: 123 }, { value: true }];
       expect(() => {
         getMin(rows, { value: true });
-      }).toThrow('Cannot produce a maximum value of more than one type.');
+      }).toThrow("Cannot produce a maximum value of more than one type.");
     });
   });
 
@@ -266,38 +239,26 @@ describe("min aggregate functionality tests", () => {
       const rows = [
         { value: Number.MAX_SAFE_INTEGER },
         { value: Number.MAX_SAFE_INTEGER - 1 },
-        { value: Number.MAX_SAFE_INTEGER - 2 }
+        { value: Number.MAX_SAFE_INTEGER - 2 },
       ];
       const result = getMin(rows, { value: true });
       expect(result).toEqual({ value: Number.MAX_SAFE_INTEGER - 2 });
     });
 
     test("should handle negative numbers", () => {
-      const rows = [
-        { value: -10 },
-        { value: -5 },
-        { value: -20 }
-      ];
+      const rows = [{ value: -10 }, { value: -5 }, { value: -20 }];
       const result = getMin(rows, { value: true });
       expect(result).toEqual({ value: -20 });
     });
 
     test("should handle decimal numbers", () => {
-      const rows = [
-        { value: 3.14 },
-        { value: 2.71 },
-        { value: 1.41 }
-      ];
+      const rows = [{ value: 3.14 }, { value: 2.71 }, { value: 1.41 }];
       const result = getMin(rows, { value: true });
       expect(result).toEqual({ value: 1.41 });
     });
 
     test("should handle zero values", () => {
-      const rows = [
-        { value: 0 },
-        { value: 1 },
-        { value: -1 }
-      ];
+      const rows = [{ value: 0 }, { value: 1 }, { value: -1 }];
       const result = getMin(rows, { value: true });
       expect(result).toEqual({ value: -1 });
     });
@@ -306,7 +267,7 @@ describe("min aggregate functionality tests", () => {
       const rows = [
         { value: Number.POSITIVE_INFINITY },
         { value: 1000 },
-        { value: Number.NEGATIVE_INFINITY }
+        { value: Number.NEGATIVE_INFINITY },
       ];
       const result = getMin(rows, { value: true });
       expect(result).toEqual({ value: Number.NEGATIVE_INFINITY });

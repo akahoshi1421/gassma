@@ -7,17 +7,17 @@ import { isLogicMatchHaving } from "./andOrNot/entry";
 import { normalHaving } from "./having/normalHavingFilter";
 
 const removeIndex = (
-  havingMatchingIncludeIndex: HitByClassificationedRowData[]
+  havingMatchingIncludeIndex: HitByClassificationedRowData[],
 ) => {
   return havingMatchingIncludeIndex.map(
-    (oneHavingMatchingIncludeIndex) => oneHavingMatchingIncludeIndex.row
+    (oneHavingMatchingIncludeIndex) => oneHavingMatchingIncludeIndex.row,
   );
 };
 
 const havingFilter = (
   byClassificationedRow: AnyUse[][],
   havingData: HavingUse,
-  by: string[]
+  by: string[],
 ) => {
   const byClassificationedRowIncludeIndex: HitByClassificationedRowData[] =
     byClassificationedRow.map((byClassificationedOneRow, index) => {
@@ -27,7 +27,7 @@ const havingFilter = (
   const normalHavingFiltered = normalHaving(
     byClassificationedRowIncludeIndex,
     havingData,
-    by
+    by,
   );
 
   if (!("OR" in havingData || "AND" in havingData || "NOT" in havingData)) {
@@ -39,7 +39,7 @@ const havingFilter = (
   const logicMatchHavingResult = isLogicMatchHaving(
     normalHavingFiltered,
     havingData,
-    by
+    by,
   );
   const removedLogicMatchHavingResult = removeIndex(logicMatchHavingResult);
 

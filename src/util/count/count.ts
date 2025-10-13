@@ -5,7 +5,7 @@ import { findManyFunc } from "../find/findMany";
 
 const countFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  countData: CountData
+  countData: CountData,
 ) => {
   const findData = {
     ...countData,

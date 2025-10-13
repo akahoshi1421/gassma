@@ -29,17 +29,19 @@ describe("deleteMany functionality tests", () => {
       // Check that engineer records were deleted
       const currentData = (mockUtil.sheet as any)._getMockData();
       // 初期9行 - 削除された3行 = 6行
-      expect(currentData).toHaveLength(INITIAL_ROW_COUNT - EXPECTED_ENGINEER_COUNT);
+      expect(currentData).toHaveLength(
+        INITIAL_ROW_COUNT - EXPECTED_ENGINEER_COUNT,
+      );
 
       // Verify that Engineer records are no longer present
       const engineerRows = currentData.filter(
-        (row: any, index: number) => index > 0 && row[4] === "Engineer"
+        (row: any, index: number) => index > 0 && row[4] === "Engineer",
       );
       expect(engineerRows).toHaveLength(0);
 
       // Verify that other records remain unchanged
       const designerRows = currentData.filter(
-        (row: any, index: number) => index > 0 && row[4] === "Designer"
+        (row: any, index: number) => index > 0 && row[4] === "Designer",
       );
       expect(designerRows).toHaveLength(2); // Should remain unchanged
     });
@@ -59,7 +61,7 @@ describe("deleteMany functionality tests", () => {
 
       // Verify that specific records were deleted
       const remainingTokyoResidents = currentData.filter(
-        (row: any, index: number) => index > 0 && row[2] === "Tokyo"
+        (row: any, index: number) => index > 0 && row[2] === "Tokyo",
       );
       // Charlie(22, Tokyo)のみ残る
       expect(remainingTokyoResidents).toHaveLength(1);
@@ -78,18 +80,18 @@ describe("deleteMany functionality tests", () => {
       expect(result.count).toBe(5);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
-      
+
       // Verify that Engineers and Designers are deleted
       const engineerDesignerRows = currentData.filter(
-        (row: any, index: number) => 
-          index > 0 && (row[4] === "Engineer" || row[4] === "Designer")
+        (row: any, index: number) =>
+          index > 0 && (row[4] === "Engineer" || row[4] === "Designer"),
       );
       // Engineer/Designerは全て削除されているはず
       expect(engineerDesignerRows).toHaveLength(0);
 
       // Verify remaining records
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0
+        (row: any, index: number) => index > 0,
       );
       // Charlie(Student), David(Manager), Frank(Director)が残る
       expect(remainingRows).toHaveLength(3);
@@ -110,7 +112,7 @@ describe("deleteMany functionality tests", () => {
 
       // Verify that only Engineers remain
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0
+        (row: any, index: number) => index > 0,
       );
       expect(remainingRows).toHaveLength(3);
       remainingRows.forEach((row: any) => {
@@ -142,13 +144,13 @@ describe("deleteMany functionality tests", () => {
 
       // Verify Alice is deleted
       const aliceRow = currentData.find(
-        (row: any, index: number) => index > 0 && row[0] === "Alice"
+        (row: any, index: number) => index > 0 && row[0] === "Alice",
       );
       expect(aliceRow).toBeUndefined();
 
       // Verify other Tokyo residents remain
       const tokyoResidents = currentData.filter(
-        (row: any, index: number) => index > 0 && row[2] === "Tokyo"
+        (row: any, index: number) => index > 0 && row[2] === "Tokyo",
       );
       expect(tokyoResidents).toHaveLength(EXPECTED_TOKYO_COUNT - 1);
     });
@@ -162,10 +164,10 @@ describe("deleteMany functionality tests", () => {
       expect(result.count).toBe(4);
 
       const currentData = (mockUtil.sheet as any)._getMockData();
-      
+
       // Verify all remaining records have age < 30
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0
+        (row: any, index: number) => index > 0,
       );
       remainingRows.forEach((row: any) => {
         expect(row[1]).toBeLessThan(30);
@@ -174,9 +176,9 @@ describe("deleteMany functionality tests", () => {
 
     test("should handle multiple field conditions", () => {
       const result = deleteManyFunc(mockUtil, {
-        where: { 
+        where: {
           住所: "Tokyo",
-          職業: "Engineer"
+          職業: "Engineer",
         },
       });
 
@@ -188,14 +190,14 @@ describe("deleteMany functionality tests", () => {
 
       // Verify Tokyo Engineers are deleted but Tokyo non-Engineers remain
       const tokyoEngineers = currentData.filter(
-        (row: any, index: number) => 
-          index > 0 && row[2] === "Tokyo" && row[4] === "Engineer"
+        (row: any, index: number) =>
+          index > 0 && row[2] === "Tokyo" && row[4] === "Engineer",
       );
       expect(tokyoEngineers).toHaveLength(0);
 
       const tokyoNonEngineers = currentData.filter(
-        (row: any, index: number) => 
-          index > 0 && row[2] === "Tokyo" && row[4] !== "Engineer"
+        (row: any, index: number) =>
+          index > 0 && row[2] === "Tokyo" && row[4] !== "Engineer",
       );
       expect(tokyoNonEngineers).toHaveLength(2); // Charlie(Student), Grace(Designer)
     });
@@ -208,10 +210,10 @@ describe("deleteMany functionality tests", () => {
       });
 
       const currentData = (mockUtil.sheet as any)._getMockData();
-      
+
       // Verify no records with age 28 remain
       const age28Records = currentData.filter(
-        (row: any, index: number) => index > 0 && row[1] === 28
+        (row: any, index: number) => index > 0 && row[1] === 28,
       );
       expect(age28Records).toHaveLength(0);
 
@@ -231,7 +233,7 @@ describe("deleteMany functionality tests", () => {
 
       const updatedData = (mockUtil.sheet as any)._getMockData();
       const specialCharRecords = updatedData.filter(
-        (row: any, index: number) => index > 0 && row[2] === "東京都渋谷区"
+        (row: any, index: number) => index > 0 && row[2] === "東京都渋谷区",
       );
       expect(specialCharRecords).toHaveLength(0);
     });
@@ -261,7 +263,13 @@ describe("deleteMany functionality tests", () => {
       const currentData = (mockUtil.sheet as any)._getMockData();
       // ヘッダー行のみ残る
       expect(currentData).toHaveLength(1);
-      expect(currentData[0]).toEqual(["名前", "年齢", "住所", "郵便番号", "職業"]);
+      expect(currentData[0]).toEqual([
+        "名前",
+        "年齢",
+        "住所",
+        "郵便番号",
+        "職業",
+      ]);
     });
   });
 
@@ -309,7 +317,7 @@ describe("deleteMany functionality tests", () => {
 
     test("should handle extremely large where conditions", () => {
       const largeString = "A".repeat(10000);
-      
+
       const result = deleteManyFunc(mockUtil, {
         where: { 名前: largeString },
       });
@@ -379,7 +387,7 @@ describe("deleteMany functionality tests", () => {
 
       // 5人削除後、3人残る（Bob, Charlie, Frank）
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0
+        (row: any, index: number) => index > 0,
       );
       expect(remainingRows).toHaveLength(3);
 
@@ -412,10 +420,10 @@ describe("deleteMany functionality tests", () => {
 
       // Verify final state
       const remainingRows = currentData.filter(
-        (row: any, index: number) => index > 0
+        (row: any, index: number) => index > 0,
       );
       expect(remainingRows).toHaveLength(3);
-      
+
       // Should be Bob(Osaka), David(Kyoto), Frank(Osaka)
       const remainingCities = remainingRows.map((row: any) => row[2]);
       expect(remainingCities).not.toContain("Tokyo");

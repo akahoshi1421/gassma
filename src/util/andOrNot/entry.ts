@@ -9,7 +9,7 @@ const isLogicMatch = (
   rowData: HitRowData[],
   where: WhereUse,
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
 ) => {
   const and = "AND" in where ? where.AND : null;
   const or = "OR" in where ? where.OR : null;
@@ -30,7 +30,7 @@ const isLogicMatch = (
       const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
 
       result = orResult.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber)
+        alreadyHitRowNumbers.includes(row.rowNumber),
       );
     }
   }
@@ -41,7 +41,7 @@ const isLogicMatch = (
       rowData,
       notArray,
       titles,
-      gassmaControllerUtil
+      gassmaControllerUtil,
     );
 
     if (result.length === 0) result = notResult;
@@ -49,7 +49,7 @@ const isLogicMatch = (
       const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
 
       result = notResult.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber)
+        alreadyHitRowNumbers.includes(row.rowNumber),
       );
     }
   }

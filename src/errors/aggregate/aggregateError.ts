@@ -29,7 +29,7 @@ class GassmaAggregateAvgError extends GassmaAggregateMaxError {
 class GassmaAggregateTypeError extends Error {
   constructor() {
     super(
-      'Only "number", "string", "boolean", and "Date" types are supported.'
+      'Only "number", "string", "boolean", and "Date" types are supported.',
     );
     this.name = "GassmaAggregateTypeError";
   }

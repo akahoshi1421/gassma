@@ -6,7 +6,7 @@ describe("filterConditionsLt", () => {
     const filterOptions = { lt: 10 };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
-  
+
   test("should return false for equal condition", () => {
     const cellData = 10;
     const filterOptions = { lt: 10 };

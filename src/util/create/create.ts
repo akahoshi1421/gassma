@@ -6,7 +6,7 @@ import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 
 const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  createdData: CreateData
+  createdData: CreateData,
 ) => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;

@@ -11,7 +11,7 @@ import { getWantFindIndex } from "./getWantFindIndex";
 
 const whereFilter = (
   where: WhereUse,
-  gassmaControllerUtil: GassmaControllerUtil
+  gassmaControllerUtil: GassmaControllerUtil,
 ) => {
   const allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
@@ -37,7 +37,7 @@ const whereFilter = (
       if (isDict(whereOptionContent))
         return isFilterConditionsMatch(
           row[i],
-          whereOptionContent as FilterConditions
+          whereOptionContent as FilterConditions,
         );
 
       const replacedNullWhereOptionContent =

@@ -8,7 +8,7 @@ import { isLogicMatchHaving } from "./entry";
 const isOrMatchHaving = (
   willHavingData: HitByClassificationedRowData[],
   havingArray: HavingUse[],
-  by: string[]
+  by: string[],
 ) => {
   let resultHavingData: HitByClassificationedRowData[] =
     willHavingData.concat();
@@ -26,11 +26,11 @@ const isOrMatchHaving = (
     }
 
     const alreadyHitByClassificationRowNumbers = resultHavingData.map(
-      (row) => row.rowNumber
+      (row) => row.rowNumber,
     );
 
     const newInsertedArray = findedHavingData.filter(
-      (row) => !alreadyHitByClassificationRowNumbers.includes(row.rowNumber)
+      (row) => !alreadyHitByClassificationRowNumbers.includes(row.rowNumber),
     );
 
     resultHavingData = resultHavingData.concat(newInsertedArray);

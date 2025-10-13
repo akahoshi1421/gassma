@@ -9,7 +9,7 @@ import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 
 const createManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  createManyData: CreateManyData
+  createManyData: CreateManyData,
 ): CreateManyReturn => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
@@ -27,7 +27,7 @@ const createManyFunc = (
 
     const wantCreateIndex = getWantUpdateIndex(
       gassmaControllerUtil,
-      createdData
+      createdData,
     );
 
     return titles.map((_, index) => {

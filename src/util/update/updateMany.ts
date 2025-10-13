@@ -6,7 +6,7 @@ import { whereFilter } from "../core/whereFilter";
 
 const updateManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  updateData: UpdateData
+  updateData: UpdateData,
 ): UpdateManyReturn => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
@@ -36,7 +36,7 @@ const updateManyFunc = (
       rowNumber,
       startColumnNumber,
       1,
-      ColumnLength
+      ColumnLength,
     );
 
     updateRange.setValues([updatedRow]);

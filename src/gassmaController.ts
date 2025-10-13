@@ -44,12 +44,12 @@ class GassmaController {
   public changeSettings(
     startRowNumber: number,
     startColumnValue: number | string,
-    endColumnValue: number | string
+    endColumnValue: number | string,
   ) {
     this.startRowNumber = startRowNumber;
     const { startColumnNumber, endColumnNumber } = changeSettingsFunc(
       startColumnValue,
-      endColumnValue
+      endColumnValue,
     );
     this.startColumnNumber = startColumnNumber;
     this.endColumnNumber = endColumnNumber;

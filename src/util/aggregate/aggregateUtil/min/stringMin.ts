@@ -1,10 +1,10 @@
 const minSearch = (
   searchedIndex: number,
   preMinIndexes: number[],
-  stringUnicodeArray: number[][]
+  stringUnicodeArray: number[][],
 ): number => {
   const nowUnicodeArray = preMinIndexes.map(
-    (num) => stringUnicodeArray[num][searchedIndex]
+    (num) => stringUnicodeArray[num][searchedIndex],
   );
 
   let minNumber = Infinity;
@@ -14,7 +14,7 @@ const minSearch = (
   });
 
   const undefinedIndexNum = nowUnicodeArray.findIndex(
-    (unicodeNum) => unicodeNum === undefined
+    (unicodeNum) => unicodeNum === undefined,
   );
 
   if (undefinedIndexNum !== -1) return preMinIndexes[undefinedIndexNum];
@@ -27,11 +27,11 @@ const minSearch = (
       )
         return index;
       return null;
-    }
+    },
   );
 
   const nowMinIndexes = nowMinIndexesIncludeNull.filter(
-    (nowMin) => nowMin !== null
+    (nowMin) => nowMin !== null,
   );
 
   return minSearch(searchedIndex + 1, nowMinIndexes, stringUnicodeArray);

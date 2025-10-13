@@ -693,10 +693,10 @@ describe("create functionality tests", () => {
           i % 4 === 0
             ? "Engineer"
             : i % 4 === 1
-            ? "Designer"
-            : i % 4 === 2
-            ? "Manager"
-            : "Director",
+              ? "Designer"
+              : i % 4 === 2
+                ? "Manager"
+                : "Director",
       }));
 
       const startTime = Date.now();

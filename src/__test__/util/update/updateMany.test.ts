@@ -33,13 +33,13 @@ describe("updateMany functionality tests", () => {
 
       // Verify that Engineer records are now Senior Engineer
       const engineerRows = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Senior Engineer"
+        (row, index) => index > 0 && row[4] === "Senior Engineer",
       );
       expect(engineerRows).toHaveLength(EXPECTED_ENGINEER_COUNT);
 
       // Verify that other records remain unchanged
       const designerRows = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Designer"
+        (row, index) => index > 0 && row[4] === "Designer",
       );
       expect(designerRows).toHaveLength(2); // Should remain unchanged
     });
@@ -57,7 +57,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const tokyoRows = currentData.filter(
-        (row, index) => index > 0 && row[2] === "New Tokyo"
+        (row, index) => index > 0 && row[2] === "New Tokyo",
       );
       expect(tokyoRows).toHaveLength(EXPECTED_TOKYO_COUNT);
 
@@ -77,7 +77,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const remoteWorkerRows = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Remote Worker"
+        (row, index) => index > 0 && row[4] === "Remote Worker",
       );
       expect(remoteWorkerRows).toHaveLength(INITIAL_ROW_COUNT - 1);
     });
@@ -95,7 +95,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const specialistRows = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Senior Specialist"
+        (row, index) => index > 0 && row[4] === "Senior Specialist",
       );
       expect(specialistRows.length).toBe(result.count);
 
@@ -119,7 +119,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const updatedRows = currentData.filter(
-        (row, index) => index > 0 && row[3] === "555-5555"
+        (row, index) => index > 0 && row[3] === "555-5555",
       );
       expect(updatedRows).toHaveLength(5);
     });
@@ -137,7 +137,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const updatedRows = currentData.filter(
-        (row, index) => index > 0 && row[1] === 99
+        (row, index) => index > 0 && row[1] === 99,
       );
       expect(updatedRows).toHaveLength(5);
     });
@@ -153,7 +153,7 @@ describe("updateMany functionality tests", () => {
       // Verify no records were updated
       const currentData = (mockUtil.sheet as any)._getMockData();
       const shouldNotUpdateRows = currentData.filter((row) =>
-        row.includes("Should Not Update")
+        row.includes("Should Not Update"),
       );
       expect(shouldNotUpdateRows).toHaveLength(0);
     });
@@ -168,7 +168,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const aliceRow = currentData.find(
-        (row, index) => index > 0 && row[0] === "Alice"
+        (row, index) => index > 0 && row[0] === "Alice",
       );
       expect(aliceRow).toBeDefined();
       expect(aliceRow[1]).toBe(30); // Age updated
@@ -192,7 +192,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const aliceRow = currentData.find(
-        (row, index) => index > 0 && row[0] === "Alice"
+        (row, index) => index > 0 && row[0] === "Alice",
       );
       expect(aliceRow[1]).toBe(null);
       expect(aliceRow[2]).toBe(undefined);
@@ -209,7 +209,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const bobRow = currentData.find(
-        (row, index) => index > 0 && row[0] === "Bob"
+        (row, index) => index > 0 && row[0] === "Bob",
       );
       expect(bobRow[1]).toBe(0);
     });
@@ -228,7 +228,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const charlieRow = currentData.find(
-        (row, index) => index > 0 && row[0] === "Charlie"
+        (row, index) => index > 0 && row[0] === "Charlie",
       );
       expect(charlieRow[2]).toBe("東京都新宿区歌舞伎町1-1-1");
       expect(charlieRow[3]).toBe("160-0021");
@@ -260,7 +260,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const universalWorkerRows = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Universal Worker"
+        (row, index) => index > 0 && row[4] === "Universal Worker",
       );
       expect(universalWorkerRows).toHaveLength(INITIAL_ROW_COUNT - 1);
     });
@@ -270,23 +270,26 @@ describe("updateMany functionality tests", () => {
     test("should skip update when whereFilter returns empty row arrays", () => {
       // Create a separate mock utility to avoid interference with other tests
       const isolatedMockUtil = getMutableMockControllerUtil();
-      
+
       // Use jest.spyOn to mock the whereFilter function directly
-      const whereFilterSpy = jest.spyOn(require("../../../util/core/whereFilter"), "whereFilter");
-      
+      const whereFilterSpy = jest.spyOn(
+        require("../../../util/core/whereFilter"),
+        "whereFilter",
+      );
+
       // Mock whereFilter to return data with empty row to trigger early return when updatedRow.length === 0
       whereFilterSpy.mockReturnValueOnce([
-        { row: [], rowNumber: 1 } // Empty row array
+        { row: [], rowNumber: 1 }, // Empty row array
       ]);
 
       const result = updateManyFunc(isolatedMockUtil, {
         where: { 名前: "Test" },
-        data: { 職業: "Updated" }
+        data: { 職業: "Updated" },
       });
 
       // Should return count 1 (the number of rows found by whereFilter)
       expect(result).toEqual({ count: 1 });
-      
+
       // Clean up the mock
       whereFilterSpy.mockRestore();
     });
@@ -305,14 +308,14 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const aliceRow = currentData.find(
-        (row, index) => index > 0 && row[0] === "Alice Updated"
+        (row, index) => index > 0 && row[0] === "Alice Updated",
       );
       expect(aliceRow).toBeDefined();
       expect(aliceRow[1]).toBe(35); // Valid update applied
-      
+
       // 存在しないカラムのデータが意図せずどこかに書き込まれていないことを確認
-      const hasInvalidValue = currentData.some(row => 
-        row.some(cell => cell === "無効な値")
+      const hasInvalidValue = currentData.some((row) =>
+        row.some((cell) => cell === "無効な値"),
       );
       expect(hasInvalidValue).toBe(false);
     });
@@ -331,7 +334,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const bobRow = currentData.find(
-        (row, index) => index > 0 && row[0] === 123
+        (row, index) => index > 0 && row[0] === 123,
       );
       expect(bobRow).toBeDefined();
       expect(bobRow[1]).toBe("文字列");
@@ -354,7 +357,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const davidRow = currentData.find(
-        (row, index) => index > 0 && row[0] === largeString
+        (row, index) => index > 0 && row[0] === largeString,
       );
       expect(davidRow).toBeDefined();
       expect(davidRow[1]).toBe(largeNumber);
@@ -376,7 +379,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const eveRow = currentData.find(
-        (row, index) => index > 0 && row[0] === arrayData
+        (row, index) => index > 0 && row[0] === arrayData,
       );
       expect(eveRow).toBeDefined();
       expect(eveRow[1]).toEqual(objectData);
@@ -398,7 +401,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const frankRow = currentData.find(
-        (row, index) => index > 0 && row[0] === "Frank"
+        (row, index) => index > 0 && row[0] === "Frank",
       );
       expect(frankRow).toBeDefined();
       expect(frankRow[1]).toBe(circularObj);
@@ -423,7 +426,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const updatedRows = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Performance Test Worker"
+        (row, index) => index > 0 && row[4] === "Performance Test Worker",
       );
       expect(updatedRows).toHaveLength(INITIAL_ROW_COUNT - 1);
     });
@@ -443,7 +446,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const graceRow = currentData.find(
-        (row, index) => index > 0 && row[0] === ""
+        (row, index) => index > 0 && row[0] === "",
       );
       expect(graceRow).toBeDefined();
       expect(graceRow[2]).toBe("   ");
@@ -474,7 +477,7 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const complexQueryWorkers = currentData.filter(
-        (row, index) => index > 0 && row[4] === "Complex Query Worker"
+        (row, index) => index > 0 && row[4] === "Complex Query Worker",
       );
       expect(complexQueryWorkers.length).toBe(result.count);
 
