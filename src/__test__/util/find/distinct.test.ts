@@ -139,6 +139,21 @@ describe("distinct functionality tests", () => {
 
       expect(result).toEqual([]);
     });
+
+    test("should handle distinct as non-array single string value", () => {
+      // Testing the branch in findMany.ts:302 where distinct is not an array
+      const result = findManyFunc(distinctMockControllerUtil, {
+        distinct: "年齢" // Pass as string, not array
+      });
+
+      // Test data contains: 28 (4 people), 35 (3 people), 22 (1 person) = 3 unique ages
+      expect(result).toHaveLength(3);
+      expect(result).toEqual([
+        { 名前: "Alice", 年齢: 28, 住所: "Tokyo", 郵便番号: "100-0001", 職業: "Engineer" },
+        { 名前: "Bob", 年齢: 35, 住所: "Osaka", 郵便番号: "550-0001", 職業: "Designer" },
+        { 名前: "Charlie", 年齢: 22, 住所: "Tokyo", 郵便番号: "100-0002", 職業: "Student" }
+      ]);
+    });
   });
 });
 
