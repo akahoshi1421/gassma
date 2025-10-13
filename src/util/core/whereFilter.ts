@@ -25,9 +25,9 @@ const whereFilter = (
     });
   }
 
-  const findData = {
+  const findData: FindData = {
     where: where,
-  } as FindData;
+  };
 
   const wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
 

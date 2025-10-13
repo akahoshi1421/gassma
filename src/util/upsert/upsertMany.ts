@@ -14,26 +14,26 @@ const upsertManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   upsertData: UpsertData,
 ): UpsertManyReturn => {
-  const findData = {
+  const findData: FindData = {
     where: upsertData.where,
-  } as FindData;
+  };
 
   const findResult = findFirstFunc(gassmaControllerUtil, findData);
 
   if (!findResult) {
-    const newData = {
+    const newData: CreateData = {
       data: upsertData.create,
-    } as CreateData;
+    };
 
     createFunc(gassmaControllerUtil, newData);
 
     return { count: 1 };
   }
 
-  const updateData = {
+  const updateData: UpdateData = {
     where: upsertData.where,
     data: upsertData.update,
-  } as UpdateData;
+  };
 
   return updateManyFunc(gassmaControllerUtil, updateData);
 };

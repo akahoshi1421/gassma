@@ -7,9 +7,9 @@ const countFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   countData: CountData,
 ) => {
-  const findData = {
+  const findData: FindData = {
     ...countData,
-  } as FindData;
+  };
 
   return findManyFunc(gassmaControllerUtil, findData).length;
 };
