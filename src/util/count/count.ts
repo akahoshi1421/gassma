@@ -4,14 +4,14 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { findManyFunc } from "../find/findMany";
 
 const countFunc = (
-  gassmaControllerUtil: GassmaControllerUtil,
-  countData: CountData
+	gassmaControllerUtil: GassmaControllerUtil,
+	countData: CountData,
 ) => {
-  const findData = {
-    ...countData,
-  } as FindData;
+	const findData = {
+		...countData,
+	} as FindData;
 
-  return findManyFunc(gassmaControllerUtil, findData).length;
+	return findManyFunc(gassmaControllerUtil, findData).length;
 };
 
 export { countFunc };

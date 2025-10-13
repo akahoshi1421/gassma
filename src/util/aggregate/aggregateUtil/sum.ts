@@ -1,42 +1,42 @@
 import {
-  GassmaAggregateSumError,
-  GassmaAggregateSumTypeError,
+	GassmaAggregateSumError,
+	GassmaAggregateSumTypeError,
 } from "../../../errors/aggregate/aggregateError";
 import type { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
 import { getNumberSum } from "./sum/numberSum";
 
 const getSum = (rows: {}[], avgData: Select) => {
-  const sumKeys = Object.keys(avgData);
+	const sumKeys = Object.keys(avgData);
 
-  const sumResult = {};
+	const sumResult = {};
 
-  sumKeys.forEach((key) => {
-    const hitsDataIncludeNull = rows.map((row) => {
-      if (row[key] === null || row[key] === undefined) return null;
+	sumKeys.forEach((key) => {
+		const hitsDataIncludeNull = rows.map((row) => {
+			if (row[key] === null || row[key] === undefined) return null;
 
-      return row[key];
-    });
+			return row[key];
+		});
 
-    const hitsData = hitsDataIncludeNull.filter((row) => row !== null);
+		const hitsData = hitsDataIncludeNull.filter((row) => row !== null);
 
-    if (hitsData.length === 0) {
-      sumResult[key] = null;
-      return;
-    }
+		if (hitsData.length === 0) {
+			sumResult[key] = null;
+			return;
+		}
 
-    switch (getHitsDataType(hitsData)) {
-      case "number":
-        sumResult[key] = getNumberSum(hitsData);
-        break;
-      case false:
-        throw new GassmaAggregateSumError();
-      default:
-        throw new GassmaAggregateSumTypeError();
-    }
-  });
+		switch (getHitsDataType(hitsData)) {
+			case "number":
+				sumResult[key] = getNumberSum(hitsData);
+				break;
+			case false:
+				throw new GassmaAggregateSumError();
+			default:
+				throw new GassmaAggregateSumTypeError();
+		}
+	});
 
-  return sumResult;
+	return sumResult;
 };
 
 export { getSum };

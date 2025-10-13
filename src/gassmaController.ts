@@ -2,10 +2,10 @@ import type { AggregateData } from "./types/aggregateType";
 import type { CountData } from "./types/countType";
 import type { CreateData, CreateManyData } from "./types/createTypes";
 import type {
-  DeleteData,
-  FindData,
-  UpdateData,
-  UpsertData,
+	DeleteData,
+	FindData,
+	UpdateData,
+	UpsertData,
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
@@ -22,87 +22,87 @@ import { updateManyFunc } from "./util/update/updateMany";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
-  private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
-  private startRowNumber: number = 1;
-  private startColumnNumber: number = 1;
-  private endColumnNumber: number = 1;
+	private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+	private startRowNumber: number = 1;
+	private startColumnNumber: number = 1;
+	private endColumnNumber: number = 1;
 
-  constructor(sheetName: string, id?: string) {
-    const spreadSheet = id
-      ? SpreadsheetApp.openById(id)
-      : SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = spreadSheet.getSheetByName(sheetName);
+	constructor(sheetName: string, id?: string) {
+		const spreadSheet = id
+			? SpreadsheetApp.openById(id)
+			: SpreadsheetApp.getActiveSpreadsheet();
+		const sheet = spreadSheet.getSheetByName(sheetName);
 
-    if (!sheet)
-      throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
+		if (!sheet)
+			throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
 
-    this.sheet = sheet;
+		this.sheet = sheet;
 
-    this.endColumnNumber = this.sheet.getLastColumn();
-  }
+		this.endColumnNumber = this.sheet.getLastColumn();
+	}
 
-  public changeSettings(
-    startRowNumber: number,
-    startColumnValue: number | string,
-    endColumnValue: number | string
-  ) {
-    this.startRowNumber = startRowNumber;
-    const { startColumnNumber, endColumnNumber } = changeSettingsFunc(
-      startColumnValue,
-      endColumnValue
-    );
-    this.startColumnNumber = startColumnNumber;
-    this.endColumnNumber = endColumnNumber;
-  }
+	public changeSettings(
+		startRowNumber: number,
+		startColumnValue: number | string,
+		endColumnValue: number | string,
+	) {
+		this.startRowNumber = startRowNumber;
+		const { startColumnNumber, endColumnNumber } = changeSettingsFunc(
+			startColumnValue,
+			endColumnValue,
+		);
+		this.startColumnNumber = startColumnNumber;
+		this.endColumnNumber = endColumnNumber;
+	}
 
-  private getGassmaControllerUtil(): GassmaControllerUtil {
-    return {
-      sheet: this.sheet,
-      startRowNumber: this.startRowNumber,
-      startColumnNumber: this.startColumnNumber,
-      endColumnNumber: this.endColumnNumber,
-    };
-  }
+	private getGassmaControllerUtil(): GassmaControllerUtil {
+		return {
+			sheet: this.sheet,
+			startRowNumber: this.startRowNumber,
+			startColumnNumber: this.startColumnNumber,
+			endColumnNumber: this.endColumnNumber,
+		};
+	}
 
-  public createMany(createdData: CreateManyData) {
-    return createManyFunc(this.getGassmaControllerUtil(), createdData);
-  }
+	public createMany(createdData: CreateManyData) {
+		return createManyFunc(this.getGassmaControllerUtil(), createdData);
+	}
 
-  public create(createdData: CreateData) {
-    return createFunc(this.getGassmaControllerUtil(), createdData);
-  }
+	public create(createdData: CreateData) {
+		return createFunc(this.getGassmaControllerUtil(), createdData);
+	}
 
-  public findFirst(findData: FindData) {
-    return findFirstFunc(this.getGassmaControllerUtil(), findData);
-  }
+	public findFirst(findData: FindData) {
+		return findFirstFunc(this.getGassmaControllerUtil(), findData);
+	}
 
-  public findMany(findData: FindData) {
-    return findManyFunc(this.getGassmaControllerUtil(), findData);
-  }
+	public findMany(findData: FindData) {
+		return findManyFunc(this.getGassmaControllerUtil(), findData);
+	}
 
-  public updateMany(updateData: UpdateData) {
-    return updateManyFunc(this.getGassmaControllerUtil(), updateData);
-  }
+	public updateMany(updateData: UpdateData) {
+		return updateManyFunc(this.getGassmaControllerUtil(), updateData);
+	}
 
-  public upsertMany(upsertData: UpsertData) {
-    return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
-  }
+	public upsertMany(upsertData: UpsertData) {
+		return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
+	}
 
-  public deleteMany(deleteData: DeleteData) {
-    return deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
-  }
+	public deleteMany(deleteData: DeleteData) {
+		return deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
+	}
 
-  public aggregate(aggregateData: AggregateData) {
-    return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
-  }
+	public aggregate(aggregateData: AggregateData) {
+		return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
+	}
 
-  public count(countData: CountData) {
-    return countFunc(this.getGassmaControllerUtil(), countData);
-  }
+	public count(countData: CountData) {
+		return countFunc(this.getGassmaControllerUtil(), countData);
+	}
 
-  public groupBy(groupByData: GroupByData) {
-    return groupByFunc(this.getGassmaControllerUtil(), groupByData);
-  }
+	public groupBy(groupByData: GroupByData) {
+		return groupByFunc(this.getGassmaControllerUtil(), groupByData);
+	}
 }
 
 export { GassmaController };

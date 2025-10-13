@@ -10,52 +10,52 @@ import { getTitle } from "./getTitle";
 import { getWantFindIndex } from "./getWantFindIndex";
 
 const whereFilter = (
-  where: WhereUse,
-  gassmaControllerUtil: GassmaControllerUtil
+	where: WhereUse,
+	gassmaControllerUtil: GassmaControllerUtil,
 ) => {
-  const allDataList = getAllData(gassmaControllerUtil);
-  const titles = getTitle(gassmaControllerUtil);
+	const allDataList = getAllData(gassmaControllerUtil);
+	const titles = getTitle(gassmaControllerUtil);
 
-  if (Object.keys(where).length === 0) {
-    return allDataList.map((row, index) => {
-      return {
-        rowNumber: index + 1,
-        row: row,
-      } as HitRowData;
-    });
-  }
+	if (Object.keys(where).length === 0) {
+		return allDataList.map((row, index) => {
+			return {
+				rowNumber: index + 1,
+				row: row,
+			} as HitRowData;
+		});
+	}
 
-  const findData = {
-    where: where,
-  } as FindData;
+	const findData = {
+		where: where,
+	} as FindData;
 
-  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
+	const wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
 
-  const findedDataIncludeNull = allDataList.map((row, rowNumber) => {
-    const matchRow = wantFindIndex.filter((i) => {
-      const whereOptionContent = where[String(titles[i])];
-      if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(
-          row[i],
-          whereOptionContent as FilterConditions
-        );
+	const findedDataIncludeNull = allDataList.map((row, rowNumber) => {
+		const matchRow = wantFindIndex.filter((i) => {
+			const whereOptionContent = where[String(titles[i])];
+			if (isDict(whereOptionContent))
+				return isFilterConditionsMatch(
+					row[i],
+					whereOptionContent as FilterConditions,
+				);
 
-      const replacedNullWhereOptionContent =
-        whereOptionContent === "" ? null : whereOptionContent;
-      return row[i] === replacedNullWhereOptionContent;
-    });
+			const replacedNullWhereOptionContent =
+				whereOptionContent === "" ? null : whereOptionContent;
+			return row[i] === replacedNullWhereOptionContent;
+		});
 
-    if (matchRow.length === wantFindIndex.length)
-      return { rowNumber: rowNumber + 1, row: row } as HitRowData;
+		if (matchRow.length === wantFindIndex.length)
+			return { rowNumber: rowNumber + 1, row: row } as HitRowData;
 
-    return null;
-  });
+		return null;
+	});
 
-  const findedData = findedDataIncludeNull.filter((data) => data !== null);
+	const findedData = findedDataIncludeNull.filter((data) => data !== null);
 
-  if (!("OR" in where || "AND" in where || "NOT" in where)) return findedData;
+	if (!("OR" in where || "AND" in where || "NOT" in where)) return findedData;
 
-  return isLogicMatch(findedData, where, titles, gassmaControllerUtil);
+	return isLogicMatch(findedData, where, titles, gassmaControllerUtil);
 };
 
 export { whereFilter };

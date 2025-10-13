@@ -1,28 +1,35 @@
-import type { AnyUse, ManyReturn, Omit, OrderBy, Select, WhereUse } from "./coreTypes";
+import type {
+	AnyUse,
+	ManyReturn,
+	Omit,
+	OrderBy,
+	Select,
+	WhereUse,
+} from "./coreTypes";
 
 type FindData = {
-  where?: WhereUse;
-  select?: Select;
-  omit?: Omit;
-  orderBy?: OrderBy | OrderBy[];
-  take?: number;
-  skip?: number;
-  distinct?: string | string[];
+	where?: WhereUse;
+	select?: Select;
+	omit?: Omit;
+	orderBy?: OrderBy | OrderBy[];
+	take?: number;
+	skip?: number;
+	distinct?: string | string[];
 };
 
 type UpdateData = {
-  where?: WhereUse;
-  data: AnyUse;
+	where?: WhereUse;
+	data: AnyUse;
 };
 
 type UpsertData = {
-  where: WhereUse;
-  update: AnyUse;
-  create: AnyUse;
+	where: WhereUse;
+	update: AnyUse;
+	create: AnyUse;
 };
 
 type DeleteData = {
-  where: WhereUse;
+	where: WhereUse;
 };
 
 type UpdateManyReturn = ManyReturn;
@@ -30,11 +37,11 @@ type DeleteManyReturn = ManyReturn;
 type UpsertManyReturn = ManyReturn;
 
 export {
-  FindData,
-  UpdateData,
-  DeleteData,
-  UpsertData,
-  UpdateManyReturn,
-  DeleteManyReturn,
-  UpsertManyReturn,
+	FindData,
+	UpdateData,
+	DeleteData,
+	UpsertData,
+	UpdateManyReturn,
+	DeleteManyReturn,
+	UpsertManyReturn,
 };

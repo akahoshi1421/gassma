@@ -1,42 +1,42 @@
 import {
-  GassmaAggregateAvgError,
-  GassmaAggregateAvgTypeError,
+	GassmaAggregateAvgError,
+	GassmaAggregateAvgTypeError,
 } from "../../../errors/aggregate/aggregateError";
 import type { Select } from "../../../types/coreTypes";
 import { getHitsDataType } from "./getType/getHitsDataType";
 import { getNumberSum } from "./sum/numberSum";
 
 const getAvg = (rows: {}[], avgData: Select) => {
-  const avgKeys = Object.keys(avgData);
+	const avgKeys = Object.keys(avgData);
 
-  const avgResult = {};
+	const avgResult = {};
 
-  avgKeys.forEach((key) => {
-    const hitsDataIncludeNull = rows.map((row) => {
-      if (row[key] === null || row[key] === undefined) return null;
+	avgKeys.forEach((key) => {
+		const hitsDataIncludeNull = rows.map((row) => {
+			if (row[key] === null || row[key] === undefined) return null;
 
-      return row[key];
-    });
+			return row[key];
+		});
 
-    const hitsData = hitsDataIncludeNull.filter((row) => row !== null);
+		const hitsData = hitsDataIncludeNull.filter((row) => row !== null);
 
-    if (hitsData.length === 0) {
-      avgResult[key] = null;
-      return;
-    }
+		if (hitsData.length === 0) {
+			avgResult[key] = null;
+			return;
+		}
 
-    switch (getHitsDataType(hitsData)) {
-      case "number":
-        avgResult[key] = getNumberSum(hitsData) / hitsData.length;
-        break;
-      case false:
-        throw new GassmaAggregateAvgError();
-      default:
-        throw new GassmaAggregateAvgTypeError();
-    }
-  });
+		switch (getHitsDataType(hitsData)) {
+			case "number":
+				avgResult[key] = getNumberSum(hitsData) / hitsData.length;
+				break;
+			case false:
+				throw new GassmaAggregateAvgError();
+			default:
+				throw new GassmaAggregateAvgTypeError();
+		}
+	});
 
-  return avgResult;
+	return avgResult;
 };
 
 export { getAvg };
