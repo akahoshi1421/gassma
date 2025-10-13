@@ -1,6 +1,6 @@
 import type { Select } from "../../../types/coreTypes";
 
-const getCount = (rows: {}[], avgData: Select) => {
+const getCount = (rows: Record<string, any>[], avgData: Select) => {
   const avgKeys = Object.keys(avgData);
 
   const countResult = {};

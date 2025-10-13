@@ -23,9 +23,9 @@ describe("where functionality tests", () => {
       getLastColumn: () => 5,
       getRange: (
         row: number,
-        col: number,
+        _col: number,
         numRows: number,
-        numCols: number,
+        _numCols: number,
       ) => {
         if (row === 1 && numRows === 1) {
           return {
@@ -1103,9 +1103,9 @@ describe("where functionality tests", () => {
             getLastColumn: () => 5,
             getRange: (
               row: number,
-              col: number,
+              _col: number,
               numRows: number,
-              numCols: number,
+              _numCols: number,
             ) => {
               if (row === 1 && numRows === 1) {
                 return {
@@ -1174,9 +1174,9 @@ describe("where functionality tests", () => {
             getLastColumn: () => 5,
             getRange: (
               row: number,
-              col: number,
+              _col: number,
               numRows: number,
-              numCols: number,
+              _numCols: number,
             ) => {
               if (row === 1 && numRows === 1) {
                 return {

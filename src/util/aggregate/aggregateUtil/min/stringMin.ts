@@ -13,8 +13,7 @@ const minSearch = (
     if (minNumber > unicodeNum) minNumber = unicodeNum;
   });
 
-  const undefinedIndexNum = nowUnicodeArray.findIndex(
-    (unicodeNum) => unicodeNum === undefined,
+  const undefinedIndexNum = nowUnicodeArray.indexOf(undefined,
   );
 
   if (undefinedIndexNum !== -1) return preMinIndexes[undefinedIndexNum];

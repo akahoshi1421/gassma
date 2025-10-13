@@ -32,13 +32,13 @@ const aggregateFunc = (
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
-  const aggregateResult = {};
+  const aggregateResult: any = {};
 
-  if (avg) aggregateResult["_avg"] = getAvg(findedRows, avg);
-  if (count) aggregateResult["_count"] = getCount(findedRows, count);
-  if (max) aggregateResult["_max"] = getMax(findedRows, max);
-  if (min) aggregateResult["_min"] = getMin(findedRows, min);
-  if (sum) aggregateResult["_sum"] = getSum(findedRows, sum);
+  if (avg) aggregateResult._avg = getAvg(findedRows, avg);
+  if (count) aggregateResult._count = getCount(findedRows, count);
+  if (max) aggregateResult._max = getMax(findedRows, max);
+  if (min) aggregateResult._min = getMin(findedRows, min);
+  if (sum) aggregateResult._sum = getSum(findedRows, sum);
 
   return aggregateResult;
 };

@@ -17,9 +17,9 @@ describe("omit integration tests", () => {
       getLastColumn: () => 4,
       getRange: (
         row: number,
-        col: number,
+        _col: number,
         numRows: number,
-        numCols: number,
+        _numCols: number,
       ) => {
         if (row === 1 && numRows === 1) {
           // Title row request

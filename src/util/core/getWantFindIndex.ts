@@ -16,9 +16,7 @@ const getWantFindIndex = (
   const wantFindIndex = wantFindKeys.map((key) => {
     if (key === "AND" || key === "OR" || key === "NOT") return -1;
 
-    return titles.findIndex((title) => {
-      return title === key;
-    });
+    return titles.indexOf(key);
   });
 
   const wantFindIndexRemovedMinusOne = wantFindIndex.filter(

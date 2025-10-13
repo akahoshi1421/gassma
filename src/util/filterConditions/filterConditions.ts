@@ -42,6 +42,8 @@ const isFilterConditionsMatch = (
       case "endsWith":
         if (cellData === null) return false;
         return String(cellData).match(`${filterOptions.endsWith}$`);
+      default:
+        return true;
     }
   });
 
