@@ -25,6 +25,7 @@ import { groupByFunc } from "./util/groupby/groupby";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 import { resolveInclude } from "./util/relation/resolveInclude";
+import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -94,6 +95,13 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
+    if (findData.where) {
+      findData = {
+        ...findData,
+        where: resolveWhereRelation(findData.where, this.relationContext),
+      };
+    }
+
     const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
 
     if (!baseResult || !findData.include || !this.relationContext) {
@@ -114,6 +122,13 @@ class GassmaController {
     }
     if (findData.include && !this.relationContext) {
       throw new IncludeWithoutRelationsError();
+    }
+
+    if (findData.where) {
+      findData = {
+        ...findData,
+        where: resolveWhereRelation(findData.where, this.relationContext),
+      };
     }
 
     const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);

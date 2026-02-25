@@ -117,6 +117,17 @@ declare namespace Gassma {
     [relationName: string]: true | IncludeItemOptions;
   };
 
+  type RelationListFilter = {
+    some?: WhereUse;
+    every?: WhereUse;
+    none?: WhereUse;
+  };
+
+  type RelationSingleFilter = {
+    is?: WhereUse | null;
+    isNot?: WhereUse | null;
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
@@ -232,6 +243,12 @@ declare namespace Gassma {
   }
   class IncludeSelectOmitConflictError extends Error {
     constructor(relationName: string);
+  }
+  class WhereRelationInvalidFilterError extends Error {
+    constructor(relationName: string, relationType: string, filterType: string);
+  }
+  class WhereRelationWithoutContextError extends Error {
+    constructor();
   }
 }
 
