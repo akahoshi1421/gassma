@@ -1,6 +1,6 @@
 declare namespace Gassma {
   class GassmaClient {
-    constructor(id?: string);
+    constructor(idOrOptions?: string | GassmaClientOptions);
 
     readonly sheets: GassmaSheet;
   }
@@ -8,6 +8,7 @@ declare namespace Gassma {
   class GassmaController {
     constructor(sheetName: string, id?: string);
 
+    getColumnHeaders(): string[];
     changeSettings(
       startRowNumber: number,
       startColumnNumber: number,
@@ -23,6 +24,7 @@ declare namespace Gassma {
     aggregate(aggregateData: AggregateData): Record<string, any>;
     count(countData: CountData): number;
     groupBy(groupByData: GroupByData): Record<string, any>[];
+    _setRelationContext(context: RelationContext): void;
   }
 
   type GassmaSheet = {
@@ -36,6 +38,10 @@ declare namespace Gassma {
   };
 
   type Select = {
+    [key: string]: true;
+  };
+
+  type Omit = {
     [key: string]: true;
   };
 
@@ -77,13 +83,62 @@ declare namespace Gassma {
     data: AnyUse[];
   };
 
+  type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";
+
+  type ManyToManyThrough = {
+    sheet: string;
+    field: string;
+    reference: string;
+  };
+
+  type RelationDefinition = {
+    type: RelationType;
+    to: string;
+    field: string;
+    reference: string;
+    through?: ManyToManyThrough;
+  };
+
+  type RelationsConfig = {
+    [sheetName: string]: {
+      [relationName: string]: RelationDefinition;
+    };
+  };
+
+  type IncludeItemOptions = {
+    where?: WhereUse;
+    orderBy?: OrderBy | OrderBy[];
+    take?: number;
+    select?: Select;
+    omit?: Omit;
+  };
+
+  type IncludeData = {
+    [relationName: string]: true | IncludeItemOptions;
+  };
+
+  type GassmaClientOptions = {
+    id?: string;
+    relations?: RelationsConfig;
+  };
+
+  type RelationContext = {
+    relations: { [relationName: string]: RelationDefinition };
+    findManyOnSheet: (
+      sheetName: string,
+      findData: { where?: WhereUse },
+    ) => Record<string, unknown>[];
+  };
+
   type FindData = {
     where?: WhereUse;
     select?: Select;
+    omit?: Omit;
     orderBy?: OrderBy | OrderBy[];
     take?: number;
     skip?: number;
     distinct?: string | string[];
+    include?: IncludeData;
   };
 
   type DeleteData = {
@@ -148,6 +203,36 @@ declare namespace Gassma {
   type UpdateManyReturn = ManyReturn;
   type DeleteManyReturn = ManyReturn;
   type UpsertManyReturn = ManyReturn;
+
+  class RelationSheetNotFoundError extends Error {
+    constructor(sheetName: string);
+  }
+  class RelationMissingPropertyError extends Error {
+    constructor(sheetName: string, relationName: string, property: string);
+  }
+  class RelationInvalidPropertyTypeError extends Error {
+    constructor(
+      sheetName: string,
+      relationName: string,
+      property: string,
+      expectedType: string,
+    );
+  }
+  class RelationInvalidTypeError extends Error {
+    constructor(sheetName: string, relationName: string, value: string);
+  }
+  class RelationColumnNotFoundError extends Error {
+    constructor(sheetName: string, columnName: string);
+  }
+  class IncludeWithoutRelationsError extends Error {
+    constructor();
+  }
+  class IncludeInvalidOptionTypeError extends Error {
+    constructor(relationName: string, option: string, expectedType: string);
+  }
+  class IncludeSelectOmitConflictError extends Error {
+    constructor(relationName: string);
+  }
 }
 
 export { Gassma };
