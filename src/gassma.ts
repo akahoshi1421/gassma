@@ -5,6 +5,7 @@ import type {
   RelationsConfig,
 } from "./types/relationTypes";
 import type { WhereUse } from "./types/coreTypes";
+import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
 
 const isClientOptions = (
   arg: string | GassmaClientOptions | undefined,
@@ -38,6 +39,17 @@ class GassmaClient {
   }
 
   private injectRelations(relations: RelationsConfig) {
+    const cache = new Map<string, string[]>();
+    const getColumnHeaders = (sheetName: string): string[] => {
+      const cached = cache.get(sheetName);
+      if (cached) return cached;
+      const headers = this.sheets[sheetName].getColumnHeaders();
+      cache.set(sheetName, headers);
+      return headers;
+    };
+
+    validateRelationsConfig(relations, this.sheets, getColumnHeaders);
+
     const findManyOnSheet = (
       sheetName: string,
       findData: { where?: WhereUse },

@@ -11,6 +11,8 @@ import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
 import type { RelationContext } from "./types/relationTypes";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
+import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
+import { getTitle } from "./util/core/getTitle";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { countFunc } from "./util/count/count";
@@ -49,6 +51,10 @@ class GassmaController {
     this.relationContext = context;
   }
 
+  public getColumnHeaders(): string[] {
+    return getTitle(this.getGassmaControllerUtil());
+  }
+
   public changeSettings(
     startRowNumber: number,
     startColumnValue: number | string,
@@ -84,6 +90,9 @@ class GassmaController {
     if (findData.include && findData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
+    if (findData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
 
     const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
 
@@ -102,6 +111,9 @@ class GassmaController {
   public findMany(findData: FindData) {
     if (findData.include && findData.select) {
       throw new GassmaIncludeSelectConflictError();
+    }
+    if (findData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
     }
 
     const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);

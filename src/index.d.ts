@@ -8,6 +8,7 @@ declare namespace Gassma {
   class GassmaController {
     constructor(sheetName: string, id?: string);
 
+    getColumnHeaders(): string[];
     changeSettings(
       startRowNumber: number,
       startColumnNumber: number,
@@ -202,6 +203,36 @@ declare namespace Gassma {
   type UpdateManyReturn = ManyReturn;
   type DeleteManyReturn = ManyReturn;
   type UpsertManyReturn = ManyReturn;
+
+  class RelationSheetNotFoundError extends Error {
+    constructor(sheetName: string);
+  }
+  class RelationMissingPropertyError extends Error {
+    constructor(sheetName: string, relationName: string, property: string);
+  }
+  class RelationInvalidPropertyTypeError extends Error {
+    constructor(
+      sheetName: string,
+      relationName: string,
+      property: string,
+      expectedType: string,
+    );
+  }
+  class RelationInvalidTypeError extends Error {
+    constructor(sheetName: string, relationName: string, value: string);
+  }
+  class RelationColumnNotFoundError extends Error {
+    constructor(sheetName: string, columnName: string);
+  }
+  class IncludeWithoutRelationsError extends Error {
+    constructor();
+  }
+  class IncludeInvalidOptionTypeError extends Error {
+    constructor(relationName: string, option: string, expectedType: string);
+  }
+  class IncludeSelectOmitConflictError extends Error {
+    constructor(relationName: string);
+  }
 }
 
 export { Gassma };

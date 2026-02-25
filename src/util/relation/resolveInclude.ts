@@ -4,6 +4,7 @@ import type {
   RelationContext,
 } from "../../types/relationTypes";
 import { GassmaRelationNotFoundError } from "../../errors/relation/relationError";
+import { validateIncludeOptions } from "./validation/validateIncludeOptions";
 import { resolveOneToMany } from "./resolvers/oneToMany";
 import { resolveOneToOne } from "./resolvers/oneToOne";
 import { resolveManyToOne } from "./resolvers/manyToOne";
@@ -14,6 +15,8 @@ const resolveInclude = (
   include: IncludeData,
   context: RelationContext,
 ): Record<string, unknown>[] => {
+  validateIncludeOptions(include);
+
   if (parents.length === 0) return [];
 
   let result = parents;
