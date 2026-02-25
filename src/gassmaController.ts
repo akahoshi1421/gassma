@@ -9,6 +9,8 @@ import type {
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
+import type { RelationContext } from "./types/relationTypes";
+import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { countFunc } from "./util/count/count";
@@ -20,12 +22,14 @@ import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
+import { resolveInclude } from "./util/relation/resolveInclude";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
   private startRowNumber: number = 1;
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
+  private relationContext: RelationContext | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -39,6 +43,10 @@ class GassmaController {
     this.sheet = sheet;
 
     this.endColumnNumber = this.sheet.getLastColumn();
+  }
+
+  public _setRelationContext(context: RelationContext) {
+    this.relationContext = context;
   }
 
   public changeSettings(
@@ -73,11 +81,36 @@ class GassmaController {
   }
 
   public findFirst(findData: FindData) {
-    return findFirstFunc(this.getGassmaControllerUtil(), findData);
+    if (findData.include && findData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+
+    const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
+
+    if (!baseResult || !findData.include || !this.relationContext) {
+      return baseResult;
+    }
+
+    const resolved = resolveInclude(
+      [baseResult],
+      findData.include,
+      this.relationContext,
+    );
+    return resolved[0] ?? null;
   }
 
   public findMany(findData: FindData) {
-    return findManyFunc(this.getGassmaControllerUtil(), findData);
+    if (findData.include && findData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+
+    const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);
+
+    if (!findData.include || !this.relationContext) {
+      return baseResult;
+    }
+
+    return resolveInclude(baseResult, findData.include, this.relationContext);
   }
 
   public updateMany(updateData: UpdateData) {

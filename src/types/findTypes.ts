@@ -6,6 +6,7 @@ import type {
   Select,
   WhereUse,
 } from "./coreTypes";
+import type { IncludeData } from "./relationTypes";
 
 type FindData = {
   where?: WhereUse;
@@ -15,6 +16,7 @@ type FindData = {
   take?: number;
   skip?: number;
   distinct?: string | string[];
+  include?: IncludeData;
 };
 
 type UpdateData = {

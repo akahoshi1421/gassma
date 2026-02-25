@@ -1,10 +1,26 @@
 import { GassmaController } from "./gassmaController";
 import type { GassmaSheet } from "./types/gassmaTypes";
+import type {
+  GassmaClientOptions,
+  RelationsConfig,
+} from "./types/relationTypes";
+import type { WhereUse } from "./types/coreTypes";
+
+const isClientOptions = (
+  arg: string | GassmaClientOptions | undefined,
+): arg is GassmaClientOptions => {
+  return typeof arg === "object" && arg !== null;
+};
 
 class GassmaClient {
   public readonly sheets: GassmaSheet = {};
 
-  constructor(id?: string) {
+  constructor(idOrOptions?: string | GassmaClientOptions) {
+    const id = isClientOptions(idOrOptions) ? idOrOptions.id : idOrOptions;
+    const relations = isClientOptions(idOrOptions)
+      ? idOrOptions.relations
+      : undefined;
+
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
       : SpreadsheetApp.getActiveSpreadsheet();
@@ -13,9 +29,35 @@ class GassmaClient {
     mySheets.forEach((sheet) => {
       const sheetName = sheet.getName();
       const sheetController = new GassmaController(sheetName, id);
-
       this.sheets[sheetName] = sheetController;
     });
+
+    if (relations) {
+      this.injectRelations(relations);
+    }
+  }
+
+  private injectRelations(relations: RelationsConfig) {
+    const findManyOnSheet = (
+      sheetName: string,
+      findData: { where?: WhereUse },
+    ): Record<string, unknown>[] => {
+      const controller = this.sheets[sheetName];
+      if (!controller) {
+        throw new Error(`Target sheet "${sheetName}" is not accessible`);
+      }
+      return controller.findMany(findData);
+    };
+
+    for (const sheetName of Object.keys(relations)) {
+      const controller = this.sheets[sheetName];
+      if (!controller) continue;
+
+      controller._setRelationContext({
+        relations: relations[sheetName],
+        findManyOnSheet,
+      });
+    }
   }
 }
 
