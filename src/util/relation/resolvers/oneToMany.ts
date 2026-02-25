@@ -30,12 +30,12 @@ const resolveOneToMany = (
   const children = findManyOnSheet(relation.to, { where });
 
   const grouped = new Map<unknown, Record<string, unknown>[]>();
-  for (const child of children) {
+  children.forEach((child) => {
     const key = child[relation.reference];
     const list = grouped.get(key) ?? [];
     list.push(child);
     grouped.set(key, list);
-  }
+  });
 
   return parents.map((parent) => {
     let items = grouped.get(parent[relation.field]) ?? [];

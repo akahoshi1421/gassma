@@ -30,7 +30,7 @@ const resolveOneToOne = (
   const children = findManyOnSheet(relation.to, { where });
 
   const lookup = new Map<unknown, Record<string, unknown>>();
-  for (const child of children) {
+  children.forEach((child) => {
     const key = child[relation.reference];
     if (lookup.has(key)) {
       throw new GassmaRelationDuplicateError(
@@ -40,7 +40,7 @@ const resolveOneToOne = (
       );
     }
     lookup.set(key, child);
-  }
+  });
 
   return parents.map((parent) => {
     const child = lookup.get(parent[relation.field]) ?? null;

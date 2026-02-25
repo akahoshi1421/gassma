@@ -50,21 +50,21 @@ const resolveManyToMany = (
 
   // Step 3: ターゲットをルックアップマップに
   const targetLookup = new Map<unknown, Record<string, unknown>>();
-  for (const t of targets) {
+  targets.forEach((t) => {
     targetLookup.set(t[relation.reference], t);
-  }
+  });
 
   // Step 4: 親→中間テーブル→ターゲットのマッピング
   const parentToTargets = new Map<unknown, Record<string, unknown>[]>();
-  for (const jRow of junctionRows) {
+  junctionRows.forEach((jRow) => {
     const parentKey = jRow[through.field];
     const target = targetLookup.get(jRow[through.reference]);
-    if (!target) continue;
+    if (!target) return;
 
     const list = parentToTargets.get(parentKey) ?? [];
     list.push(target);
     parentToTargets.set(parentKey, list);
-  }
+  });
 
   return parents.map((parent) => {
     let items = parentToTargets.get(parent[relation.field]) ?? [];
