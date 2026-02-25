@@ -12,14 +12,14 @@ const validateRelationsConfig = (
 ): void => {
   const allSheetNames = Object.keys(sheets);
 
-  for (const sheetName of Object.keys(relations)) {
+  Object.keys(relations).forEach((sheetName) => {
     if (!(sheetName in sheets)) {
       throw new RelationSheetNotFoundError(sheetName);
     }
 
     const sheetRelations = relations[sheetName];
 
-    for (const relationName of Object.keys(sheetRelations)) {
+    Object.keys(sheetRelations).forEach((relationName) => {
       const definition = sheetRelations[relationName];
 
       validateRelationDefinition(
@@ -41,8 +41,8 @@ const validateRelationsConfig = (
         },
         getColumnHeaders,
       );
-    }
-  }
+    });
+  });
 };
 
 export { validateRelationsConfig };

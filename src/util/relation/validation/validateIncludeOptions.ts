@@ -48,9 +48,9 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
 };
 
 const validateIncludeOptions = (include: IncludeData): void => {
-  for (const relationName of Object.keys(include)) {
+  Object.keys(include).forEach((relationName) => {
     validateIncludeItem(relationName, include[relationName]);
-  }
+  });
 };
 
 export { validateIncludeOptions };

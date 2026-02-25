@@ -41,9 +41,9 @@ const validateRelationDefinition = (
   definition: Record<string, unknown>,
   allSheetNames: string[],
 ): void => {
-  for (const prop of REQUIRED_PROPERTIES) {
+  REQUIRED_PROPERTIES.forEach((prop) => {
     assertStringProperty(sheetName, relationName, definition, prop);
-  }
+  });
 
   const type = definition.type as string;
   if (!VALID_RELATION_TYPES.includes(type)) {
@@ -66,7 +66,7 @@ const validateRelationDefinition = (
 
     const through = definition.through as Record<string, unknown>;
 
-    for (const prop of THROUGH_REQUIRED_PROPERTIES) {
+    THROUGH_REQUIRED_PROPERTIES.forEach((prop) => {
       if (!(prop in through) || through[prop] === undefined) {
         throw new RelationMissingPropertyError(
           sheetName,
@@ -82,7 +82,7 @@ const validateRelationDefinition = (
           "string",
         );
       }
-    }
+    });
 
     const throughSheet = through.sheet as string;
     if (!allSheetNames.includes(throughSheet)) {

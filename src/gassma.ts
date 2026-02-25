@@ -61,15 +61,15 @@ class GassmaClient {
       return controller.findMany(findData);
     };
 
-    for (const sheetName of Object.keys(relations)) {
+    Object.keys(relations).forEach((sheetName) => {
       const controller = this.sheets[sheetName];
-      if (!controller) continue;
+      if (!controller) return;
 
       controller._setRelationContext({
         relations: relations[sheetName],
         findManyOnSheet,
       });
-    }
+    });
   }
 }
 

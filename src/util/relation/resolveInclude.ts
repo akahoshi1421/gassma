@@ -19,9 +19,7 @@ const resolveInclude = (
 
   if (parents.length === 0) return [];
 
-  let result = parents;
-
-  for (const relationName of Object.keys(include)) {
+  return Object.keys(include).reduce((result, relationName) => {
     const relation = context.relations[relationName];
     if (!relation) {
       throw new GassmaRelationNotFoundError(relationName, "");
@@ -35,45 +33,41 @@ const resolveInclude = (
 
     switch (relation.type) {
       case "oneToMany":
-        result = resolveOneToMany(
+        return resolveOneToMany(
           result,
           relation,
           relationName,
           findMany,
           options,
         );
-        break;
       case "oneToOne":
-        result = resolveOneToOne(
+        return resolveOneToOne(
           result,
           relation,
           relationName,
           findMany,
           options,
         );
-        break;
       case "manyToOne":
-        result = resolveManyToOne(
+        return resolveManyToOne(
           result,
           relation,
           relationName,
           findMany,
           options,
         );
-        break;
       case "manyToMany":
-        result = resolveManyToMany(
+        return resolveManyToMany(
           result,
           relation,
           relationName,
           findMany,
           options,
         );
-        break;
+      default:
+        return result;
     }
-  }
-
-  return result;
+  }, parents);
 };
 
 export { resolveInclude };
