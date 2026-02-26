@@ -47,6 +47,19 @@ type RelationContext = {
   ) => Record<string, unknown>[];
 };
 
+type RelationListFilter = {
+  some?: WhereUse;
+  every?: WhereUse;
+  none?: WhereUse;
+};
+
+type RelationSingleFilter = {
+  is?: WhereUse | null;
+  isNot?: WhereUse | null;
+};
+
+type WhereRelationFilter = RelationListFilter | RelationSingleFilter;
+
 export type {
   RelationType,
   ManyToManyThrough,
@@ -56,4 +69,7 @@ export type {
   IncludeData,
   GassmaClientOptions,
   RelationContext,
+  RelationListFilter,
+  RelationSingleFilter,
+  WhereRelationFilter,
 };
