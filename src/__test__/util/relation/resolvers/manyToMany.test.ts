@@ -135,6 +135,73 @@ describe("resolveManyToMany", () => {
     expect(result[0].categories).toHaveLength(2);
   });
 
+  it("includeオプションのskipを親ごとに適用する", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([
+      { postId: 1, categoryId: 10 },
+      { postId: 1, categoryId: 20 },
+      { postId: 1, categoryId: 30 },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech" },
+      { id: 20, name: "Science" },
+      { id: 30, name: "Art" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { skip: 1 },
+    );
+
+    expect(result[0].categories).toHaveLength(2);
+  });
+
+  it("skip + take を組み合わせて適用する", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([
+      { postId: 1, categoryId: 10 },
+      { postId: 1, categoryId: 20 },
+      { postId: 1, categoryId: 30 },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech" },
+      { id: 20, name: "Science" },
+      { id: 30, name: "Art" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { skip: 1, take: 1 },
+    );
+
+    expect(result[0].categories).toHaveLength(1);
+  });
+
+  it("skipが結果数を超える場合は空配列を返す", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([{ id: 10, name: "Tech" }]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { skip: 5 },
+    );
+
+    expect(result[0].categories).toEqual([]);
+  });
+
   it("throughが未定義の場合はエラーを投げる", () => {
     const noThroughRelation: RelationDefinition = {
       type: "manyToMany",

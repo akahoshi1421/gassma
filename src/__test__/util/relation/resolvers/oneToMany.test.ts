@@ -116,6 +116,58 @@ describe("resolveOneToMany", () => {
     expect(result[0].posts).toHaveLength(2);
   });
 
+  it("includeオプションのskipを親ごとに適用する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A" },
+      { id: 102, authorId: 1, title: "Post B" },
+      { id: 103, authorId: 1, title: "Post C" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      skip: 1,
+    });
+
+    expect(result[0].posts).toHaveLength(2);
+    expect(result[0].posts).toEqual([
+      { id: 102, authorId: 1, title: "Post B" },
+      { id: 103, authorId: 1, title: "Post C" },
+    ]);
+  });
+
+  it("skip + take を組み合わせて適用する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A" },
+      { id: 102, authorId: 1, title: "Post B" },
+      { id: 103, authorId: 1, title: "Post C" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      skip: 1,
+      take: 1,
+    });
+
+    expect(result[0].posts).toHaveLength(1);
+    expect(result[0].posts).toEqual([
+      { id: 102, authorId: 1, title: "Post B" },
+    ]);
+  });
+
+  it("skipが結果数を超える場合は空配列を返す", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([{ id: 101, authorId: 1, title: "Post A" }]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      skip: 5,
+    });
+
+    expect(result[0].posts).toEqual([]);
+  });
+
   it("親レコードが空配列の場合はfindManyを呼ばず空配列を返す", () => {
     const result = resolveOneToMany([], relation, "posts", mockFindMany);
 

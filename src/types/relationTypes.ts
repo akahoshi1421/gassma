@@ -25,6 +25,7 @@ type RelationsConfig = {
 type IncludeItemOptions = {
   where?: WhereUse;
   orderBy?: OrderBy | OrderBy[];
+  skip?: number;
   take?: number;
   select?: Select;
   omit?: Omit;
