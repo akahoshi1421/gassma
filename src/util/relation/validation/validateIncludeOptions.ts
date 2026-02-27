@@ -37,6 +37,10 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
     throw new IncludeSelectOmitConflictError(relationName);
   }
 
+  if (value.skip !== undefined && typeof value.skip !== "number") {
+    throw new IncludeInvalidOptionTypeError(relationName, "skip", "a number");
+  }
+
   if (value.take !== undefined && typeof value.take !== "number") {
     throw new IncludeInvalidOptionTypeError(relationName, "take", "a number");
   }

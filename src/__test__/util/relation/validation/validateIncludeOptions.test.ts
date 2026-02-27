@@ -74,6 +74,22 @@ describe("validateIncludeOptions", () => {
     });
   });
 
+  describe("skip の型チェック", () => {
+    it("skip が number の場合エラーを投げない", () => {
+      expect(() =>
+        validateIncludeOptions({ posts: { skip: 5 } }),
+      ).not.toThrow();
+    });
+
+    it("skip が number 以外の場合エラーを投げる", () => {
+      expect(() =>
+        validateIncludeOptions({
+          posts: { skip: "5" as unknown as number },
+        }),
+      ).toThrow('option "skip" must be a number');
+    });
+  });
+
   describe("where の型チェック", () => {
     it("where が object の場合エラーを投げない", () => {
       expect(() =>

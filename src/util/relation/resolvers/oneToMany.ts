@@ -47,6 +47,10 @@ const resolveOneToMany = (
       items = orderByFunc([...items], orderByArr);
     }
 
+    if (options?.skip !== undefined) {
+      items = items.slice(options.skip);
+    }
+
     if (options?.take !== undefined) {
       items = items.slice(0, options.take);
     }
