@@ -32,10 +32,20 @@ class GassmaRelationDuplicateError extends Error {
   }
 }
 
+class RelationOnDeleteRestrictError extends Error {
+  constructor(relationName: string) {
+    super(
+      `Cannot delete: related records exist for relation "${relationName}" (onDelete: Restrict)`,
+    );
+    this.name = "RelationOnDeleteRestrictError";
+  }
+}
+
 export {
   GassmaRelationNotFoundError,
   GassmaTargetSheetNotFoundError,
   GassmaThroughRequiredError,
   GassmaIncludeSelectConflictError,
   GassmaRelationDuplicateError,
+  RelationOnDeleteRestrictError,
 };

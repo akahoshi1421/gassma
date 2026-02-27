@@ -85,6 +85,8 @@ declare namespace Gassma {
 
   type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";
 
+  type OnDeleteAction = "Cascade" | "SetNull" | "Restrict" | "NoAction";
+
   type ManyToManyThrough = {
     sheet: string;
     field: string;
@@ -97,6 +99,7 @@ declare namespace Gassma {
     field: string;
     reference: string;
     through?: ManyToManyThrough;
+    onDelete?: OnDeleteAction;
   };
 
   type RelationsConfig = {
@@ -140,6 +143,14 @@ declare namespace Gassma {
       sheetName: string,
       findData: { where?: WhereUse },
     ) => Record<string, unknown>[];
+    deleteManyOnSheet?: (
+      sheetName: string,
+      deleteData: { where: WhereUse },
+    ) => { count: number };
+    updateManyOnSheet?: (
+      sheetName: string,
+      updateData: { where?: WhereUse; data: AnyUse },
+    ) => { count: number };
   };
 
   type FindData = {
@@ -250,6 +261,12 @@ declare namespace Gassma {
   }
   class WhereRelationWithoutContextError extends Error {
     constructor();
+  }
+  class RelationOnDeleteRestrictError extends Error {
+    constructor(relationName: string);
+  }
+  class RelationInvalidOnDeleteError extends Error {
+    constructor(sheetName: string, relationName: string, value: string);
   }
 }
 

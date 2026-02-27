@@ -3,6 +3,7 @@ import {
   RelationInvalidPropertyTypeError,
   RelationInvalidTypeError,
   RelationSheetNotFoundError,
+  RelationInvalidOnDeleteError,
 } from "../../../errors/relation/relationValidationError";
 
 const VALID_RELATION_TYPES = [
@@ -11,6 +12,8 @@ const VALID_RELATION_TYPES = [
   "manyToOne",
   "manyToMany",
 ];
+
+const VALID_ON_DELETE_ACTIONS = ["Cascade", "SetNull", "Restrict", "NoAction"];
 
 const REQUIRED_PROPERTIES = ["type", "to", "field", "reference"] as const;
 
@@ -53,6 +56,17 @@ const validateRelationDefinition = (
   const to = definition.to as string;
   if (!allSheetNames.includes(to)) {
     throw new RelationSheetNotFoundError(to);
+  }
+
+  if (
+    definition.onDelete !== undefined &&
+    !VALID_ON_DELETE_ACTIONS.includes(definition.onDelete as string)
+  ) {
+    throw new RelationInvalidOnDeleteError(
+      sheetName,
+      relationName,
+      String(definition.onDelete),
+    );
   }
 
   if (type === "manyToMany") {

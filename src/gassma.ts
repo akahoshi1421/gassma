@@ -4,7 +4,7 @@ import type {
   GassmaClientOptions,
   RelationsConfig,
 } from "./types/relationTypes";
-import type { WhereUse } from "./types/coreTypes";
+import type { AnyUse, WhereUse } from "./types/coreTypes";
 import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
 
 const isClientOptions = (
@@ -61,6 +61,28 @@ class GassmaClient {
       return controller.findMany(findData);
     };
 
+    const deleteManyOnSheet = (
+      sheetName: string,
+      deleteData: { where: WhereUse },
+    ): { count: number } => {
+      const controller = this.sheets[sheetName];
+      if (!controller) {
+        throw new Error(`Target sheet "${sheetName}" is not accessible`);
+      }
+      return controller.deleteMany(deleteData);
+    };
+
+    const updateManyOnSheet = (
+      sheetName: string,
+      updateData: { where?: WhereUse; data: AnyUse },
+    ): { count: number } => {
+      const controller = this.sheets[sheetName];
+      if (!controller) {
+        throw new Error(`Target sheet "${sheetName}" is not accessible`);
+      }
+      return controller.updateMany(updateData);
+    };
+
     Object.keys(relations).forEach((sheetName) => {
       const controller = this.sheets[sheetName];
       if (!controller) return;
@@ -68,6 +90,8 @@ class GassmaClient {
       controller._setRelationContext({
         relations: relations[sheetName],
         findManyOnSheet,
+        deleteManyOnSheet,
+        updateManyOnSheet,
       });
     });
   }

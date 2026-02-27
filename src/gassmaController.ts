@@ -10,6 +10,7 @@ import type {
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
 import type { RelationContext } from "./types/relationTypes";
+import type { WhereUse } from "./types/coreTypes";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import { getTitle } from "./util/core/getTitle";
@@ -26,6 +27,7 @@ import { updateManyFunc } from "./util/update/updateMany";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
+import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -79,6 +81,10 @@ class GassmaController {
     };
   }
 
+  private resolveWhere(where: WhereUse): WhereUse {
+    return resolveWhereRelation(where, this.relationContext);
+  }
+
   public createMany(createdData: CreateManyData) {
     return createManyFunc(this.getGassmaControllerUtil(), createdData);
   }
@@ -96,10 +102,7 @@ class GassmaController {
     }
 
     if (findData.where) {
-      findData = {
-        ...findData,
-        where: resolveWhereRelation(findData.where, this.relationContext),
-      };
+      findData = { ...findData, where: this.resolveWhere(findData.where) };
     }
 
     const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
@@ -125,10 +128,7 @@ class GassmaController {
     }
 
     if (findData.where) {
-      findData = {
-        ...findData,
-        where: resolveWhereRelation(findData.where, this.relationContext),
-      };
+      findData = { ...findData, where: this.resolveWhere(findData.where) };
     }
 
     const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);
@@ -141,26 +141,57 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
+    if (updateData.where) {
+      updateData = {
+        ...updateData,
+        where: this.resolveWhere(updateData.where),
+      };
+    }
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
   public upsertMany(upsertData: UpsertData) {
+    upsertData = { ...upsertData, where: this.resolveWhere(upsertData.where) };
     return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
   public deleteMany(deleteData: DeleteData) {
+    deleteData = { ...deleteData, where: this.resolveWhere(deleteData.where) };
+
+    if (this.relationContext) {
+      const records = findManyFunc(this.getGassmaControllerUtil(), {
+        where: deleteData.where,
+      });
+      resolveOnDelete(records, this.relationContext);
+    }
+
     return deleteManyFunc(this.getGassmaControllerUtil(), deleteData);
   }
 
   public aggregate(aggregateData: AggregateData) {
+    if (aggregateData.where) {
+      aggregateData = {
+        ...aggregateData,
+        where: this.resolveWhere(aggregateData.where),
+      };
+    }
     return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
   }
 
   public count(countData: CountData) {
+    if (countData.where) {
+      countData = { ...countData, where: this.resolveWhere(countData.where) };
+    }
     return countFunc(this.getGassmaControllerUtil(), countData);
   }
 
   public groupBy(groupByData: GroupByData) {
+    if (groupByData.where) {
+      groupByData = {
+        ...groupByData,
+        where: this.resolveWhere(groupByData.where),
+      };
+    }
     return groupByFunc(this.getGassmaControllerUtil(), groupByData);
   }
 }
