@@ -57,6 +57,14 @@ type RelationContext = {
     sheetName: string,
     updateData: { where?: WhereUse; data: AnyUse },
   ) => { count: number };
+  createOnSheet?: (
+    sheetName: string,
+    createData: { data: Record<string, unknown> },
+  ) => Record<string, unknown>;
+  createManyOnSheet?: (
+    sheetName: string,
+    createManyData: { data: AnyUse[] },
+  ) => { count: number } | undefined;
 };
 
 type RelationListFilter = {

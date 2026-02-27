@@ -1,4 +1,7 @@
+import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
+import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
+import type { AnyUse, WhereUse } from "./types/coreTypes";
 import type { CountData } from "./types/countType";
 import type { CreateData, CreateManyData } from "./types/createTypes";
 import type {
@@ -10,24 +13,22 @@ import type {
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
 import type { RelationContext } from "./types/relationTypes";
-import type { WhereUse } from "./types/coreTypes";
-import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
-import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
-import { getTitle } from "./util/core/getTitle";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
+import { getTitle } from "./util/core/getTitle";
 import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
+import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
-import { updateManyFunc } from "./util/update/updateMany";
-import { upsertManyFunc } from "./util/upsert/upsertMany";
+import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
-import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
+import { updateManyFunc } from "./util/update/updateMany";
+import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -81,7 +82,8 @@ class GassmaController {
     };
   }
 
-  private resolveWhere(where: WhereUse): WhereUse {
+  private resolveWhere(where: WhereUse | undefined): WhereUse | undefined {
+    if (!where) return where;
     return resolveWhereRelation(where, this.relationContext);
   }
 
@@ -90,7 +92,14 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
-    return createFunc(this.getGassmaControllerUtil(), createdData);
+    const util = this.getGassmaControllerUtil();
+    const wrappedCreate = (data: Record<string, unknown>) =>
+      createFunc(util, { data: data as AnyUse });
+    return resolveNestedCreate(
+      createdData.data,
+      wrappedCreate,
+      this.relationContext ?? undefined,
+    );
   }
 
   public findFirst(findData: FindData) {
@@ -101,10 +110,7 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
-    if (findData.where) {
-      findData = { ...findData, where: this.resolveWhere(findData.where) };
-    }
-
+    findData = { ...findData, where: this.resolveWhere(findData.where) };
     const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
 
     if (!baseResult || !findData.include || !this.relationContext) {
@@ -127,10 +133,7 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
-    if (findData.where) {
-      findData = { ...findData, where: this.resolveWhere(findData.where) };
-    }
-
+    findData = { ...findData, where: this.resolveWhere(findData.where) };
     const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);
 
     if (!findData.include || !this.relationContext) {
@@ -141,12 +144,7 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
-    if (updateData.where) {
-      updateData = {
-        ...updateData,
-        where: this.resolveWhere(updateData.where),
-      };
-    }
+    updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
@@ -169,29 +167,23 @@ class GassmaController {
   }
 
   public aggregate(aggregateData: AggregateData) {
-    if (aggregateData.where) {
-      aggregateData = {
-        ...aggregateData,
-        where: this.resolveWhere(aggregateData.where),
-      };
-    }
+    aggregateData = {
+      ...aggregateData,
+      where: this.resolveWhere(aggregateData.where),
+    };
     return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
   }
 
   public count(countData: CountData) {
-    if (countData.where) {
-      countData = { ...countData, where: this.resolveWhere(countData.where) };
-    }
+    countData = { ...countData, where: this.resolveWhere(countData.where) };
     return countFunc(this.getGassmaControllerUtil(), countData);
   }
 
   public groupBy(groupByData: GroupByData) {
-    if (groupByData.where) {
-      groupByData = {
-        ...groupByData,
-        where: this.resolveWhere(groupByData.where),
-      };
-    }
+    groupByData = {
+      ...groupByData,
+      where: this.resolveWhere(groupByData.where),
+    };
     return groupByFunc(this.getGassmaControllerUtil(), groupByData);
   }
 }
