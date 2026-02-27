@@ -69,6 +69,15 @@ class IncludeSelectOmitConflictError extends Error {
   }
 }
 
+class RelationInvalidOnDeleteError extends Error {
+  constructor(sheetName: string, relationName: string, value: string) {
+    super(
+      `Relation "${relationName}" on sheet "${sheetName}": onDelete "${value}" is not valid. Must be one of: Cascade, SetNull, Restrict, NoAction`,
+    );
+    this.name = "RelationInvalidOnDeleteError";
+  }
+}
+
 export {
   RelationSheetNotFoundError,
   RelationMissingPropertyError,
@@ -78,4 +87,5 @@ export {
   IncludeWithoutRelationsError,
   IncludeInvalidOptionTypeError,
   IncludeSelectOmitConflictError,
+  RelationInvalidOnDeleteError,
 };

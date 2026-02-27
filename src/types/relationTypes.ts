@@ -1,6 +1,8 @@
-import type { Omit, OrderBy, Select, WhereUse } from "./coreTypes";
+import type { AnyUse, Omit, OrderBy, Select, WhereUse } from "./coreTypes";
 
 type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";
+
+type OnDeleteAction = "Cascade" | "SetNull" | "Restrict" | "NoAction";
 
 type ManyToManyThrough = {
   sheet: string;
@@ -14,6 +16,7 @@ type RelationDefinition = {
   field: string;
   reference: string;
   through?: ManyToManyThrough;
+  onDelete?: OnDeleteAction;
 };
 
 type RelationsConfig = {
@@ -46,6 +49,14 @@ type RelationContext = {
     sheetName: string,
     findData: { where?: WhereUse },
   ) => Record<string, unknown>[];
+  deleteManyOnSheet?: (
+    sheetName: string,
+    deleteData: { where: WhereUse },
+  ) => { count: number };
+  updateManyOnSheet?: (
+    sheetName: string,
+    updateData: { where?: WhereUse; data: AnyUse },
+  ) => { count: number };
 };
 
 type RelationListFilter = {
@@ -63,6 +74,7 @@ type WhereRelationFilter = RelationListFilter | RelationSingleFilter;
 
 export type {
   RelationType,
+  OnDeleteAction,
   ManyToManyThrough,
   RelationDefinition,
   RelationsConfig,
