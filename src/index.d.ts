@@ -15,6 +15,7 @@ declare namespace Gassma {
       endColumnNumber: number,
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
+    createManyAndReturn(createdData: CreateManyData): Record<string, unknown>[];
     create(createdData: CreateData): Record<string, unknown>;
     findFirst(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
