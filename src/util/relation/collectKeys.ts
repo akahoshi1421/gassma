@@ -1,7 +1,7 @@
 import type { GassmaAny } from "../../types/coreTypes";
 
 const isGassmaAny = (value: unknown): value is GassmaAny => {
-  if (value === null) return true;
+  if (value === null || value === undefined) return false;
   const t = typeof value;
   return (
     t === "string" || t === "number" || t === "boolean" || value instanceof Date
