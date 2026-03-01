@@ -489,3 +489,94 @@ describe("updateMany functionality tests", () => {
     });
   });
 });
+
+describe("updateManyFunc with withReturn", () => {
+  let mockUtil: ReturnType<typeof getMutableMockControllerUtil>;
+
+  beforeEach(() => {
+    mockUtil = getMutableMockControllerUtil();
+    (mockUtil.sheet as any)._resetMockData();
+  });
+
+  test("should update multiple records and return updated records as array", () => {
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 職業: "Engineer" },
+        data: { 職業: "Senior Engineer" },
+      },
+      true,
+    );
+
+    expect(result).toHaveLength(3);
+    result.forEach((record) => {
+      expect(record["職業"]).toBe("Senior Engineer");
+    });
+
+    // 返却されたレコードの名前がEngineerだった人であることを確認
+    const names = result.map((r) => r["名前"]);
+    expect(names).toEqual(expect.arrayContaining(["Alice", "Eve", "Henry"]));
+  });
+
+  test("should preserve unchanged fields in returned records", () => {
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 名前: "Alice" },
+        data: { 年齢: 30 },
+      },
+      true,
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]["名前"]).toBe("Alice");
+    expect(result[0]["年齢"]).toBe(30);
+    expect(result[0]["住所"]).toBe("Tokyo");
+    expect(result[0]["郵便番号"]).toBe("100-0001");
+    expect(result[0]["職業"]).toBe("Engineer");
+  });
+
+  test("should return empty array when no records match", () => {
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 名前: "Non-existent" },
+        data: { 職業: "Should Not Update" },
+      },
+      true,
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  test("should return single-element array for single match", () => {
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 名前: "Bob" },
+        data: { 年齢: 36 },
+      },
+      true,
+    );
+
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toHaveLength(1);
+    expect(result[0]["名前"]).toBe("Bob");
+    expect(result[0]["年齢"]).toBe(36);
+  });
+
+  test("should update and return all records when no where condition", () => {
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        data: { 職業: "Remote Worker" },
+      },
+      true,
+    );
+
+    expect(result).toHaveLength(8);
+    result.forEach((record) => {
+      expect(record["職業"]).toBe("Remote Worker");
+    });
+  });
+});

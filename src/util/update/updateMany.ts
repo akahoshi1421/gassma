@@ -4,10 +4,21 @@ import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
 
-const updateManyFunc = (
+function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData,
-): UpdateManyReturn => {
+  withReturn: true,
+): Record<string, unknown>[];
+function updateManyFunc(
+  gassmaControllerUtil: GassmaControllerUtil,
+  updateData: UpdateData,
+  withReturn?: false,
+): UpdateManyReturn;
+function updateManyFunc(
+  gassmaControllerUtil: GassmaControllerUtil,
+  updateData: UpdateData,
+  withReturn?: boolean,
+): Record<string, unknown>[] | UpdateManyReturn {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
@@ -15,34 +26,39 @@ const updateManyFunc = (
   const data = updateData.data;
 
   const findedData = whereFilter(where, gassmaControllerUtil);
-  const findedDataLength = findedData.length;
+
+  if (findedData.length === 0) {
+    return withReturn ? [] : { count: 0 };
+  }
 
   const titles = getTitle(gassmaControllerUtil);
   const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);
+  const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
-  findedData.forEach((row) => {
-    const updatedRow = row.row.map((updateData, updateDataIndex) => {
-      if (!wantUpdateIndex.includes(updateDataIndex)) return updateData;
-
-      return data[String(titles[updateDataIndex])];
+  const records = findedData.map((row) => {
+    const updatedRow = row.row.map((cell, cellIndex) => {
+      if (!wantUpdateIndex.includes(cellIndex)) return cell;
+      return data[String(titles[cellIndex])];
     });
 
-    if (updatedRow.length === 0) return;
+    if (updatedRow.length > 0) {
+      const rowNumber = row.rowNumber + startRowNumber;
+      const updateRange = sheet.getRange(
+        rowNumber,
+        startColumnNumber,
+        1,
+        ColumnLength,
+      );
+      updateRange.setValues([updatedRow]);
+    }
 
-    const rowNumber = row.rowNumber + startRowNumber;
-    const ColumnLength = endColumnNumber - startColumnNumber + 1;
-
-    const updateRange = sheet.getRange(
-      rowNumber,
-      startColumnNumber,
-      1,
-      ColumnLength,
-    );
-
-    updateRange.setValues([updatedRow]);
+    return titles.reduce<Record<string, unknown>>((record, title, index) => {
+      record[title] = updatedRow[index];
+      return record;
+    }, {});
   });
 
-  return { count: findedDataLength };
-};
+  return withReturn ? records : { count: findedData.length };
+}
 
 export { updateManyFunc };

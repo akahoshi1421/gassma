@@ -18,7 +18,6 @@ import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { getTitle } from "./util/core/getTitle";
 import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
-import { createManyAndReturnFunc } from "./util/create/createManyAndReturnFunc";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
 import { deleteManyFunc } from "./util/delete/deleteMany";
@@ -93,7 +92,7 @@ class GassmaController {
   }
 
   public createManyAndReturn(createdData: CreateManyData) {
-    return createManyAndReturnFunc(this.getGassmaControllerUtil(), createdData);
+    return createManyFunc(this.getGassmaControllerUtil(), createdData, true);
   }
 
   public create(createdData: CreateData) {
@@ -151,6 +150,11 @@ class GassmaController {
   public updateMany(updateData: UpdateData) {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
+  }
+
+  public updateManyAndReturn(updateData: UpdateData) {
+    updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
+    return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
   }
 
   public upsertMany(upsertData: UpsertData) {
