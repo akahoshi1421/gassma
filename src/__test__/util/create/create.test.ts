@@ -1,4 +1,5 @@
 import { createFunc } from "../../../util/create/create";
+import { createManyAndReturnFunc } from "../../../util/create/createManyAndReturnFunc";
 import { createManyFunc } from "../../../util/create/createManyFunc";
 import { getMutableMockControllerUtil } from "../../consts/mockControllerUtil";
 
@@ -431,6 +432,159 @@ describe("create functionality tests", () => {
         29,
         "Osaka",
         "109-0009",
+        "Engineer",
+      ]);
+    });
+  });
+
+  describe("createManyAndReturnFunc", () => {
+    test("should create multiple records and return all records as array", () => {
+      const result = createManyAndReturnFunc(mockUtil, {
+        data: [
+          {
+            名前: "佐藤",
+            年齢: 23,
+            住所: "Shimane",
+            郵便番号: "690-8540",
+            職業: "Student",
+          },
+          {
+            名前: "鈴原",
+            年齢: 25,
+            住所: "Tottori",
+            郵便番号: "680-8571",
+            職業: "Designer",
+          },
+        ],
+      });
+
+      expect(result).toEqual([
+        {
+          名前: "佐藤",
+          年齢: 23,
+          住所: "Shimane",
+          郵便番号: "690-8540",
+          職業: "Student",
+        },
+        {
+          名前: "鈴原",
+          年齢: 25,
+          住所: "Tottori",
+          郵便番号: "680-8571",
+          職業: "Designer",
+        },
+      ]);
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toHaveLength(INITIAL_ROW_COUNT + 2);
+      expect(currentData[INITIAL_ROW_COUNT]).toEqual([
+        "佐藤",
+        23,
+        "Shimane",
+        "690-8540",
+        "Student",
+      ]);
+      expect(currentData[INITIAL_ROW_COUNT + 1]).toEqual([
+        "鈴原",
+        25,
+        "Tottori",
+        "680-8571",
+        "Designer",
+      ]);
+    });
+
+    test("should return null for unspecified fields in partial records", () => {
+      const result = createManyAndReturnFunc(mockUtil, {
+        data: [
+          {
+            名前: "部分1",
+            年齢: 20,
+          },
+          {
+            名前: "部分2",
+            住所: "Hiroshima",
+          },
+        ],
+      });
+
+      expect(result).toEqual([
+        {
+          名前: "部分1",
+          年齢: 20,
+          住所: null,
+          郵便番号: null,
+          職業: null,
+        },
+        {
+          名前: "部分2",
+          年齢: null,
+          住所: "Hiroshima",
+          郵便番号: null,
+          職業: null,
+        },
+      ]);
+    });
+
+    test("should return empty array for empty data", () => {
+      const result = createManyAndReturnFunc(mockUtil, {
+        data: [],
+      });
+
+      expect(result).toEqual([]);
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toHaveLength(INITIAL_ROW_COUNT);
+    });
+
+    test("should return single-element array for single record", () => {
+      const result = createManyAndReturnFunc(mockUtil, {
+        data: [
+          {
+            名前: "単一ユーザー",
+            年齢: 45,
+            住所: "Sendai",
+            郵便番号: "980-0001",
+            職業: "Director",
+          },
+        ],
+      });
+
+      expect(result).toEqual([
+        {
+          名前: "単一ユーザー",
+          年齢: 45,
+          住所: "Sendai",
+          郵便番号: "980-0001",
+          職業: "Director",
+        },
+      ]);
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toHaveLength(EXPECTED_TOTAL_ROWS_AFTER_ONE_INSERT);
+    });
+
+    test("should correctly write data to sheet", () => {
+      createManyAndReturnFunc(mockUtil, {
+        data: [
+          {
+            名前: "書込テスト",
+            年齢: 30,
+            住所: "Tokyo",
+            郵便番号: "100-0001",
+            職業: "Engineer",
+          },
+        ],
+      });
+
+      expect(mockUtil.sheet.getLastRow).toHaveBeenCalled();
+      expect(mockUtil.sheet.getRange).toHaveBeenCalled();
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData[INITIAL_ROW_COUNT]).toEqual([
+        "書込テスト",
+        30,
+        "Tokyo",
+        "100-0001",
         "Engineer",
       ]);
     });
