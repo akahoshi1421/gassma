@@ -1,10 +1,10 @@
 import { GassmaController } from "./gassmaController";
+import type { AnyUse, WhereUse } from "./types/coreTypes";
 import type { GassmaSheet } from "./types/gassmaTypes";
 import type {
   GassmaClientOptions,
   RelationsConfig,
 } from "./types/relationTypes";
-import type { AnyUse, WhereUse } from "./types/coreTypes";
 import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
 
 const isClientOptions = (
@@ -83,6 +83,28 @@ class GassmaClient {
       return controller.updateMany(updateData);
     };
 
+    const createOnSheet = (
+      sheetName: string,
+      createData: { data: Record<string, unknown> },
+    ): Record<string, unknown> => {
+      const controller = this.sheets[sheetName];
+      if (!controller) {
+        throw new Error(`Target sheet "${sheetName}" is not accessible`);
+      }
+      return controller.create({ data: createData.data as AnyUse });
+    };
+
+    const createManyOnSheet = (
+      sheetName: string,
+      createManyData: { data: AnyUse[] },
+    ): { count: number } | undefined => {
+      const controller = this.sheets[sheetName];
+      if (!controller) {
+        throw new Error(`Target sheet "${sheetName}" is not accessible`);
+      }
+      return controller.createMany(createManyData);
+    };
+
     Object.keys(relations).forEach((sheetName) => {
       const controller = this.sheets[sheetName];
       if (!controller) return;
@@ -92,6 +114,8 @@ class GassmaClient {
         findManyOnSheet,
         deleteManyOnSheet,
         updateManyOnSheet,
+        createOnSheet,
+        createManyOnSheet,
       });
     });
   }

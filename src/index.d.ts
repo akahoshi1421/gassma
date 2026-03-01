@@ -15,7 +15,7 @@ declare namespace Gassma {
       endColumnNumber: number,
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
-    create(createdData: CreateData): AnyUse;
+    create(createdData: CreateData): Record<string, unknown>;
     findFirst(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
     updateMany(updateData: UpdateData): UpdateManyReturn;
@@ -137,6 +137,18 @@ declare namespace Gassma {
     relations?: RelationsConfig;
   };
 
+  type ConnectOrCreateInput = {
+    where: WhereUse;
+    create: Record<string, unknown>;
+  };
+
+  type NestedWriteOperation = {
+    create?: Record<string, unknown> | Record<string, unknown>[];
+    createMany?: { data: AnyUse[] };
+    connect?: WhereUse | WhereUse[];
+    connectOrCreate?: ConnectOrCreateInput | ConnectOrCreateInput[];
+  };
+
   type RelationContext = {
     relations: { [relationName: string]: RelationDefinition };
     findManyOnSheet: (
@@ -151,6 +163,14 @@ declare namespace Gassma {
       sheetName: string,
       updateData: { where?: WhereUse; data: AnyUse },
     ) => { count: number };
+    createOnSheet?: (
+      sheetName: string,
+      createData: { data: Record<string, unknown> },
+    ) => Record<string, unknown>;
+    createManyOnSheet?: (
+      sheetName: string,
+      createManyData: { data: AnyUse[] },
+    ) => { count: number } | undefined;
   };
 
   type FindData = {
@@ -267,6 +287,18 @@ declare namespace Gassma {
   }
   class RelationInvalidOnDeleteError extends Error {
     constructor(sheetName: string, relationName: string, value: string);
+  }
+  class NestedWriteConnectNotFoundError extends Error {
+    constructor(sheetName: string);
+  }
+  class NestedWriteRelationNotFoundError extends Error {
+    constructor(fieldName: string);
+  }
+  class NestedWriteInvalidOperationError extends Error {
+    constructor(relationName: string, operation: string, relationType: string);
+  }
+  class NestedWriteWithoutRelationsError extends Error {
+    constructor();
   }
 }
 
