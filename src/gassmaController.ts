@@ -29,6 +29,7 @@ import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { updateManyFunc } from "./util/update/updateMany";
+import { updateManyAndReturnFunc } from "./util/update/updateManyAndReturnFunc";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
@@ -151,6 +152,11 @@ class GassmaController {
   public updateMany(updateData: UpdateData) {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
+  }
+
+  public updateManyAndReturn(updateData: UpdateData) {
+    updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
+    return updateManyAndReturnFunc(this.getGassmaControllerUtil(), updateData);
   }
 
   public upsertMany(upsertData: UpsertData) {

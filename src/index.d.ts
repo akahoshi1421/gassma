@@ -20,6 +20,7 @@ declare namespace Gassma {
     findFirst(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
     updateMany(updateData: UpdateData): UpdateManyReturn;
+    updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
     upsert(upsertData: UpsertData): UpdateManyReturn;
     deleteMany(deleteData: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
