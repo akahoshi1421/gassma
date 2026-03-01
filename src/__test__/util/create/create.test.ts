@@ -1,5 +1,4 @@
 import { createFunc } from "../../../util/create/create";
-import { createManyAndReturnFunc } from "../../../util/create/createManyAndReturnFunc";
 import { createManyFunc } from "../../../util/create/createManyFunc";
 import { getMutableMockControllerUtil } from "../../consts/mockControllerUtil";
 
@@ -320,7 +319,7 @@ describe("create functionality tests", () => {
         data: [],
       });
 
-      expect(result).toBeUndefined(); // Function returns undefined for empty array
+      expect(result).toEqual({ count: 0 });
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       expect(currentData).toHaveLength(INITIAL_ROW_COUNT); // No change
@@ -437,26 +436,30 @@ describe("create functionality tests", () => {
     });
   });
 
-  describe("createManyAndReturnFunc", () => {
+  describe("createManyFunc with withReturn", () => {
     test("should create multiple records and return all records as array", () => {
-      const result = createManyAndReturnFunc(mockUtil, {
-        data: [
-          {
-            名前: "佐藤",
-            年齢: 23,
-            住所: "Shimane",
-            郵便番号: "690-8540",
-            職業: "Student",
-          },
-          {
-            名前: "鈴原",
-            年齢: 25,
-            住所: "Tottori",
-            郵便番号: "680-8571",
-            職業: "Designer",
-          },
-        ],
-      });
+      const result = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "佐藤",
+              年齢: 23,
+              住所: "Shimane",
+              郵便番号: "690-8540",
+              職業: "Student",
+            },
+            {
+              名前: "鈴原",
+              年齢: 25,
+              住所: "Tottori",
+              郵便番号: "680-8571",
+              職業: "Designer",
+            },
+          ],
+        },
+        true,
+      );
 
       expect(result).toEqual([
         {
@@ -494,18 +497,22 @@ describe("create functionality tests", () => {
     });
 
     test("should return null for unspecified fields in partial records", () => {
-      const result = createManyAndReturnFunc(mockUtil, {
-        data: [
-          {
-            名前: "部分1",
-            年齢: 20,
-          },
-          {
-            名前: "部分2",
-            住所: "Hiroshima",
-          },
-        ],
-      });
+      const result = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "部分1",
+              年齢: 20,
+            },
+            {
+              名前: "部分2",
+              住所: "Hiroshima",
+            },
+          ],
+        },
+        true,
+      );
 
       expect(result).toEqual([
         {
@@ -526,9 +533,13 @@ describe("create functionality tests", () => {
     });
 
     test("should return empty array for empty data", () => {
-      const result = createManyAndReturnFunc(mockUtil, {
-        data: [],
-      });
+      const result = createManyFunc(
+        mockUtil,
+        {
+          data: [],
+        },
+        true,
+      );
 
       expect(result).toEqual([]);
 
@@ -537,17 +548,21 @@ describe("create functionality tests", () => {
     });
 
     test("should return single-element array for single record", () => {
-      const result = createManyAndReturnFunc(mockUtil, {
-        data: [
-          {
-            名前: "単一ユーザー",
-            年齢: 45,
-            住所: "Sendai",
-            郵便番号: "980-0001",
-            職業: "Director",
-          },
-        ],
-      });
+      const result = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "単一ユーザー",
+              年齢: 45,
+              住所: "Sendai",
+              郵便番号: "980-0001",
+              職業: "Director",
+            },
+          ],
+        },
+        true,
+      );
 
       expect(result).toEqual([
         {
@@ -564,17 +579,21 @@ describe("create functionality tests", () => {
     });
 
     test("should correctly write data to sheet", () => {
-      createManyAndReturnFunc(mockUtil, {
-        data: [
-          {
-            名前: "書込テスト",
-            年齢: 30,
-            住所: "Tokyo",
-            郵便番号: "100-0001",
-            職業: "Engineer",
-          },
-        ],
-      });
+      createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "書込テスト",
+              年齢: 30,
+              住所: "Tokyo",
+              郵便番号: "100-0001",
+              職業: "Engineer",
+            },
+          ],
+        },
+        true,
+      );
 
       expect(mockUtil.sheet.getLastRow).toHaveBeenCalled();
       expect(mockUtil.sheet.getRange).toHaveBeenCalled();

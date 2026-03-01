@@ -7,23 +7,32 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 
-const createManyFunc = (
+function createManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData,
-): CreateManyReturn => {
+  withReturn: true,
+): Record<string, unknown>[];
+function createManyFunc(
+  gassmaControllerUtil: GassmaControllerUtil,
+  createManyData: CreateManyData,
+  withReturn?: false,
+): CreateManyReturn;
+function createManyFunc(
+  gassmaControllerUtil: GassmaControllerUtil,
+  createManyData: CreateManyData,
+  withReturn?: boolean,
+): Record<string, unknown>[] | CreateManyReturn {
   const { sheet, startColumnNumber, endColumnNumber } = gassmaControllerUtil;
 
   const data = createManyData.data;
-  const dataLength = data.length;
-  if (dataLength === 0) return;
+  if (data.length === 0) {
+    return withReturn ? [] : { count: 0 };
+  }
 
   const titles = getTitle(gassmaControllerUtil);
 
   const newData = data.map((row) => {
-    const createdData: CreateData = {
-      data: row,
-    };
-
+    const createdData: CreateData = { data: row };
     const wantCreateIndex = getWantUpdateIndex(
       gassmaControllerUtil,
       createdData,
@@ -43,7 +52,16 @@ const createManyFunc = (
     .getRange(rowNumber, startColumnNumber, rowLength, ColumnLength)
     .setValues(newData);
 
-  return { count: dataLength };
-};
+  if (withReturn) {
+    return data.map((row) =>
+      titles.reduce<Record<string, unknown>>((record, title) => {
+        record[title] = title in row ? row[title] : null;
+        return record;
+      }, {}),
+    );
+  }
+
+  return { count: data.length };
+}
 
 export { createManyFunc };

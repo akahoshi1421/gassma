@@ -1,5 +1,4 @@
 import { updateManyFunc } from "../../../util/update/updateMany";
-import { updateManyAndReturnFunc } from "../../../util/update/updateManyAndReturnFunc";
 import { getMutableMockControllerUtil } from "../../consts/mockControllerUtil";
 
 // Constants for better maintainability
@@ -491,7 +490,7 @@ describe("updateMany functionality tests", () => {
   });
 });
 
-describe("updateManyAndReturnFunc", () => {
+describe("updateManyFunc with withReturn", () => {
   let mockUtil: ReturnType<typeof getMutableMockControllerUtil>;
 
   beforeEach(() => {
@@ -500,10 +499,14 @@ describe("updateManyAndReturnFunc", () => {
   });
 
   test("should update multiple records and return updated records as array", () => {
-    const result = updateManyAndReturnFunc(mockUtil, {
-      where: { 職業: "Engineer" },
-      data: { 職業: "Senior Engineer" },
-    });
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 職業: "Engineer" },
+        data: { 職業: "Senior Engineer" },
+      },
+      true,
+    );
 
     expect(result).toHaveLength(3);
     result.forEach((record) => {
@@ -516,10 +519,14 @@ describe("updateManyAndReturnFunc", () => {
   });
 
   test("should preserve unchanged fields in returned records", () => {
-    const result = updateManyAndReturnFunc(mockUtil, {
-      where: { 名前: "Alice" },
-      data: { 年齢: 30 },
-    });
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 名前: "Alice" },
+        data: { 年齢: 30 },
+      },
+      true,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]["名前"]).toBe("Alice");
@@ -530,19 +537,27 @@ describe("updateManyAndReturnFunc", () => {
   });
 
   test("should return empty array when no records match", () => {
-    const result = updateManyAndReturnFunc(mockUtil, {
-      where: { 名前: "Non-existent" },
-      data: { 職業: "Should Not Update" },
-    });
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 名前: "Non-existent" },
+        data: { 職業: "Should Not Update" },
+      },
+      true,
+    );
 
     expect(result).toEqual([]);
   });
 
   test("should return single-element array for single match", () => {
-    const result = updateManyAndReturnFunc(mockUtil, {
-      where: { 名前: "Bob" },
-      data: { 年齢: 36 },
-    });
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 名前: "Bob" },
+        data: { 年齢: 36 },
+      },
+      true,
+    );
 
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(1);
@@ -551,9 +566,13 @@ describe("updateManyAndReturnFunc", () => {
   });
 
   test("should update and return all records when no where condition", () => {
-    const result = updateManyAndReturnFunc(mockUtil, {
-      data: { 職業: "Remote Worker" },
-    });
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        data: { 職業: "Remote Worker" },
+      },
+      true,
+    );
 
     expect(result).toHaveLength(8);
     result.forEach((record) => {

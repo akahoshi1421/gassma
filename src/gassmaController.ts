@@ -18,7 +18,6 @@ import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { getTitle } from "./util/core/getTitle";
 import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
-import { createManyAndReturnFunc } from "./util/create/createManyAndReturnFunc";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
 import { deleteManyFunc } from "./util/delete/deleteMany";
@@ -29,7 +28,6 @@ import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { updateManyFunc } from "./util/update/updateMany";
-import { updateManyAndReturnFunc } from "./util/update/updateManyAndReturnFunc";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
@@ -94,7 +92,7 @@ class GassmaController {
   }
 
   public createManyAndReturn(createdData: CreateManyData) {
-    return createManyAndReturnFunc(this.getGassmaControllerUtil(), createdData);
+    return createManyFunc(this.getGassmaControllerUtil(), createdData, true);
   }
 
   public create(createdData: CreateData) {
@@ -156,7 +154,7 @@ class GassmaController {
 
   public updateManyAndReturn(updateData: UpdateData) {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
-    return updateManyAndReturnFunc(this.getGassmaControllerUtil(), updateData);
+    return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
   }
 
   public upsertMany(upsertData: UpsertData) {
