@@ -174,4 +174,19 @@ describe("resolveOneToMany", () => {
     expect(result).toEqual([]);
     expect(mockFindMany).not.toHaveBeenCalled();
   });
+
+  it("includeオプション付きでfindManyOnSheetにincludeが渡される", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([{ id: 101, authorId: 1, title: "Post A" }]);
+
+    resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      include: { comments: true },
+    });
+
+    expect(mockFindMany).toHaveBeenCalledWith("Posts", {
+      where: { authorId: { in: [1] } },
+      include: { comments: true },
+    });
+  });
 });

@@ -222,6 +222,28 @@ describe("resolveManyToMany", () => {
     );
   });
 
+  it("ターゲット取得にincludeが渡され、中間テーブルには渡されない", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([{ id: 10, name: "Tech" }]);
+
+    resolveManyToMany(parents, relation, "categories", mockFindMany, {
+      include: { subcategories: true },
+    });
+
+    // 中間テーブルクエリにはincludeが渡されない
+    expect(mockFindMany).toHaveBeenNthCalledWith(1, "PostCategories", {
+      where: { postId: { in: [1] } },
+    });
+
+    // ターゲットクエリにはincludeが渡される
+    expect(mockFindMany).toHaveBeenNthCalledWith(2, "Categories", {
+      where: { id: { in: [10] } },
+      include: { subcategories: true },
+    });
+  });
+
   it("親レコードが空配列の場合はfindManyを呼ばず空配列を返す", () => {
     const result = resolveManyToMany([], relation, "categories", mockFindMany);
 

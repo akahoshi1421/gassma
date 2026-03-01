@@ -1,4 +1,5 @@
 import type {
+  IncludeData,
   IncludeItemOptions,
   RelationDefinition,
 } from "../../../types/relationTypes";
@@ -9,7 +10,7 @@ import { collectKeys } from "../collectKeys";
 
 type FindManyOnSheet = (
   sheetName: string,
-  findData: { where?: WhereUse },
+  findData: { where?: WhereUse; include?: IncludeData },
 ) => Record<string, unknown>[];
 
 const resolveManyToMany = (
@@ -46,7 +47,10 @@ const resolveManyToMany = (
     ? { AND: [baseWhere, options.where] }
     : baseWhere;
 
-  const targets = findManyOnSheet(relation.to, { where: targetWhere });
+  const targets = findManyOnSheet(relation.to, {
+    where: targetWhere,
+    include: options?.include,
+  });
 
   // Step 3: ターゲットをルックアップマップに
   const targetLookup = new Map<unknown, Record<string, unknown>>();

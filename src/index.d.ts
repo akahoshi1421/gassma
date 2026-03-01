@@ -115,6 +115,7 @@ declare namespace Gassma {
     take?: number;
     select?: Select;
     omit?: Omit;
+    include?: IncludeData;
   };
 
   type IncludeData = {
@@ -153,7 +154,7 @@ declare namespace Gassma {
     relations: { [relationName: string]: RelationDefinition };
     findManyOnSheet: (
       sheetName: string,
-      findData: { where?: WhereUse },
+      findData: { where?: WhereUse; include?: IncludeData },
     ) => Record<string, unknown>[];
     deleteManyOnSheet?: (
       sheetName: string,
@@ -274,6 +275,9 @@ declare namespace Gassma {
     constructor(relationName: string, option: string, expectedType: string);
   }
   class IncludeSelectOmitConflictError extends Error {
+    constructor(relationName: string);
+  }
+  class IncludeSelectIncludeConflictError extends Error {
     constructor(relationName: string);
   }
   class WhereRelationInvalidFilterError extends Error {

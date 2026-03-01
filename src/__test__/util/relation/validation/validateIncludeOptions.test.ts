@@ -161,6 +161,44 @@ describe("validateIncludeOptions", () => {
     });
   });
 
+  describe("include オプションのバリデーション", () => {
+    it("include が有効なオブジェクトの場合エラーを投げない", () => {
+      expect(() =>
+        validateIncludeOptions({
+          posts: { include: { comments: true } },
+        }),
+      ).not.toThrow();
+    });
+
+    it("select と include を同時に指定した場合エラーを投げる", () => {
+      expect(() =>
+        validateIncludeOptions({
+          posts: { select: { id: true }, include: { comments: true } },
+        }),
+      ).toThrow("cannot use both select and include");
+    });
+
+    it("ネストされた include を再帰的にバリデーションする", () => {
+      expect(() =>
+        validateIncludeOptions({
+          posts: {
+            include: {
+              comments: { take: "invalid" as unknown as number },
+            },
+          },
+        }),
+      ).toThrow('option "take" must be a number');
+    });
+
+    it("include が不正な型（数値など）の場合エラーを投げる", () => {
+      expect(() =>
+        validateIncludeOptions({
+          posts: { include: 123 as unknown as IncludeData },
+        }),
+      ).toThrow('option "include" must be an object');
+    });
+  });
+
   describe("複数リレーションのバリデーション", () => {
     it("複数のinclude項目が全て有効な場合エラーを投げない", () => {
       expect(() =>

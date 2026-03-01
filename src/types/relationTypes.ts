@@ -32,6 +32,7 @@ type IncludeItemOptions = {
   take?: number;
   select?: Select;
   omit?: Omit;
+  include?: IncludeData;
 };
 
 type IncludeData = {
@@ -47,7 +48,7 @@ type RelationContext = {
   relations: { [relationName: string]: RelationDefinition };
   findManyOnSheet: (
     sheetName: string,
-    findData: { where?: WhereUse },
+    findData: { where?: WhereUse; include?: IncludeData },
   ) => Record<string, unknown>[];
   deleteManyOnSheet?: (
     sheetName: string,

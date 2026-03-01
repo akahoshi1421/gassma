@@ -3,6 +3,7 @@ import type { AnyUse, WhereUse } from "./types/coreTypes";
 import type { GassmaSheet } from "./types/gassmaTypes";
 import type {
   GassmaClientOptions,
+  IncludeData,
   RelationsConfig,
 } from "./types/relationTypes";
 import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
@@ -52,7 +53,7 @@ class GassmaClient {
 
     const findManyOnSheet = (
       sheetName: string,
-      findData: { where?: WhereUse },
+      findData: { where?: WhereUse; include?: IncludeData },
     ): Record<string, unknown>[] => {
       const controller = this.sheets[sheetName];
       if (!controller) {
