@@ -13,13 +13,12 @@ const createManyAndReturnFunc = (
   createManyFunc(gassmaControllerUtil, createManyData);
 
   const titles = getTitle(gassmaControllerUtil);
-  return data.map((row) => {
-    const record: Record<string, unknown> = {};
-    for (const title of titles) {
+  return data.map((row) =>
+    titles.reduce<Record<string, unknown>>((record, title) => {
       record[title] = title in row ? row[title] : null;
-    }
-    return record;
-  });
+      return record;
+    }, {}),
+  );
 };
 
 export { createManyAndReturnFunc };
