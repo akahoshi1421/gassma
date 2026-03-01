@@ -19,6 +19,10 @@ declare namespace Gassma {
     create(createdData: CreateData): Record<string, unknown>;
     findFirst(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
+    update(updateData: {
+      where: WhereUse;
+      data: Record<string, unknown>;
+    }): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
     upsert(upsertData: UpsertData): UpdateManyReturn;
@@ -145,11 +149,19 @@ declare namespace Gassma {
     create: Record<string, unknown>;
   };
 
+  type NestedUpdateInput = {
+    where: WhereUse;
+    data: Record<string, unknown>;
+  };
+
   type NestedWriteOperation = {
     create?: Record<string, unknown> | Record<string, unknown>[];
     createMany?: { data: AnyUse[] };
     connect?: WhereUse | WhereUse[];
     connectOrCreate?: ConnectOrCreateInput | ConnectOrCreateInput[];
+    update?: Record<string, unknown> | NestedUpdateInput | NestedUpdateInput[];
+    delete?: boolean | WhereUse | WhereUse[];
+    deleteMany?: WhereUse | WhereUse[];
   };
 
   type RelationContext = {
