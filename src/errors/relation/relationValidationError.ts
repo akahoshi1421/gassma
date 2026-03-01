@@ -69,6 +69,15 @@ class IncludeSelectOmitConflictError extends Error {
   }
 }
 
+class IncludeSelectIncludeConflictError extends Error {
+  constructor(relationName: string) {
+    super(
+      `Include "${relationName}": cannot use both select and include at the same time`,
+    );
+    this.name = "IncludeSelectIncludeConflictError";
+  }
+}
+
 class RelationInvalidOnDeleteError extends Error {
   constructor(sheetName: string, relationName: string, value: string) {
     super(
@@ -87,5 +96,6 @@ export {
   IncludeWithoutRelationsError,
   IncludeInvalidOptionTypeError,
   IncludeSelectOmitConflictError,
+  IncludeSelectIncludeConflictError,
   RelationInvalidOnDeleteError,
 };

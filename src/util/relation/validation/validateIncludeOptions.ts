@@ -1,6 +1,7 @@
 import {
   IncludeInvalidOptionTypeError,
   IncludeSelectOmitConflictError,
+  IncludeSelectIncludeConflictError,
 } from "../../../errors/relation/relationValidationError";
 import type { IncludeData } from "../../../types/relationTypes";
 
@@ -37,6 +38,10 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
     throw new IncludeSelectOmitConflictError(relationName);
   }
 
+  if (value.select !== undefined && value.include !== undefined) {
+    throw new IncludeSelectIncludeConflictError(relationName);
+  }
+
   if (value.skip !== undefined && typeof value.skip !== "number") {
     throw new IncludeInvalidOptionTypeError(relationName, "skip", "a number");
   }
@@ -49,6 +54,11 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
   validateOptionObject(relationName, "orderBy", value.orderBy);
   validateOptionObject(relationName, "select", value.select);
   validateOptionObject(relationName, "omit", value.omit);
+  validateOptionObject(relationName, "include", value.include);
+
+  if (isObject(value.include)) {
+    validateIncludeOptions(value.include as IncludeData);
+  }
 };
 
 const validateIncludeOptions = (include: IncludeData): void => {

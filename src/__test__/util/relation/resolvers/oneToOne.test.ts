@@ -83,6 +83,21 @@ describe("resolveOneToOne", () => {
     expect(mockFindMany).not.toHaveBeenCalled();
   });
 
+  it("includeオプション付きでfindManyOnSheetにincludeが渡される", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([{ id: 10, userId: 1, bio: "Hello" }]);
+
+    resolveOneToOne(parents, relation, "profile", mockFindMany, {
+      include: { avatar: true },
+    });
+
+    expect(mockFindMany).toHaveBeenCalledWith("Profiles", {
+      where: { userId: { in: [1] } },
+      include: { avatar: true },
+    });
+  });
+
   it("reference側に重複がある場合はエラーを投げる", () => {
     const parents = [{ id: 1, name: "Alice" }];
 

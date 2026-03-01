@@ -1,4 +1,5 @@
 import type {
+  IncludeData,
   IncludeItemOptions,
   RelationDefinition,
 } from "../../../types/relationTypes";
@@ -8,7 +9,7 @@ import { collectKeys } from "../collectKeys";
 
 type FindManyOnSheet = (
   sheetName: string,
-  findData: { where?: WhereUse },
+  findData: { where?: WhereUse; include?: IncludeData },
 ) => Record<string, unknown>[];
 
 const resolveOneToMany = (
@@ -27,7 +28,10 @@ const resolveOneToMany = (
     ? { AND: [baseWhere, options.where] }
     : baseWhere;
 
-  const children = findManyOnSheet(relation.to, { where });
+  const children = findManyOnSheet(relation.to, {
+    where,
+    include: options?.include,
+  });
 
   const grouped = new Map<unknown, Record<string, unknown>[]>();
   children.forEach((child) => {
