@@ -25,6 +25,7 @@ import { findFirstFunc } from "./util/find/findFirst";
 import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
+import { resolveOnUpdate } from "./util/relation/onUpdate/resolveOnUpdate";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
@@ -154,20 +155,62 @@ class GassmaController {
   }) {
     const resolvedWhere =
       this.resolveWhere(updateData.where) ?? updateData.where;
-    return resolveNestedUpdate(
+
+    const beforeRecords = this.relationContext
+      ? findManyFunc(this.getGassmaControllerUtil(), {
+          where: resolvedWhere,
+          take: 1,
+        })
+      : [];
+
+    const result = resolveNestedUpdate(
       this.getGassmaControllerUtil(),
       { where: resolvedWhere, data: updateData.data },
       this.relationContext ?? undefined,
     );
+
+    if (this.relationContext && result && beforeRecords.length > 0) {
+      resolveOnUpdate(beforeRecords, [result], this.relationContext);
+    }
+
+    return result;
   }
 
   public updateMany(updateData: UpdateData) {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
+
+    if (this.relationContext) {
+      const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
+        where: updateData.where,
+      });
+      const afterRecords = updateManyFunc(
+        this.getGassmaControllerUtil(),
+        updateData,
+        true,
+      );
+      resolveOnUpdate(beforeRecords, afterRecords, this.relationContext);
+      return { count: afterRecords.length };
+    }
+
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
   public updateManyAndReturn(updateData: UpdateData) {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
+
+    if (this.relationContext) {
+      const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
+        where: updateData.where,
+      });
+      const afterRecords = updateManyFunc(
+        this.getGassmaControllerUtil(),
+        updateData,
+        true,
+      );
+      resolveOnUpdate(beforeRecords, afterRecords, this.relationContext);
+      return afterRecords;
+    }
+
     return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
   }
 

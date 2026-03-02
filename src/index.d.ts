@@ -93,6 +93,8 @@ declare namespace Gassma {
 
   type OnDeleteAction = "Cascade" | "SetNull" | "Restrict" | "NoAction";
 
+  type OnUpdateAction = "Cascade" | "SetNull" | "Restrict" | "NoAction";
+
   type ManyToManyThrough = {
     sheet: string;
     field: string;
@@ -106,6 +108,7 @@ declare namespace Gassma {
     reference: string;
     through?: ManyToManyThrough;
     onDelete?: OnDeleteAction;
+    onUpdate?: OnUpdateAction;
   };
 
   type RelationsConfig = {
@@ -306,6 +309,12 @@ declare namespace Gassma {
     constructor(relationName: string);
   }
   class RelationInvalidOnDeleteError extends Error {
+    constructor(sheetName: string, relationName: string, value: string);
+  }
+  class RelationOnUpdateRestrictError extends Error {
+    constructor(relationName: string);
+  }
+  class RelationInvalidOnUpdateError extends Error {
     constructor(sheetName: string, relationName: string, value: string);
   }
   class NestedWriteConnectNotFoundError extends Error {

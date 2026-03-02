@@ -87,6 +87,15 @@ class RelationInvalidOnDeleteError extends Error {
   }
 }
 
+class RelationInvalidOnUpdateError extends Error {
+  constructor(sheetName: string, relationName: string, value: string) {
+    super(
+      `Relation "${relationName}" on sheet "${sheetName}": onUpdate "${value}" is not valid. Must be one of: Cascade, SetNull, Restrict, NoAction`,
+    );
+    this.name = "RelationInvalidOnUpdateError";
+  }
+}
+
 export {
   RelationSheetNotFoundError,
   RelationMissingPropertyError,
@@ -98,4 +107,5 @@ export {
   IncludeSelectOmitConflictError,
   IncludeSelectIncludeConflictError,
   RelationInvalidOnDeleteError,
+  RelationInvalidOnUpdateError,
 };

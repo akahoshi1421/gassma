@@ -4,6 +4,8 @@ type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";
 
 type OnDeleteAction = "Cascade" | "SetNull" | "Restrict" | "NoAction";
 
+type OnUpdateAction = "Cascade" | "SetNull" | "Restrict" | "NoAction";
+
 type ManyToManyThrough = {
   sheet: string;
   field: string;
@@ -17,6 +19,7 @@ type RelationDefinition = {
   reference: string;
   through?: ManyToManyThrough;
   onDelete?: OnDeleteAction;
+  onUpdate?: OnUpdateAction;
 };
 
 type RelationsConfig = {
@@ -84,6 +87,7 @@ type WhereRelationFilter = RelationListFilter | RelationSingleFilter;
 export type {
   RelationType,
   OnDeleteAction,
+  OnUpdateAction,
   ManyToManyThrough,
   RelationDefinition,
   RelationsConfig,
