@@ -30,6 +30,11 @@ const processBeforeUpdate = (
       return;
     }
 
+    if (ops.disconnect === true) {
+      enrichedData[relation.field] = null;
+      return;
+    }
+
     if (ops.delete === true) {
       context.deleteManyOnSheet!(relation.to, {
         where: { [relation.reference]: fkValue },

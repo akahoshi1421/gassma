@@ -49,6 +49,31 @@ const processAfterUpdate = (
       });
     }
 
+    if (ops.disconnect && ops.disconnect !== true) {
+      const items = Array.isArray(ops.disconnect)
+        ? ops.disconnect
+        : [ops.disconnect];
+      items.forEach((where) => {
+        context.updateManyOnSheet!(relation.to, {
+          where: { ...where, [relation.reference]: parentValue },
+          data: { [relation.reference]: null },
+        });
+      });
+    }
+
+    if (ops.set) {
+      context.updateManyOnSheet!(relation.to, {
+        where: { [relation.reference]: parentValue },
+        data: { [relation.reference]: null },
+      });
+      ops.set.forEach((where) => {
+        context.updateManyOnSheet!(relation.to, {
+          where,
+          data: { [relation.reference]: parentValue },
+        });
+      });
+    }
+
     if (ops.deleteMany) {
       const items = Array.isArray(ops.deleteMany)
         ? ops.deleteMany

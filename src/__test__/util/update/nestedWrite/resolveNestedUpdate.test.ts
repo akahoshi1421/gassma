@@ -239,6 +239,80 @@ describe("resolveNestedUpdate", () => {
     expect(mockDeleteManyOnSheet).toHaveBeenCalledTimes(2);
   });
 
+  it("manyToOne + disconnect の統合テスト", () => {
+    const util = setupSheet(["id", "title", "authorId"], [[1, "記事A", 1]]);
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { author: { disconnect: true } },
+      },
+      makeContext({ author: manyToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, title: "記事A", authorId: null });
+    expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToMany + set の統合テスト", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { posts: { set: [{ id: 10 }] } },
+      },
+      makeContext({ posts: oneToManyRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    // 既存子を全切断
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { authorId: 1 },
+      data: { authorId: null },
+    });
+    // 指定子を接続
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { id: 10 },
+      data: { authorId: 1 },
+    });
+  });
+
+  it("manyToMany + disconnect の統合テスト", () => {
+    const manyToManyRelation: RelationDefinition = {
+      type: "manyToMany",
+      to: "Tags",
+      field: "id",
+      reference: "id",
+      through: {
+        sheet: "PostTags",
+        field: "postId",
+        reference: "tagId",
+      },
+    };
+
+    const util = setupSheet(["id", "title"], [[1, "記事A"]]);
+    mockFindMany.mockReturnValue([{ id: 3, name: "TypeScript" }]);
+    mockDeleteManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { tags: { disconnect: { id: 3 } } },
+      },
+      makeContext({ tags: manyToManyRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, title: "記事A" });
+    expect(mockDeleteManyOnSheet).toHaveBeenCalledWith("PostTags", {
+      where: { postId: 1, tagId: 3 },
+    });
+  });
+
   it("RelationContext なしで nested write → エラー", () => {
     const util = setupSheet(["id", "title", "authorId"], [[1, "記事A", 1]]);
 

@@ -159,6 +159,73 @@ describe("processAfterUpdate", () => {
     });
   });
 
+  it("oneToMany + disconnect（単一）で子の FK が null になる", () => {
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { disconnect: { id: 5 } });
+
+    processAfterUpdate(
+      { id: 1, name: "田中" },
+      relationOps,
+      makeContext({ posts: oneToManyRelation }),
+    );
+
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { id: 5, authorId: 1 },
+      data: { authorId: null },
+    });
+  });
+
+  it("oneToMany + disconnect（配列）で複数子の FK が null になる", () => {
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { disconnect: [{ id: 5 }, { id: 6 }] });
+
+    processAfterUpdate(
+      { id: 1, name: "田中" },
+      relationOps,
+      makeContext({ posts: oneToManyRelation }),
+    );
+
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledTimes(2);
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { id: 5, authorId: 1 },
+      data: { authorId: null },
+    });
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { id: 6, authorId: 1 },
+      data: { authorId: null },
+    });
+  });
+
+  it("oneToMany + set で既存子の FK が null になり、指定子の FK がセットされる", () => {
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { set: [{ id: 10 }, { id: 11 }] });
+
+    processAfterUpdate(
+      { id: 1, name: "田中" },
+      relationOps,
+      makeContext({ posts: oneToManyRelation }),
+    );
+
+    // 1回目: 既存子を全切断
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { authorId: 1 },
+      data: { authorId: null },
+    });
+    // 2回目・3回目: 指定子を接続
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { id: 10 },
+      data: { authorId: 1 },
+    });
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      where: { id: 11 },
+      data: { authorId: 1 },
+    });
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledTimes(3);
+  });
+
   it("manyToOne は無視される", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("author", { update: { name: "佐藤" } });

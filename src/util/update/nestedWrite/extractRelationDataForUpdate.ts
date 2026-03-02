@@ -12,6 +12,8 @@ const UPDATE_NESTED_WRITE_KEYS = [
   "update",
   "delete",
   "deleteMany",
+  "disconnect",
+  "set",
 ];
 
 const isUpdateNestedWriteOperation = (
