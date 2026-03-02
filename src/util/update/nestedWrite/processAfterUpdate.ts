@@ -3,6 +3,7 @@ import type {
   NestedWriteOperation,
   NestedUpdateInput,
 } from "../../../types/nestedWriteTypes";
+import { NestedWriteInvalidOperationError } from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
 
 const isNestedUpdateInput = (value: unknown): value is NestedUpdateInput =>
@@ -49,7 +50,15 @@ const processAfterUpdate = (
       });
     }
 
-    if (ops.disconnect && ops.disconnect !== true) {
+    if (ops.disconnect === true) {
+      throw new NestedWriteInvalidOperationError(
+        relationName,
+        "disconnect",
+        relation.type,
+      );
+    }
+
+    if (ops.disconnect) {
       const items = Array.isArray(ops.disconnect)
         ? ops.disconnect
         : [ops.disconnect];

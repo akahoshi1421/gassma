@@ -226,6 +226,19 @@ describe("processAfterUpdate", () => {
     expect(mockUpdateManyOnSheet).toHaveBeenCalledTimes(3);
   });
 
+  it("oneToMany + disconnect: true でエラー", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { disconnect: true });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow("disconnect");
+  });
+
   it("manyToOne は無視される", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("author", { update: { name: "佐藤" } });

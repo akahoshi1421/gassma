@@ -158,6 +158,44 @@ describe("processBeforeUpdate", () => {
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
   });
 
+  it("manyToOne + disconnect に true 以外を渡すとエラー", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("author", { disconnect: { id: 1 } });
+
+    const enrichedData: Record<string, unknown> = {
+      title: "記事A",
+      authorId: 1,
+    };
+
+    expect(() =>
+      processBeforeUpdate(
+        { title: "記事A", authorId: 1 },
+        enrichedData,
+        relationOps,
+        makeContext({ author: manyToOneRelation }),
+      ),
+    ).toThrow("disconnect");
+  });
+
+  it("oneToOne + disconnect に true 以外を渡すとエラー", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { disconnect: { id: 5 } });
+
+    const enrichedData: Record<string, unknown> = {
+      name: "田中",
+      profileId: 5,
+    };
+
+    expect(() =>
+      processBeforeUpdate(
+        { name: "田中", profileId: 5 },
+        enrichedData,
+        relationOps,
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow("disconnect");
+  });
+
   it("oneToMany は無視される", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("posts", {
