@@ -55,6 +55,30 @@ describe("extractRelationDataForUpdate", () => {
     });
   });
 
+  it("disconnect キーが分離される", () => {
+    const data = {
+      name: "田中更新",
+      author: { disconnect: true },
+    };
+    const result = extractRelationDataForUpdate(data, relations);
+
+    expect(result.scalarData).toEqual({ name: "田中更新" });
+    expect(result.relationOps.get("author")).toEqual({ disconnect: true });
+  });
+
+  it("set キーが分離される", () => {
+    const data = {
+      name: "田中更新",
+      posts: { set: [{ id: 1 }, { id: 2 }] },
+    };
+    const result = extractRelationDataForUpdate(data, relations);
+
+    expect(result.scalarData).toEqual({ name: "田中更新" });
+    expect(result.relationOps.get("posts")).toEqual({
+      set: [{ id: 1 }, { id: 2 }],
+    });
+  });
+
   it("create + update の混在が正しく分離される", () => {
     const data = {
       name: "田中更新",
@@ -91,6 +115,14 @@ describe("isUpdateNestedWriteOperation", () => {
 
   it("create キーを持つオブジェクトは true", () => {
     expect(isUpdateNestedWriteOperation({ create: { title: "A" } })).toBe(true);
+  });
+
+  it("disconnect キーを持つオブジェクトは true", () => {
+    expect(isUpdateNestedWriteOperation({ disconnect: true })).toBe(true);
+  });
+
+  it("set キーを持つオブジェクトは true", () => {
+    expect(isUpdateNestedWriteOperation({ set: [{ id: 1 }] })).toBe(true);
   });
 
   it("関係ないキーのみのオブジェクトは false", () => {

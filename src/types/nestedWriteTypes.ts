@@ -18,6 +18,8 @@ type NestedWriteOperation = {
   update?: Record<string, unknown> | NestedUpdateInput | NestedUpdateInput[];
   delete?: boolean | WhereUse | WhereUse[];
   deleteMany?: WhereUse | WhereUse[];
+  disconnect?: boolean | WhereUse | WhereUse[];
+  set?: WhereUse[];
 };
 
 type ExtractedData = {

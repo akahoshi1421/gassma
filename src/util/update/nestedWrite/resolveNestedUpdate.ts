@@ -14,6 +14,7 @@ import {
 } from "./extractRelationDataForUpdate";
 import { processBeforeUpdate } from "./processBeforeUpdate";
 import { processAfterUpdate } from "./processAfterUpdate";
+import { processManyToManyUpdate } from "./processManyToManyUpdate";
 
 type UpdateInput = {
   where: WhereUse;
@@ -130,6 +131,7 @@ const resolveNestedUpdate = (
   processAfterCreate(updatedRecord, relationOps, relationContext!);
   processAfterUpdate(updatedRecord, relationOps, relationContext!);
   processManyToMany(updatedRecord, relationOps, relationContext!);
+  processManyToManyUpdate(updatedRecord, relationOps, relationContext!);
 
   return updatedRecord;
 };

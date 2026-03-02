@@ -1,6 +1,7 @@
 import type { AnyUse } from "../../../types/coreTypes";
 import type { RelationContext } from "../../../types/relationTypes";
 import type { NestedWriteOperation } from "../../../types/nestedWriteTypes";
+import { NestedWriteInvalidOperationError } from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
 
 const processBeforeUpdate = (
@@ -27,6 +28,18 @@ const processBeforeUpdate = (
         where: { [relation.reference]: fkValue },
         data: ops.update as AnyUse,
       });
+      return;
+    }
+
+    if (ops.disconnect !== undefined) {
+      if (ops.disconnect !== true) {
+        throw new NestedWriteInvalidOperationError(
+          relationName,
+          "disconnect",
+          relation.type,
+        );
+      }
+      enrichedData[relation.field] = null;
       return;
     }
 

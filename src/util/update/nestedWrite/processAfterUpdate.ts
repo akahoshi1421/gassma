@@ -3,6 +3,7 @@ import type {
   NestedWriteOperation,
   NestedUpdateInput,
 } from "../../../types/nestedWriteTypes";
+import { NestedWriteInvalidOperationError } from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
 
 const isNestedUpdateInput = (value: unknown): value is NestedUpdateInput =>
@@ -45,6 +46,39 @@ const processAfterUpdate = (
       items.forEach((where) => {
         context.deleteManyOnSheet!(relation.to, {
           where: { ...where, [relation.reference]: parentValue },
+        });
+      });
+    }
+
+    if (ops.disconnect === true) {
+      throw new NestedWriteInvalidOperationError(
+        relationName,
+        "disconnect",
+        relation.type,
+      );
+    }
+
+    if (ops.disconnect) {
+      const items = Array.isArray(ops.disconnect)
+        ? ops.disconnect
+        : [ops.disconnect];
+      items.forEach((where) => {
+        context.updateManyOnSheet!(relation.to, {
+          where: { ...where, [relation.reference]: parentValue },
+          data: { [relation.reference]: null },
+        });
+      });
+    }
+
+    if (ops.set) {
+      context.updateManyOnSheet!(relation.to, {
+        where: { [relation.reference]: parentValue },
+        data: { [relation.reference]: null },
+      });
+      ops.set.forEach((where) => {
+        context.updateManyOnSheet!(relation.to, {
+          where,
+          data: { [relation.reference]: parentValue },
         });
       });
     }

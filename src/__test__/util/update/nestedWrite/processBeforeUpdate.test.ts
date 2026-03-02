@@ -118,6 +118,84 @@ describe("processBeforeUpdate", () => {
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
   });
 
+  it("manyToOne + disconnect: true で FK が null になる（関連先は削除されない）", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("author", { disconnect: true });
+
+    const enrichedData: Record<string, unknown> = {
+      title: "記事A",
+      authorId: 1,
+    };
+    processBeforeUpdate(
+      { title: "記事A", authorId: 1 },
+      enrichedData,
+      relationOps,
+      makeContext({ author: manyToOneRelation }),
+    );
+
+    expect(enrichedData.authorId).toBeNull();
+    expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();
+    expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToOne + disconnect: true で FK が null になる", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { disconnect: true });
+
+    const enrichedData: Record<string, unknown> = {
+      name: "田中",
+      profileId: 5,
+    };
+    processBeforeUpdate(
+      { name: "田中", profileId: 5 },
+      enrichedData,
+      relationOps,
+      makeContext({ profile: oneToOneRelation }),
+    );
+
+    expect(enrichedData.profileId).toBeNull();
+    expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();
+    expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("manyToOne + disconnect に true 以外を渡すとエラー", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("author", { disconnect: { id: 1 } });
+
+    const enrichedData: Record<string, unknown> = {
+      title: "記事A",
+      authorId: 1,
+    };
+
+    expect(() =>
+      processBeforeUpdate(
+        { title: "記事A", authorId: 1 },
+        enrichedData,
+        relationOps,
+        makeContext({ author: manyToOneRelation }),
+      ),
+    ).toThrow("disconnect");
+  });
+
+  it("oneToOne + disconnect に true 以外を渡すとエラー", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { disconnect: { id: 5 } });
+
+    const enrichedData: Record<string, unknown> = {
+      name: "田中",
+      profileId: 5,
+    };
+
+    expect(() =>
+      processBeforeUpdate(
+        { name: "田中", profileId: 5 },
+        enrichedData,
+        relationOps,
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow("disconnect");
+  });
+
   it("oneToMany は無視される", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("posts", {
