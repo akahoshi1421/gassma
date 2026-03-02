@@ -27,6 +27,7 @@ import { groupByFunc } from "./util/groupby/groupby";
 import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
+import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { updateManyFunc } from "./util/update/updateMany";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 
@@ -145,6 +146,19 @@ class GassmaController {
     }
 
     return resolveInclude(baseResult, findData.include, this.relationContext);
+  }
+
+  public update(updateData: {
+    where: WhereUse;
+    data: Record<string, unknown>;
+  }) {
+    const resolvedWhere =
+      this.resolveWhere(updateData.where) ?? updateData.where;
+    return resolveNestedUpdate(
+      this.getGassmaControllerUtil(),
+      { where: resolvedWhere, data: updateData.data },
+      this.relationContext ?? undefined,
+    );
   }
 
   public updateMany(updateData: UpdateData) {

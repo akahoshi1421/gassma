@@ -5,11 +5,19 @@ type ConnectOrCreateInput = {
   create: Record<string, unknown>;
 };
 
+type NestedUpdateInput = {
+  where: WhereUse;
+  data: Record<string, unknown>;
+};
+
 type NestedWriteOperation = {
   create?: Record<string, unknown> | Record<string, unknown>[];
   createMany?: { data: AnyUse[] };
   connect?: WhereUse | WhereUse[];
   connectOrCreate?: ConnectOrCreateInput | ConnectOrCreateInput[];
+  update?: Record<string, unknown> | NestedUpdateInput | NestedUpdateInput[];
+  delete?: boolean | WhereUse | WhereUse[];
+  deleteMany?: WhereUse | WhereUse[];
 };
 
 type ExtractedData = {
@@ -17,4 +25,9 @@ type ExtractedData = {
   relationOps: Map<string, NestedWriteOperation>;
 };
 
-export type { ConnectOrCreateInput, NestedWriteOperation, ExtractedData };
+export type {
+  ConnectOrCreateInput,
+  NestedUpdateInput,
+  NestedWriteOperation,
+  ExtractedData,
+};
