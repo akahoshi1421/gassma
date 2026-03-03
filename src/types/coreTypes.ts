@@ -66,6 +66,7 @@ type FilterConditions = {
   contains?: string;
   startsWith?: string;
   endsWith?: string;
+  mode?: "default" | "insensitive";
 };
 
 type MatchKeys = {

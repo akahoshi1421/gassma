@@ -9,10 +9,24 @@ const isFilterConditionsMatch = (
       case "equals": {
         const filterEquals =
           filterOptions.equals === "" ? null : filterOptions.equals;
+        if (
+          filterOptions.mode === "insensitive" &&
+          typeof filterEquals === "string" &&
+          typeof cellData === "string"
+        ) {
+          return filterEquals.toLowerCase() === cellData.toLowerCase();
+        }
         return filterEquals === cellData;
       }
       case "not": {
         const filterNot = filterOptions.not === "" ? null : filterOptions.not;
+        if (
+          filterOptions.mode === "insensitive" &&
+          typeof filterNot === "string" &&
+          typeof cellData === "string"
+        ) {
+          return filterNot.toLowerCase() !== cellData.toLowerCase();
+        }
         return filterNot !== cellData;
       }
       case "in":
@@ -33,15 +47,35 @@ const isFilterConditionsMatch = (
       case "gte":
         if (cellData === null) return false;
         return cellData >= filterOptions.gte;
-      case "contains":
+      case "contains": {
         if (cellData === null) return false;
-        return String(cellData).match(`${filterOptions.contains}`);
-      case "startsWith":
+        const cellStr = String(cellData);
+        const containsPattern = filterOptions.contains;
+        if (filterOptions.mode === "insensitive") {
+          return cellStr.toLowerCase().includes(containsPattern.toLowerCase());
+        }
+        return cellStr.match(`${containsPattern}`) !== null;
+      }
+      case "startsWith": {
         if (cellData === null) return false;
-        return String(cellData).match(`^${filterOptions.startsWith}`);
-      case "endsWith":
+        const cellStrSw = String(cellData);
+        const swPattern = filterOptions.startsWith;
+        if (filterOptions.mode === "insensitive") {
+          return cellStrSw.toLowerCase().startsWith(swPattern.toLowerCase());
+        }
+        return cellStrSw.match(`^${swPattern}`) !== null;
+      }
+      case "endsWith": {
         if (cellData === null) return false;
-        return String(cellData).match(`${filterOptions.endsWith}$`);
+        const cellStrEw = String(cellData);
+        const ewPattern = filterOptions.endsWith;
+        if (filterOptions.mode === "insensitive") {
+          return cellStrEw.toLowerCase().endsWith(ewPattern.toLowerCase());
+        }
+        return cellStrEw.match(`${ewPattern}$`) !== null;
+      }
+      case "mode":
+        return true;
       default:
         return true;
     }

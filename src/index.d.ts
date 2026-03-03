@@ -91,6 +91,7 @@ declare namespace Gassma {
     contains?: string;
     startsWith?: string;
     endsWith?: string;
+    mode?: "default" | "insensitive";
   };
 
   type CreateData = {
