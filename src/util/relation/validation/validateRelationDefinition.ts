@@ -4,6 +4,7 @@ import {
   RelationInvalidTypeError,
   RelationSheetNotFoundError,
   RelationInvalidOnDeleteError,
+  RelationInvalidOnUpdateError,
 } from "../../../errors/relation/relationValidationError";
 
 const VALID_RELATION_TYPES = [
@@ -14,6 +15,8 @@ const VALID_RELATION_TYPES = [
 ];
 
 const VALID_ON_DELETE_ACTIONS = ["Cascade", "SetNull", "Restrict", "NoAction"];
+
+const VALID_ON_UPDATE_ACTIONS = ["Cascade", "SetNull", "Restrict", "NoAction"];
 
 const REQUIRED_PROPERTIES = ["type", "to", "field", "reference"] as const;
 
@@ -66,6 +69,17 @@ const validateRelationDefinition = (
       sheetName,
       relationName,
       String(definition.onDelete),
+    );
+  }
+
+  if (
+    definition.onUpdate !== undefined &&
+    !VALID_ON_UPDATE_ACTIONS.includes(definition.onUpdate as string)
+  ) {
+    throw new RelationInvalidOnUpdateError(
+      sheetName,
+      relationName,
+      String(definition.onUpdate),
     );
   }
 

@@ -41,6 +41,15 @@ class RelationOnDeleteRestrictError extends Error {
   }
 }
 
+class RelationOnUpdateRestrictError extends Error {
+  constructor(relationName: string) {
+    super(
+      `Cannot update: related records exist for relation "${relationName}" (onUpdate: Restrict)`,
+    );
+    this.name = "RelationOnUpdateRestrictError";
+  }
+}
+
 export {
   GassmaRelationNotFoundError,
   GassmaTargetSheetNotFoundError,
@@ -48,4 +57,5 @@ export {
   GassmaIncludeSelectConflictError,
   GassmaRelationDuplicateError,
   RelationOnDeleteRestrictError,
+  RelationOnUpdateRestrictError,
 };

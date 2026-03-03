@@ -221,6 +221,49 @@ describe("validateRelationDefinition", () => {
     });
   });
 
+  describe("onUpdate の値チェック", () => {
+    it.each(["Cascade", "SetNull", "Restrict", "NoAction"])(
+      "onUpdate=%s は有効",
+      (onUpdate) => {
+        const definition = {
+          type: "oneToMany",
+          to: "Posts",
+          field: "id",
+          reference: "authorId",
+          onUpdate,
+        };
+
+        expect(() =>
+          validateRelationDefinition(
+            sheetName,
+            "posts",
+            definition,
+            allSheetNames,
+          ),
+        ).not.toThrow();
+      },
+    );
+
+    it("無効な onUpdate 値の場合エラーを投げる", () => {
+      const definition = {
+        type: "oneToMany",
+        to: "Posts",
+        field: "id",
+        reference: "authorId",
+        onUpdate: "InvalidAction",
+      };
+
+      expect(() =>
+        validateRelationDefinition(
+          sheetName,
+          "posts",
+          definition,
+          allSheetNames,
+        ),
+      ).toThrow("InvalidAction");
+    });
+  });
+
   describe("onDelete の値チェック", () => {
     it.each(["Cascade", "SetNull", "Restrict", "NoAction"])(
       "onDelete=%s は有効",
