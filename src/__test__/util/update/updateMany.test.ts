@@ -490,6 +490,91 @@ describe("updateMany functionality tests", () => {
   });
 });
 
+describe("updateMany NumberOperation tests", () => {
+  let mockUtil: ReturnType<typeof getMutableMockControllerUtil>;
+
+  beforeEach(() => {
+    mockUtil = getMutableMockControllerUtil();
+    (mockUtil.sheet as any)._resetMockData();
+  });
+
+  test("increment で数値フィールドが加算更新される", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 名前: "Alice" },
+      data: { 年齢: { increment: 5 } },
+    });
+
+    expect(result).toEqual({ count: 1 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const aliceRow = currentData.find(
+      (row: any[], index: number) => index > 0 && row[0] === "Alice",
+    );
+    expect(aliceRow[1]).toBe(33); // 28 + 5
+  });
+
+  test("decrement で数値フィールドが減算更新される", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 名前: "Bob" },
+      data: { 年齢: { decrement: 10 } },
+    });
+
+    expect(result).toEqual({ count: 1 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const bobRow = currentData.find(
+      (row: any[], index: number) => index > 0 && row[0] === "Bob",
+    );
+    expect(bobRow[1]).toBe(25); // 35 - 10
+  });
+
+  test("multiply で数値フィールドが乗算更新される", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 名前: "Charlie" },
+      data: { 年齢: { multiply: 2 } },
+    });
+
+    expect(result).toEqual({ count: 1 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const charlieRow = currentData.find(
+      (row: any[], index: number) => index > 0 && row[0] === "Charlie",
+    );
+    expect(charlieRow[1]).toBe(44); // 22 * 2
+  });
+
+  test("divide で数値フィールドが除算更新される", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 名前: "David" },
+      data: { 年齢: { divide: 2 } },
+    });
+
+    expect(result).toEqual({ count: 1 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const davidRow = currentData.find(
+      (row: any[], index: number) => index > 0 && row[0] === "David",
+    );
+    expect(davidRow[1]).toBe(22.5); // 45 / 2
+  });
+
+  test("NumberOperation と通常値の混在が正しく動作する", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 名前: "Eve" },
+      data: { 年齢: { increment: 10 }, 職業: "Senior Engineer" },
+    });
+
+    expect(result).toEqual({ count: 1 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const eveRow = currentData.find(
+      (row: any[], index: number) => index > 0 && row[0] === "Eve",
+    );
+    expect(eveRow[1]).toBe(38); // 28 + 10
+    expect(eveRow[4]).toBe("Senior Engineer");
+  });
+});
+
 describe("updateManyFunc with withReturn", () => {
   let mockUtil: ReturnType<typeof getMutableMockControllerUtil>;
 

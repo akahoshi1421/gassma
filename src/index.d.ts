@@ -51,8 +51,19 @@ declare namespace Gassma {
     [key: string]: true;
   };
 
+  type NumberOperation = {
+    increment?: number;
+    decrement?: number;
+    multiply?: number;
+    divide?: number;
+  };
+
   type AnyUse = {
     [key: string]: GassmaAny;
+  };
+
+  type UpdateAnyUse = {
+    [key: string]: GassmaAny | NumberOperation;
   };
 
   type WhereUse = {
@@ -210,7 +221,7 @@ declare namespace Gassma {
 
   type UpdateData = {
     where?: WhereUse;
-    data: AnyUse;
+    data: UpdateAnyUse;
   };
 
   type UpsertData = {

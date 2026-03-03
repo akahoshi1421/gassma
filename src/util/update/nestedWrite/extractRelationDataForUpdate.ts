@@ -3,6 +3,7 @@ import type {
   NestedWriteOperation,
   ExtractedData,
 } from "../../../types/nestedWriteTypes";
+import { isNumberOperation } from "../resolveNumberOperation";
 
 const UPDATE_NESTED_WRITE_KEYS = [
   "create",
@@ -31,7 +32,11 @@ const extractRelationDataForUpdate = (
   const relationOps = new Map<string, NestedWriteOperation>();
 
   Object.entries(data).forEach(([key, value]) => {
-    if (key in relations && isUpdateNestedWriteOperation(value)) {
+    if (
+      key in relations &&
+      !isNumberOperation(value) &&
+      isUpdateNestedWriteOperation(value)
+    ) {
       relationOps.set(key, value);
     } else {
       scalarData[key] = value;

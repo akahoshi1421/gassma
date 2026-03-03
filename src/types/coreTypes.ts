@@ -12,8 +12,19 @@ type Omit = {
   [key: string]: true;
 };
 
+type NumberOperation = {
+  increment?: number;
+  decrement?: number;
+  multiply?: number;
+  divide?: number;
+};
+
 type AnyUse = {
   [key: string]: GassmaAny;
+};
+
+type UpdateAnyUse = {
+  [key: string]: GassmaAny | NumberOperation;
 };
 
 type WhereUse = {
@@ -125,7 +136,9 @@ export type {
   OrderBy,
   Select,
   Omit,
+  NumberOperation,
   AnyUse,
+  UpdateAnyUse,
   FilterConditions,
   WhereUse,
   HavingCore,
