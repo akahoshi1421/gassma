@@ -1,7 +1,12 @@
 type GassmaAny = string | number | boolean | Date | null;
 
+type SortOrderInput = {
+  sort: "asc" | "desc";
+  nulls?: "first" | "last";
+};
+
 type OrderBy = {
-  [key: string]: "asc" | "desc";
+  [key: string]: "asc" | "desc" | SortOrderInput;
 };
 
 type Select = {
@@ -134,6 +139,7 @@ type ManyReturn = {
 
 export type {
   GassmaAny,
+  SortOrderInput,
   OrderBy,
   Select,
   Omit,
