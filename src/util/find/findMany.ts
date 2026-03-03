@@ -11,7 +11,7 @@ const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   findData: FindData,
 ) => {
-  const where = "where" in findData ? findData.where : {};
+  const where = findData.where ?? {};
   const select = "select" in findData ? findData.select : null;
   const omit = "omit" in findData ? findData.omit : null;
   const orderBy = "orderBy" in findData ? findData.orderBy : null;

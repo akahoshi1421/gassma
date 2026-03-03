@@ -40,8 +40,13 @@ declare namespace Gassma {
 
   type GassmaAny = string | number | boolean | Date;
 
+  type SortOrderInput = {
+    sort: "asc" | "desc";
+    nulls?: "first" | "last";
+  };
+
   type OrderBy = {
-    [key: string]: "asc" | "desc";
+    [key: string]: "asc" | "desc" | SortOrderInput;
   };
 
   type Select = {
