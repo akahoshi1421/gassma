@@ -311,4 +311,17 @@ describe("aggregate functionality tests", () => {
       });
     });
   });
+
+  describe("aggregateFunc with undefined where", () => {
+    test("should not throw when where is undefined", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        where: undefined,
+        _count: { 名前: true },
+      });
+
+      expect(result).toEqual({
+        _count: { 名前: 8 },
+      });
+    });
+  });
 });
