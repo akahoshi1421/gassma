@@ -18,6 +18,7 @@ declare namespace Gassma {
     createManyAndReturn(createdData: CreateManyData): Record<string, unknown>[];
     create(createdData: CreateData): Record<string, unknown>;
     findFirst(findData: FindData): Record<string, any>;
+    findFirstOrThrow(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
     update(updateData: {
       where: WhereUse;
@@ -278,6 +279,9 @@ declare namespace Gassma {
   type DeleteManyReturn = ManyReturn;
   type UpsertManyReturn = ManyReturn;
 
+  class NotFoundError extends Error {
+    constructor();
+  }
   class RelationSheetNotFoundError extends Error {
     constructor(sheetName: string);
   }

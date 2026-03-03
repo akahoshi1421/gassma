@@ -1,3 +1,4 @@
+import { NotFoundError } from "./errors/find/findError";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
@@ -130,6 +131,14 @@ class GassmaController {
       this.relationContext,
     );
     return resolved[0] ?? null;
+  }
+
+  public findFirstOrThrow(findData: FindData) {
+    const result = this.findFirst(findData);
+    if (!result) {
+      throw new NotFoundError();
+    }
+    return result;
   }
 
   public findMany(findData: FindData) {
