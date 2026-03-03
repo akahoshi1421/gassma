@@ -23,4 +23,16 @@ describe("filterConditionsContains", () => {
     const filterOptions = { contains: "2" };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should match case-insensitively when mode is insensitive", () => {
+    const cellData = "Hello World";
+    const filterOptions = { contains: "hello", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
+
+  test("should return false for non-matching substring with mode insensitive", () => {
+    const cellData = "Hello World";
+    const filterOptions = { contains: "xyz", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

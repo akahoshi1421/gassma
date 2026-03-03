@@ -28,4 +28,16 @@ describe("filterConditionsStartsWith", () => {
     const filterOptions = { startsWith: "1" };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should match case-insensitively when mode is insensitive", () => {
+    const cellData = "Hello World";
+    const filterOptions = { startsWith: "hello", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
+
+  test("should return false for non-matching prefix with mode insensitive", () => {
+    const cellData = "Hello World";
+    const filterOptions = { startsWith: "world", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

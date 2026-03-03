@@ -36,4 +36,10 @@ describe("filterConditionsNot", () => {
     const filterOptions = { not: false };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should match case-insensitively when mode is insensitive", () => {
+    const cellData = "Hello";
+    const filterOptions = { not: "hello", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

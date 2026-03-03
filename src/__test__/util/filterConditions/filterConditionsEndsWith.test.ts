@@ -28,4 +28,16 @@ describe("filterConditionsEndsWith", () => {
     const filterOptions = { endsWith: "3" };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should match case-insensitively when mode is insensitive", () => {
+    const cellData = "Hello World";
+    const filterOptions = { endsWith: "world", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
+
+  test("should return false for non-matching suffix with mode insensitive", () => {
+    const cellData = "Hello World";
+    const filterOptions = { endsWith: "hello", mode: "insensitive" as const };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });
