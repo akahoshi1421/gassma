@@ -12,7 +12,7 @@ const aggregateFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   aggregateData: AggregateData,
 ) => {
-  const where = "where" in aggregateData ? aggregateData.where : {};
+  const where = aggregateData.where ?? {};
   const orderBy = "orderBy" in aggregateData ? aggregateData.orderBy : null;
   const take = "take" in aggregateData ? aggregateData.take : null;
   const skip = "skip" in aggregateData ? aggregateData.skip : null;
