@@ -1,4 +1,7 @@
-import { resolveNumberOperation } from "../../../util/update/resolveNumberOperation";
+import {
+  resolveNumberOperation,
+  resolveNumberOperations,
+} from "../../../util/update/resolveNumberOperation";
 
 describe("resolveNumberOperation", () => {
   it("increment で値が加算される", () => {
@@ -24,5 +27,34 @@ describe("resolveNumberOperation", () => {
   it("現在値が null/undefined の場合は 0 をベースにする", () => {
     expect(resolveNumberOperation(null, { increment: 10 })).toBe(10);
     expect(resolveNumberOperation(undefined, { decrement: 3 })).toBe(-3);
+  });
+});
+
+describe("resolveNumberOperations", () => {
+  it("NumberOperation を含むフィールドが解決される", () => {
+    const current = { id: 1, count: 10, name: "Alice" };
+    const data = { count: { increment: 5 }, name: "Bob" };
+
+    const result = resolveNumberOperations(current, data);
+
+    expect(result).toEqual({ id: 1, count: 15, name: "Bob" });
+  });
+
+  it("NumberOperation のないフィールドはそのまま上書きされる", () => {
+    const current = { id: 1, name: "Alice" };
+    const data = { name: "Bob" };
+
+    const result = resolveNumberOperations(current, data);
+
+    expect(result).toEqual({ id: 1, name: "Bob" });
+  });
+
+  it("data に含まれないフィールドは元の値が維持される", () => {
+    const current = { id: 1, count: 10, name: "Alice" };
+    const data = { count: { increment: 3 } };
+
+    const result = resolveNumberOperations(current, data);
+
+    expect(result).toEqual({ id: 1, count: 13, name: "Alice" });
   });
 });

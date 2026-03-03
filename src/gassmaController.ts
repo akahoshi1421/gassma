@@ -30,6 +30,7 @@ import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { updateManyFunc } from "./util/update/updateMany";
+import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
@@ -162,7 +163,10 @@ class GassmaController {
         take: 1,
       });
       if (beforeRecords.length > 0) {
-        const predictedAfter = { ...beforeRecords[0], ...updateData.data };
+        const predictedAfter = resolveNumberOperations(
+          beforeRecords[0],
+          updateData.data,
+        );
         resolveOnUpdate(beforeRecords, [predictedAfter], this.relationContext);
       }
     }
@@ -181,10 +185,9 @@ class GassmaController {
       const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
         where: updateData.where,
       });
-      const predictedAfterRecords = beforeRecords.map((r) => ({
-        ...r,
-        ...updateData.data,
-      }));
+      const predictedAfterRecords = beforeRecords.map((r) =>
+        resolveNumberOperations(r, updateData.data),
+      );
       resolveOnUpdate(
         beforeRecords,
         predictedAfterRecords,
@@ -202,10 +205,9 @@ class GassmaController {
       const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
         where: updateData.where,
       });
-      const predictedAfterRecords = beforeRecords.map((r) => ({
-        ...r,
-        ...updateData.data,
-      }));
+      const predictedAfterRecords = beforeRecords.map((r) =>
+        resolveNumberOperations(r, updateData.data),
+      );
       resolveOnUpdate(
         beforeRecords,
         predictedAfterRecords,

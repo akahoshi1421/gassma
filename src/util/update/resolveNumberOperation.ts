@@ -19,4 +19,19 @@ const resolveNumberOperation = (
   return base;
 };
 
-export { isNumberOperation, resolveNumberOperation };
+const resolveNumberOperations = (
+  currentRecord: Record<string, unknown>,
+  data: Record<string, unknown>,
+): Record<string, unknown> => {
+  const resolved: Record<string, unknown> = { ...currentRecord };
+  Object.entries(data).forEach(([key, value]) => {
+    if (isNumberOperation(value)) {
+      resolved[key] = resolveNumberOperation(currentRecord[key], value);
+    } else {
+      resolved[key] = value;
+    }
+  });
+  return resolved;
+};
+
+export { isNumberOperation, resolveNumberOperation, resolveNumberOperations };
