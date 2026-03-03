@@ -156,24 +156,22 @@ class GassmaController {
     const resolvedWhere =
       this.resolveWhere(updateData.where) ?? updateData.where;
 
-    const beforeRecords = this.relationContext
-      ? findManyFunc(this.getGassmaControllerUtil(), {
-          where: resolvedWhere,
-          take: 1,
-        })
-      : [];
+    if (this.relationContext) {
+      const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
+        where: resolvedWhere,
+        take: 1,
+      });
+      if (beforeRecords.length > 0) {
+        const predictedAfter = { ...beforeRecords[0], ...updateData.data };
+        resolveOnUpdate(beforeRecords, [predictedAfter], this.relationContext);
+      }
+    }
 
-    const result = resolveNestedUpdate(
+    return resolveNestedUpdate(
       this.getGassmaControllerUtil(),
       { where: resolvedWhere, data: updateData.data },
       this.relationContext ?? undefined,
     );
-
-    if (this.relationContext && result && beforeRecords.length > 0) {
-      resolveOnUpdate(beforeRecords, [result], this.relationContext);
-    }
-
-    return result;
   }
 
   public updateMany(updateData: UpdateData) {
@@ -183,13 +181,15 @@ class GassmaController {
       const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
         where: updateData.where,
       });
-      const afterRecords = updateManyFunc(
-        this.getGassmaControllerUtil(),
-        updateData,
-        true,
+      const predictedAfterRecords = beforeRecords.map((r) => ({
+        ...r,
+        ...updateData.data,
+      }));
+      resolveOnUpdate(
+        beforeRecords,
+        predictedAfterRecords,
+        this.relationContext,
       );
-      resolveOnUpdate(beforeRecords, afterRecords, this.relationContext);
-      return { count: afterRecords.length };
     }
 
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
@@ -202,13 +202,15 @@ class GassmaController {
       const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
         where: updateData.where,
       });
-      const afterRecords = updateManyFunc(
-        this.getGassmaControllerUtil(),
-        updateData,
-        true,
+      const predictedAfterRecords = beforeRecords.map((r) => ({
+        ...r,
+        ...updateData.data,
+      }));
+      resolveOnUpdate(
+        beforeRecords,
+        predictedAfterRecords,
+        this.relationContext,
       );
-      resolveOnUpdate(beforeRecords, afterRecords, this.relationContext);
-      return afterRecords;
     }
 
     return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
