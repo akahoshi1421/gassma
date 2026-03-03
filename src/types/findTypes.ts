@@ -4,6 +4,7 @@ import type {
   Omit,
   OrderBy,
   Select,
+  UpdateAnyUse,
   WhereUse,
 } from "./coreTypes";
 import type { IncludeData } from "./relationTypes";
@@ -21,7 +22,7 @@ type FindData = {
 
 type UpdateData = {
   where?: WhereUse;
-  data: AnyUse;
+  data: UpdateAnyUse;
 };
 
 type UpsertData = {

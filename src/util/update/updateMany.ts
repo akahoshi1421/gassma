@@ -3,6 +3,10 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
+import {
+  isNumberOperation,
+  resolveNumberOperation,
+} from "./resolveNumberOperation";
 
 function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
@@ -38,7 +42,11 @@ function updateManyFunc(
   const records = findedData.map((row) => {
     const updatedRow = row.row.map((cell, cellIndex) => {
       if (!wantUpdateIndex.includes(cellIndex)) return cell;
-      return data[String(titles[cellIndex])];
+      const value = data[String(titles[cellIndex])];
+      if (isNumberOperation(value)) {
+        return resolveNumberOperation(cell, value);
+      }
+      return value;
     });
 
     if (updatedRow.length > 0) {

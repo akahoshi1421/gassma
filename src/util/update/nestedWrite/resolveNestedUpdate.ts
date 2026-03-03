@@ -1,4 +1,4 @@
-import type { AnyUse, WhereUse } from "../../../types/coreTypes";
+import type { UpdateAnyUse, WhereUse } from "../../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 import type { RelationContext } from "../../../types/relationTypes";
 import { NestedWriteWithoutRelationsError } from "../../../errors/relation/nestedWriteError";
@@ -15,6 +15,10 @@ import {
 import { processBeforeUpdate } from "./processBeforeUpdate";
 import { processAfterUpdate } from "./processAfterUpdate";
 import { processManyToManyUpdate } from "./processManyToManyUpdate";
+import {
+  isNumberOperation,
+  resolveNumberOperation,
+} from "../resolveNumberOperation";
 
 type UpdateInput = {
   where: WhereUse;
@@ -63,11 +67,15 @@ const resolveNestedUpdate = (
     }
 
     const wantUpdateIndex = getWantUpdateIndex(util, {
-      data: updateInput.data as AnyUse,
+      data: updateInput.data as UpdateAnyUse,
     });
     const updatedRow = firstRow.row.map((cell, cellIndex) => {
       if (!wantUpdateIndex.includes(cellIndex)) return cell;
-      return updateInput.data[String(titles[cellIndex])];
+      const value = updateInput.data[String(titles[cellIndex])];
+      if (isNumberOperation(value)) {
+        return resolveNumberOperation(cell, value);
+      }
+      return value;
     });
 
     const rowNumber = firstRow.rowNumber + startRowNumber;
@@ -104,11 +112,15 @@ const resolveNestedUpdate = (
   );
 
   const wantUpdateIndex = getWantUpdateIndex(util, {
-    data: enrichedData as AnyUse,
+    data: enrichedData as UpdateAnyUse,
   });
   const updatedRow = firstRow.row.map((cell, cellIndex) => {
     if (!wantUpdateIndex.includes(cellIndex)) return cell;
-    return enrichedData[String(titles[cellIndex])];
+    const value = enrichedData[String(titles[cellIndex])];
+    if (isNumberOperation(value)) {
+      return resolveNumberOperation(cell, value);
+    }
+    return value;
   });
 
   const rowNumber = firstRow.rowNumber + startRowNumber;
