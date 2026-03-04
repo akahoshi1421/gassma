@@ -224,11 +224,13 @@ declare namespace Gassma {
 
   type DeleteData = {
     where: WhereUse;
+    limit?: number;
   };
 
   type UpdateData = {
     where?: WhereUse;
     data: UpdateAnyUse;
+    limit?: number;
   };
 
   type UpsertData = {

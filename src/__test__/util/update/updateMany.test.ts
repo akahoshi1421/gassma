@@ -665,3 +665,69 @@ describe("updateManyFunc with withReturn", () => {
     });
   });
 });
+
+describe("updateManyFunc with limit", () => {
+  let mockUtil: ReturnType<typeof getMutableMockControllerUtil>;
+
+  beforeEach(() => {
+    mockUtil = getMutableMockControllerUtil();
+    (mockUtil.sheet as any)._resetMockData();
+  });
+
+  test("should update only the specified number of records", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 職業: "Engineer" },
+      data: { 職業: "Senior Engineer" },
+      limit: 2,
+    });
+
+    expect(result).toEqual({ count: 2 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const seniorRows = currentData.filter(
+      (row: any[], index: number) => index > 0 && row[4] === "Senior Engineer",
+    );
+    expect(seniorRows).toHaveLength(2);
+  });
+
+  test("should update all matching records when limit exceeds matches", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 職業: "Engineer" },
+      data: { 職業: "Senior Engineer" },
+      limit: 100,
+    });
+
+    expect(result).toEqual({ count: 3 });
+  });
+
+  test("should update no records when limit is 0", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { 職業: "Engineer" },
+      data: { 職業: "Senior Engineer" },
+      limit: 0,
+    });
+
+    expect(result).toEqual({ count: 0 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    const seniorRows = currentData.filter(
+      (row: any[], index: number) => index > 0 && row[4] === "Senior Engineer",
+    );
+    expect(seniorRows).toHaveLength(0);
+  });
+
+  test("should work with limit and withReturn", () => {
+    const result = updateManyFunc(
+      mockUtil,
+      {
+        where: { 職業: "Engineer" },
+        data: { 職業: "Senior Engineer" },
+        limit: 1,
+      },
+      true,
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]["職業"]).toBe("Senior Engineer");
+  });
+});

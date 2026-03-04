@@ -28,8 +28,13 @@ function updateManyFunc(
 
   const where = "where" in updateData ? updateData.where : {};
   const data = updateData.data;
+  const limit = updateData.limit;
 
-  const findedData = whereFilter(where, gassmaControllerUtil);
+  let findedData = whereFilter(where, gassmaControllerUtil);
+
+  if (limit !== undefined && limit !== null) {
+    findedData = findedData.slice(0, limit);
+  }
 
   if (findedData.length === 0) {
     return withReturn ? [] : { count: 0 };
