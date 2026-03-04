@@ -429,4 +429,44 @@ describe("deleteMany functionality tests", () => {
       expect(remainingCities).not.toContain("Tokyo");
     });
   });
+
+  describe("deleteManyFunc with limit", () => {
+    test("should delete only the specified number of records", () => {
+      const result = deleteManyFunc(mockUtil, {
+        where: { 職業: "Engineer" },
+        limit: 2,
+      });
+
+      expect(result).toEqual({ count: 2 });
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toHaveLength(INITIAL_ROW_COUNT - 2);
+    });
+
+    test("should delete all matching records when limit exceeds matches", () => {
+      const result = deleteManyFunc(mockUtil, {
+        where: { 職業: "Engineer" },
+        limit: 100,
+      });
+
+      expect(result).toEqual({ count: EXPECTED_ENGINEER_COUNT });
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toHaveLength(
+        INITIAL_ROW_COUNT - EXPECTED_ENGINEER_COUNT,
+      );
+    });
+
+    test("should delete no records when limit is 0", () => {
+      const result = deleteManyFunc(mockUtil, {
+        where: { 職業: "Engineer" },
+        limit: 0,
+      });
+
+      expect(result).toEqual({ count: 0 });
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toHaveLength(INITIAL_ROW_COUNT);
+    });
+  });
 });
