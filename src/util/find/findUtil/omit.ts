@@ -1,6 +1,6 @@
-import type { AnyUse, Omit } from "../../../types/coreTypes";
+import type { Omit } from "../../../types/coreTypes";
 
-const omitFunc = (omit: Omit, row: AnyUse) => {
+const omitFunc = (omit: Omit, row: Record<string, unknown>) => {
   const result = { ...row };
   const omitKeys = Object.keys(omit);
 
