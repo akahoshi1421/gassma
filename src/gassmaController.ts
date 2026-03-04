@@ -33,6 +33,7 @@ import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhere
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { updateManyFunc } from "./util/update/updateMany";
 import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
+import { upsertFunc } from "./util/upsert/upsert";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
 
 class GassmaController {
@@ -236,6 +237,31 @@ class GassmaController {
     }
 
     return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
+  }
+
+  public upsert(upsertData: {
+    where: WhereUse;
+    create: AnyUse;
+    update: AnyUse;
+    select?: Select;
+    include?: IncludeData;
+    omit?: Omit;
+  }) {
+    if (upsertData.include && upsertData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+    if (upsertData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
+
+    const resolvedWhere =
+      this.resolveWhere(upsertData.where) ?? upsertData.where;
+
+    return upsertFunc(
+      this.getGassmaControllerUtil(),
+      { ...upsertData, where: resolvedWhere },
+      this.relationContext,
+    );
   }
 
   public upsertMany(upsertData: UpsertData) {

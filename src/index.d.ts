@@ -26,7 +26,15 @@ declare namespace Gassma {
     }): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
-    upsert(upsertData: UpsertData): UpdateManyReturn;
+    upsert(upsertData: {
+      where: WhereUse;
+      create: AnyUse;
+      update: AnyUse;
+      select?: Select;
+      include?: IncludeData;
+      omit?: Omit;
+    }): Record<string, unknown>;
+    upsertMany(upsertData: UpsertData): UpsertManyReturn;
     delete(deleteData: {
       where: WhereUse;
       select?: Select;
