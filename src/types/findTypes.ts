@@ -23,6 +23,7 @@ type FindData = {
 type UpdateData = {
   where?: WhereUse;
   data: UpdateAnyUse;
+  limit?: number;
 };
 
 type UpsertData = {
@@ -32,7 +33,8 @@ type UpsertData = {
 };
 
 type DeleteData = {
-  where: WhereUse;
+  where?: WhereUse;
+  limit?: number;
 };
 
 type UpdateManyReturn = ManyReturn;

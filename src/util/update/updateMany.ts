@@ -26,10 +26,15 @@ function updateManyFunc(
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
 
-  const where = "where" in updateData ? updateData.where : {};
+  const where = updateData.where ?? {};
   const data = updateData.data;
+  const limit = updateData.limit;
 
-  const findedData = whereFilter(where, gassmaControllerUtil);
+  let findedData = whereFilter(where, gassmaControllerUtil);
+
+  if (limit !== undefined && limit !== null) {
+    findedData = findedData.slice(0, limit);
+  }
 
   if (findedData.length === 0) {
     return withReturn ? [] : { count: 0 };

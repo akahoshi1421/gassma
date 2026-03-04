@@ -8,9 +8,15 @@ const deleteManyFunc = (
 ): DeleteManyReturn => {
   const { sheet, startRowNumber } = gassmaControllerUtil;
 
-  const where = deleteData.where;
+  const where = deleteData.where ?? {};
+  const limit = deleteData.limit;
 
-  const findedData = whereFilter(where, gassmaControllerUtil);
+  let findedData = whereFilter(where, gassmaControllerUtil);
+
+  if (limit !== undefined && limit !== null) {
+    findedData = findedData.slice(0, limit);
+  }
+
   const findedDataLength = findedData.length;
 
   // 行を後ろから削除することで、削除による行番号のずれを回避
