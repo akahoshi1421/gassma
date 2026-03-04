@@ -223,7 +223,7 @@ declare namespace Gassma {
   };
 
   type DeleteData = {
-    where: WhereUse;
+    where?: WhereUse;
     limit?: number;
   };
 

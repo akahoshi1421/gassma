@@ -8,7 +8,7 @@ const deleteManyFunc = (
 ): DeleteManyReturn => {
   const { sheet, startRowNumber } = gassmaControllerUtil;
 
-  const where = deleteData.where;
+  const where = deleteData.where ?? {};
   const limit = deleteData.limit;
 
   let findedData = whereFilter(where, gassmaControllerUtil);

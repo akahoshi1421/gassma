@@ -33,7 +33,7 @@ type UpsertData = {
 };
 
 type DeleteData = {
-  where: WhereUse;
+  where?: WhereUse;
   limit?: number;
 };
 
