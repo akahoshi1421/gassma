@@ -12,7 +12,7 @@ describe("deleteFunc", () => {
   });
 
   test("マッチするレコードを削除して返す", () => {
-    const result = deleteFunc(mockUtil, { 名前: "Alice" });
+    const result = deleteFunc(mockUtil, { where: { 名前: "Alice" } });
 
     expect(result).toEqual({
       名前: "Alice",
@@ -27,7 +27,7 @@ describe("deleteFunc", () => {
   });
 
   test("マッチしない場合は null を返す", () => {
-    const result = deleteFunc(mockUtil, { 名前: "NonExistent" });
+    const result = deleteFunc(mockUtil, { where: { 名前: "NonExistent" } });
 
     expect(result).toBeNull();
 
@@ -36,7 +36,7 @@ describe("deleteFunc", () => {
   });
 
   test("複数マッチしても1件だけ削除する", () => {
-    const result = deleteFunc(mockUtil, { 職業: "Engineer" });
+    const result = deleteFunc(mockUtil, { where: { 職業: "Engineer" } });
 
     expect(result).not.toBeNull();
     expect(result?.職業).toBe("Engineer");
@@ -46,7 +46,7 @@ describe("deleteFunc", () => {
   });
 
   test("削除後にシートのデータが正しく減っている", () => {
-    deleteFunc(mockUtil, { 名前: "Bob" });
+    deleteFunc(mockUtil, { where: { 名前: "Bob" } });
 
     const currentData = (mockUtil.sheet as any)._getMockData();
     expect(currentData).toHaveLength(INITIAL_ROW_COUNT - 1);

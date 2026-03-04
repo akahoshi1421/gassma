@@ -21,10 +21,9 @@ import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
+import { deleteFunc } from "./util/delete/delete";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
-import { findedDataSelect } from "./util/find/findUtil/findDataSelect";
-import { omitFunc } from "./util/find/findUtil/omit";
 import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
@@ -260,42 +259,11 @@ class GassmaController {
     const resolvedWhere =
       this.resolveWhere(deleteData.where) ?? deleteData.where;
 
-    const record = findFirstFunc(this.getGassmaControllerUtil(), {
-      where: resolvedWhere,
-    });
-    if (!record) return null;
-
-    let includeResult: Record<string, unknown>[] | null = null;
-    if (deleteData.include && this.relationContext) {
-      includeResult = resolveInclude(
-        [record],
-        deleteData.include,
-        this.relationContext,
-      );
-    }
-
-    if (this.relationContext) {
-      resolveOnDelete([record], this.relationContext);
-    }
-
-    deleteManyFunc(this.getGassmaControllerUtil(), {
-      where: resolvedWhere,
-      limit: 1,
-    });
-
-    if (includeResult) {
-      return includeResult[0] ?? null;
-    }
-
-    if (deleteData.select) {
-      return findedDataSelect(deleteData.select, record);
-    }
-
-    if (deleteData.omit) {
-      return omitFunc(deleteData.omit, record);
-    }
-
-    return record;
+    return deleteFunc(
+      this.getGassmaControllerUtil(),
+      { ...deleteData, where: resolvedWhere },
+      this.relationContext,
+    );
   }
 
   public deleteMany(deleteData: DeleteData) {
