@@ -27,6 +27,12 @@ declare namespace Gassma {
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
     upsert(upsertData: UpsertData): UpdateManyReturn;
+    delete(deleteData: {
+      where: WhereUse;
+      select?: Select;
+      include?: IncludeData;
+      omit?: Omit;
+    }): Record<string, unknown> | null;
     deleteMany(deleteData: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
     count(countData: CountData): number;

@@ -2,7 +2,7 @@ import { NotFoundError } from "./errors/find/findError";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
-import type { AnyUse, WhereUse } from "./types/coreTypes";
+import type { AnyUse, Select, Omit, WhereUse } from "./types/coreTypes";
 import type { CountData } from "./types/countType";
 import type { CreateData, CreateManyData } from "./types/createTypes";
 import type {
@@ -13,7 +13,7 @@ import type {
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
-import type { RelationContext } from "./types/relationTypes";
+import type { IncludeData, RelationContext } from "./types/relationTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { getTitle } from "./util/core/getTitle";
@@ -23,6 +23,8 @@ import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
+import { findedDataSelect } from "./util/find/findUtil/findDataSelect";
+import { omitFunc } from "./util/find/findUtil/omit";
 import { findManyFunc } from "./util/find/findMany";
 import { groupByFunc } from "./util/groupby/groupby";
 import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
@@ -240,6 +242,60 @@ class GassmaController {
   public upsertMany(upsertData: UpsertData) {
     upsertData = { ...upsertData, where: this.resolveWhere(upsertData.where) };
     return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
+  }
+
+  public delete(deleteData: {
+    where: WhereUse;
+    select?: Select;
+    include?: IncludeData;
+    omit?: Omit;
+  }) {
+    if (deleteData.include && deleteData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+    if (deleteData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
+
+    const resolvedWhere =
+      this.resolveWhere(deleteData.where) ?? deleteData.where;
+
+    const record = findFirstFunc(this.getGassmaControllerUtil(), {
+      where: resolvedWhere,
+    });
+    if (!record) return null;
+
+    let includeResult: Record<string, unknown>[] | null = null;
+    if (deleteData.include && this.relationContext) {
+      includeResult = resolveInclude(
+        [record],
+        deleteData.include,
+        this.relationContext,
+      );
+    }
+
+    if (this.relationContext) {
+      resolveOnDelete([record], this.relationContext);
+    }
+
+    deleteManyFunc(this.getGassmaControllerUtil(), {
+      where: resolvedWhere,
+      limit: 1,
+    });
+
+    if (includeResult) {
+      return includeResult[0] ?? null;
+    }
+
+    if (deleteData.select) {
+      return findedDataSelect(deleteData.select, record);
+    }
+
+    if (deleteData.omit) {
+      return omitFunc(deleteData.omit, record);
+    }
+
+    return record;
   }
 
   public deleteMany(deleteData: DeleteData) {
