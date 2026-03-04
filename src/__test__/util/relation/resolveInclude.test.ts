@@ -359,6 +359,53 @@ describe("resolveInclude", () => {
     });
   });
 
+  describe("_count", () => {
+    it("include: { _count: { select: { posts: true } } } で _count が付与される", () => {
+      const parents = [
+        { id: 1, name: "Alice" },
+        { id: 2, name: "Bob" },
+      ];
+      const include: IncludeData = {
+        _count: { select: { posts: true } } as any,
+      };
+
+      mockFindMany.mockReturnValue([
+        { id: 101, authorId: 1, title: "Post A" },
+        { id: 102, authorId: 1, title: "Post B" },
+        { id: 103, authorId: 2, title: "Post C" },
+      ]);
+
+      const result = resolveInclude(parents, include, context);
+
+      expect(result[0]._count).toEqual({ posts: 2 });
+      expect(result[1]._count).toEqual({ posts: 1 });
+    });
+
+    it("通常 include と _count を併用できる", () => {
+      const parents = [{ id: 1, name: "Alice" }];
+      const include: IncludeData = {
+        posts: true,
+        _count: { select: { posts: true } } as any,
+      };
+
+      // posts resolver 用
+      mockFindMany.mockReturnValueOnce([
+        { id: 101, authorId: 1, title: "Post A" },
+        { id: 102, authorId: 1, title: "Post B" },
+      ]);
+      // _count resolver 用
+      mockFindMany.mockReturnValueOnce([
+        { id: 101, authorId: 1, title: "Post A" },
+        { id: 102, authorId: 1, title: "Post B" },
+      ]);
+
+      const result = resolveInclude(parents, include, context);
+
+      expect(result[0].posts).toHaveLength(2);
+      expect(result[0]._count).toEqual({ posts: 2 });
+    });
+  });
+
   describe("manyToMany リレーション", () => {
     const postRelations: { [name: string]: RelationDefinition } = {
       categories: {
