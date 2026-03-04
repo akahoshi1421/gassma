@@ -191,9 +191,14 @@ class GassmaController {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
 
     if (this.relationContext) {
-      const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
-        where: updateData.where,
-      });
+      const findData: FindData = { where: updateData.where };
+      if (updateData.limit !== undefined && updateData.limit !== null) {
+        findData.take = updateData.limit;
+      }
+      const beforeRecords = findManyFunc(
+        this.getGassmaControllerUtil(),
+        findData,
+      );
       const predictedAfterRecords = beforeRecords.map((r) =>
         resolveNumberOperations(r, updateData.data),
       );
@@ -211,9 +216,14 @@ class GassmaController {
     updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
 
     if (this.relationContext) {
-      const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
-        where: updateData.where,
-      });
+      const findData: FindData = { where: updateData.where };
+      if (updateData.limit !== undefined && updateData.limit !== null) {
+        findData.take = updateData.limit;
+      }
+      const beforeRecords = findManyFunc(
+        this.getGassmaControllerUtil(),
+        findData,
+      );
       const predictedAfterRecords = beforeRecords.map((r) =>
         resolveNumberOperations(r, updateData.data),
       );
@@ -236,9 +246,11 @@ class GassmaController {
     deleteData = { ...deleteData, where: this.resolveWhere(deleteData.where) };
 
     if (this.relationContext) {
-      const records = findManyFunc(this.getGassmaControllerUtil(), {
-        where: deleteData.where,
-      });
+      const findData: FindData = { where: deleteData.where };
+      if (deleteData.limit !== undefined && deleteData.limit !== null) {
+        findData.take = deleteData.limit;
+      }
+      const records = findManyFunc(this.getGassmaControllerUtil(), findData);
       resolveOnDelete(records, this.relationContext);
     }
 
