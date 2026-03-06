@@ -18,6 +18,7 @@ type FindData = {
   skip?: number;
   distinct?: string | string[];
   include?: IncludeData;
+  cursor?: Record<string, unknown>;
 };
 
 type UpdateData = {
