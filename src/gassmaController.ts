@@ -1,4 +1,5 @@
 import { NotFoundError } from "./errors/find/findError";
+import { FieldRef } from "./util/filterConditions/fieldRef";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
@@ -67,6 +68,16 @@ class GassmaController {
 
   public getColumnHeaders(): string[] {
     return getTitle(this.getGassmaControllerUtil());
+  }
+
+  public get fields(): Record<string, FieldRef> {
+    const sheetName = this.sheet.getName();
+    const titles = getTitle(this.getGassmaControllerUtil());
+    const result: Record<string, FieldRef> = {};
+    titles.forEach((title) => {
+      result[title] = new FieldRef(sheetName, title);
+    });
+    return result;
   }
 
   public changeSettings(
