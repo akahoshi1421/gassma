@@ -1,10 +1,4 @@
 declare namespace Gassma {
-  class FieldRef {
-    readonly modelName: string;
-    readonly name: string;
-    constructor(modelName: string, name: string);
-  }
-
   class GassmaClient {
     constructor(idOrOptions?: string | GassmaClientOptions);
 
@@ -14,7 +8,6 @@ declare namespace Gassma {
   class GassmaController {
     constructor(sheetName: string, id?: string);
 
-    readonly fields: Record<string, FieldRef>;
     getColumnHeaders(): string[];
     changeSettings(
       startRowNumber: number,
@@ -110,17 +103,17 @@ declare namespace Gassma {
   };
 
   type FilterConditions = {
-    equals?: GassmaAny | FieldRef;
+    equals?: GassmaAny;
     not?: GassmaAny;
     in?: GassmaAny[];
     notIn?: GassmaAny[];
-    lt?: GassmaAny | FieldRef;
-    lte?: GassmaAny | FieldRef;
-    gt?: GassmaAny | FieldRef;
-    gte?: GassmaAny | FieldRef;
-    contains?: string | FieldRef;
-    startsWith?: string | FieldRef;
-    endsWith?: string | FieldRef;
+    lt?: GassmaAny;
+    lte?: GassmaAny;
+    gt?: GassmaAny;
+    gte?: GassmaAny;
+    contains?: string;
+    startsWith?: string;
+    endsWith?: string;
     mode?: "default" | "insensitive";
   };
 

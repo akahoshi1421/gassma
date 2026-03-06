@@ -4,7 +4,6 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import type { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
 import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
-import { resolveFieldRefs } from "../filterConditions/resolveFieldRefs";
 import { isDict } from "../other/isDict";
 import { getAllData } from "./getAllData";
 import { getTitle } from "./getTitle";
@@ -35,14 +34,11 @@ const whereFilter = (
   const findedDataIncludeNull = allDataList.map((row, rowNumber) => {
     const matchRow = wantFindIndex.filter((i) => {
       const whereOptionContent = where[String(titles[i])];
-      if (isDict(whereOptionContent)) {
-        const resolved = resolveFieldRefs(
+      if (isDict(whereOptionContent))
+        return isFilterConditionsMatch(
+          row[i],
           whereOptionContent as FilterConditions,
-          row,
-          titles,
         );
-        return isFilterConditionsMatch(row[i], resolved);
-      }
 
       const replacedNullWhereOptionContent =
         whereOptionContent === "" ? null : whereOptionContent;
