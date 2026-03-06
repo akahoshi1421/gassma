@@ -1,4 +1,8 @@
-import type { OrderBy, SortOrderInput } from "../../../types/coreTypes";
+import type {
+  OrderBy,
+  SortOrderInput,
+  RelationOrderBy,
+} from "../../../types/coreTypes";
 
 type ParsedOrderByEntry = [
   string,
@@ -7,9 +11,15 @@ type ParsedOrderByEntry = [
 ];
 
 const isSortOrderInput = (
-  value: "asc" | "desc" | SortOrderInput,
+  value: "asc" | "desc" | SortOrderInput | RelationOrderBy,
 ): value is SortOrderInput => {
   return typeof value === "object" && value !== null && "sort" in value;
+};
+
+const isScalarDirection = (
+  value: "asc" | "desc" | SortOrderInput | RelationOrderBy,
+): value is "asc" | "desc" => {
+  return value === "asc" || value === "desc";
 };
 
 const parseOrderByEntry = (option: OrderBy): ParsedOrderByEntry => {
@@ -17,7 +27,11 @@ const parseOrderByEntry = (option: OrderBy): ParsedOrderByEntry => {
   if (isSortOrderInput(value)) {
     return [key, value.sort, value.nulls];
   }
-  return [key, value, undefined];
+  if (isScalarDirection(value)) {
+    return [key, value, undefined];
+  }
+  // RelationOrderBy should be resolved before reaching here
+  return [key, "asc", undefined];
 };
 
 const search = (

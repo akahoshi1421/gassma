@@ -36,6 +36,9 @@ import { updateManyFunc } from "./util/update/updateMany";
 import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
 import { upsertFunc } from "./util/upsert/upsert";
 import { upsertManyFunc } from "./util/upsert/upsertMany";
+import { separateRelationOrderBy } from "./util/find/findUtil/separateRelationOrderBy";
+import { findManyWithRelationOrderBy } from "./util/find/findManyWithRelationOrderBy";
+import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationOrderBy";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -136,6 +139,54 @@ class GassmaController {
 
     findData = { ...findData, where: this.resolveWhere(findData.where) };
 
+    const orderBy = "orderBy" in findData ? findData.orderBy : null;
+    const orderByArr = orderBy
+      ? Array.isArray(orderBy)
+        ? orderBy
+        : [orderBy]
+      : [];
+    const { hasRelationOrderBy } = separateRelationOrderBy(orderByArr);
+
+    if (hasRelationOrderBy && this.relationContext) {
+      const baseResult = findFirstWithRelationOrderBy(
+        this.getGassmaControllerUtil(),
+        {
+          ...findData,
+          select:
+            findData.select && "_count" in findData.select
+              ? undefined
+              : findData.select,
+        },
+        this.relationContext,
+        orderByArr,
+      );
+
+      if (!baseResult) return null;
+
+      if (findData.select && "_count" in findData.select) {
+        const countValue = findData.select._count;
+        const scalarSelect = this.buildScalarSelect(findData.select);
+        const resolved = applySelectCount(
+          [baseResult],
+          countValue,
+          scalarSelect,
+          this.relationContext,
+        );
+        return resolved[0] ?? null;
+      }
+
+      if (findData.include) {
+        const resolved = resolveInclude(
+          [baseResult],
+          findData.include,
+          this.relationContext,
+        );
+        return resolved[0] ?? null;
+      }
+
+      return baseResult;
+    }
+
     if (
       findData.select &&
       "_count" in findData.select &&
@@ -195,6 +246,51 @@ class GassmaController {
     }
 
     findData = { ...findData, where: this.resolveWhere(findData.where) };
+
+    const fmOrderBy = "orderBy" in findData ? findData.orderBy : null;
+    const fmOrderByArr = fmOrderBy
+      ? Array.isArray(fmOrderBy)
+        ? fmOrderBy
+        : [fmOrderBy]
+      : [];
+    const { hasRelationOrderBy: fmHasRelation } =
+      separateRelationOrderBy(fmOrderByArr);
+
+    if (fmHasRelation && this.relationContext) {
+      const baseResult = findManyWithRelationOrderBy(
+        this.getGassmaControllerUtil(),
+        {
+          ...findData,
+          select:
+            findData.select && "_count" in findData.select
+              ? undefined
+              : findData.select,
+        },
+        this.relationContext,
+        fmOrderByArr,
+      );
+
+      if (findData.select && "_count" in findData.select) {
+        const countValue = findData.select._count;
+        const scalarSelect = this.buildScalarSelect(findData.select);
+        return applySelectCount(
+          baseResult,
+          countValue,
+          scalarSelect,
+          this.relationContext,
+        );
+      }
+
+      if (findData.include) {
+        return resolveInclude(
+          baseResult,
+          findData.include,
+          this.relationContext,
+        );
+      }
+
+      return baseResult;
+    }
 
     if (
       findData.select &&

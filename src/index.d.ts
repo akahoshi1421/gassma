@@ -59,8 +59,12 @@ declare namespace Gassma {
     nulls?: "first" | "last";
   };
 
+  type RelationOrderBy = {
+    [key: string]: "asc" | "desc";
+  };
+
   type OrderBy = {
-    [key: string]: "asc" | "desc" | SortOrderInput;
+    [key: string]: "asc" | "desc" | SortOrderInput | RelationOrderBy;
   };
 
   type Select = {
@@ -379,6 +383,9 @@ declare namespace Gassma {
   }
   class NestedWriteWithoutRelationsError extends Error {
     constructor();
+  }
+  class RelationOrderByUnsupportedTypeError extends Error {
+    constructor(relationName: string, relationType: string);
   }
 }
 
