@@ -23,13 +23,20 @@ declare namespace Gassma {
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
     createManyAndReturn(createdData: CreateManyData): Record<string, unknown>[];
-    create(createdData: CreateData): Record<string, unknown>;
+    create(
+      createdData: CreateData & {
+        select?: Select;
+        omit?: Record<string, boolean>;
+      },
+    ): Record<string, unknown>;
     findFirst(findData: FindData): Record<string, any>;
     findFirstOrThrow(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
     update(updateData: {
       where: WhereUse;
       data: Record<string, unknown>;
+      select?: Select;
+      omit?: Record<string, boolean>;
     }): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];

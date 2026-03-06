@@ -1,5 +1,9 @@
 import { FieldRef } from "./util/filterConditions/fieldRef";
-import { NotFoundError } from "./errors/find/findError";
+import {
+  GassmaFindSelectOmitConflictError,
+  NotFoundError,
+} from "./errors/find/findError";
+import { findedDataSelect } from "./util/find/findUtil/findDataSelect";
 import { omitFunc } from "./util/find/findUtil/omit";
 import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
@@ -154,7 +158,11 @@ class GassmaController {
     return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
-  public create(createdData: CreateData) {
+  public create(createdData: CreateData & { select?: Select; omit?: Omit }) {
+    if (createdData.select && createdData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
+
     const util = this.getGassmaControllerUtil();
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
@@ -163,7 +171,10 @@ class GassmaController {
       wrappedCreate,
       this.relationContext ?? undefined,
     );
-    return this.applyOmitToResult(result, this.globalOmit);
+
+    if (createdData.select) return findedDataSelect(createdData.select, result);
+    const effectiveOmit = this.resolveEffectiveOmit(null, createdData.omit);
+    return this.applyOmitToResult(result, effectiveOmit);
   }
 
   public findFirst(findData: FindData) {
@@ -382,7 +393,13 @@ class GassmaController {
   public update(updateData: {
     where: WhereUse;
     data: Record<string, unknown>;
+    select?: Select;
+    omit?: Omit;
   }) {
+    if (updateData.select && updateData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
+
     const resolvedWhere =
       this.resolveWhere(updateData.where) ?? updateData.where;
 
@@ -406,7 +423,10 @@ class GassmaController {
       this.relationContext ?? undefined,
     );
     if (!result) return null;
-    return this.applyOmitToResult(result, this.globalOmit);
+
+    if (updateData.select) return findedDataSelect(updateData.select, result);
+    const effectiveOmit = this.resolveEffectiveOmit(null, updateData.omit);
+    return this.applyOmitToResult(result, effectiveOmit);
   }
 
   public updateMany(updateData: UpdateData) {
