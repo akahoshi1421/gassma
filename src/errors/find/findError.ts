@@ -40,10 +40,20 @@ class RelationOrderByUnsupportedTypeError extends Error {
   }
 }
 
+class RelationOrderByCountUnsupportedTypeError extends Error {
+  constructor(relationName: string, relationType: string) {
+    super(
+      `Cannot use _count orderBy on "${relationName}" (type: ${relationType}). Only oneToMany and manyToMany are supported.`,
+    );
+    this.name = "RelationOrderByCountUnsupportedTypeError";
+  }
+}
+
 export {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
   GassmaSkipNegativeError,
   GassmaLimitNegativeError,
   RelationOrderByUnsupportedTypeError,
+  RelationOrderByCountUnsupportedTypeError,
 };

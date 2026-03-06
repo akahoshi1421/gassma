@@ -387,6 +387,9 @@ declare namespace Gassma {
   class RelationOrderByUnsupportedTypeError extends Error {
     constructor(relationName: string, relationType: string);
   }
+  class RelationOrderByCountUnsupportedTypeError extends Error {
+    constructor(relationName: string, relationType: string);
+  }
 }
 
 export { Gassma };
