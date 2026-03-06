@@ -61,9 +61,43 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
   }
 };
 
+const validateCountValue = (value: unknown): void => {
+  if (value === true) return;
+
+  if (!isObject(value)) {
+    throw new IncludeInvalidOptionTypeError(
+      "_count",
+      "value",
+      "true or an object with select",
+    );
+  }
+
+  if (!isObject(value.select)) {
+    throw new IncludeInvalidOptionTypeError("_count", "select", "an object");
+  }
+
+  Object.entries(value.select).forEach(([key, item]) => {
+    if (item === true) return;
+    if (!isObject(item)) {
+      throw new IncludeInvalidOptionTypeError(
+        "_count",
+        key,
+        "true or an object",
+      );
+    }
+    if (item.where !== undefined && !isObject(item.where)) {
+      throw new IncludeInvalidOptionTypeError("_count", "where", "an object");
+    }
+  });
+};
+
 const validateIncludeOptions = (include: IncludeData): void => {
-  Object.keys(include).forEach((relationName) => {
-    validateIncludeItem(relationName, include[relationName]);
+  Object.keys(include).forEach((key) => {
+    if (key === "_count") {
+      validateCountValue(include[key]);
+      return;
+    }
+    validateIncludeItem(key, include[key]);
   });
 };
 

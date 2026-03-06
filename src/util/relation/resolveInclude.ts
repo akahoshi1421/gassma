@@ -9,6 +9,7 @@ import { resolveOneToMany } from "./resolvers/oneToMany";
 import { resolveOneToOne } from "./resolvers/oneToOne";
 import { resolveManyToOne } from "./resolvers/manyToOne";
 import { resolveManyToMany } from "./resolvers/manyToMany";
+import { resolveCount } from "./resolveCount";
 
 const resolveInclude = (
   parents: Record<string, unknown>[],
@@ -19,55 +20,65 @@ const resolveInclude = (
 
   if (parents.length === 0) return [];
 
-  return Object.keys(include).reduce((result, relationName) => {
-    const relation = context.relations[relationName];
-    if (!relation) {
-      throw new GassmaRelationNotFoundError(relationName, "");
-    }
+  const countValue = include._count;
 
-    const includeValue = include[relationName];
-    const options: IncludeItemOptions | undefined =
-      includeValue === true ? undefined : includeValue;
+  let result = Object.keys(include)
+    .filter((key) => key !== "_count")
+    .reduce((acc, relationName) => {
+      const relation = context.relations[relationName];
+      if (!relation) {
+        throw new GassmaRelationNotFoundError(relationName, "");
+      }
 
-    const findMany = context.findManyOnSheet;
+      const includeValue = include[relationName];
+      const options: IncludeItemOptions | undefined =
+        includeValue === true ? undefined : includeValue;
 
-    switch (relation.type) {
-      case "oneToMany":
-        return resolveOneToMany(
-          result,
-          relation,
-          relationName,
-          findMany,
-          options,
-        );
-      case "oneToOne":
-        return resolveOneToOne(
-          result,
-          relation,
-          relationName,
-          findMany,
-          options,
-        );
-      case "manyToOne":
-        return resolveManyToOne(
-          result,
-          relation,
-          relationName,
-          findMany,
-          options,
-        );
-      case "manyToMany":
-        return resolveManyToMany(
-          result,
-          relation,
-          relationName,
-          findMany,
-          options,
-        );
-      default:
-        return result;
-    }
-  }, parents);
+      const findMany = context.findManyOnSheet;
+
+      switch (relation.type) {
+        case "oneToMany":
+          return resolveOneToMany(
+            acc,
+            relation,
+            relationName,
+            findMany,
+            options,
+          );
+        case "oneToOne":
+          return resolveOneToOne(
+            acc,
+            relation,
+            relationName,
+            findMany,
+            options,
+          );
+        case "manyToOne":
+          return resolveManyToOne(
+            acc,
+            relation,
+            relationName,
+            findMany,
+            options,
+          );
+        case "manyToMany":
+          return resolveManyToMany(
+            acc,
+            relation,
+            relationName,
+            findMany,
+            options,
+          );
+        default:
+          return acc;
+      }
+    }, parents);
+
+  if (countValue !== undefined) {
+    result = resolveCount(result, countValue, context);
+  }
+
+  return result;
 };
 
 export { resolveInclude };

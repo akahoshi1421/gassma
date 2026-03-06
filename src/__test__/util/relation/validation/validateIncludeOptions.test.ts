@@ -199,6 +199,34 @@ describe("validateIncludeOptions", () => {
     });
   });
 
+  describe("_count のバリデーション", () => {
+    it("_count: true の場合エラーを投げない", () => {
+      expect(() => validateIncludeOptions({ _count: true })).not.toThrow();
+    });
+
+    it("_count: { select: { posts: true } } の場合エラーを投げない", () => {
+      expect(() =>
+        validateIncludeOptions({
+          _count: { select: { posts: true } } as any,
+        }),
+      ).not.toThrow();
+    });
+
+    it("_count: { select: { posts: { where: { ... } } } } の場合エラーを投げない", () => {
+      expect(() =>
+        validateIncludeOptions({
+          _count: { select: { posts: { where: { published: true } } } } as any,
+        }),
+      ).not.toThrow();
+    });
+
+    it("_count: 'invalid' の場合エラーを投げる", () => {
+      expect(() =>
+        validateIncludeOptions({ _count: "invalid" as any }),
+      ).toThrow();
+    });
+  });
+
   describe("複数リレーションのバリデーション", () => {
     it("複数のinclude項目が全て有効な場合エラーを投げない", () => {
       expect(() =>

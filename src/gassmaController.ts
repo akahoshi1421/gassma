@@ -29,6 +29,7 @@ import { groupByFunc } from "./util/groupby/groupby";
 import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 import { resolveOnUpdate } from "./util/relation/onUpdate/resolveOnUpdate";
 import { resolveInclude } from "./util/relation/resolveInclude";
+import { applySelectCount } from "./util/find/findUtil/applySelectCount";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { updateManyFunc } from "./util/update/updateMany";
@@ -93,6 +94,16 @@ class GassmaController {
     return resolveWhereRelation(where, this.relationContext);
   }
 
+  private buildScalarSelect(select: Select): Select | null {
+    const scalarKeys = Object.keys(select).filter((key) => key !== "_count");
+    if (scalarKeys.length === 0) return null;
+    const result: Select = {};
+    scalarKeys.forEach((key) => {
+      result[key] = select[key];
+    });
+    return result;
+  }
+
   public createMany(createdData: CreateManyData) {
     return createManyFunc(this.getGassmaControllerUtil(), createdData);
   }
@@ -116,11 +127,40 @@ class GassmaController {
     if (findData.include && findData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
-    if (findData.include && !this.relationContext) {
+    if (
+      (findData.include || (findData.select && "_count" in findData.select)) &&
+      !this.relationContext
+    ) {
       throw new IncludeWithoutRelationsError();
     }
 
     findData = { ...findData, where: this.resolveWhere(findData.where) };
+
+    if (
+      findData.select &&
+      "_count" in findData.select &&
+      this.relationContext
+    ) {
+      const select = findData.select;
+      const countValue = select._count;
+      const scalarSelect = this.buildScalarSelect(select);
+
+      const baseResult = findFirstFunc(this.getGassmaControllerUtil(), {
+        ...findData,
+        select: undefined,
+      });
+
+      if (!baseResult) return null;
+
+      const resolved = applySelectCount(
+        [baseResult],
+        countValue,
+        scalarSelect,
+        this.relationContext,
+      );
+      return resolved[0] ?? null;
+    }
+
     const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
 
     if (!baseResult || !findData.include || !this.relationContext) {
@@ -147,11 +187,37 @@ class GassmaController {
     if (findData.include && findData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
-    if (findData.include && !this.relationContext) {
+    if (
+      (findData.include || (findData.select && "_count" in findData.select)) &&
+      !this.relationContext
+    ) {
       throw new IncludeWithoutRelationsError();
     }
 
     findData = { ...findData, where: this.resolveWhere(findData.where) };
+
+    if (
+      findData.select &&
+      "_count" in findData.select &&
+      this.relationContext
+    ) {
+      const select = findData.select;
+      const countValue = select._count;
+      const scalarSelect = this.buildScalarSelect(select);
+
+      const fullRecords = findManyFunc(this.getGassmaControllerUtil(), {
+        ...findData,
+        select: undefined,
+      });
+
+      return applySelectCount(
+        fullRecords,
+        countValue,
+        scalarSelect,
+        this.relationContext,
+      );
+    }
+
     const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);
 
     if (!findData.include || !this.relationContext) {

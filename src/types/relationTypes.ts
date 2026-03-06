@@ -38,6 +38,10 @@ type IncludeItemOptions = {
   include?: IncludeData;
 };
 
+type CountSelectItem = true | { where?: WhereUse };
+type CountSelect = { select: { [relationName: string]: CountSelectItem } };
+type CountValue = true | CountSelect;
+
 type IncludeData = {
   [relationName: string]: true | IncludeItemOptions;
 };
@@ -92,6 +96,9 @@ export type {
   RelationDefinition,
   RelationsConfig,
   IncludeItemOptions,
+  CountSelectItem,
+  CountSelect,
+  CountValue,
   IncludeData,
   GassmaClientOptions,
   RelationContext,

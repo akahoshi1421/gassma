@@ -159,8 +159,12 @@ declare namespace Gassma {
     include?: IncludeData;
   };
 
+  type CountSelectItem = true | { where?: WhereUse };
+  type CountSelect = { select: { [relationName: string]: CountSelectItem } };
+  type CountValue = true | CountSelect;
+
   type IncludeData = {
-    [relationName: string]: true | IncludeItemOptions;
+    [relationName: string]: true | IncludeItemOptions | CountValue;
   };
 
   type RelationListFilter = {
@@ -225,9 +229,13 @@ declare namespace Gassma {
     ) => { count: number } | undefined;
   };
 
+  type FindSelect = {
+    [key: string]: true | CountValue;
+  };
+
   type FindData = {
     where?: WhereUse;
-    select?: Select;
+    select?: FindSelect;
     omit?: Omit;
     orderBy?: OrderBy | OrderBy[];
     take?: number;
