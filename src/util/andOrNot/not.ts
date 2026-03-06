@@ -6,7 +6,7 @@ import type {
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndex } from "../core/getWantFindIndex";
-import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
+import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
 import { isDict } from "../other/isDict";
 import { isLogicMatch } from "./entry";
 
@@ -27,9 +27,11 @@ const isNotMatch = (
       const matchRow = wantFindIndex.filter((i) => {
         const whereOptionContent = where[String(titles[i])];
         if (isDict(whereOptionContent))
-          return isFilterConditionsMatch(
+          return matchFilterCondition(
             row.row[i],
             whereOptionContent as FilterConditions,
+            row.row,
+            titles,
           );
 
         return row.row[i] === whereOptionContent;

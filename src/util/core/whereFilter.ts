@@ -3,7 +3,7 @@ import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
-import { isFilterConditionsMatch } from "../filterConditions/filterConditions";
+import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
 import { isDict } from "../other/isDict";
 import { getAllData } from "./getAllData";
 import { getTitle } from "./getTitle";
@@ -35,9 +35,11 @@ const whereFilter = (
     const matchRow = wantFindIndex.filter((i) => {
       const whereOptionContent = where[String(titles[i])];
       if (isDict(whereOptionContent))
-        return isFilterConditionsMatch(
+        return matchFilterCondition(
           row[i],
           whereOptionContent as FilterConditions,
+          row,
+          titles,
         );
 
       const replacedNullWhereOptionContent =
