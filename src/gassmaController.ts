@@ -1,5 +1,7 @@
 import { FieldRef } from "./util/filterConditions/fieldRef";
 import { NotFoundError } from "./errors/find/findError";
+import { omitFunc } from "./util/find/findUtil/omit";
+import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
@@ -47,6 +49,7 @@ class GassmaController {
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
   private relationContext: RelationContext | null = null;
+  private globalOmit: Omit | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -64,6 +67,10 @@ class GassmaController {
 
   public _setRelationContext(context: RelationContext) {
     this.relationContext = context;
+  }
+
+  public _setGlobalOmit(omit: Omit) {
+    this.globalOmit = omit;
   }
 
   public get fields(): Record<string, FieldRef> {
@@ -103,6 +110,21 @@ class GassmaController {
     };
   }
 
+  private resolveEffectiveOmit(
+    select: Select | null | undefined,
+    queryOmit: Omit | null | undefined,
+  ): Omit | null {
+    return resolveGlobalOmit(this.globalOmit, select, queryOmit);
+  }
+
+  private applyOmitToResult(
+    result: Record<string, unknown>,
+    effectiveOmit: Omit | null,
+  ): Record<string, unknown> {
+    if (!effectiveOmit) return result;
+    return omitFunc(effectiveOmit, result);
+  }
+
   private resolveWhere(where: WhereUse | undefined): WhereUse | undefined {
     if (!where) return where;
     return resolveWhereRelation(where, this.relationContext);
@@ -123,18 +145,25 @@ class GassmaController {
   }
 
   public createManyAndReturn(createdData: CreateManyData) {
-    return createManyFunc(this.getGassmaControllerUtil(), createdData, true);
+    const results = createManyFunc(
+      this.getGassmaControllerUtil(),
+      createdData,
+      true,
+    );
+    if (!this.globalOmit || !Array.isArray(results)) return results;
+    return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
   public create(createdData: CreateData) {
     const util = this.getGassmaControllerUtil();
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
-    return resolveNestedCreate(
+    const result = resolveNestedCreate(
       createdData.data,
       wrappedCreate,
       this.relationContext ?? undefined,
     );
+    return this.applyOmitToResult(result, this.globalOmit);
   }
 
   public findFirst(findData: FindData) {
@@ -148,7 +177,15 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
-    findData = { ...findData, where: this.resolveWhere(findData.where) };
+    const effectiveOmit = this.resolveEffectiveOmit(
+      findData.select,
+      findData.omit,
+    );
+    findData = {
+      ...findData,
+      where: this.resolveWhere(findData.where),
+      omit: effectiveOmit ?? undefined,
+    };
 
     const orderBy = "orderBy" in findData ? findData.orderBy : null;
     const orderByArr = orderBy
@@ -256,7 +293,15 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
-    findData = { ...findData, where: this.resolveWhere(findData.where) };
+    const fmEffectiveOmit = this.resolveEffectiveOmit(
+      findData.select,
+      findData.omit,
+    );
+    findData = {
+      ...findData,
+      where: this.resolveWhere(findData.where),
+      omit: fmEffectiveOmit ?? undefined,
+    };
 
     const fmOrderBy = "orderBy" in findData ? findData.orderBy : null;
     const fmOrderByArr = fmOrderBy
@@ -355,11 +400,13 @@ class GassmaController {
       }
     }
 
-    return resolveNestedUpdate(
+    const result = resolveNestedUpdate(
       this.getGassmaControllerUtil(),
       { where: resolvedWhere, data: updateData.data },
       this.relationContext ?? undefined,
     );
+    if (!result) return null;
+    return this.applyOmitToResult(result, this.globalOmit);
   }
 
   public updateMany(updateData: UpdateData) {
@@ -409,7 +456,13 @@ class GassmaController {
       );
     }
 
-    return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
+    const results = updateManyFunc(
+      this.getGassmaControllerUtil(),
+      updateData,
+      true,
+    );
+    if (!this.globalOmit || !Array.isArray(results)) return results;
+    return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
   public upsert(upsertData: {
@@ -429,10 +482,18 @@ class GassmaController {
 
     const resolvedWhere =
       this.resolveWhere(upsertData.where) ?? upsertData.where;
+    const upsertOmit = this.resolveEffectiveOmit(
+      upsertData.select,
+      upsertData.omit,
+    );
 
     return upsertFunc(
       this.getGassmaControllerUtil(),
-      { ...upsertData, where: resolvedWhere },
+      {
+        ...upsertData,
+        where: resolvedWhere,
+        omit: upsertOmit ?? undefined,
+      },
       this.relationContext,
     );
   }
@@ -457,10 +518,18 @@ class GassmaController {
 
     const resolvedWhere =
       this.resolveWhere(deleteData.where) ?? deleteData.where;
+    const deleteOmit = this.resolveEffectiveOmit(
+      deleteData.select,
+      deleteData.omit,
+    );
 
     return deleteFunc(
       this.getGassmaControllerUtil(),
-      { ...deleteData, where: resolvedWhere },
+      {
+        ...deleteData,
+        where: resolvedWhere,
+        omit: deleteOmit ?? undefined,
+      },
       this.relationContext,
     );
   }

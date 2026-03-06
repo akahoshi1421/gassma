@@ -39,20 +39,21 @@ declare namespace Gassma {
       update: AnyUse;
       select?: Select;
       include?: IncludeData;
-      omit?: Omit;
+      omit?: Record<string, boolean>;
     }): Record<string, unknown>;
     upsertMany(upsertData: UpsertData): UpsertManyReturn;
     delete(deleteData: {
       where: WhereUse;
       select?: Select;
       include?: IncludeData;
-      omit?: Omit;
+      omit?: Record<string, boolean>;
     }): Record<string, unknown> | null;
     deleteMany(deleteData: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
     count(countData: CountData): number;
     groupBy(groupByData: GroupByData): Record<string, any>[];
     _setRelationContext(context: RelationContext): void;
+    _setGlobalOmit(omit: Omit): void;
   }
 
   type GassmaSheet = {
@@ -189,9 +190,14 @@ declare namespace Gassma {
     isNot?: WhereUse | null;
   };
 
+  type GlobalOmitConfig = {
+    [sheetName: string]: Omit;
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
+    omit?: GlobalOmitConfig;
   };
 
   type ConnectOrCreateInput = {
@@ -247,7 +253,7 @@ declare namespace Gassma {
   type FindData = {
     where?: WhereUse;
     select?: FindSelect;
-    omit?: Omit;
+    omit?: Record<string, boolean>;
     orderBy?: OrderBy | OrderBy[];
     take?: number;
     skip?: number;
