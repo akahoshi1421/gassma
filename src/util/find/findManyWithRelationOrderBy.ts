@@ -5,6 +5,7 @@ import { findManyFunc } from "./findMany";
 import { resolveRelationOrderBy } from "./findUtil/resolveRelationOrderBy";
 import { applySkipTake } from "./findUtil/applySkipTake";
 import { applySelectOmit } from "./findUtil/applySelectOmit";
+import { applyCursor } from "./findUtil/applyCursor";
 import type { OrderBy } from "../../types/coreTypes";
 
 const findManyWithRelationOrderBy = (
@@ -31,10 +32,14 @@ const findManyWithRelationOrderBy = (
     relationContext,
   );
 
-  // Step 3: apply skip/take
-  const sliced = applySkipTake(sorted, skip, take);
+  // Step 3: apply cursor
+  const cursor = "cursor" in findData ? findData.cursor : null;
+  const cursored = cursor ? applyCursor(sorted, cursor, take) : sorted;
 
-  // Step 4: apply select/omit
+  // Step 4: apply skip/take
+  const sliced = applySkipTake(cursored, skip, take);
+
+  // Step 5: apply select/omit
   return applySelectOmit(sliced, select, omit);
 };
 

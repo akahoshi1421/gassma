@@ -9,6 +9,7 @@ import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 import { omitFunc } from "./findUtil/omit";
 import { orderByFunc } from "./findUtil/orderBy";
+import { applyCursor } from "./findUtil/applyCursor";
 
 const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -57,6 +58,12 @@ const findManyFunc = (
       seen.add(key);
       return true;
     });
+  }
+
+  // Apply cursor after orderBy + distinct, before skip/take
+  const cursor = "cursor" in findData ? findData.cursor : null;
+  if (cursor) {
+    findDataDictArray = applyCursor(findDataDictArray, cursor, take);
   }
 
   // skip 負数バリデーション

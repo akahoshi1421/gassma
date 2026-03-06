@@ -246,6 +246,7 @@ declare namespace Gassma {
     skip?: number;
     distinct?: string | string[];
     include?: IncludeData;
+    cursor?: Record<string, unknown>;
   };
 
   type DeleteData = {
