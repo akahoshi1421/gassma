@@ -1,3 +1,4 @@
+import { FieldRef } from "./util/filterConditions/fieldRef";
 import { NotFoundError } from "./errors/find/findError";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
@@ -63,6 +64,16 @@ class GassmaController {
 
   public _setRelationContext(context: RelationContext) {
     this.relationContext = context;
+  }
+
+  public get fields(): Record<string, FieldRef> {
+    const sheetName = this.sheet.getName();
+    return new Proxy({} as Record<string, FieldRef>, {
+      get: (_target, prop: string) => {
+        if (typeof prop !== "string") return undefined;
+        return new FieldRef(sheetName, prop);
+      },
+    });
   }
 
   public getColumnHeaders(): string[] {
