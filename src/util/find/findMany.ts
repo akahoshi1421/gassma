@@ -1,6 +1,9 @@
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
+import {
+  GassmaFindSelectOmitConflictError,
+  GassmaSkipNegativeError,
+} from "../../errors/find/findError";
 import { getTitle } from "../core/getTitle";
 import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
@@ -56,20 +59,25 @@ const findManyFunc = (
     });
   }
 
-  // Apply skip after distinct
-  if (skip)
-    findDataDictArray = findDataDictArray.filter(
-      (_value, index) => index + 1 > skip,
-    );
+  // skip 負数バリデーション
+  if (skip !== null && skip !== undefined && skip < 0) {
+    throw new GassmaSkipNegativeError(skip);
+  }
 
-  // Apply take last (handle negative values as no limit, zero as empty)
+  // skip + take を一括処理
   if (take !== null && take !== undefined) {
     if (take === 0) {
       findDataDictArray = [];
     } else if (take > 0) {
+      if (skip) findDataDictArray = findDataDictArray.slice(skip);
       findDataDictArray = findDataDictArray.slice(0, take);
+    } else {
+      // 負方向: skip は末尾から除外 → take は末尾から取得
+      if (skip) findDataDictArray = findDataDictArray.slice(0, -skip);
+      findDataDictArray = findDataDictArray.slice(take);
     }
-    // Negative values are treated as no limit (do nothing)
+  } else {
+    if (skip) findDataDictArray = findDataDictArray.slice(skip);
   }
 
   if (select && omit) {

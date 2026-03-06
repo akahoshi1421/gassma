@@ -4,6 +4,7 @@ import type {
   RelationDefinition,
 } from "../../../types/relationTypes";
 import type { WhereUse } from "../../../types/coreTypes";
+import { GassmaSkipNegativeError } from "../../../errors/find/findError";
 import { orderByFunc } from "../../find/findUtil/orderBy";
 import { collectKeys } from "../collectKeys";
 
@@ -51,12 +52,22 @@ const resolveOneToMany = (
       items = orderByFunc([...items], orderByArr);
     }
 
-    if (options?.skip !== undefined) {
-      items = items.slice(options.skip);
+    if (options?.skip !== undefined && options.skip < 0) {
+      throw new GassmaSkipNegativeError(options.skip);
     }
 
     if (options?.take !== undefined) {
-      items = items.slice(0, options.take);
+      if (options.take === 0) {
+        items = [];
+      } else if (options.take > 0) {
+        if (options?.skip !== undefined) items = items.slice(options.skip);
+        items = items.slice(0, options.take);
+      } else {
+        if (options?.skip !== undefined) items = items.slice(0, -options.skip);
+        items = items.slice(options.take);
+      }
+    } else if (options?.skip !== undefined) {
+      items = items.slice(options.skip);
     }
 
     return { ...parent, [relationName]: items };

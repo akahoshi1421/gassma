@@ -265,15 +265,15 @@ describe("aggregate functionality tests", () => {
       });
     });
 
-    test("should handle negative skip gracefully", () => {
-      const result = aggregateFunc(getExtendedMockControllerUtil(), {
-        skip: -1,
-        _avg: { 年齢: true },
-      });
-
-      expect(result).toEqual({
-        _avg: { 年齢: (28 + 35 + 22 + 45 + 28 + 52 + 31 + 28) / 8 },
-      });
+    test("should throw error when skip is negative", () => {
+      expect(() =>
+        aggregateFunc(getExtendedMockControllerUtil(), {
+          skip: -1,
+          _avg: { 年齢: true },
+        }),
+      ).toThrow(
+        "Invalid value for skip argument: Value can only be positive, found: -1",
+      );
     });
   });
 

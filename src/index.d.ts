@@ -309,6 +309,12 @@ declare namespace Gassma {
   type DeleteManyReturn = ManyReturn;
   type UpsertManyReturn = ManyReturn;
 
+  class GassmaSkipNegativeError extends Error {
+    constructor(value: number);
+  }
+  class GassmaLimitNegativeError extends Error {
+    constructor(value: number);
+  }
   class NotFoundError extends Error {
     constructor();
   }

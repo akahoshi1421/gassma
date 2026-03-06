@@ -168,6 +168,59 @@ describe("resolveOneToMany", () => {
     expect(result[0].posts).toEqual([]);
   });
 
+  it("take負数で末尾からレコードを取得する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A" },
+      { id: 102, authorId: 1, title: "Post B" },
+      { id: 103, authorId: 1, title: "Post C" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      take: -1,
+    });
+
+    expect(result[0].posts).toHaveLength(1);
+    expect(result[0].posts).toEqual([
+      { id: 103, authorId: 1, title: "Post C" },
+    ]);
+  });
+
+  it("take負数 + skip で末尾からスキップしてから取得する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A" },
+      { id: 102, authorId: 1, title: "Post B" },
+      { id: 103, authorId: 1, title: "Post C" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      take: -1,
+      skip: 1,
+    });
+
+    expect(result[0].posts).toHaveLength(1);
+    expect(result[0].posts).toEqual([
+      { id: 102, authorId: 1, title: "Post B" },
+    ]);
+  });
+
+  it("skip負数でエラーを投げる", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([{ id: 101, authorId: 1, title: "Post A" }]);
+
+    expect(() =>
+      resolveOneToMany(parents, relation, "posts", mockFindMany, {
+        skip: -1,
+      }),
+    ).toThrow(
+      "Invalid value for skip argument: Value can only be positive, found: -1",
+    );
+  });
+
   it("親レコードが空配列の場合はfindManyを呼ばず空配列を返す", () => {
     const result = resolveOneToMany([], relation, "posts", mockFindMany);
 

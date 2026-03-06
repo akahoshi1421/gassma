@@ -13,4 +13,27 @@ class NotFoundError extends Error {
   }
 }
 
-export { GassmaFindSelectOmitConflictError, NotFoundError };
+class GassmaSkipNegativeError extends Error {
+  constructor(value: number) {
+    super(
+      `Invalid value for skip argument: Value can only be positive, found: ${value}`,
+    );
+    this.name = "GassmaSkipNegativeError";
+  }
+}
+
+class GassmaLimitNegativeError extends Error {
+  constructor(value: number) {
+    super(
+      `Invalid value for limit argument: Value can only be positive, found: ${value}`,
+    );
+    this.name = "GassmaLimitNegativeError";
+  }
+}
+
+export {
+  GassmaFindSelectOmitConflictError,
+  NotFoundError,
+  GassmaSkipNegativeError,
+  GassmaLimitNegativeError,
+};

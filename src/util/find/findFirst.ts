@@ -1,6 +1,9 @@
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
+import {
+  GassmaFindSelectOmitConflictError,
+  GassmaSkipNegativeError,
+} from "../../errors/find/findError";
 import { getTitle } from "../core/getTitle";
 import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
@@ -32,11 +35,13 @@ const findFirstFunc = (
     return result;
   });
 
+  // skip 負数バリデーション
+  if (skip !== null && skip !== undefined && skip < 0) {
+    throw new GassmaSkipNegativeError(skip);
+  }
+
   // Apply skip if specified
-  if (skip)
-    findDataDictArray = findDataDictArray.filter(
-      (_value, index) => index + 1 > skip,
-    );
+  if (skip) findDataDictArray = findDataDictArray.slice(skip);
 
   // Apply orderBy if specified (before taking first)
   if (orderBy)

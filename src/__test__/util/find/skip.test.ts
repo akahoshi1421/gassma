@@ -1,5 +1,6 @@
 import { findManyFunc } from "../../../util/find/findMany";
 import { findFirstFunc } from "../../../util/find/findFirst";
+
 import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
 import { expectArrayToEqualIgnoringOrder } from "../../helpers/matchers";
 
@@ -348,12 +349,24 @@ describe("skip functionality tests", () => {
   });
 
   describe("findManyFunc skip edge cases", () => {
-    test("should handle negative skip values gracefully", () => {
-      const result = findManyFunc(getExtendedMockControllerUtil(), {
-        skip: -1,
-      });
+    test("should throw error when skip is -1", () => {
+      expect(() =>
+        findManyFunc(getExtendedMockControllerUtil(), {
+          skip: -1,
+        }),
+      ).toThrow(
+        "Invalid value for skip argument: Value can only be positive, found: -1",
+      );
+    });
 
-      expect(result).toHaveLength(8); // Should skip 0 records (treat negative as no skip)
+    test("should throw error when skip is -5", () => {
+      expect(() =>
+        findManyFunc(getExtendedMockControllerUtil(), {
+          skip: -5,
+        }),
+      ).toThrow(
+        "Invalid value for skip argument: Value can only be positive, found: -5",
+      );
     });
 
     test("should handle floating point skip values", () => {
@@ -587,6 +600,16 @@ describe("skip functionality tests", () => {
         郵便番号: "100-0001",
         職業: "Engineer",
       });
+    });
+
+    test("should throw error when skip is negative", () => {
+      expect(() =>
+        findFirstFunc(getExtendedMockControllerUtil(), {
+          skip: -1,
+        }),
+      ).toThrow(
+        "Invalid value for skip argument: Value can only be positive, found: -1",
+      );
     });
 
     test("should handle skip: 0 (boundary value)", () => {

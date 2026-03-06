@@ -261,12 +261,79 @@ describe("take functionality tests", () => {
   });
 
   describe("findManyFunc take edge cases", () => {
-    test("should handle negative take values gracefully", () => {
+    test("should return last 1 record when take is -1", () => {
       const result = findManyFunc(getExtendedMockControllerUtil(), {
         take: -1,
       });
 
-      expect(result).toHaveLength(8); // Negative take should return all records
+      expect(result).toHaveLength(1);
+      expect(result).toEqual([
+        {
+          名前: "Henry",
+          年齢: 28,
+          住所: "Kyoto",
+          郵便番号: "600-8001",
+          職業: "Engineer",
+        },
+      ]);
+    });
+
+    test("should return last 2 records when take is -2", () => {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
+        take: -2,
+      });
+
+      expect(result).toHaveLength(2);
+      expect(result).toEqual([
+        {
+          名前: "Grace",
+          年齢: 31,
+          住所: "Tokyo",
+          郵便番号: "100-0004",
+          職業: "Designer",
+        },
+        {
+          名前: "Henry",
+          年齢: 28,
+          住所: "Kyoto",
+          郵便番号: "600-8001",
+          職業: "Engineer",
+        },
+      ]);
+    });
+
+    test("should skip from end when take is negative with skip", () => {
+      // データ8件, take: -2, skip: 1 → 末尾1件を除外し残り7件から末尾2件
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
+        take: -2,
+        skip: 1,
+      });
+
+      expect(result).toHaveLength(2);
+      expect(result).toEqual([
+        {
+          名前: "Frank",
+          年齢: 52,
+          住所: "Osaka",
+          郵便番号: "550-0002",
+          職業: "Director",
+        },
+        {
+          名前: "Grace",
+          年齢: 31,
+          住所: "Tokyo",
+          郵便番号: "100-0004",
+          職業: "Designer",
+        },
+      ]);
+    });
+
+    test("should return all records when negative take exceeds total count", () => {
+      const result = findManyFunc(getExtendedMockControllerUtil(), {
+        take: -100,
+      });
+
+      expect(result).toHaveLength(8);
     });
 
     test("should work with floating point take values", () => {

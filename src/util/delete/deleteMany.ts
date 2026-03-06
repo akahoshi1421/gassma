@@ -1,5 +1,6 @@
 import type { DeleteData, DeleteManyReturn } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import { whereFilter } from "../core/whereFilter";
 
 const deleteManyFunc = (
@@ -14,6 +15,7 @@ const deleteManyFunc = (
   let findedData = whereFilter(where, gassmaControllerUtil);
 
   if (limit !== undefined && limit !== null) {
+    if (limit < 0) throw new GassmaLimitNegativeError(limit);
     findedData = findedData.slice(0, limit);
   }
 

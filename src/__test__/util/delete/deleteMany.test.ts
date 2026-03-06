@@ -457,6 +457,17 @@ describe("deleteMany functionality tests", () => {
       );
     });
 
+    test("should throw error when limit is negative", () => {
+      expect(() =>
+        deleteManyFunc(mockUtil, {
+          where: { 職業: "Engineer" },
+          limit: -1,
+        }),
+      ).toThrow(
+        "Invalid value for limit argument: Value can only be positive, found: -1",
+      );
+    });
+
     test("should delete no records when limit is 0", () => {
       const result = deleteManyFunc(mockUtil, {
         where: { 職業: "Engineer" },
