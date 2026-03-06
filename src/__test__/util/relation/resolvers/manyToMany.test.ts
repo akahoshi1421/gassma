@@ -185,6 +185,47 @@ describe("resolveManyToMany", () => {
     expect(result[0].categories).toHaveLength(1);
   });
 
+  it("take負数で末尾からレコードを取得する", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([
+      { postId: 1, categoryId: 10 },
+      { postId: 1, categoryId: 20 },
+      { postId: 1, categoryId: 30 },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech" },
+      { id: 20, name: "Science" },
+      { id: 30, name: "Art" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { take: -1 },
+    );
+
+    expect(result[0].categories).toHaveLength(1);
+    expect(result[0].categories).toEqual([{ id: 30, name: "Art" }]);
+  });
+
+  it("skip負数でエラーを投げる", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([{ id: 10, name: "Tech" }]);
+
+    expect(() =>
+      resolveManyToMany(parents, relation, "categories", mockFindMany, {
+        skip: -1,
+      }),
+    ).toThrow(
+      "Invalid value for skip argument: Value can only be positive, found: -1",
+    );
+  });
+
   it("skipが結果数を超える場合は空配列を返す", () => {
     const parents = [{ id: 1, title: "Post A" }];
 

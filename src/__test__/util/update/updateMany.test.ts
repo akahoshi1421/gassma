@@ -700,6 +700,18 @@ describe("updateManyFunc with limit", () => {
     expect(result).toEqual({ count: 3 });
   });
 
+  test("should throw error when limit is negative", () => {
+    expect(() =>
+      updateManyFunc(mockUtil, {
+        where: { 職業: "Engineer" },
+        data: { 職業: "Senior Engineer" },
+        limit: -1,
+      }),
+    ).toThrow(
+      "Invalid value for limit argument: Value can only be positive, found: -1",
+    );
+  });
+
   test("should update no records when limit is 0", () => {
     const result = updateManyFunc(mockUtil, {
       where: { 職業: "Engineer" },

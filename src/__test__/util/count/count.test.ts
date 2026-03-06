@@ -135,12 +135,14 @@ describe("count functionality tests", () => {
       expect(result).toBe(0);
     });
 
-    test("should handle negative skip gracefully", () => {
-      const result = countFunc(getExtendedMockControllerUtil(), {
-        skip: -1,
-      });
-
-      expect(result).toBe(8);
+    test("should throw error when skip is negative", () => {
+      expect(() =>
+        countFunc(getExtendedMockControllerUtil(), {
+          skip: -1,
+        }),
+      ).toThrow(
+        "Invalid value for skip argument: Value can only be positive, found: -1",
+      );
     });
   });
 });

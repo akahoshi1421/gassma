@@ -3,6 +3,7 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
+import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import {
   isNumberOperation,
   resolveNumberOperation,
@@ -33,6 +34,7 @@ function updateManyFunc(
   let findedData = whereFilter(where, gassmaControllerUtil);
 
   if (limit !== undefined && limit !== null) {
+    if (limit < 0) throw new GassmaLimitNegativeError(limit);
     findedData = findedData.slice(0, limit);
   }
 
