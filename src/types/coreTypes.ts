@@ -5,8 +5,12 @@ type SortOrderInput = {
   nulls?: "first" | "last";
 };
 
+type RelationOrderBy = {
+  [key: string]: "asc" | "desc";
+};
+
 type OrderBy = {
-  [key: string]: "asc" | "desc" | SortOrderInput;
+  [key: string]: "asc" | "desc" | SortOrderInput | RelationOrderBy;
 };
 
 type Select = {
@@ -140,6 +144,7 @@ type ManyReturn = {
 export type {
   GassmaAny,
   SortOrderInput,
+  RelationOrderBy,
   OrderBy,
   Select,
   Omit,

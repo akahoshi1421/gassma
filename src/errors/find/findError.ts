@@ -31,9 +31,19 @@ class GassmaLimitNegativeError extends Error {
   }
 }
 
+class RelationOrderByUnsupportedTypeError extends Error {
+  constructor(relationName: string, relationType: string) {
+    super(
+      `Cannot use orderBy on "${relationName}" (type: ${relationType}). Only manyToOne and oneToOne are supported.`,
+    );
+    this.name = "RelationOrderByUnsupportedTypeError";
+  }
+}
+
 export {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
   GassmaSkipNegativeError,
   GassmaLimitNegativeError,
+  RelationOrderByUnsupportedTypeError,
 };
