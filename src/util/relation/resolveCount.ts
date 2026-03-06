@@ -190,4 +190,4 @@ const resolveCount = (
   }));
 };
 
-export { resolveCount };
+export { resolveCount, countByRelation };

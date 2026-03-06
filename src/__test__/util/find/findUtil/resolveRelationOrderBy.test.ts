@@ -24,6 +24,17 @@ const createRelationContext = (
       field: "id",
       reference: "userId",
     },
+    tags: {
+      type: "manyToMany",
+      to: "Tags",
+      field: "id",
+      reference: "id",
+      through: {
+        sheet: "PostTags",
+        field: "postId",
+        reference: "tagId",
+      },
+    },
   },
   findManyOnSheet,
 });
@@ -181,7 +192,7 @@ describe("resolveRelationOrderBy", () => {
     ]);
   });
 
-  test("should throw for oneToMany relation", () => {
+  test("should throw for oneToMany relation field sort", () => {
     const findManyOnSheet = jest.fn(() => []);
     const context = createRelationContext(findManyOnSheet);
     const orderByArr: OrderBy[] = [{ posts: { title: "asc" } }];
@@ -198,5 +209,203 @@ describe("resolveRelationOrderBy", () => {
 
     const result = resolveRelationOrderBy([], orderByArr, context);
     expect(result).toEqual([]);
+  });
+
+  test("should sort by oneToMany _count asc", () => {
+    const records = [
+      { id: 1, name: "User A" },
+      { id: 2, name: "User B" },
+      { id: 3, name: "User C" },
+    ];
+
+    const findManyOnSheet = jest.fn(
+      (sheetName: string, _findData: { where?: unknown }) => {
+        if (sheetName === "Posts") {
+          return [
+            { id: 1, userId: 1 },
+            { id: 2, userId: 1 },
+            { id: 3, userId: 1 },
+            { id: 4, userId: 3 },
+          ];
+        }
+        return [];
+      },
+    );
+
+    const context = createRelationContext(findManyOnSheet);
+    const orderByArr: OrderBy[] = [{ posts: { _count: "asc" } }];
+
+    const result = resolveRelationOrderBy(records, orderByArr, context);
+
+    // User B(0) < User C(1) < User A(3)
+    expect(result).toEqual([
+      { id: 2, name: "User B" },
+      { id: 3, name: "User C" },
+      { id: 1, name: "User A" },
+    ]);
+    // temp keys should be removed
+    result.forEach((r) => {
+      Object.keys(r).forEach((key) => {
+        expect(key).not.toContain("__gassma_rel__");
+      });
+    });
+  });
+
+  test("should sort by oneToMany _count desc", () => {
+    const records = [
+      { id: 1, name: "User A" },
+      { id: 2, name: "User B" },
+      { id: 3, name: "User C" },
+    ];
+
+    const findManyOnSheet = jest.fn(
+      (sheetName: string, _findData: { where?: unknown }) => {
+        if (sheetName === "Posts") {
+          return [
+            { id: 1, userId: 1 },
+            { id: 2, userId: 1 },
+            { id: 3, userId: 1 },
+            { id: 4, userId: 3 },
+          ];
+        }
+        return [];
+      },
+    );
+
+    const context = createRelationContext(findManyOnSheet);
+    const orderByArr: OrderBy[] = [{ posts: { _count: "desc" } }];
+
+    const result = resolveRelationOrderBy(records, orderByArr, context);
+
+    // User A(3) > User C(1) > User B(0)
+    expect(result).toEqual([
+      { id: 1, name: "User A" },
+      { id: 3, name: "User C" },
+      { id: 2, name: "User B" },
+    ]);
+  });
+
+  test("should sort by manyToMany _count", () => {
+    const records = [
+      { id: 1, title: "Post A" },
+      { id: 2, title: "Post B" },
+      { id: 3, title: "Post C" },
+    ];
+
+    const findManyOnSheet = jest.fn(
+      (sheetName: string, _findData: { where?: unknown }) => {
+        if (sheetName === "PostTags") {
+          return [
+            { postId: 2, tagId: 10 },
+            { postId: 2, tagId: 11 },
+            { postId: 2, tagId: 12 },
+            { postId: 1, tagId: 10 },
+          ];
+        }
+        return [];
+      },
+    );
+
+    const context = createRelationContext(findManyOnSheet);
+    const orderByArr: OrderBy[] = [{ tags: { _count: "desc" } }];
+
+    const result = resolveRelationOrderBy(records, orderByArr, context);
+
+    // Post B(3) > Post A(1) > Post C(0)
+    expect(result).toEqual([
+      { id: 2, title: "Post B" },
+      { id: 1, title: "Post A" },
+      { id: 3, title: "Post C" },
+    ]);
+  });
+
+  test("should sort by _count combined with scalar orderBy", () => {
+    const records = [
+      { id: 1, name: "Charlie" },
+      { id: 2, name: "Alice" },
+      { id: 3, name: "Bob" },
+    ];
+
+    const findManyOnSheet = jest.fn(
+      (sheetName: string, _findData: { where?: unknown }) => {
+        if (sheetName === "Posts") {
+          return [
+            { id: 1, userId: 1 },
+            { id: 2, userId: 3 },
+          ];
+        }
+        return [];
+      },
+    );
+
+    const context = createRelationContext(findManyOnSheet);
+    // Same _count (1 each for id=1,3; 0 for id=2), then sort by name asc
+    const orderByArr: OrderBy[] = [
+      { posts: { _count: "desc" } },
+      { name: "asc" },
+    ];
+
+    const result = resolveRelationOrderBy(records, orderByArr, context);
+
+    // _count desc: Bob(1), Charlie(1) tied, then Alice(0)
+    // Within tied: name asc → Bob < Charlie
+    expect(result).toEqual([
+      { id: 3, name: "Bob" },
+      { id: 1, name: "Charlie" },
+      { id: 2, name: "Alice" },
+    ]);
+  });
+
+  test("should sort by _count combined with field sort", () => {
+    const records = [
+      { id: 1, name: "User A", authorId: 2 },
+      { id: 2, name: "User B", authorId: 1 },
+      { id: 3, name: "User C", authorId: 3 },
+    ];
+
+    const findManyOnSheet = jest.fn(
+      (sheetName: string, _findData: { where?: unknown }) => {
+        if (sheetName === "Users") {
+          return [
+            { id: 1, name: "Zack" },
+            { id: 2, name: "Alice" },
+            { id: 3, name: "Mia" },
+          ];
+        }
+        if (sheetName === "Posts") {
+          return [
+            { id: 1, userId: 1 },
+            { id: 2, userId: 1 },
+            { id: 3, userId: 3 },
+          ];
+        }
+        return [];
+      },
+    );
+
+    const context = createRelationContext(findManyOnSheet);
+    const orderByArr: OrderBy[] = [
+      { author: { name: "asc" } },
+      { posts: { _count: "desc" } },
+    ];
+
+    const result = resolveRelationOrderBy(records, orderByArr, context);
+
+    // author name asc: Alice(id=1) < Mia(id=3) < Zack(id=2)
+    expect(result).toEqual([
+      { id: 1, name: "User A", authorId: 2 },
+      { id: 3, name: "User C", authorId: 3 },
+      { id: 2, name: "User B", authorId: 1 },
+    ]);
+  });
+
+  test("should throw for manyToOne _count", () => {
+    const findManyOnSheet = jest.fn(() => []);
+    const context = createRelationContext(findManyOnSheet);
+    const orderByArr: OrderBy[] = [{ author: { _count: "asc" } }];
+
+    expect(() =>
+      resolveRelationOrderBy([{ id: 1, authorId: 1 }], orderByArr, context),
+    ).toThrow("Only oneToMany and manyToMany are supported");
   });
 });
