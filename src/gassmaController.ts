@@ -14,13 +14,16 @@ import type { CountData } from "./types/countType";
 import type { CreateData, CreateManyData } from "./types/createTypes";
 import type {
   DeleteData,
+  DeleteSingleData,
   FindData,
   UpdateData,
+  UpdateSingleData,
   UpsertData,
+  UpsertSingleData,
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
-import type { IncludeData, RelationContext } from "./types/relationTypes";
+import type { RelationContext } from "./types/relationTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { getTitle } from "./util/core/getTitle";
@@ -158,7 +161,7 @@ class GassmaController {
     return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
-  public create(createdData: CreateData & { select?: Select; omit?: Omit }) {
+  public create(createdData: CreateData) {
     if (createdData.select && createdData.omit) {
       throw new GassmaFindSelectOmitConflictError();
     }
@@ -390,12 +393,7 @@ class GassmaController {
     return resolveInclude(baseResult, findData.include, this.relationContext);
   }
 
-  public update(updateData: {
-    where: WhereUse;
-    data: Record<string, unknown>;
-    select?: Select;
-    omit?: Omit;
-  }) {
+  public update(updateData: UpdateSingleData) {
     if (updateData.select && updateData.omit) {
       throw new GassmaFindSelectOmitConflictError();
     }
@@ -485,14 +483,7 @@ class GassmaController {
     return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
-  public upsert(upsertData: {
-    where: WhereUse;
-    create: AnyUse;
-    update: AnyUse;
-    select?: Select;
-    include?: IncludeData;
-    omit?: Omit;
-  }) {
+  public upsert(upsertData: UpsertSingleData) {
     if (upsertData.include && upsertData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -523,12 +514,7 @@ class GassmaController {
     return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
-  public delete(deleteData: {
-    where: WhereUse;
-    select?: Select;
-    include?: IncludeData;
-    omit?: Omit;
-  }) {
+  public delete(deleteData: DeleteSingleData) {
     if (deleteData.include && deleteData.select) {
       throw new GassmaIncludeSelectConflictError();
     }

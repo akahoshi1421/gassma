@@ -1,6 +1,7 @@
-import type { AnyUse, Omit, Select, WhereUse } from "../../types/coreTypes";
+import type { AnyUse } from "../../types/coreTypes";
+import type { UpsertSingleData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import type { IncludeData, RelationContext } from "../../types/relationTypes";
+import type { RelationContext } from "../../types/relationTypes";
 import { createFunc } from "../create/create";
 import { resolveNestedCreate } from "../create/nestedWrite/resolveNestedCreate";
 import { findFirstFunc } from "../find/findFirst";
@@ -11,15 +12,6 @@ import { resolveInclude } from "../relation/resolveInclude";
 import { resolveOnUpdate } from "../relation/onUpdate/resolveOnUpdate";
 import { resolveNestedUpdate } from "../update/nestedWrite/resolveNestedUpdate";
 import { resolveNumberOperations } from "../update/resolveNumberOperation";
-
-type UpsertSingleData = {
-  where: WhereUse;
-  create: AnyUse;
-  update: AnyUse;
-  select?: Select;
-  include?: IncludeData;
-  omit?: Omit;
-};
 
 const applyOptions = (
   result: Record<string, unknown>,

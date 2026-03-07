@@ -23,38 +23,16 @@ declare namespace Gassma {
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
     createManyAndReturn(createdData: CreateManyData): Record<string, unknown>[];
-    create(
-      createdData: CreateData & {
-        select?: Select;
-        omit?: Record<string, boolean>;
-      },
-    ): Record<string, unknown>;
+    create(createdData: CreateData): Record<string, unknown>;
     findFirst(findData: FindData): Record<string, any>;
     findFirstOrThrow(findData: FindData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
-    update(updateData: {
-      where: WhereUse;
-      data: Record<string, unknown>;
-      select?: Select;
-      omit?: Record<string, boolean>;
-    }): Record<string, unknown> | null;
+    update(updateData: UpdateSingleData): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
-    upsert(upsertData: {
-      where: WhereUse;
-      create: AnyUse;
-      update: AnyUse;
-      select?: Select;
-      include?: IncludeData;
-      omit?: Record<string, boolean>;
-    }): Record<string, unknown>;
+    upsert(upsertData: UpsertSingleData): Record<string, unknown>;
     upsertMany(upsertData: UpsertData): UpsertManyReturn;
-    delete(deleteData: {
-      where: WhereUse;
-      select?: Select;
-      include?: IncludeData;
-      omit?: Record<string, boolean>;
-    }): Record<string, unknown> | null;
+    delete(deleteData: DeleteSingleData): Record<string, unknown> | null;
     deleteMany(deleteData: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
     count(countData: CountData): number;
@@ -134,6 +112,8 @@ declare namespace Gassma {
 
   type CreateData = {
     data: AnyUse;
+    select?: Select;
+    omit?: Record<string, boolean>;
   };
 
   type CreateManyData = {
@@ -267,6 +247,29 @@ declare namespace Gassma {
     distinct?: string | string[];
     include?: IncludeData;
     cursor?: Record<string, unknown>;
+  };
+
+  type UpdateSingleData = {
+    where: WhereUse;
+    data: Record<string, unknown>;
+    select?: Select;
+    omit?: Record<string, boolean>;
+  };
+
+  type DeleteSingleData = {
+    where: WhereUse;
+    select?: Select;
+    include?: IncludeData;
+    omit?: Record<string, boolean>;
+  };
+
+  type UpsertSingleData = {
+    where: WhereUse;
+    create: AnyUse;
+    update: AnyUse;
+    select?: Select;
+    include?: IncludeData;
+    omit?: Record<string, boolean>;
   };
 
   type DeleteData = {

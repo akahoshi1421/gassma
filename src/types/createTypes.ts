@@ -1,7 +1,9 @@
-import type { AnyUse, ManyReturn } from "./coreTypes";
+import type { AnyUse, ManyReturn, Omit, Select } from "./coreTypes";
 
 type CreateData = {
   data: AnyUse;
+  select?: Select;
+  omit?: Omit;
 };
 
 type CreateManyData = {

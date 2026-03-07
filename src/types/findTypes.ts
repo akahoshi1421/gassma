@@ -21,16 +21,39 @@ type FindData = {
   cursor?: Record<string, unknown>;
 };
 
+type UpdateSingleData = {
+  where: WhereUse;
+  data: Record<string, unknown>;
+  select?: Select;
+  omit?: Omit;
+};
+
 type UpdateData = {
   where?: WhereUse;
   data: UpdateAnyUse;
   limit?: number;
 };
 
+type UpsertSingleData = {
+  where: WhereUse;
+  create: AnyUse;
+  update: AnyUse;
+  select?: Select;
+  include?: IncludeData;
+  omit?: Omit;
+};
+
 type UpsertData = {
   where: WhereUse;
   update: AnyUse;
   create: AnyUse;
+};
+
+type DeleteSingleData = {
+  where: WhereUse;
+  select?: Select;
+  include?: IncludeData;
+  omit?: Omit;
 };
 
 type DeleteData = {
@@ -44,9 +67,12 @@ type UpsertManyReturn = ManyReturn;
 
 export type {
   FindData,
+  UpdateSingleData,
   UpdateData,
-  DeleteData,
+  UpsertSingleData,
   UpsertData,
+  DeleteSingleData,
+  DeleteData,
   UpdateManyReturn,
   DeleteManyReturn,
   UpsertManyReturn,
