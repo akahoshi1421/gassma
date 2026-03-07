@@ -1,5 +1,11 @@
 import { FieldRef } from "./util/filterConditions/fieldRef";
-import { NotFoundError } from "./errors/find/findError";
+import {
+  GassmaFindSelectOmitConflictError,
+  NotFoundError,
+} from "./errors/find/findError";
+import { findedDataSelect } from "./util/find/findUtil/findDataSelect";
+import { omitFunc } from "./util/find/findUtil/omit";
+import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
@@ -8,13 +14,16 @@ import type { CountData } from "./types/countType";
 import type { CreateData, CreateManyData } from "./types/createTypes";
 import type {
   DeleteData,
+  DeleteSingleData,
   FindData,
   UpdateData,
+  UpdateSingleData,
   UpsertData,
+  UpsertSingleData,
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
-import type { IncludeData, RelationContext } from "./types/relationTypes";
+import type { RelationContext } from "./types/relationTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { getTitle } from "./util/core/getTitle";
@@ -47,6 +56,7 @@ class GassmaController {
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
   private relationContext: RelationContext | null = null;
+  private globalOmit: Omit | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -64,6 +74,10 @@ class GassmaController {
 
   public _setRelationContext(context: RelationContext) {
     this.relationContext = context;
+  }
+
+  public _setGlobalOmit(omit: Omit) {
+    this.globalOmit = omit;
   }
 
   public get fields(): Record<string, FieldRef> {
@@ -103,6 +117,21 @@ class GassmaController {
     };
   }
 
+  private resolveEffectiveOmit(
+    select: Select | null | undefined,
+    queryOmit: Omit | null | undefined,
+  ): Omit | null {
+    return resolveGlobalOmit(this.globalOmit, select, queryOmit);
+  }
+
+  private applyOmitToResult(
+    result: Record<string, unknown>,
+    effectiveOmit: Omit | null,
+  ): Record<string, unknown> {
+    if (!effectiveOmit) return result;
+    return omitFunc(effectiveOmit, result);
+  }
+
   private resolveWhere(where: WhereUse | undefined): WhereUse | undefined {
     if (!where) return where;
     return resolveWhereRelation(where, this.relationContext);
@@ -123,18 +152,32 @@ class GassmaController {
   }
 
   public createManyAndReturn(createdData: CreateManyData) {
-    return createManyFunc(this.getGassmaControllerUtil(), createdData, true);
+    const results = createManyFunc(
+      this.getGassmaControllerUtil(),
+      createdData,
+      true,
+    );
+    if (!this.globalOmit || !Array.isArray(results)) return results;
+    return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
   public create(createdData: CreateData) {
+    if (createdData.select && createdData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
+
     const util = this.getGassmaControllerUtil();
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
-    return resolveNestedCreate(
+    const result = resolveNestedCreate(
       createdData.data,
       wrappedCreate,
       this.relationContext ?? undefined,
     );
+
+    if (createdData.select) return findedDataSelect(createdData.select, result);
+    const effectiveOmit = this.resolveEffectiveOmit(null, createdData.omit);
+    return this.applyOmitToResult(result, effectiveOmit);
   }
 
   public findFirst(findData: FindData) {
@@ -148,7 +191,15 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
-    findData = { ...findData, where: this.resolveWhere(findData.where) };
+    const effectiveOmit = this.resolveEffectiveOmit(
+      findData.select,
+      findData.omit,
+    );
+    findData = {
+      ...findData,
+      where: this.resolveWhere(findData.where),
+      omit: effectiveOmit ?? undefined,
+    };
 
     const orderBy = "orderBy" in findData ? findData.orderBy : null;
     const orderByArr = orderBy
@@ -256,7 +307,15 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
-    findData = { ...findData, where: this.resolveWhere(findData.where) };
+    const fmEffectiveOmit = this.resolveEffectiveOmit(
+      findData.select,
+      findData.omit,
+    );
+    findData = {
+      ...findData,
+      where: this.resolveWhere(findData.where),
+      omit: fmEffectiveOmit ?? undefined,
+    };
 
     const fmOrderBy = "orderBy" in findData ? findData.orderBy : null;
     const fmOrderByArr = fmOrderBy
@@ -334,10 +393,11 @@ class GassmaController {
     return resolveInclude(baseResult, findData.include, this.relationContext);
   }
 
-  public update(updateData: {
-    where: WhereUse;
-    data: Record<string, unknown>;
-  }) {
+  public update(updateData: UpdateSingleData) {
+    if (updateData.select && updateData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
+
     const resolvedWhere =
       this.resolveWhere(updateData.where) ?? updateData.where;
 
@@ -355,11 +415,16 @@ class GassmaController {
       }
     }
 
-    return resolveNestedUpdate(
+    const result = resolveNestedUpdate(
       this.getGassmaControllerUtil(),
       { where: resolvedWhere, data: updateData.data },
       this.relationContext ?? undefined,
     );
+    if (!result) return null;
+
+    if (updateData.select) return findedDataSelect(updateData.select, result);
+    const effectiveOmit = this.resolveEffectiveOmit(null, updateData.omit);
+    return this.applyOmitToResult(result, effectiveOmit);
   }
 
   public updateMany(updateData: UpdateData) {
@@ -409,17 +474,16 @@ class GassmaController {
       );
     }
 
-    return updateManyFunc(this.getGassmaControllerUtil(), updateData, true);
+    const results = updateManyFunc(
+      this.getGassmaControllerUtil(),
+      updateData,
+      true,
+    );
+    if (!this.globalOmit || !Array.isArray(results)) return results;
+    return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
   }
 
-  public upsert(upsertData: {
-    where: WhereUse;
-    create: AnyUse;
-    update: AnyUse;
-    select?: Select;
-    include?: IncludeData;
-    omit?: Omit;
-  }) {
+  public upsert(upsertData: UpsertSingleData) {
     if (upsertData.include && upsertData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -429,10 +493,18 @@ class GassmaController {
 
     const resolvedWhere =
       this.resolveWhere(upsertData.where) ?? upsertData.where;
+    const upsertOmit = this.resolveEffectiveOmit(
+      upsertData.select,
+      upsertData.omit,
+    );
 
     return upsertFunc(
       this.getGassmaControllerUtil(),
-      { ...upsertData, where: resolvedWhere },
+      {
+        ...upsertData,
+        where: resolvedWhere,
+        omit: upsertOmit ?? undefined,
+      },
       this.relationContext,
     );
   }
@@ -442,12 +514,7 @@ class GassmaController {
     return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
-  public delete(deleteData: {
-    where: WhereUse;
-    select?: Select;
-    include?: IncludeData;
-    omit?: Omit;
-  }) {
+  public delete(deleteData: DeleteSingleData) {
     if (deleteData.include && deleteData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -457,10 +524,18 @@ class GassmaController {
 
     const resolvedWhere =
       this.resolveWhere(deleteData.where) ?? deleteData.where;
+    const deleteOmit = this.resolveEffectiveOmit(
+      deleteData.select,
+      deleteData.omit,
+    );
 
     return deleteFunc(
       this.getGassmaControllerUtil(),
-      { ...deleteData, where: resolvedWhere },
+      {
+        ...deleteData,
+        where: resolvedWhere,
+        omit: deleteOmit ?? undefined,
+      },
       this.relationContext,
     );
   }

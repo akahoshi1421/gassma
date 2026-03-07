@@ -46,9 +46,14 @@ type IncludeData = {
   [relationName: string]: true | IncludeItemOptions;
 };
 
+type GlobalOmitConfig = {
+  [sheetName: string]: Omit;
+};
+
 type GassmaClientOptions = {
   id?: string;
   relations?: RelationsConfig;
+  omit?: GlobalOmitConfig;
 };
 
 type RelationContext = {
@@ -100,6 +105,7 @@ export type {
   CountSelect,
   CountValue,
   IncludeData,
+  GlobalOmitConfig,
   GassmaClientOptions,
   RelationContext,
   RelationListFilter,

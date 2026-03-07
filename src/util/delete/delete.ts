@@ -1,19 +1,12 @@
-import type { Omit, Select, WhereUse } from "../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import type { IncludeData, RelationContext } from "../../types/relationTypes";
+import type { DeleteSingleData } from "../../types/findTypes";
+import type { RelationContext } from "../../types/relationTypes";
 import { findFirstFunc } from "../find/findFirst";
 import { findedDataSelect } from "../find/findUtil/findDataSelect";
 import { omitFunc } from "../find/findUtil/omit";
 import { resolveOnDelete } from "../relation/onDelete/resolveOnDelete";
 import { resolveInclude } from "../relation/resolveInclude";
 import { deleteManyFunc } from "./deleteMany";
-
-type DeleteSingleData = {
-  where: WhereUse;
-  select?: Select;
-  include?: IncludeData;
-  omit?: Omit;
-};
 
 const deleteFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
