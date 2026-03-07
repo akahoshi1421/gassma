@@ -1,6 +1,6 @@
 {
   "name": "gassma",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "GASsma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.",
   "types": "src/index.d.ts",
   "scripts": {

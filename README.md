@@ -70,4 +70,4 @@ https://akahoshi1421.github.io/gassma-reference/
 
 ## version
 
-0.8.0
+0.10.0
