@@ -169,6 +169,31 @@ describe("resolveOnDelete", () => {
     ).not.toThrow();
   });
 
+  it("manyToOne リレーションの onDelete はスキップされる", () => {
+    const relations: Record<string, RelationDefinition> = {
+      author: {
+        type: "manyToOne",
+        to: "Users",
+        field: "authorId",
+        reference: "id",
+        onDelete: "Cascade",
+      },
+      category: {
+        type: "manyToOne",
+        to: "Categories",
+        field: "categoryId",
+        reference: "id",
+        onDelete: "Restrict",
+      },
+    };
+
+    resolveOnDelete([{ authorId: 1, categoryId: 2 }], baseContext(relations));
+
+    expect(mockFindMany).not.toHaveBeenCalled();
+    expect(mockDeleteMany).not.toHaveBeenCalled();
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+
   it("複数リレーションでRestrictを全て先にチェックしてからCascade/SetNullを実行する", () => {
     const relations: Record<string, RelationDefinition> = {
       posts: {
