@@ -33,8 +33,9 @@ const resolveOnUpdate = (
 ): void => {
   const entries = Object.entries(context.relations);
 
-  // Phase 1: Restrict チェックを全て先に実行
+  // Phase 1: Restrict チェックを全て先に実行（manyToOne はスキップ）
   entries.forEach(([relationName, relation]) => {
+    if (relation.type === "manyToOne") return;
     if (relation.onUpdate !== "Restrict") return;
 
     const changed = extractChangedPairs(
@@ -64,8 +65,9 @@ const resolveOnUpdate = (
     }
   });
 
-  // Phase 2: Cascade / SetNull を実行
+  // Phase 2: Cascade / SetNull を実行（manyToOne はスキップ）
   entries.forEach(([, relation]) => {
+    if (relation.type === "manyToOne") return;
     if (
       !relation.onUpdate ||
       relation.onUpdate === "NoAction" ||
