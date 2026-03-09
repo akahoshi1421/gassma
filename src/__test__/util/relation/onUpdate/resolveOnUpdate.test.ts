@@ -200,6 +200,49 @@ describe("resolveOnUpdate", () => {
     ).not.toThrow();
   });
 
+  it("manyToOne リレーションはスキップされる", () => {
+    const relations: Record<string, RelationDefinition> = {
+      author: {
+        type: "manyToOne",
+        to: "Users",
+        field: "authorId",
+        reference: "id",
+        onUpdate: "Cascade",
+      },
+    };
+
+    resolveOnUpdate(
+      [{ authorId: 1 }],
+      [{ authorId: 2 }],
+      baseContext(relations),
+    );
+
+    expect(mockFindMany).not.toHaveBeenCalled();
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+    expect(mockDeleteMany).not.toHaveBeenCalled();
+  });
+
+  it("manyToOne + Restrict リレーションはスキップされる", () => {
+    const relations: Record<string, RelationDefinition> = {
+      author: {
+        type: "manyToOne",
+        to: "Users",
+        field: "authorId",
+        reference: "id",
+        onUpdate: "Restrict",
+      },
+    };
+
+    resolveOnUpdate(
+      [{ authorId: 1 }],
+      [{ authorId: 2 }],
+      baseContext(relations),
+    );
+
+    expect(mockFindMany).not.toHaveBeenCalled();
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+
   it("複数リレーションでRestrictを先にチェックしてからCascadeを実行する", () => {
     const relations: Record<string, RelationDefinition> = {
       posts: {

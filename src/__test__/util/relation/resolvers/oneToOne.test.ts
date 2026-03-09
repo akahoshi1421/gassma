@@ -83,6 +83,46 @@ describe("resolveOneToOne", () => {
     expect(mockFindMany).not.toHaveBeenCalled();
   });
 
+  it("selectオプションで子レコードのフィールドを絞り込む", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 10, userId: 1, bio: "Hello", avatar: "pic.png" },
+    ]);
+
+    const result = resolveOneToOne(parents, relation, "profile", mockFindMany, {
+      select: { id: true, bio: true },
+    });
+
+    expect(result[0].profile).toEqual({ id: 10, bio: "Hello" });
+  });
+
+  it("omitオプションで子レコードのフィールドを除外する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 10, userId: 1, bio: "Hello", avatar: "pic.png" },
+    ]);
+
+    const result = resolveOneToOne(parents, relation, "profile", mockFindMany, {
+      omit: { avatar: true },
+    });
+
+    expect(result[0].profile).toEqual({ id: 10, userId: 1, bio: "Hello" });
+  });
+
+  it("子レコードがnullの場合selectオプションがあってもnullを返す", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([]);
+
+    const result = resolveOneToOne(parents, relation, "profile", mockFindMany, {
+      select: { id: true, bio: true },
+    });
+
+    expect(result[0].profile).toBeNull();
+  });
+
   it("includeオプション付きでfindManyOnSheetにincludeが渡される", () => {
     const parents = [{ id: 1, name: "Alice" }];
 

@@ -263,6 +263,44 @@ describe("resolveManyToMany", () => {
     );
   });
 
+  it("selectオプションで子レコードのフィールドを絞り込む", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech", description: "Tech stuff" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { select: { id: true, name: true } },
+    );
+
+    expect(result[0].categories).toEqual([{ id: 10, name: "Tech" }]);
+  });
+
+  it("omitオプションで子レコードのフィールドを除外する", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech", description: "Tech stuff" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { omit: { description: true } },
+    );
+
+    expect(result[0].categories).toEqual([{ id: 10, name: "Tech" }]);
+  });
+
   it("ターゲット取得にincludeが渡され、中間テーブルには渡されない", () => {
     const parents = [{ id: 1, title: "Post A" }];
 
