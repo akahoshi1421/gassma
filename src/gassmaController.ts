@@ -191,6 +191,10 @@ class GassmaController {
       throw new IncludeWithoutRelationsError();
     }
 
+    if (findData.select && findData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
+
     const effectiveOmit = this.resolveEffectiveOmit(
       findData.select,
       findData.omit,
@@ -305,6 +309,10 @@ class GassmaController {
       !this.relationContext
     ) {
       throw new IncludeWithoutRelationsError();
+    }
+
+    if (findData.select && findData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
     }
 
     const fmEffectiveOmit = this.resolveEffectiveOmit(
