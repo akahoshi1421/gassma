@@ -6,6 +6,7 @@ import type {
 import type { WhereUse } from "../../../types/coreTypes";
 import { GassmaSkipNegativeError } from "../../../errors/find/findError";
 import { orderByFunc } from "../../find/findUtil/orderBy";
+import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { collectKeys } from "../collectKeys";
 
 type FindManyOnSheet = (
@@ -70,7 +71,8 @@ const resolveOneToMany = (
       items = items.slice(options.skip);
     }
 
-    return { ...parent, [relationName]: items };
+    const filtered = applySelectOmit(items, options?.select, options?.omit);
+    return { ...parent, [relationName]: filtered };
   });
 };
 

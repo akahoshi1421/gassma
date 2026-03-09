@@ -106,6 +106,46 @@ describe("resolveManyToOne", () => {
     expect(mockFindMany).not.toHaveBeenCalled();
   });
 
+  it("selectオプションで参照先レコードのフィールドを絞り込む", () => {
+    const parents = [{ id: 101, authorId: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 1, name: "Alice", email: "alice@test.com" },
+    ]);
+
+    const result = resolveManyToOne(parents, relation, "author", mockFindMany, {
+      select: { id: true, name: true },
+    });
+
+    expect(result[0].author).toEqual({ id: 1, name: "Alice" });
+  });
+
+  it("omitオプションで参照先レコードのフィールドを除外する", () => {
+    const parents = [{ id: 101, authorId: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 1, name: "Alice", email: "alice@test.com" },
+    ]);
+
+    const result = resolveManyToOne(parents, relation, "author", mockFindMany, {
+      omit: { email: true },
+    });
+
+    expect(result[0].author).toEqual({ id: 1, name: "Alice" });
+  });
+
+  it("FK値がnullの場合selectオプションがあってもnullを返す", () => {
+    const parents = [{ id: 101, authorId: null, title: "Draft" }];
+
+    mockFindMany.mockReturnValue([]);
+
+    const result = resolveManyToOne(parents, relation, "author", mockFindMany, {
+      select: { id: true, name: true },
+    });
+
+    expect(result[0].author).toBeNull();
+  });
+
   it("includeオプション付きでfindManyOnSheetにincludeが渡される", () => {
     const parents = [{ id: 101, authorId: 1, title: "Post A" }];
 

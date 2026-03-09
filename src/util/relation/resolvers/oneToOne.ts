@@ -5,6 +5,7 @@ import type {
 } from "../../../types/relationTypes";
 import type { WhereUse } from "../../../types/coreTypes";
 import { GassmaRelationDuplicateError } from "../../../errors/relation/relationError";
+import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { collectKeys } from "../collectKeys";
 
 type FindManyOnSheet = (
@@ -48,7 +49,10 @@ const resolveOneToOne = (
 
   return parents.map((parent) => {
     const child = lookup.get(parent[relation.field]) ?? null;
-    return { ...parent, [relationName]: child };
+    const filtered = child
+      ? applySelectOmit([child], options?.select, options?.omit)[0]
+      : null;
+    return { ...parent, [relationName]: filtered };
   });
 };
 

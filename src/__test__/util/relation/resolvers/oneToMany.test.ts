@@ -228,6 +228,40 @@ describe("resolveOneToMany", () => {
     expect(mockFindMany).not.toHaveBeenCalled();
   });
 
+  it("selectオプションで子レコードのフィールドを絞り込む", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A", content: "Body A" },
+      { id: 102, authorId: 1, title: "Post B", content: "Body B" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      select: { id: true, title: true },
+    });
+
+    expect(result[0].posts).toEqual([
+      { id: 101, title: "Post A" },
+      { id: 102, title: "Post B" },
+    ]);
+  });
+
+  it("omitオプションで子レコードのフィールドを除外する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A", content: "Body A" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      omit: { content: true },
+    });
+
+    expect(result[0].posts).toEqual([
+      { id: 101, authorId: 1, title: "Post A" },
+    ]);
+  });
+
   it("includeオプション付きでfindManyOnSheetにincludeが渡される", () => {
     const parents = [{ id: 1, name: "Alice" }];
 
