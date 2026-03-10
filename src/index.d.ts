@@ -201,6 +201,8 @@ declare namespace Gassma {
     [sheetName: string]: string | string[];
   };
 
+  type IgnoreSheetsConfig = string | string[];
+
   type MapConfig = {
     [sheetName: string]: {
       [codeName: string]: string;
@@ -214,6 +216,7 @@ declare namespace Gassma {
     defaults?: DefaultsConfig;
     updatedAt?: UpdatedAtConfig;
     ignore?: IgnoreConfig;
+    ignoreSheets?: IgnoreSheetsConfig;
     map?: MapConfig;
   };
 
