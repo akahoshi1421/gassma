@@ -3,6 +3,7 @@ import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
 import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { FieldRef } from "./util/filterConditions/fieldRef";
 import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
+import { stripIgnoreFromSelect } from "./util/ignore/stripIgnoreFromSelect";
 import { mapToSheet, mapFromSheet } from "./util/map/mapFields";
 import type { FieldMapping } from "./util/map/mapFields";
 import {
@@ -121,6 +122,11 @@ class GassmaController {
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
     if (!this.ignoredFields) return data;
     return stripIgnoredFields(data, this.ignoredFields);
+  }
+
+  private applyIgnoreToSelect(select: Select): Select {
+    if (!this.ignoredFields) return select;
+    return stripIgnoreFromSelect(select, this.ignoredFields);
   }
 
   private mergeIgnoreIntoOmit(omit: Omit | null | undefined): Omit | undefined {
@@ -311,12 +317,18 @@ class GassmaController {
       throw new GassmaFindSelectOmitConflictError();
     }
 
-    const effectiveOmit = this.mergeIgnoreIntoOmit(
-      this.resolveEffectiveOmit(findData.select, findData.omit),
-    );
+    const resolvedSelect = findData.select
+      ? this.applyIgnoreToSelect(findData.select)
+      : findData.select;
+    const effectiveOmit = findData.select
+      ? undefined
+      : this.mergeIgnoreIntoOmit(
+          this.resolveEffectiveOmit(findData.select, findData.omit),
+        );
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
+      select: resolvedSelect,
       omit: effectiveOmit,
     };
 
@@ -435,12 +447,18 @@ class GassmaController {
       throw new GassmaFindSelectOmitConflictError();
     }
 
-    const fmEffectiveOmit = this.mergeIgnoreIntoOmit(
-      this.resolveEffectiveOmit(findData.select, findData.omit),
-    );
+    const fmResolvedSelect = findData.select
+      ? this.applyIgnoreToSelect(findData.select)
+      : findData.select;
+    const fmEffectiveOmit = findData.select
+      ? undefined
+      : this.mergeIgnoreIntoOmit(
+          this.resolveEffectiveOmit(findData.select, findData.omit),
+        );
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
+      select: fmResolvedSelect,
       omit: fmEffectiveOmit,
     };
 
