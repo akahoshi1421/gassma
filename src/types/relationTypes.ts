@@ -1,4 +1,11 @@
-import type { AnyUse, Omit, OrderBy, Select, WhereUse } from "./coreTypes";
+import type {
+  AnyUse,
+  GassmaAny,
+  Omit,
+  OrderBy,
+  Select,
+  WhereUse,
+} from "./coreTypes";
 
 type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";
 
@@ -50,10 +57,17 @@ type GlobalOmitConfig = {
   [sheetName: string]: Omit;
 };
 
+type DefaultsConfig = {
+  [sheetName: string]: {
+    [columnName: string]: GassmaAny | (() => GassmaAny);
+  };
+};
+
 type GassmaClientOptions = {
   id?: string;
   relations?: RelationsConfig;
   omit?: GlobalOmitConfig;
+  defaults?: DefaultsConfig;
 };
 
 type RelationContext = {
@@ -105,6 +119,7 @@ export type {
   CountSelect,
   CountValue,
   IncludeData,
+  DefaultsConfig,
   GlobalOmitConfig,
   GassmaClientOptions,
   RelationContext,
