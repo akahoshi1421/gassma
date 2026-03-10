@@ -28,6 +28,9 @@ class GassmaClient {
     const defaults = isClientOptions(idOrOptions)
       ? idOrOptions.defaults
       : undefined;
+    const updatedAt = isClientOptions(idOrOptions)
+      ? idOrOptions.updatedAt
+      : undefined;
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -42,6 +45,12 @@ class GassmaClient {
       }
       if (defaults && defaults[sheetName]) {
         sheetController._setDefaults(defaults[sheetName]);
+      }
+      if (updatedAt && updatedAt[sheetName]) {
+        const fields = updatedAt[sheetName];
+        sheetController._setUpdatedAt(
+          Array.isArray(fields) ? fields : [fields],
+        );
       }
       this.sheets[sheetName] = sheetController;
     });

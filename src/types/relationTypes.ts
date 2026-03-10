@@ -63,11 +63,16 @@ type DefaultsConfig = {
   };
 };
 
+type UpdatedAtConfig = {
+  [sheetName: string]: string | string[];
+};
+
 type GassmaClientOptions = {
   id?: string;
   relations?: RelationsConfig;
   omit?: GlobalOmitConfig;
   defaults?: DefaultsConfig;
+  updatedAt?: UpdatedAtConfig;
 };
 
 type RelationContext = {
@@ -120,6 +125,7 @@ export type {
   CountValue,
   IncludeData,
   DefaultsConfig,
+  UpdatedAtConfig,
   GlobalOmitConfig,
   GassmaClientOptions,
   RelationContext,

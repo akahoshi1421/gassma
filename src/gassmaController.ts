@@ -1,4 +1,5 @@
 import { applyDefaults } from "./util/defaults/applyDefaults";
+import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
 import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { FieldRef } from "./util/filterConditions/fieldRef";
 import {
@@ -60,6 +61,7 @@ class GassmaController {
   private relationContext: RelationContext | null = null;
   private globalOmit: Omit | null = null;
   private defaults: DefaultsForSheet | null = null;
+  private updatedAtFields: string[] | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -85,6 +87,17 @@ class GassmaController {
 
   public _setDefaults(defaults: DefaultsForSheet) {
     this.defaults = defaults;
+  }
+
+  public _setUpdatedAt(fields: string[]) {
+    this.updatedAtFields = fields;
+  }
+
+  private applyUpdatedAtToData(
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!this.updatedAtFields) return data;
+    return applyUpdatedAt(data, this.updatedAtFields);
   }
 
   private applyDefaultsToData(
@@ -162,11 +175,16 @@ class GassmaController {
   }
 
   private applyDefaultsToManyData(createdData: CreateManyData): CreateManyData {
-    if (!this.defaults) return createdData;
+    if (!this.defaults && !this.updatedAtFields) return createdData;
     const defs = this.defaults;
+    const fields = this.updatedAtFields;
     return {
       ...createdData,
-      data: createdData.data.map((d) => applyDefaults(d, defs) as AnyUse),
+      data: createdData.data.map((d) => {
+        let result = defs ? applyDefaults(d, defs) : { ...d };
+        if (fields) result = applyUpdatedAt(result, fields);
+        return result as AnyUse;
+      }),
     };
   }
 
@@ -193,7 +211,9 @@ class GassmaController {
     }
 
     const util = this.getGassmaControllerUtil();
-    const dataWithDefaults = this.applyDefaultsToData(createdData.data);
+    const dataWithDefaults = this.applyUpdatedAtToData(
+      this.applyDefaultsToData(createdData.data),
+    );
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
     const result = resolveNestedCreate(
@@ -450,9 +470,11 @@ class GassmaController {
       }
     }
 
+    const updateDataWithTimestamp = this.applyUpdatedAtToData(updateData.data);
+
     const result = resolveNestedUpdate(
       this.getGassmaControllerUtil(),
-      { where: resolvedWhere, data: updateData.data },
+      { where: resolvedWhere, data: updateDataWithTimestamp },
       this.relationContext ?? undefined,
     );
     if (!result) return null;
@@ -463,7 +485,11 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
-    updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
+    updateData = {
+      ...updateData,
+      where: this.resolveWhere(updateData.where),
+      data: this.applyUpdatedAtToData(updateData.data),
+    };
 
     if (this.relationContext) {
       const findData: FindData = { where: updateData.where };
@@ -488,7 +514,11 @@ class GassmaController {
   }
 
   public updateManyAndReturn(updateData: UpdateData) {
-    updateData = { ...updateData, where: this.resolveWhere(updateData.where) };
+    updateData = {
+      ...updateData,
+      where: this.resolveWhere(updateData.where),
+      data: this.applyUpdatedAtToData(updateData.data),
+    };
 
     if (this.relationContext) {
       const findData: FindData = { where: updateData.where };
@@ -533,7 +563,10 @@ class GassmaController {
       upsertData.omit,
     );
 
-    const createWithDefaults = this.applyDefaultsToData(upsertData.create);
+    const createWithDefaults = this.applyUpdatedAtToData(
+      this.applyDefaultsToData(upsertData.create),
+    );
+    const updateWithTimestamp = this.applyUpdatedAtToData(upsertData.update);
 
     return upsertFunc(
       this.getGassmaControllerUtil(),
@@ -541,6 +574,7 @@ class GassmaController {
         ...upsertData,
         where: resolvedWhere,
         create: createWithDefaults as AnyUse,
+        update: updateWithTimestamp as AnyUse,
         omit: upsertOmit ?? undefined,
       },
       this.relationContext,
