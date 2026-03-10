@@ -56,7 +56,8 @@ class GassmaClient {
         );
       }
       if (ignore && ignore[sheetName]) {
-        sheetController._setIgnore(ignore[sheetName]);
+        const fields = ignore[sheetName];
+        sheetController._setIgnore(Array.isArray(fields) ? fields : [fields]);
       }
       this.sheets[sheetName] = sheetController;
     });

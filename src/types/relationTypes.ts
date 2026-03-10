@@ -68,7 +68,7 @@ type UpdatedAtConfig = {
 };
 
 type IgnoreConfig = {
-  [sheetName: string]: string[];
+  [sheetName: string]: string | string[];
 };
 
 type GassmaClientOptions = {
