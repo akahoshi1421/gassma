@@ -6,6 +6,7 @@ import type {
   IncludeData,
   RelationsConfig,
 } from "./types/relationTypes";
+import { isSheetIgnored } from "./util/ignore/isSheetIgnored";
 import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
 
 const isClientOptions = (
@@ -35,6 +36,14 @@ class GassmaClient {
       ? idOrOptions.ignore
       : undefined;
     const map = isClientOptions(idOrOptions) ? idOrOptions.map : undefined;
+    const ignoreSheetsRaw = isClientOptions(idOrOptions)
+      ? idOrOptions.ignoreSheets
+      : undefined;
+    const ignoreSheets = ignoreSheetsRaw
+      ? Array.isArray(ignoreSheetsRaw)
+        ? ignoreSheetsRaw
+        : [ignoreSheetsRaw]
+      : [];
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -43,6 +52,7 @@ class GassmaClient {
 
     mySheets.forEach((sheet) => {
       const sheetName = sheet.getName();
+      if (isSheetIgnored(sheetName, ignoreSheets)) return;
       const sheetController = new GassmaController(sheetName, id);
       if (globalOmit && globalOmit[sheetName]) {
         sheetController._setGlobalOmit(globalOmit[sheetName]);

@@ -71,6 +71,8 @@ type IgnoreConfig = {
   [sheetName: string]: string | string[];
 };
 
+type IgnoreSheetsConfig = string | string[];
+
 type MapConfig = {
   [sheetName: string]: {
     [codeName: string]: string;
@@ -84,6 +86,7 @@ type GassmaClientOptions = {
   defaults?: DefaultsConfig;
   updatedAt?: UpdatedAtConfig;
   ignore?: IgnoreConfig;
+  ignoreSheets?: IgnoreSheetsConfig;
   map?: MapConfig;
 };
 
@@ -139,6 +142,7 @@ export type {
   DefaultsConfig,
   UpdatedAtConfig,
   IgnoreConfig,
+  IgnoreSheetsConfig,
   MapConfig,
   GlobalOmitConfig,
   GassmaClientOptions,
