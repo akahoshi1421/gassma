@@ -61,7 +61,7 @@ class GassmaController {
   private relationContext: RelationContext | null = null;
   private globalOmit: Omit | null = null;
   private defaults: DefaultsForSheet | null = null;
-  private updatedAtField: string | null = null;
+  private updatedAtFields: string[] | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -89,15 +89,15 @@ class GassmaController {
     this.defaults = defaults;
   }
 
-  public _setUpdatedAt(field: string) {
-    this.updatedAtField = field;
+  public _setUpdatedAt(fields: string[]) {
+    this.updatedAtFields = fields;
   }
 
   private applyUpdatedAtToData(
     data: Record<string, unknown>,
   ): Record<string, unknown> {
-    if (!this.updatedAtField) return data;
-    return applyUpdatedAt(data, this.updatedAtField);
+    if (!this.updatedAtFields) return data;
+    return applyUpdatedAt(data, this.updatedAtFields);
   }
 
   private applyDefaultsToData(
@@ -175,14 +175,14 @@ class GassmaController {
   }
 
   private applyDefaultsToManyData(createdData: CreateManyData): CreateManyData {
-    if (!this.defaults && !this.updatedAtField) return createdData;
+    if (!this.defaults && !this.updatedAtFields) return createdData;
     const defs = this.defaults;
-    const field = this.updatedAtField;
+    const fields = this.updatedAtFields;
     return {
       ...createdData,
       data: createdData.data.map((d) => {
         let result = defs ? applyDefaults(d, defs) : { ...d };
-        if (field) result = applyUpdatedAt(result, field);
+        if (fields) result = applyUpdatedAt(result, fields);
         return result as AnyUse;
       }),
     };

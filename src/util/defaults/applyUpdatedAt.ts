@@ -1,9 +1,16 @@
 const applyUpdatedAt = (
   data: Record<string, unknown>,
-  field: string,
+  fields: string[],
 ): Record<string, unknown> => {
-  if (field in data) return { ...data };
-  return { ...data, [field]: new Date() };
+  const result = { ...data };
+  const now = new Date();
+
+  fields.forEach((field) => {
+    if (field in result) return;
+    result[field] = now;
+  });
+
+  return result;
 };
 
 export { applyUpdatedAt };

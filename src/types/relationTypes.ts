@@ -64,7 +64,7 @@ type DefaultsConfig = {
 };
 
 type UpdatedAtConfig = {
-  [sheetName: string]: string;
+  [sheetName: string]: string | string[];
 };
 
 type GassmaClientOptions = {
