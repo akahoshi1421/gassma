@@ -34,6 +34,7 @@ class GassmaClient {
     const ignore = isClientOptions(idOrOptions)
       ? idOrOptions.ignore
       : undefined;
+    const map = isClientOptions(idOrOptions) ? idOrOptions.map : undefined;
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -58,6 +59,9 @@ class GassmaClient {
       if (ignore && ignore[sheetName]) {
         const fields = ignore[sheetName];
         sheetController._setIgnore(Array.isArray(fields) ? fields : [fields]);
+      }
+      if (map && map[sheetName]) {
+        sheetController._setMap(map[sheetName]);
       }
       this.sheets[sheetName] = sheetController;
     });

@@ -44,6 +44,7 @@ declare namespace Gassma {
     }): void;
     _setUpdatedAt(fields: string[]): void;
     _setIgnore(fields: string[]): void;
+    _setMap(mapping: { [codeName: string]: string }): void;
   }
 
   type GassmaSheet = {
@@ -200,6 +201,12 @@ declare namespace Gassma {
     [sheetName: string]: string | string[];
   };
 
+  type MapConfig = {
+    [sheetName: string]: {
+      [codeName: string]: string;
+    };
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
@@ -207,6 +214,7 @@ declare namespace Gassma {
     defaults?: DefaultsConfig;
     updatedAt?: UpdatedAtConfig;
     ignore?: IgnoreConfig;
+    map?: MapConfig;
   };
 
   type ConnectOrCreateInput = {
