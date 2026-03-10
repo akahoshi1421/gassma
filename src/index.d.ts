@@ -39,6 +39,9 @@ declare namespace Gassma {
     groupBy(groupByData: GroupByData): Record<string, any>[];
     _setRelationContext(context: RelationContext): void;
     _setGlobalOmit(omit: Omit): void;
+    _setDefaults(defaults: {
+      [columnName: string]: GassmaAny | (() => GassmaAny);
+    }): void;
   }
 
   type GassmaSheet = {
@@ -177,6 +180,12 @@ declare namespace Gassma {
     isNot?: WhereUse | null;
   };
 
+  type DefaultsConfig = {
+    [sheetName: string]: {
+      [columnName: string]: GassmaAny | (() => GassmaAny);
+    };
+  };
+
   type GlobalOmitConfig = {
     [sheetName: string]: Omit;
   };
@@ -185,6 +194,7 @@ declare namespace Gassma {
     id?: string;
     relations?: RelationsConfig;
     omit?: GlobalOmitConfig;
+    defaults?: DefaultsConfig;
   };
 
   type ConnectOrCreateInput = {

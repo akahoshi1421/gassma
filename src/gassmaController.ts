@@ -1,3 +1,5 @@
+import { applyDefaults } from "./util/defaults/applyDefaults";
+import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { FieldRef } from "./util/filterConditions/fieldRef";
 import {
   GassmaFindSelectOmitConflictError,
@@ -57,6 +59,7 @@ class GassmaController {
   private endColumnNumber: number = 1;
   private relationContext: RelationContext | null = null;
   private globalOmit: Omit | null = null;
+  private defaults: DefaultsForSheet | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -78,6 +81,17 @@ class GassmaController {
 
   public _setGlobalOmit(omit: Omit) {
     this.globalOmit = omit;
+  }
+
+  public _setDefaults(defaults: DefaultsForSheet) {
+    this.defaults = defaults;
+  }
+
+  private applyDefaultsToData(
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!this.defaults) return data;
+    return applyDefaults(data, this.defaults);
   }
 
   public get fields(): Record<string, FieldRef> {
@@ -147,14 +161,26 @@ class GassmaController {
     return result;
   }
 
+  private applyDefaultsToManyData(createdData: CreateManyData): CreateManyData {
+    if (!this.defaults) return createdData;
+    const defs = this.defaults;
+    return {
+      ...createdData,
+      data: createdData.data.map((d) => applyDefaults(d, defs) as AnyUse),
+    };
+  }
+
   public createMany(createdData: CreateManyData) {
-    return createManyFunc(this.getGassmaControllerUtil(), createdData);
+    return createManyFunc(
+      this.getGassmaControllerUtil(),
+      this.applyDefaultsToManyData(createdData),
+    );
   }
 
   public createManyAndReturn(createdData: CreateManyData) {
     const results = createManyFunc(
       this.getGassmaControllerUtil(),
-      createdData,
+      this.applyDefaultsToManyData(createdData),
       true,
     );
     if (!this.globalOmit || !Array.isArray(results)) return results;
@@ -167,10 +193,11 @@ class GassmaController {
     }
 
     const util = this.getGassmaControllerUtil();
+    const dataWithDefaults = this.applyDefaultsToData(createdData.data);
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
     const result = resolveNestedCreate(
-      createdData.data,
+      dataWithDefaults,
       wrappedCreate,
       this.relationContext ?? undefined,
     );
@@ -506,11 +533,14 @@ class GassmaController {
       upsertData.omit,
     );
 
+    const createWithDefaults = this.applyDefaultsToData(upsertData.create);
+
     return upsertFunc(
       this.getGassmaControllerUtil(),
       {
         ...upsertData,
         where: resolvedWhere,
+        create: createWithDefaults as AnyUse,
         omit: upsertOmit ?? undefined,
       },
       this.relationContext,

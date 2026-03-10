@@ -25,6 +25,9 @@ class GassmaClient {
     const globalOmit = isClientOptions(idOrOptions)
       ? idOrOptions.omit
       : undefined;
+    const defaults = isClientOptions(idOrOptions)
+      ? idOrOptions.defaults
+      : undefined;
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -36,6 +39,9 @@ class GassmaClient {
       const sheetController = new GassmaController(sheetName, id);
       if (globalOmit && globalOmit[sheetName]) {
         sheetController._setGlobalOmit(globalOmit[sheetName]);
+      }
+      if (defaults && defaults[sheetName]) {
+        sheetController._setDefaults(defaults[sheetName]);
       }
       this.sheets[sheetName] = sheetController;
     });
