@@ -2,6 +2,7 @@ import { applyDefaults } from "./util/defaults/applyDefaults";
 import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
 import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { FieldRef } from "./util/filterConditions/fieldRef";
+import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
 import {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
@@ -62,6 +63,7 @@ class GassmaController {
   private globalOmit: Omit | null = null;
   private defaults: DefaultsForSheet | null = null;
   private updatedAtFields: string[] | null = null;
+  private ignoredFields: string[] | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -91,6 +93,24 @@ class GassmaController {
 
   public _setUpdatedAt(fields: string[]) {
     this.updatedAtFields = fields;
+  }
+
+  public _setIgnore(fields: string[]) {
+    this.ignoredFields = fields;
+  }
+
+  private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
+    if (!this.ignoredFields) return data;
+    return stripIgnoredFields(data, this.ignoredFields);
+  }
+
+  private mergeIgnoreIntoOmit(omit: Omit | null | undefined): Omit | undefined {
+    if (!this.ignoredFields) return omit ?? undefined;
+    const merged: Omit = omit ? { ...omit } : {};
+    this.ignoredFields.forEach((field) => {
+      merged[field] = true;
+    });
+    return merged;
   }
 
   private applyUpdatedAtToData(
@@ -161,7 +181,10 @@ class GassmaController {
 
   private resolveWhere(where: WhereUse | undefined): WhereUse | undefined {
     if (!where) return where;
-    return resolveWhereRelation(where, this.relationContext);
+    const stripped = this.ignoredFields
+      ? (stripIgnoredFields(where, this.ignoredFields) as WhereUse)
+      : where;
+    return resolveWhereRelation(stripped, this.relationContext);
   }
 
   private buildScalarSelect(select: Select): Select | null {
@@ -174,15 +197,20 @@ class GassmaController {
     return result;
   }
 
-  private applyDefaultsToManyData(createdData: CreateManyData): CreateManyData {
-    if (!this.defaults && !this.updatedAtFields) return createdData;
+  private applyCreateManyPreprocess(
+    createdData: CreateManyData,
+  ): CreateManyData {
+    if (!this.defaults && !this.updatedAtFields && !this.ignoredFields)
+      return createdData;
     const defs = this.defaults;
-    const fields = this.updatedAtFields;
+    const uaFields = this.updatedAtFields;
+    const ignored = this.ignoredFields;
     return {
       ...createdData,
       data: createdData.data.map((d) => {
         let result = defs ? applyDefaults(d, defs) : { ...d };
-        if (fields) result = applyUpdatedAt(result, fields);
+        if (uaFields) result = applyUpdatedAt(result, uaFields);
+        if (ignored) result = stripIgnoredFields(result, ignored);
         return result as AnyUse;
       }),
     };
@@ -191,18 +219,21 @@ class GassmaController {
   public createMany(createdData: CreateManyData) {
     return createManyFunc(
       this.getGassmaControllerUtil(),
-      this.applyDefaultsToManyData(createdData),
+      this.applyCreateManyPreprocess(createdData),
     );
   }
 
   public createManyAndReturn(createdData: CreateManyData) {
     const results = createManyFunc(
       this.getGassmaControllerUtil(),
-      this.applyDefaultsToManyData(createdData),
+      this.applyCreateManyPreprocess(createdData),
       true,
     );
-    if (!this.globalOmit || !Array.isArray(results)) return results;
-    return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
+    if (!Array.isArray(results)) return results;
+    return results.map((r) => {
+      const stripped = this.stripIgnored(r);
+      return this.applyOmitToResult(stripped, this.globalOmit);
+    });
   }
 
   public create(createdData: CreateData) {
@@ -211,8 +242,8 @@ class GassmaController {
     }
 
     const util = this.getGassmaControllerUtil();
-    const dataWithDefaults = this.applyUpdatedAtToData(
-      this.applyDefaultsToData(createdData.data),
+    const dataWithDefaults = this.stripIgnored(
+      this.applyUpdatedAtToData(this.applyDefaultsToData(createdData.data)),
     );
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
@@ -222,9 +253,11 @@ class GassmaController {
       this.relationContext ?? undefined,
     );
 
-    if (createdData.select) return findedDataSelect(createdData.select, result);
+    const stripped = this.stripIgnored(result);
+    if (createdData.select)
+      return findedDataSelect(createdData.select, stripped);
     const effectiveOmit = this.resolveEffectiveOmit(null, createdData.omit);
-    return this.applyOmitToResult(result, effectiveOmit);
+    return this.applyOmitToResult(stripped, effectiveOmit);
   }
 
   public findFirst(findData: FindData) {
@@ -242,14 +275,13 @@ class GassmaController {
       throw new GassmaFindSelectOmitConflictError();
     }
 
-    const effectiveOmit = this.resolveEffectiveOmit(
-      findData.select,
-      findData.omit,
+    const effectiveOmit = this.mergeIgnoreIntoOmit(
+      this.resolveEffectiveOmit(findData.select, findData.omit),
     );
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
-      omit: effectiveOmit ?? undefined,
+      omit: effectiveOmit,
     };
 
     const orderBy = "orderBy" in findData ? findData.orderBy : null;
@@ -362,14 +394,13 @@ class GassmaController {
       throw new GassmaFindSelectOmitConflictError();
     }
 
-    const fmEffectiveOmit = this.resolveEffectiveOmit(
-      findData.select,
-      findData.omit,
+    const fmEffectiveOmit = this.mergeIgnoreIntoOmit(
+      this.resolveEffectiveOmit(findData.select, findData.omit),
     );
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
-      omit: fmEffectiveOmit ?? undefined,
+      omit: fmEffectiveOmit,
     };
 
     const fmOrderBy = "orderBy" in findData ? findData.orderBy : null;
@@ -479,9 +510,10 @@ class GassmaController {
     );
     if (!result) return null;
 
-    if (updateData.select) return findedDataSelect(updateData.select, result);
+    const stripped = this.stripIgnored(result);
+    if (updateData.select) return findedDataSelect(updateData.select, stripped);
     const effectiveOmit = this.resolveEffectiveOmit(null, updateData.omit);
-    return this.applyOmitToResult(result, effectiveOmit);
+    return this.applyOmitToResult(stripped, effectiveOmit);
   }
 
   public updateMany(updateData: UpdateData) {
@@ -544,8 +576,11 @@ class GassmaController {
       updateData,
       true,
     );
-    if (!this.globalOmit || !Array.isArray(results)) return results;
-    return results.map((r) => this.applyOmitToResult(r, this.globalOmit));
+    if (!Array.isArray(results)) return results;
+    return results.map((r) => {
+      const stripped = this.stripIgnored(r);
+      return this.applyOmitToResult(stripped, this.globalOmit);
+    });
   }
 
   public upsert(upsertData: UpsertSingleData) {
@@ -563,10 +598,13 @@ class GassmaController {
       upsertData.omit,
     );
 
-    const createWithDefaults = this.applyUpdatedAtToData(
-      this.applyDefaultsToData(upsertData.create),
+    const createWithDefaults = this.stripIgnored(
+      this.applyUpdatedAtToData(this.applyDefaultsToData(upsertData.create)),
     );
-    const updateWithTimestamp = this.applyUpdatedAtToData(upsertData.update);
+    const updateWithTimestamp = this.stripIgnored(
+      this.applyUpdatedAtToData(upsertData.update),
+    );
+    const upsertOmitWithIgnore = this.mergeIgnoreIntoOmit(upsertOmit);
 
     return upsertFunc(
       this.getGassmaControllerUtil(),
@@ -575,7 +613,7 @@ class GassmaController {
         where: resolvedWhere,
         create: createWithDefaults as AnyUse,
         update: updateWithTimestamp as AnyUse,
-        omit: upsertOmit ?? undefined,
+        omit: upsertOmitWithIgnore,
       },
       this.relationContext,
     );
@@ -596,9 +634,8 @@ class GassmaController {
 
     const resolvedWhere =
       this.resolveWhere(deleteData.where) ?? deleteData.where;
-    const deleteOmit = this.resolveEffectiveOmit(
-      deleteData.select,
-      deleteData.omit,
+    const deleteOmit = this.mergeIgnoreIntoOmit(
+      this.resolveEffectiveOmit(deleteData.select, deleteData.omit),
     );
 
     return deleteFunc(
@@ -606,7 +643,7 @@ class GassmaController {
       {
         ...deleteData,
         where: resolvedWhere,
-        omit: deleteOmit ?? undefined,
+        omit: deleteOmit,
       },
       this.relationContext,
     );

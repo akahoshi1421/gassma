@@ -43,6 +43,7 @@ declare namespace Gassma {
       [columnName: string]: GassmaAny | (() => GassmaAny);
     }): void;
     _setUpdatedAt(fields: string[]): void;
+    _setIgnore(fields: string[]): void;
   }
 
   type GassmaSheet = {
@@ -195,12 +196,17 @@ declare namespace Gassma {
     [sheetName: string]: Omit;
   };
 
+  type IgnoreConfig = {
+    [sheetName: string]: string[];
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
     omit?: GlobalOmitConfig;
     defaults?: DefaultsConfig;
     updatedAt?: UpdatedAtConfig;
+    ignore?: IgnoreConfig;
   };
 
   type ConnectOrCreateInput = {

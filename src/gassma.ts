@@ -31,6 +31,9 @@ class GassmaClient {
     const updatedAt = isClientOptions(idOrOptions)
       ? idOrOptions.updatedAt
       : undefined;
+    const ignore = isClientOptions(idOrOptions)
+      ? idOrOptions.ignore
+      : undefined;
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -51,6 +54,9 @@ class GassmaClient {
         sheetController._setUpdatedAt(
           Array.isArray(fields) ? fields : [fields],
         );
+      }
+      if (ignore && ignore[sheetName]) {
+        sheetController._setIgnore(ignore[sheetName]);
       }
       this.sheets[sheetName] = sheetController;
     });
