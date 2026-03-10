@@ -7,6 +7,7 @@ import type {
   RelationsConfig,
 } from "./types/relationTypes";
 import { isSheetIgnored } from "./util/ignore/isSheetIgnored";
+import { resolveCodeName } from "./util/map/mapSheetName";
 import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
 
 const isClientOptions = (
@@ -44,6 +45,9 @@ class GassmaClient {
         ? ignoreSheetsRaw
         : [ignoreSheetsRaw]
       : [];
+    const mapSheets = isClientOptions(idOrOptions)
+      ? (idOrOptions.mapSheets ?? {})
+      : {};
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -52,28 +56,29 @@ class GassmaClient {
 
     mySheets.forEach((sheet) => {
       const sheetName = sheet.getName();
-      if (isSheetIgnored(sheetName, ignoreSheets)) return;
+      const codeName = resolveCodeName(sheetName, mapSheets);
+      if (isSheetIgnored(codeName, ignoreSheets)) return;
       const sheetController = new GassmaController(sheetName, id);
-      if (globalOmit && globalOmit[sheetName]) {
-        sheetController._setGlobalOmit(globalOmit[sheetName]);
+      if (globalOmit && globalOmit[codeName]) {
+        sheetController._setGlobalOmit(globalOmit[codeName]);
       }
-      if (defaults && defaults[sheetName]) {
-        sheetController._setDefaults(defaults[sheetName]);
+      if (defaults && defaults[codeName]) {
+        sheetController._setDefaults(defaults[codeName]);
       }
-      if (updatedAt && updatedAt[sheetName]) {
-        const fields = updatedAt[sheetName];
+      if (updatedAt && updatedAt[codeName]) {
+        const fields = updatedAt[codeName];
         sheetController._setUpdatedAt(
           Array.isArray(fields) ? fields : [fields],
         );
       }
-      if (ignore && ignore[sheetName]) {
-        const fields = ignore[sheetName];
+      if (ignore && ignore[codeName]) {
+        const fields = ignore[codeName];
         sheetController._setIgnore(Array.isArray(fields) ? fields : [fields]);
       }
-      if (map && map[sheetName]) {
-        sheetController._setMap(map[sheetName]);
+      if (map && map[codeName]) {
+        sheetController._setMap(map[codeName]);
       }
-      this.sheets[sheetName] = sheetController;
+      this.sheets[codeName] = sheetController;
     });
 
     if (relations) {
