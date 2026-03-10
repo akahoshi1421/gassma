@@ -79,6 +79,10 @@ type MapConfig = {
   };
 };
 
+type MapSheetsConfig = {
+  [codeName: string]: string;
+};
+
 type GassmaClientOptions = {
   id?: string;
   relations?: RelationsConfig;
@@ -88,6 +92,7 @@ type GassmaClientOptions = {
   ignore?: IgnoreConfig;
   ignoreSheets?: IgnoreSheetsConfig;
   map?: MapConfig;
+  mapSheets?: MapSheetsConfig;
 };
 
 type RelationContext = {
@@ -144,6 +149,7 @@ export type {
   IgnoreConfig,
   IgnoreSheetsConfig,
   MapConfig,
+  MapSheetsConfig,
   GlobalOmitConfig,
   GassmaClientOptions,
   RelationContext,

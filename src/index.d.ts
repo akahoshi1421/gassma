@@ -209,6 +209,10 @@ declare namespace Gassma {
     };
   };
 
+  type MapSheetsConfig = {
+    [codeName: string]: string;
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
@@ -218,6 +222,7 @@ declare namespace Gassma {
     ignore?: IgnoreConfig;
     ignoreSheets?: IgnoreSheetsConfig;
     map?: MapConfig;
+    mapSheets?: MapSheetsConfig;
   };
 
   type ConnectOrCreateInput = {
