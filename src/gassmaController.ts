@@ -6,6 +6,13 @@ import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
 import { stripIgnoreFromSelect } from "./util/ignore/stripIgnoreFromSelect";
 import { mapToSheet, mapFromSheet } from "./util/map/mapFields";
 import type { FieldMapping } from "./util/map/mapFields";
+import { mapGroupByInput } from "./util/map/mapGroupBy";
+import { mapAggregateResult } from "./util/map/mapAggregateResult";
+import {
+  mapOrderByToSheet,
+  mapCursorToSheet,
+  mapDistinctToSheet,
+} from "./util/map/mapFindInput";
 import {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
@@ -215,6 +222,16 @@ class GassmaController {
     return resolveWhereRelation(mapped, this.relationContext);
   }
 
+  private mapSelectToSheet(select: Select | undefined): Select | undefined {
+    if (!select || !this.fieldMapping) return select;
+    return mapToSheet(select, this.fieldMapping) as Select;
+  }
+
+  private mapOmitToSheet(omit: Omit | undefined): Omit | undefined {
+    if (!omit || !this.fieldMapping) return omit;
+    return mapToSheet(omit, this.fieldMapping) as Omit;
+  }
+
   private buildScalarSelect(select: Select): Select | null {
     const scalarKeys = Object.keys(select).filter((key) => key !== "_count");
     if (scalarKeys.length === 0) return null;
@@ -328,9 +345,29 @@ class GassmaController {
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
-      select: resolvedSelect,
-      omit: effectiveOmit,
+      select: this.mapSelectToSheet(resolvedSelect),
+      omit: this.mapOmitToSheet(effectiveOmit),
     };
+    if (this.fieldMapping) {
+      if ("orderBy" in findData && findData.orderBy) {
+        findData.orderBy = mapOrderByToSheet(
+          findData.orderBy,
+          this.fieldMapping,
+        ) as FindData["orderBy"];
+      }
+      if ("cursor" in findData && findData.cursor) {
+        findData.cursor = mapCursorToSheet(
+          findData.cursor as Record<string, unknown>,
+          this.fieldMapping,
+        ) as FindData["cursor"];
+      }
+      if ("distinct" in findData && findData.distinct) {
+        findData.distinct = mapDistinctToSheet(
+          findData.distinct as string | string[],
+          this.fieldMapping,
+        ) as FindData["distinct"];
+      }
+    }
 
     const orderBy = "orderBy" in findData ? findData.orderBy : null;
     const orderByArr = orderBy
@@ -458,9 +495,29 @@ class GassmaController {
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
-      select: fmResolvedSelect,
-      omit: fmEffectiveOmit,
+      select: this.mapSelectToSheet(fmResolvedSelect),
+      omit: this.mapOmitToSheet(fmEffectiveOmit),
     };
+    if (this.fieldMapping) {
+      if ("orderBy" in findData && findData.orderBy) {
+        findData.orderBy = mapOrderByToSheet(
+          findData.orderBy,
+          this.fieldMapping,
+        ) as FindData["orderBy"];
+      }
+      if ("cursor" in findData && findData.cursor) {
+        findData.cursor = mapCursorToSheet(
+          findData.cursor as Record<string, unknown>,
+          this.fieldMapping,
+        ) as FindData["cursor"];
+      }
+      if ("distinct" in findData && findData.distinct) {
+        findData.distinct = mapDistinctToSheet(
+          findData.distinct as string | string[],
+          this.fieldMapping,
+        ) as FindData["distinct"];
+      }
+    }
 
     const fmOrderBy = "orderBy" in findData ? findData.orderBy : null;
     const fmOrderByArr = fmOrderBy
@@ -728,11 +785,22 @@ class GassmaController {
   }
 
   public aggregate(aggregateData: AggregateData) {
-    aggregateData = {
+    let mapped: Record<string, unknown> = {
       ...aggregateData,
       where: this.resolveWhere(aggregateData.where),
     };
-    return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
+    if (this.fieldMapping) {
+      mapped = mapGroupByInput(mapped, this.fieldMapping);
+    }
+    const result = aggregateFunc(
+      this.getGassmaControllerUtil(),
+      mapped as AggregateData,
+    );
+    if (!this.fieldMapping) return result;
+    return mapAggregateResult(
+      result as Record<string, unknown>,
+      this.fieldMapping,
+    );
   }
 
   public count(countData: CountData) {
@@ -741,11 +809,21 @@ class GassmaController {
   }
 
   public groupBy(groupByData: GroupByData) {
-    groupByData = {
+    let mapped: Record<string, unknown> = {
       ...groupByData,
       where: this.resolveWhere(groupByData.where),
     };
-    return groupByFunc(this.getGassmaControllerUtil(), groupByData);
+    if (this.fieldMapping) {
+      mapped = mapGroupByInput(mapped, this.fieldMapping);
+    }
+    const results = groupByFunc(
+      this.getGassmaControllerUtil(),
+      mapped as GroupByData,
+    );
+    if (!this.fieldMapping) return results;
+    return (results as Record<string, unknown>[]).map((r) =>
+      mapAggregateResult(r, this.fieldMapping!),
+    );
   }
 }
 
