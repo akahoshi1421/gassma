@@ -67,6 +67,7 @@ class GassmaController {
   private updatedAtFields: string[] | null = null;
   private ignoredFields: string[] | null = null;
   private fieldMapping: FieldMapping | null = null;
+  private codeName: string | null = null;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -106,6 +107,10 @@ class GassmaController {
     this.fieldMapping = mapping;
   }
 
+  public _setCodeName(name: string) {
+    this.codeName = name;
+  }
+
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
     if (!this.ignoredFields) return data;
     return stripIgnoredFields(data, this.ignoredFields);
@@ -140,11 +145,11 @@ class GassmaController {
   }
 
   public get fields(): Record<string, FieldRef> {
-    const sheetName = this.sheet.getName();
+    const modelName = this.codeName ?? this.sheet.getName();
     return new Proxy({} as Record<string, FieldRef>, {
       get: (_target, prop: string) => {
         if (typeof prop !== "string") return undefined;
-        return new FieldRef(sheetName, prop);
+        return new FieldRef(modelName, prop);
       },
     });
   }
