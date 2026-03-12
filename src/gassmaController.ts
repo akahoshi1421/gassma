@@ -4,15 +4,7 @@ import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { FieldRef } from "./util/filterConditions/fieldRef";
 import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
 import { stripIgnoreFromSelect } from "./util/ignore/stripIgnoreFromSelect";
-import { mapToSheet, mapFromSheet } from "./util/map/mapFields";
 import type { FieldMapping } from "./util/map/mapFields";
-import { mapGroupByInput } from "./util/map/mapGroupBy";
-import { mapAggregateResult } from "./util/map/mapAggregateResult";
-import {
-  mapOrderByToSheet,
-  mapCursorToSheet,
-  mapDistinctToSheet,
-} from "./util/map/mapFindInput";
 import {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
@@ -114,18 +106,6 @@ class GassmaController {
     this.fieldMapping = mapping;
   }
 
-  private toSheetKeys(data: Record<string, unknown>): Record<string, unknown> {
-    if (!this.fieldMapping) return data;
-    return mapToSheet(data, this.fieldMapping);
-  }
-
-  private fromSheetKeys(
-    data: Record<string, unknown>,
-  ): Record<string, unknown> {
-    if (!this.fieldMapping) return data;
-    return mapFromSheet(data, this.fieldMapping);
-  }
-
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
     if (!this.ignoredFields) return data;
     return stripIgnoredFields(data, this.ignoredFields);
@@ -188,12 +168,16 @@ class GassmaController {
   }
 
   private getGassmaControllerUtil(): GassmaControllerUtil {
-    return {
+    const util: GassmaControllerUtil = {
       sheet: this.sheet,
       startRowNumber: this.startRowNumber,
       startColumnNumber: this.startColumnNumber,
       endColumnNumber: this.endColumnNumber,
     };
+    if (this.fieldMapping) {
+      util.fieldMapping = this.fieldMapping;
+    }
+    return util;
   }
 
   private resolveEffectiveOmit(
@@ -216,20 +200,7 @@ class GassmaController {
     const stripped = this.ignoredFields
       ? (stripIgnoredFields(where, this.ignoredFields) as WhereUse)
       : where;
-    const mapped = this.fieldMapping
-      ? (mapToSheet(stripped, this.fieldMapping) as WhereUse)
-      : stripped;
-    return resolveWhereRelation(mapped, this.relationContext);
-  }
-
-  private mapSelectToSheet(select: Select | undefined): Select | undefined {
-    if (!select || !this.fieldMapping) return select;
-    return mapToSheet(select, this.fieldMapping) as Select;
-  }
-
-  private mapOmitToSheet(omit: Omit | undefined): Omit | undefined {
-    if (!omit || !this.fieldMapping) return omit;
-    return mapToSheet(omit, this.fieldMapping) as Omit;
+    return resolveWhereRelation(stripped, this.relationContext);
   }
 
   private buildScalarSelect(select: Select): Select | null {
@@ -245,24 +216,17 @@ class GassmaController {
   private applyCreateManyPreprocess(
     createdData: CreateManyData,
   ): CreateManyData {
-    if (
-      !this.defaults &&
-      !this.updatedAtFields &&
-      !this.ignoredFields &&
-      !this.fieldMapping
-    )
+    if (!this.defaults && !this.updatedAtFields && !this.ignoredFields)
       return createdData;
     const defs = this.defaults;
     const uaFields = this.updatedAtFields;
     const ignored = this.ignoredFields;
-    const mapping = this.fieldMapping;
     return {
       ...createdData,
       data: createdData.data.map((d) => {
         let result = defs ? applyDefaults(d, defs) : { ...d };
         if (uaFields) result = applyUpdatedAt(result, uaFields);
         if (ignored) result = stripIgnoredFields(result, ignored);
-        if (mapping) result = mapToSheet(result, mapping);
         return result as AnyUse;
       }),
     };
@@ -283,8 +247,8 @@ class GassmaController {
     );
     if (!Array.isArray(results)) return results;
     return results.map((r) => {
-      const mapped = this.fromSheetKeys(this.stripIgnored(r));
-      return this.applyOmitToResult(mapped, this.globalOmit);
+      const stripped = this.stripIgnored(r);
+      return this.applyOmitToResult(stripped, this.globalOmit);
     });
   }
 
@@ -294,10 +258,8 @@ class GassmaController {
     }
 
     const util = this.getGassmaControllerUtil();
-    const processed = this.toSheetKeys(
-      this.stripIgnored(
-        this.applyUpdatedAtToData(this.applyDefaultsToData(createdData.data)),
-      ),
+    const processed = this.stripIgnored(
+      this.applyUpdatedAtToData(this.applyDefaultsToData(createdData.data)),
     );
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });
@@ -307,16 +269,14 @@ class GassmaController {
       this.relationContext ?? undefined,
     );
 
-    const mapped = this.fromSheetKeys(this.stripIgnored(result));
+    const mapped = this.stripIgnored(result);
     if (createdData.select) return findedDataSelect(createdData.select, mapped);
     const effectiveOmit = this.resolveEffectiveOmit(null, createdData.omit);
     return this.applyOmitToResult(mapped, effectiveOmit);
   }
 
   public findFirst(findData: FindData) {
-    const raw = this.findFirstRaw(findData);
-    if (!raw) return null;
-    return this.fromSheetKeys(raw);
+    return this.findFirstRaw(findData);
   }
 
   private findFirstRaw(findData: FindData) {
@@ -345,29 +305,9 @@ class GassmaController {
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
-      select: this.mapSelectToSheet(resolvedSelect),
-      omit: this.mapOmitToSheet(effectiveOmit),
+      select: resolvedSelect,
+      omit: effectiveOmit,
     };
-    if (this.fieldMapping) {
-      if ("orderBy" in findData && findData.orderBy) {
-        findData.orderBy = mapOrderByToSheet(
-          findData.orderBy,
-          this.fieldMapping,
-        ) as FindData["orderBy"];
-      }
-      if ("cursor" in findData && findData.cursor) {
-        findData.cursor = mapCursorToSheet(
-          findData.cursor as Record<string, unknown>,
-          this.fieldMapping,
-        ) as FindData["cursor"];
-      }
-      if ("distinct" in findData && findData.distinct) {
-        findData.distinct = mapDistinctToSheet(
-          findData.distinct as string | string[],
-          this.fieldMapping,
-        ) as FindData["distinct"];
-      }
-    }
 
     const orderBy = "orderBy" in findData ? findData.orderBy : null;
     const orderByArr = orderBy
@@ -465,8 +405,7 @@ class GassmaController {
   }
 
   public findMany(findData: FindData) {
-    const raw = this.findManyRaw(findData);
-    return raw.map((r) => this.fromSheetKeys(r));
+    return this.findManyRaw(findData);
   }
 
   private findManyRaw(findData: FindData) {
@@ -495,29 +434,9 @@ class GassmaController {
     findData = {
       ...findData,
       where: this.resolveWhere(findData.where),
-      select: this.mapSelectToSheet(fmResolvedSelect),
-      omit: this.mapOmitToSheet(fmEffectiveOmit),
+      select: fmResolvedSelect,
+      omit: fmEffectiveOmit,
     };
-    if (this.fieldMapping) {
-      if ("orderBy" in findData && findData.orderBy) {
-        findData.orderBy = mapOrderByToSheet(
-          findData.orderBy,
-          this.fieldMapping,
-        ) as FindData["orderBy"];
-      }
-      if ("cursor" in findData && findData.cursor) {
-        findData.cursor = mapCursorToSheet(
-          findData.cursor as Record<string, unknown>,
-          this.fieldMapping,
-        ) as FindData["cursor"];
-      }
-      if ("distinct" in findData && findData.distinct) {
-        findData.distinct = mapDistinctToSheet(
-          findData.distinct as string | string[],
-          this.fieldMapping,
-        ) as FindData["distinct"];
-      }
-    }
 
     const fmOrderBy = "orderBy" in findData ? findData.orderBy : null;
     const fmOrderByArr = fmOrderBy
@@ -617,28 +536,26 @@ class GassmaController {
       }
     }
 
-    const updateDataMapped = this.toSheetKeys(
-      this.applyUpdatedAtToData(updateData.data),
-    );
+    const updateDataProcessed = this.applyUpdatedAtToData(updateData.data);
 
     const result = resolveNestedUpdate(
       this.getGassmaControllerUtil(),
-      { where: resolvedWhere, data: updateDataMapped },
+      { where: resolvedWhere, data: updateDataProcessed },
       this.relationContext ?? undefined,
     );
     if (!result) return null;
 
-    const mapped = this.fromSheetKeys(this.stripIgnored(result));
-    if (updateData.select) return findedDataSelect(updateData.select, mapped);
+    const stripped = this.stripIgnored(result);
+    if (updateData.select) return findedDataSelect(updateData.select, stripped);
     const effectiveOmit = this.resolveEffectiveOmit(null, updateData.omit);
-    return this.applyOmitToResult(mapped, effectiveOmit);
+    return this.applyOmitToResult(stripped, effectiveOmit);
   }
 
   public updateMany(updateData: UpdateData) {
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
-      data: this.toSheetKeys(this.applyUpdatedAtToData(updateData.data)),
+      data: this.applyUpdatedAtToData(updateData.data),
     };
 
     if (this.relationContext) {
@@ -667,7 +584,7 @@ class GassmaController {
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
-      data: this.toSheetKeys(this.applyUpdatedAtToData(updateData.data)),
+      data: this.applyUpdatedAtToData(updateData.data),
     };
 
     if (this.relationContext) {
@@ -696,8 +613,8 @@ class GassmaController {
     );
     if (!Array.isArray(results)) return results;
     return results.map((r) => {
-      const mapped = this.fromSheetKeys(this.stripIgnored(r));
-      return this.applyOmitToResult(mapped, this.globalOmit);
+      const stripped = this.stripIgnored(r);
+      return this.applyOmitToResult(stripped, this.globalOmit);
     });
   }
 
@@ -716,13 +633,11 @@ class GassmaController {
       upsertData.omit,
     );
 
-    const createWithDefaults = this.toSheetKeys(
-      this.stripIgnored(
-        this.applyUpdatedAtToData(this.applyDefaultsToData(upsertData.create)),
-      ),
+    const createWithDefaults = this.stripIgnored(
+      this.applyUpdatedAtToData(this.applyDefaultsToData(upsertData.create)),
     );
-    const updateWithTimestamp = this.toSheetKeys(
-      this.stripIgnored(this.applyUpdatedAtToData(upsertData.update)),
+    const updateWithTimestamp = this.stripIgnored(
+      this.applyUpdatedAtToData(upsertData.update),
     );
     const upsertOmitWithIgnore = this.mergeIgnoreIntoOmit(upsertOmit);
 
@@ -785,22 +700,11 @@ class GassmaController {
   }
 
   public aggregate(aggregateData: AggregateData) {
-    let mapped: Record<string, unknown> = {
+    aggregateData = {
       ...aggregateData,
       where: this.resolveWhere(aggregateData.where),
     };
-    if (this.fieldMapping) {
-      mapped = mapGroupByInput(mapped, this.fieldMapping);
-    }
-    const result = aggregateFunc(
-      this.getGassmaControllerUtil(),
-      mapped as AggregateData,
-    );
-    if (!this.fieldMapping) return result;
-    return mapAggregateResult(
-      result as Record<string, unknown>,
-      this.fieldMapping,
-    );
+    return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
   }
 
   public count(countData: CountData) {
@@ -809,21 +713,11 @@ class GassmaController {
   }
 
   public groupBy(groupByData: GroupByData) {
-    let mapped: Record<string, unknown> = {
+    groupByData = {
       ...groupByData,
       where: this.resolveWhere(groupByData.where),
     };
-    if (this.fieldMapping) {
-      mapped = mapGroupByInput(mapped, this.fieldMapping);
-    }
-    const results = groupByFunc(
-      this.getGassmaControllerUtil(),
-      mapped as GroupByData,
-    );
-    if (!this.fieldMapping) return results;
-    return (results as Record<string, unknown>[]).map((r) =>
-      mapAggregateResult(r, this.fieldMapping!),
-    );
+    return groupByFunc(this.getGassmaControllerUtil(), groupByData);
   }
 }
 
