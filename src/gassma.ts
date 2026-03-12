@@ -59,6 +59,9 @@ class GassmaClient {
       const codeName = resolveCodeName(sheetName, mapSheets);
       if (isSheetIgnored(codeName, ignoreSheets)) return;
       const sheetController = new GassmaController(sheetName, id);
+      if (codeName !== sheetName) {
+        sheetController._setCodeName(codeName);
+      }
       if (globalOmit && globalOmit[codeName]) {
         sheetController._setGlobalOmit(globalOmit[codeName]);
       }
