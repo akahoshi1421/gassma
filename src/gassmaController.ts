@@ -60,6 +60,7 @@ import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationO
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+  private readonly spreadsheetId: string;
   private startRowNumber: number = 1;
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
@@ -82,6 +83,7 @@ class GassmaController {
       throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
 
     this.sheet = sheet;
+    this.spreadsheetId = spreadSheet.getId();
 
     this.endColumnNumber = this.sheet.getLastColumn();
   }
@@ -155,7 +157,7 @@ class GassmaController {
     data: Record<string, unknown>,
   ): Record<string, unknown> {
     if (!this.autoincrementFields) return data;
-    const keyBase = this.sheet.getName();
+    const keyBase = `${this.spreadsheetId}_${this.sheet.getName()}`;
     const values = generateAutoincrementValues(
       this.autoincrementFields,
       keyBase,
@@ -258,7 +260,7 @@ class GassmaController {
     const aiValues = aiFields
       ? generateAutoincrementValues(
           aiFields,
-          this.sheet.getName(),
+          `${this.spreadsheetId}_${this.sheet.getName()}`,
           createdData.data.length,
         )
       : null;
