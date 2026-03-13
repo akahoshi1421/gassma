@@ -33,6 +33,9 @@ class GassmaClient {
     const updatedAt = isClientOptions(idOrOptions)
       ? idOrOptions.updatedAt
       : undefined;
+    const autoincrement = isClientOptions(idOrOptions)
+      ? idOrOptions.autoincrement
+      : undefined;
     const ignore = isClientOptions(idOrOptions)
       ? idOrOptions.ignore
       : undefined;
@@ -64,6 +67,12 @@ class GassmaClient {
       }
       if (globalOmit && globalOmit[codeName]) {
         sheetController._setGlobalOmit(globalOmit[codeName]);
+      }
+      if (autoincrement && autoincrement[codeName]) {
+        const fields = autoincrement[codeName];
+        sheetController._setAutoincrement(
+          Array.isArray(fields) ? fields : [fields],
+        );
       }
       if (defaults && defaults[codeName]) {
         sheetController._setDefaults(defaults[codeName]);

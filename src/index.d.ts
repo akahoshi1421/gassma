@@ -43,6 +43,7 @@ declare namespace Gassma {
       [columnName: string]: GassmaAny | (() => GassmaAny);
     }): void;
     _setUpdatedAt(fields: string[]): void;
+    _setAutoincrement(fields: string[]): void;
     _setIgnore(fields: string[]): void;
     _setMap(mapping: { [codeName: string]: string }): void;
   }
@@ -197,6 +198,10 @@ declare namespace Gassma {
     [sheetName: string]: Omit;
   };
 
+  type AutoincrementConfig = {
+    [sheetName: string]: string | string[];
+  };
+
   type IgnoreConfig = {
     [sheetName: string]: string | string[];
   };
@@ -219,6 +224,7 @@ declare namespace Gassma {
     omit?: GlobalOmitConfig;
     defaults?: DefaultsConfig;
     updatedAt?: UpdatedAtConfig;
+    autoincrement?: AutoincrementConfig;
     ignore?: IgnoreConfig;
     ignoreSheets?: IgnoreSheetsConfig;
     map?: MapConfig;
