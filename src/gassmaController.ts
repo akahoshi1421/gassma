@@ -1,5 +1,7 @@
+import { applyAutoincrement } from "./util/defaults/applyAutoincrement";
 import { applyDefaults } from "./util/defaults/applyDefaults";
 import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
+import { generateAutoincrementValues } from "./util/defaults/generateAutoincrementValues";
 import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { FieldRef } from "./util/filterConditions/fieldRef";
 import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
@@ -58,6 +60,7 @@ import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationO
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+  private readonly spreadsheetId: string;
   private startRowNumber: number = 1;
   private startColumnNumber: number = 1;
   private endColumnNumber: number = 1;
@@ -65,6 +68,7 @@ class GassmaController {
   private globalOmit: Omit | null = null;
   private defaults: DefaultsForSheet | null = null;
   private updatedAtFields: string[] | null = null;
+  private autoincrementFields: string[] | null = null;
   private ignoredFields: string[] | null = null;
   private fieldMapping: FieldMapping | null = null;
   private codeName: string | null = null;
@@ -79,6 +83,7 @@ class GassmaController {
       throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
 
     this.sheet = sheet;
+    this.spreadsheetId = spreadSheet.getId();
 
     this.endColumnNumber = this.sheet.getLastColumn();
   }
@@ -97,6 +102,10 @@ class GassmaController {
 
   public _setUpdatedAt(fields: string[]) {
     this.updatedAtFields = fields;
+  }
+
+  public _setAutoincrement(fields: string[]) {
+    this.autoincrementFields = fields;
   }
 
   public _setIgnore(fields: string[]) {
@@ -142,6 +151,22 @@ class GassmaController {
   ): Record<string, unknown> {
     if (!this.defaults) return data;
     return applyDefaults(data, this.defaults);
+  }
+
+  private applyAutoincrementToData(
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!this.autoincrementFields) return data;
+    const keyBase = `${this.spreadsheetId}_${this.sheet.getName()}`;
+    const values = generateAutoincrementValues(
+      this.autoincrementFields,
+      keyBase,
+    );
+    return applyAutoincrement(
+      data,
+      this.autoincrementFields,
+      values as Record<string, number>,
+    );
   }
 
   public get fields(): Record<string, FieldRef> {
@@ -221,15 +246,37 @@ class GassmaController {
   private applyCreateManyPreprocess(
     createdData: CreateManyData,
   ): CreateManyData {
-    if (!this.defaults && !this.updatedAtFields && !this.ignoredFields)
+    if (
+      !this.defaults &&
+      !this.updatedAtFields &&
+      !this.ignoredFields &&
+      !this.autoincrementFields
+    )
       return createdData;
     const defs = this.defaults;
     const uaFields = this.updatedAtFields;
     const ignored = this.ignoredFields;
+    const aiFields = this.autoincrementFields;
+    const aiValues = aiFields
+      ? generateAutoincrementValues(
+          aiFields,
+          `${this.spreadsheetId}_${this.sheet.getName()}`,
+          createdData.data.length,
+        )
+      : null;
     return {
       ...createdData,
-      data: createdData.data.map((d) => {
-        let result = defs ? applyDefaults(d, defs) : { ...d };
+      data: createdData.data.map((d, index) => {
+        let result: Record<string, unknown> = { ...d };
+        if (aiFields && aiValues) {
+          const rowValues: Record<string, number> = {};
+          aiFields.forEach((field) => {
+            const v = aiValues[field];
+            rowValues[field] = Array.isArray(v) ? v[index] : v;
+          });
+          result = applyAutoincrement(result, aiFields, rowValues);
+        }
+        if (defs) result = applyDefaults(result, defs);
         if (uaFields) result = applyUpdatedAt(result, uaFields);
         if (ignored) result = stripIgnoredFields(result, ignored);
         return result as AnyUse;
@@ -264,7 +311,11 @@ class GassmaController {
 
     const util = this.getGassmaControllerUtil();
     const processed = this.stripIgnored(
-      this.applyUpdatedAtToData(this.applyDefaultsToData(createdData.data)),
+      this.applyUpdatedAtToData(
+        this.applyDefaultsToData(
+          this.applyAutoincrementToData(createdData.data),
+        ),
+      ),
     );
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(util, { data: data as AnyUse });

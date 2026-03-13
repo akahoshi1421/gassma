@@ -67,6 +67,10 @@ type UpdatedAtConfig = {
   [sheetName: string]: string | string[];
 };
 
+type AutoincrementConfig = {
+  [sheetName: string]: string | string[];
+};
+
 type IgnoreConfig = {
   [sheetName: string]: string | string[];
 };
@@ -91,6 +95,7 @@ type GassmaClientOptions = {
   updatedAt?: UpdatedAtConfig;
   ignore?: IgnoreConfig;
   ignoreSheets?: IgnoreSheetsConfig;
+  autoincrement?: AutoincrementConfig;
   map?: MapConfig;
   mapSheets?: MapSheetsConfig;
 };
@@ -146,6 +151,7 @@ export type {
   IncludeData,
   DefaultsConfig,
   UpdatedAtConfig,
+  AutoincrementConfig,
   IgnoreConfig,
   IgnoreSheetsConfig,
   MapConfig,
