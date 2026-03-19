@@ -304,6 +304,12 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
+    if (createdData.include && createdData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+    if (createdData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
     if (createdData.select && createdData.omit) {
       throw new GassmaFindSelectOmitConflictError();
     }
@@ -325,6 +331,18 @@ class GassmaController {
     );
 
     const mapped = this.stripIgnored(result);
+
+    if (createdData.include && this.relationContext) {
+      const resolved = resolveInclude(
+        [mapped],
+        createdData.include,
+        this.relationContext,
+      );
+      const included = resolved[0] ?? mapped;
+      if (createdData.omit) return omitFunc(createdData.omit, included);
+      return this.applyOmitToResult(included, this.globalOmit);
+    }
+
     if (createdData.select) return findedDataSelect(createdData.select, mapped);
     const effectiveOmit = this.resolveEffectiveOmit(null, createdData.omit);
     return this.applyOmitToResult(mapped, effectiveOmit);
@@ -570,6 +588,12 @@ class GassmaController {
   }
 
   public update(updateData: UpdateSingleData) {
+    if (updateData.include && updateData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+    if (updateData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
     if (updateData.select && updateData.omit) {
       throw new GassmaFindSelectOmitConflictError();
     }
@@ -601,6 +625,18 @@ class GassmaController {
     if (!result) return null;
 
     const stripped = this.stripIgnored(result);
+
+    if (updateData.include && this.relationContext) {
+      const resolved = resolveInclude(
+        [stripped],
+        updateData.include,
+        this.relationContext,
+      );
+      const included = resolved[0] ?? stripped;
+      if (updateData.omit) return omitFunc(updateData.omit, included);
+      return this.applyOmitToResult(included, this.globalOmit);
+    }
+
     if (updateData.select) return findedDataSelect(updateData.select, stripped);
     const effectiveOmit = this.resolveEffectiveOmit(null, updateData.omit);
     return this.applyOmitToResult(stripped, effectiveOmit);

@@ -120,6 +120,7 @@ declare namespace Gassma {
     data: AnyUse;
     select?: Select;
     omit?: Record<string, boolean>;
+    include?: IncludeData;
   };
 
   type CreateManyData = {
@@ -306,6 +307,7 @@ declare namespace Gassma {
     data: Record<string, unknown>;
     select?: Select;
     omit?: Record<string, boolean>;
+    include?: IncludeData;
   };
 
   type DeleteSingleData = {
