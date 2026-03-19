@@ -26,7 +26,6 @@ import type {
   FindData,
   UpdateData,
   UpdateSingleData,
-  UpsertData,
   UpsertSingleData,
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
@@ -53,7 +52,6 @@ import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpda
 import { updateManyFunc } from "./util/update/updateMany";
 import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
 import { upsertFunc } from "./util/upsert/upsert";
-import { upsertManyFunc } from "./util/upsert/upsertMany";
 import { separateRelationOrderBy } from "./util/find/findUtil/separateRelationOrderBy";
 import { findManyWithRelationOrderBy } from "./util/find/findManyWithRelationOrderBy";
 import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationOrderBy";
@@ -708,11 +706,6 @@ class GassmaController {
       },
       this.relationContext,
     );
-  }
-
-  public upsertMany(upsertData: UpsertData) {
-    upsertData = { ...upsertData, where: this.resolveWhere(upsertData.where) };
-    return upsertManyFunc(this.getGassmaControllerUtil(), upsertData);
   }
 
   public delete(deleteData: DeleteSingleData) {
