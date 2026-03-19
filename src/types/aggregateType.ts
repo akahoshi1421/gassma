@@ -5,6 +5,7 @@ type AggregateData = {
   orderBy?: OrderBy | OrderBy[];
   take?: number;
   skip?: number;
+  cursor?: Record<string, unknown>;
   _avg?: Select;
   _count?: Select;
   _max?: Select;

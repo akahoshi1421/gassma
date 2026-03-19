@@ -126,6 +126,65 @@ describe("count functionality tests", () => {
     });
   });
 
+  describe("countFunc with cursor", () => {
+    test("should count records from cursor position", () => {
+      const result = countFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "Charlie" },
+      });
+
+      // Charlie(3) + David(4) + Eve(5) + Frank(6) + Grace(7) + Henry(8) = 6
+      expect(result).toBe(6);
+    });
+
+    test("should work with cursor and take", () => {
+      const result = countFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "Charlie" },
+        take: 3,
+      });
+
+      // Charlie, David, Eve = 3
+      expect(result).toBe(3);
+    });
+
+    test("should work with cursor and negative take", () => {
+      const result = countFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "Eve" },
+        take: -3,
+      });
+
+      // cursor slices start to Eve: Alice,Bob,Charlie,David,Eve → take -3 → Charlie,David,Eve = 3
+      expect(result).toBe(3);
+    });
+
+    test("should work with cursor and where", () => {
+      const result = countFunc(getExtendedMockControllerUtil(), {
+        where: { 住所: "Tokyo" },
+        cursor: { 名前: "Charlie" },
+      });
+
+      // After cursor in Tokyo-filtered: Charlie, Eve, Grace = 3
+      expect(result).toBe(3);
+    });
+
+    test("should work with cursor and skip", () => {
+      const result = countFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "Charlie" },
+        skip: 2,
+      });
+
+      // From Charlie: Charlie, David, Eve, Frank, Grace, Henry → skip 2 → Eve, Frank, Grace, Henry = 4
+      expect(result).toBe(4);
+    });
+
+    test("should return 0 when cursor not found", () => {
+      const result = countFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "NonExistent" },
+      });
+
+      expect(result).toBe(0);
+    });
+  });
+
   describe("count edge cases", () => {
     test("should handle take=0", () => {
       const result = countFunc(getExtendedMockControllerUtil(), {

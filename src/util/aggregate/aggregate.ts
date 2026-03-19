@@ -16,6 +16,7 @@ const aggregateFunc = (
   const orderBy = "orderBy" in aggregateData ? aggregateData.orderBy : null;
   const take = "take" in aggregateData ? aggregateData.take : null;
   const skip = "skip" in aggregateData ? aggregateData.skip : null;
+  const cursor = "cursor" in aggregateData ? aggregateData.cursor : null;
   const avg = "_avg" in aggregateData ? aggregateData._avg : null;
   const count = "_count" in aggregateData ? aggregateData._count : null;
   const max = "_max" in aggregateData ? aggregateData._max : null;
@@ -29,6 +30,7 @@ const aggregateFunc = (
   if (orderBy) findData.orderBy = orderBy;
   if (take !== null && take !== undefined) findData.take = take;
   if (skip) findData.skip = skip;
+  if (cursor) findData.cursor = cursor;
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
