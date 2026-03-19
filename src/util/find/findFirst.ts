@@ -1,9 +1,6 @@
-import type { FindData } from "../../types/findTypes";
+import type { FindFirstData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import {
-  GassmaFindSelectOmitConflictError,
-  GassmaSkipNegativeError,
-} from "../../errors/find/findError";
+import { GassmaFindSelectOmitConflictError } from "../../errors/find/findError";
 import { getTitle } from "../core/getTitle";
 import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
@@ -12,13 +9,12 @@ import { orderByFunc } from "./findUtil/orderBy";
 
 const findFirstFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
-  findData: FindData,
+  findData: FindFirstData,
 ) => {
   const where = findData.where ?? {};
   const select = "select" in findData ? findData.select : null;
   const omit = "omit" in findData ? findData.omit : null;
   const orderBy = "orderBy" in findData ? findData.orderBy : null;
-  const skip = "skip" in findData ? findData.skip : null;
 
   // Use whereFilter for consistent behavior with findMany
   const findedData = whereFilter(where, gassmaControllerUtil);
@@ -34,14 +30,6 @@ const findFirstFunc = (
 
     return result;
   });
-
-  // skip 負数バリデーション
-  if (skip !== null && skip !== undefined && skip < 0) {
-    throw new GassmaSkipNegativeError(skip);
-  }
-
-  // Apply skip if specified
-  if (skip) findDataDictArray = findDataDictArray.slice(skip);
 
   // Apply orderBy if specified (before taking first)
   if (orderBy)

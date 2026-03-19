@@ -24,6 +24,7 @@ import type {
   DeleteData,
   DeleteSingleData,
   FindData,
+  FindFirstData,
   UpdateData,
   UpdateSingleData,
   UpsertSingleData,
@@ -329,11 +330,11 @@ class GassmaController {
     return this.applyOmitToResult(mapped, effectiveOmit);
   }
 
-  public findFirst(findData: FindData) {
+  public findFirst(findData: FindFirstData) {
     return this.findFirstRaw(findData);
   }
 
-  private findFirstRaw(findData: FindData) {
+  private findFirstRaw(findData: FindFirstData) {
     if (findData.include && findData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -450,7 +451,7 @@ class GassmaController {
     return resolved[0] ?? null;
   }
 
-  public findFirstOrThrow(findData: FindData) {
+  public findFirstOrThrow(findData: FindFirstData) {
     const result = this.findFirst(findData);
     if (!result) {
       throw new NotFoundError();

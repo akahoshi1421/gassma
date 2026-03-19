@@ -24,8 +24,8 @@ declare namespace Gassma {
     createMany(createdData: CreateManyData): CreateManyReturn;
     createManyAndReturn(createdData: CreateManyData): Record<string, unknown>[];
     create(createdData: CreateData): Record<string, unknown>;
-    findFirst(findData: FindData): Record<string, any>;
-    findFirstOrThrow(findData: FindData): Record<string, any>;
+    findFirst(findData: FindFirstData): Record<string, any>;
+    findFirstOrThrow(findData: FindFirstData): Record<string, any>;
     findMany(findData: FindData): Record<string, any>[];
     update(updateData: UpdateSingleData): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
@@ -278,6 +278,15 @@ declare namespace Gassma {
 
   type FindSelect = {
     [key: string]: true | CountValue;
+  };
+
+  type FindFirstData = {
+    where?: WhereUse;
+    select?: FindSelect;
+    omit?: Record<string, boolean>;
+    orderBy?: OrderBy | OrderBy[];
+    include?: IncludeData;
+    cursor?: Record<string, unknown>;
   };
 
   type FindData = {
