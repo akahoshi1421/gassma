@@ -12,6 +12,18 @@ type CreateManyData = {
   data: AnyUse[];
 };
 
+type CreateManyAndReturnData = {
+  data: AnyUse[];
+  select?: Select;
+  omit?: Omit;
+  include?: IncludeData;
+};
+
 type CreateManyReturn = ManyReturn;
 
-export type { CreateData, CreateManyData, CreateManyReturn };
+export type {
+  CreateData,
+  CreateManyData,
+  CreateManyAndReturnData,
+  CreateManyReturn,
+};

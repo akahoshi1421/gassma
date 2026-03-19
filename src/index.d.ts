@@ -22,7 +22,9 @@ declare namespace Gassma {
       endColumnNumber: number,
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
-    createManyAndReturn(createdData: CreateManyData): Record<string, unknown>[];
+    createManyAndReturn(
+      createdData: CreateManyAndReturnData,
+    ): Record<string, unknown>[];
     create(createdData: CreateData): Record<string, unknown>;
     findFirst(findData: FindFirstData): Record<string, any>;
     findFirstOrThrow(findData: FindFirstData): Record<string, any>;
@@ -125,6 +127,13 @@ declare namespace Gassma {
 
   type CreateManyData = {
     data: AnyUse[];
+  };
+
+  type CreateManyAndReturnData = {
+    data: AnyUse[];
+    select?: Select;
+    omit?: Record<string, boolean>;
+    include?: IncludeData;
   };
 
   type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";

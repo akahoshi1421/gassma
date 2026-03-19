@@ -855,6 +855,144 @@ describe("create functionality tests", () => {
     });
   });
 
+  describe("createManyFunc with withReturn and select", () => {
+    test("should select specified fields from returned records", () => {
+      const results = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "佐藤",
+              年齢: 23,
+              住所: "Shimane",
+              郵便番号: "690-8540",
+              職業: "Student",
+            },
+            {
+              名前: "鈴原",
+              年齢: 25,
+              住所: "Tottori",
+              郵便番号: "680-8571",
+              職業: "Designer",
+            },
+          ],
+        },
+        true,
+      );
+
+      if (!Array.isArray(results)) throw new Error("Expected array");
+
+      const {
+        findedDataSelect,
+      } = require("../../../util/find/findUtil/findDataSelect");
+      const selected = results.map((r: Record<string, unknown>) =>
+        findedDataSelect({ 名前: true, 年齢: true }, r),
+      );
+
+      expect(selected).toEqual([
+        { 名前: "佐藤", 年齢: 23 },
+        { 名前: "鈴原", 年齢: 25 },
+      ]);
+    });
+
+    test("should select single field from returned records", () => {
+      const results = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "田中",
+              年齢: 30,
+              住所: "Tokyo",
+              郵便番号: "100-0001",
+              職業: "Engineer",
+            },
+          ],
+        },
+        true,
+      );
+
+      if (!Array.isArray(results)) throw new Error("Expected array");
+
+      const {
+        findedDataSelect,
+      } = require("../../../util/find/findUtil/findDataSelect");
+      const selected = results.map((r: Record<string, unknown>) =>
+        findedDataSelect({ 名前: true }, r),
+      );
+
+      expect(selected).toEqual([{ 名前: "田中" }]);
+    });
+  });
+
+  describe("createManyFunc with withReturn and omit", () => {
+    test("should omit specified fields from returned records", () => {
+      const results = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "佐藤",
+              年齢: 23,
+              住所: "Shimane",
+              郵便番号: "690-8540",
+              職業: "Student",
+            },
+            {
+              名前: "鈴原",
+              年齢: 25,
+              住所: "Tottori",
+              郵便番号: "680-8571",
+              職業: "Designer",
+            },
+          ],
+        },
+        true,
+      );
+
+      if (!Array.isArray(results)) throw new Error("Expected array");
+
+      const { omitFunc } = require("../../../util/find/findUtil/omit");
+      const omitted = results.map((r: Record<string, unknown>) =>
+        omitFunc({ 郵便番号: true, 職業: true }, r),
+      );
+
+      expect(omitted).toEqual([
+        { 名前: "佐藤", 年齢: 23, 住所: "Shimane" },
+        { 名前: "鈴原", 年齢: 25, 住所: "Tottori" },
+      ]);
+    });
+
+    test("should omit single field from returned records", () => {
+      const results = createManyFunc(
+        mockUtil,
+        {
+          data: [
+            {
+              名前: "山田",
+              年齢: 28,
+              住所: "Tokyo",
+              郵便番号: "100-0005",
+              職業: "Engineer",
+            },
+          ],
+        },
+        true,
+      );
+
+      if (!Array.isArray(results)) throw new Error("Expected array");
+
+      const { omitFunc } = require("../../../util/find/findUtil/omit");
+      const omitted = results.map((r: Record<string, unknown>) =>
+        omitFunc({ 年齢: true }, r),
+      );
+
+      expect(omitted).toEqual([
+        { 名前: "山田", 住所: "Tokyo", 郵便番号: "100-0005", 職業: "Engineer" },
+      ]);
+    });
+  });
+
   describe("create performance edge cases", () => {
     test("should handle maximum realistic dataset size", () => {
       const largeDataset = Array.from({ length: 100 }, (_, i) => ({
