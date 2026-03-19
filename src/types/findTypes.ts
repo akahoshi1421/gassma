@@ -35,6 +35,7 @@ type UpdateSingleData = {
   data: Record<string, unknown>;
   select?: Select;
   omit?: Omit;
+  include?: IncludeData;
 };
 
 type UpdateData = {
