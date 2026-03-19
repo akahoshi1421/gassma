@@ -31,7 +31,6 @@ declare namespace Gassma {
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
     upsert(upsertData: UpsertSingleData): Record<string, unknown>;
-    upsertMany(upsertData: UpsertData): UpsertManyReturn;
     delete(deleteData: DeleteSingleData): Record<string, unknown> | null;
     deleteMany(deleteData: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
@@ -327,12 +326,6 @@ declare namespace Gassma {
     limit?: number;
   };
 
-  type UpsertData = {
-    where: WhereUse;
-    update: AnyUse;
-    create: AnyUse;
-  };
-
   type AggregateData = {
     where?: WhereUse;
     orderBy?: OrderBy | OrderBy[];
@@ -381,7 +374,6 @@ declare namespace Gassma {
   type CreateManyReturn = ManyReturn;
   type UpdateManyReturn = ManyReturn;
   type DeleteManyReturn = ManyReturn;
-  type UpsertManyReturn = ManyReturn;
 
   class GassmaSkipNegativeError extends Error {
     constructor(value: number);

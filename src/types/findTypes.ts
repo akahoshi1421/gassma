@@ -43,12 +43,6 @@ type UpsertSingleData = {
   omit?: Omit;
 };
 
-type UpsertData = {
-  where: WhereUse;
-  update: AnyUse;
-  create: AnyUse;
-};
-
 type DeleteSingleData = {
   where: WhereUse;
   select?: Select;
@@ -63,17 +57,13 @@ type DeleteData = {
 
 type UpdateManyReturn = ManyReturn;
 type DeleteManyReturn = ManyReturn;
-type UpsertManyReturn = ManyReturn;
-
 export type {
   FindData,
   UpdateSingleData,
   UpdateData,
   UpsertSingleData,
-  UpsertData,
   DeleteSingleData,
   DeleteData,
   UpdateManyReturn,
   DeleteManyReturn,
-  UpsertManyReturn,
 };
