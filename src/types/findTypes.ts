@@ -9,6 +9,15 @@ import type {
 } from "./coreTypes";
 import type { IncludeData } from "./relationTypes";
 
+type FindFirstData = {
+  where?: WhereUse;
+  select?: Select;
+  omit?: Omit;
+  orderBy?: OrderBy | OrderBy[];
+  include?: IncludeData;
+  cursor?: Record<string, unknown>;
+};
+
 type FindData = {
   where?: WhereUse;
   select?: Select;
@@ -58,6 +67,7 @@ type DeleteData = {
 type UpdateManyReturn = ManyReturn;
 type DeleteManyReturn = ManyReturn;
 export type {
+  FindFirstData,
   FindData,
   UpdateSingleData,
   UpdateData,
