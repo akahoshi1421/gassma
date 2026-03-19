@@ -5,6 +5,7 @@ type CountData = {
   orderBy?: OrderBy | OrderBy[];
   take?: number;
   skip?: number;
+  cursor?: Record<string, unknown>;
 };
 
 export type { CountData };

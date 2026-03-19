@@ -225,6 +225,67 @@ describe("aggregate functionality tests", () => {
     });
   });
 
+  describe("aggregateFunc with cursor", () => {
+    test("should aggregate records from cursor position", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "Charlie" },
+        _count: { 名前: true },
+        _avg: { 年齢: true },
+      });
+
+      // Charlie(22) + David(45) + Eve(28) + Frank(52) + Grace(31) + Henry(28) = 6 records
+      expect(result).toEqual({
+        _count: { 名前: 6 },
+        _avg: { 年齢: (22 + 45 + 28 + 52 + 31 + 28) / 6 },
+      });
+    });
+
+    test("should work with cursor and take", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "Charlie" },
+        take: 3,
+        _sum: { 年齢: true },
+        _count: { 名前: true },
+      });
+
+      // Charlie(22), David(45), Eve(28)
+      expect(result).toEqual({
+        _sum: { 年齢: 22 + 45 + 28 },
+        _count: { 名前: 3 },
+      });
+    });
+
+    test("should work with cursor and where", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        where: { 住所: "Tokyo" },
+        cursor: { 名前: "Charlie" },
+        _max: { 年齢: true },
+        _min: { 年齢: true },
+        _count: { 名前: true },
+      });
+
+      // Tokyo records after cursor: Charlie(22), Eve(28), Grace(31)
+      expect(result).toEqual({
+        _max: { 年齢: 31 },
+        _min: { 年齢: 22 },
+        _count: { 名前: 3 },
+      });
+    });
+
+    test("should return null values when cursor not found", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        cursor: { 名前: "NonExistent" },
+        _avg: { 年齢: true },
+        _count: { 名前: true },
+      });
+
+      expect(result).toEqual({
+        _avg: { 年齢: null },
+        _count: { 名前: null },
+      });
+    });
+  });
+
   describe("aggregateFunc edge cases", () => {
     test("should handle no matching records", () => {
       const result = aggregateFunc(getExtendedMockControllerUtil(), {
