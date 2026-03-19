@@ -6,6 +6,7 @@ import type {
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
+import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 
 function createManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
@@ -50,7 +51,7 @@ function createManyFunc(
 
   sheet
     .getRange(rowNumber, startColumnNumber, rowLength, ColumnLength)
-    .setValues(newData);
+    .setValues(newData.map(escapeFormulaInjectionRow));
 
   if (withReturn) {
     return data.map((row) =>

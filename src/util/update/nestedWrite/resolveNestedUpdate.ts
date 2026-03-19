@@ -19,6 +19,7 @@ import {
   isNumberOperation,
   resolveNumberOperation,
 } from "../resolveNumberOperation";
+import { escapeFormulaInjectionRow } from "../../core/escapeFormulaInjection";
 
 type UpdateInput = {
   where: WhereUse;
@@ -85,7 +86,7 @@ const resolveNestedUpdate = (
       1,
       columnLength,
     );
-    updateRange.setValues([updatedRow]);
+    updateRange.setValues([escapeFormulaInjectionRow(updatedRow)]);
 
     return titles.reduce<Record<string, unknown>>((record, title, index) => {
       record[title] = updatedRow[index];
@@ -130,7 +131,7 @@ const resolveNestedUpdate = (
     1,
     columnLength,
   );
-  updateRange.setValues([updatedRow]);
+  updateRange.setValues([escapeFormulaInjectionRow(updatedRow)]);
 
   const updatedRecord = titles.reduce<Record<string, unknown>>(
     (record, title, index) => {

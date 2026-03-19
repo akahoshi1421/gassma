@@ -8,6 +8,7 @@ import {
   isNumberOperation,
   resolveNumberOperation,
 } from "./resolveNumberOperation";
+import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 
 function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
@@ -64,7 +65,7 @@ function updateManyFunc(
         1,
         ColumnLength,
       );
-      updateRange.setValues([updatedRow]);
+      updateRange.setValues([escapeFormulaInjectionRow(updatedRow)]);
     }
 
     return titles.reduce<Record<string, unknown>>((record, title, index) => {

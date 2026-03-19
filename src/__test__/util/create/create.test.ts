@@ -176,6 +176,27 @@ describe("create functionality tests", () => {
         "エンジニア",
       ]);
     });
+
+    test("should escape formula injection in created data", () => {
+      createFunc(mockUtil, {
+        data: {
+          名前: "=1+1",
+          年齢: 25,
+          住所: "+cmd",
+          郵便番号: "-1+1",
+          職業: "@SUM",
+        },
+      });
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData[INITIAL_ROW_COUNT]).toEqual([
+        "'=1+1",
+        25,
+        "'+cmd",
+        "'-1+1",
+        "'@SUM",
+      ]);
+    });
   });
 
   describe("createManyFunc", () => {
@@ -432,6 +453,43 @@ describe("create functionality tests", () => {
         "Osaka",
         "109-0009",
         "Engineer",
+      ]);
+    });
+
+    test("should escape formula injection in createMany data", () => {
+      createManyFunc(mockUtil, {
+        data: [
+          {
+            名前: "=SUM(A1:A10)",
+            年齢: 20,
+            住所: "Tokyo",
+            郵便番号: "100-0000",
+            職業: "Engineer",
+          },
+          {
+            名前: "normal",
+            年齢: 25,
+            住所: "+cmd",
+            郵便番号: "200-0000",
+            職業: "-exec",
+          },
+        ],
+      });
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData[INITIAL_ROW_COUNT]).toEqual([
+        "'=SUM(A1:A10)",
+        20,
+        "Tokyo",
+        "100-0000",
+        "Engineer",
+      ]);
+      expect(currentData[INITIAL_ROW_COUNT + 1]).toEqual([
+        "normal",
+        25,
+        "'+cmd",
+        "200-0000",
+        "'-exec",
       ]);
     });
   });

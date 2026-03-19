@@ -3,6 +3,7 @@ import type { CreateData } from "../../types/createTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
+import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 
 const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -32,7 +33,7 @@ const createFunc = (
 
   sheet
     .getRange(rowNumber, startColumnNumber, 1, ColumnLength)
-    .setValues([newData]);
+    .setValues([escapeFormulaInjectionRow(newData)]);
 
   return createReturn;
 };

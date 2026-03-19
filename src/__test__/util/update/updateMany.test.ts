@@ -742,4 +742,15 @@ describe("updateManyFunc with limit", () => {
     expect(result).toHaveLength(1);
     expect(result[0]["職業"]).toBe("Senior Engineer");
   });
+
+  test("should escape formula injection in updated data", () => {
+    updateManyFunc(mockUtil, {
+      where: { 名前: "Alice" },
+      data: { 住所: '=IMPORTRANGE("url", "A1")' },
+    });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    // Alice はヘッダー行の次（index 1）
+    expect(currentData[1][2]).toBe('\'=IMPORTRANGE("url", "A1")');
+  });
 });
