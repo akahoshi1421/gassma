@@ -19,7 +19,11 @@ import { IncludeWithoutRelationsError } from "./errors/relation/relationValidati
 import type { AggregateData } from "./types/aggregateType";
 import type { AnyUse, Select, Omit, WhereUse } from "./types/coreTypes";
 import type { CountData } from "./types/countType";
-import type { CreateData, CreateManyData } from "./types/createTypes";
+import type {
+  CreateData,
+  CreateManyData,
+  CreateManyAndReturnData,
+} from "./types/createTypes";
 import type {
   DeleteData,
   DeleteSingleData,
@@ -290,17 +294,44 @@ class GassmaController {
     );
   }
 
-  public createManyAndReturn(createdData: CreateManyData) {
+  public createManyAndReturn(createdData: CreateManyAndReturnData) {
+    if (createdData.include && createdData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+    if (createdData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
+    if (createdData.select && createdData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
+
     const results = createManyFunc(
       this.getGassmaControllerUtil(),
       this.applyCreateManyPreprocess(createdData),
       true,
     );
     if (!Array.isArray(results)) return results;
-    return results.map((r) => {
-      const stripped = this.stripIgnored(r);
-      return this.applyOmitToResult(stripped, this.globalOmit);
-    });
+
+    const stripped = results.map((r) => this.stripIgnored(r));
+
+    if (createdData.include && this.relationContext) {
+      const resolved = resolveInclude(
+        stripped,
+        createdData.include,
+        this.relationContext,
+      );
+      if (createdData.omit) {
+        return resolved.map((r) => omitFunc(createdData.omit!, r));
+      }
+      return resolved.map((r) => this.applyOmitToResult(r, this.globalOmit));
+    }
+
+    if (createdData.select) {
+      return stripped.map((r) => findedDataSelect(createdData.select!, r));
+    }
+
+    const effectiveOmit = this.resolveEffectiveOmit(null, createdData.omit);
+    return stripped.map((r) => this.applyOmitToResult(r, effectiveOmit));
   }
 
   public create(createdData: CreateData) {
