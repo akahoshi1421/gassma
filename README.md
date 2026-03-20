@@ -22,18 +22,38 @@ npm i gassma
 
 When using Clasp...
 
-```.ts
-import { Gassma } from "gassma";
+1. Create a Prisma schema file under `./gassma/` directory:
 
-const gassma = new Gassma.GassmaClient();
+```prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/gassma"
+}
+
+model User {
+  id    Int     @id
+  name  String
+  email String?
+  age   Int
+}
+```
+
+2. Run `npx gassma generate` to generate type-safe client code.
+
+3. Use the generated client:
+
+```.ts
+import { GassmaClient } from "./generated/gassma/schemaClient";
+
+const gassma = new GassmaClient();
 
 // Getting data from the SpreadSheet
 function myFunction(){
-    const result = gassma.sheets.YOUR_SHEET_NAME.findMany({
+    const result = gassma.sheets.User.findMany({
         where: {
-            city: "Tokyo",
-            age: 22
-        }
+            age: { gte: 25 }
+        },
+        orderBy: { name: "asc" }
     });
 
     console.log(result);
@@ -58,16 +78,10 @@ function myFunction(){
 }
 ```
 
-## How to install type file
-
-```
-$ npm i gassma
-```
-
 ## Official Reference
 
 https://akahoshi1421.github.io/gassma-reference/
 
 ## version
 
-0.10.0
+1.0.0

@@ -22,18 +22,38 @@ npm i gassma
 
 Claspを使用する場合...
 
-```.ts
-import { Gassma } from "gassma";
+1. `./gassma/` ディレクトリにPrismaスキーマファイルを作成します:
 
-const gassma = new Gassma.GassmaClient();
+```prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/gassma"
+}
+
+model User {
+  id    Int     @id
+  name  String
+  email String?
+  age   Int
+}
+```
+
+2. `npx gassma generate` を実行して型安全なクライアントコードを生成します。
+
+3. 生成されたクライアントを使用します:
+
+```.ts
+import { GassmaClient } from "./generated/gassma/schemaClient";
+
+const gassma = new GassmaClient();
 
 // スプレッドシートからデータを取得
 function myFunction(){
-    const result = gassma.sheets.YOUR_SHEET_NAME.findMany({
+    const result = gassma.sheets.User.findMany({
         where: {
-            city: "Tokyo",
-            age: 22
-        }
+            age: { gte: 25 }
+        },
+        orderBy: { name: "asc" }
     });
 
     console.log(result);
@@ -58,16 +78,10 @@ function myFunction(){
 }
 ```
 
-## 型ファイルのインストール方法
-
-```
-$ npm i gassma
-```
-
 ## 公式リファレンス
 
 https://akahoshi1421.github.io/gassma-reference/
 
 ## バージョン
 
-0.8.0
+1.0.0
