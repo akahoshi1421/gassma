@@ -54,7 +54,7 @@ const isFilterConditionsMatch = (
         if (filterOptions.mode === "insensitive") {
           return cellStr.toLowerCase().includes(containsPattern.toLowerCase());
         }
-        return cellStr.match(`${containsPattern}`) !== null;
+        return cellStr.includes(containsPattern);
       }
       case "startsWith": {
         if (cellData === null) return false;
@@ -63,7 +63,7 @@ const isFilterConditionsMatch = (
         if (filterOptions.mode === "insensitive") {
           return cellStrSw.toLowerCase().startsWith(swPattern.toLowerCase());
         }
-        return cellStrSw.match(`^${swPattern}`) !== null;
+        return cellStrSw.startsWith(swPattern);
       }
       case "endsWith": {
         if (cellData === null) return false;
@@ -72,7 +72,7 @@ const isFilterConditionsMatch = (
         if (filterOptions.mode === "insensitive") {
           return cellStrEw.toLowerCase().endsWith(ewPattern.toLowerCase());
         }
-        return cellStrEw.match(`${ewPattern}$`) !== null;
+        return cellStrEw.endsWith(ewPattern);
       }
       case "mode":
         return true;

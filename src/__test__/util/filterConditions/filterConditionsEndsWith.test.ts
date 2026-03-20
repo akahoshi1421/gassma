@@ -40,4 +40,13 @@ describe("filterConditionsEndsWith", () => {
     const filterOptions = { endsWith: "hello", mode: "insensitive" as const };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
   });
+
+  test("should treat regex meta characters as literal", () => {
+    expect(isFilterConditionsMatch("hello", { endsWith: ".*" })).toBe(false);
+    expect(isFilterConditionsMatch("file.*", { endsWith: ".*" })).toBe(true);
+    expect(isFilterConditionsMatch("hello", { endsWith: "$" })).toBe(false);
+    expect(isFilterConditionsMatch("price$", { endsWith: "$" })).toBe(true);
+    expect(isFilterConditionsMatch("abc", { endsWith: "(v1)" })).toBe(false);
+    expect(isFilterConditionsMatch("app(v1)", { endsWith: "(v1)" })).toBe(true);
+  });
 });

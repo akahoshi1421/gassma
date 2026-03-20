@@ -40,4 +40,13 @@ describe("filterConditionsStartsWith", () => {
     const filterOptions = { startsWith: "world", mode: "insensitive" as const };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
   });
+
+  test("should treat regex meta characters as literal", () => {
+    expect(isFilterConditionsMatch("hello", { startsWith: ".*" })).toBe(false);
+    expect(isFilterConditionsMatch(".*hello", { startsWith: ".*" })).toBe(true);
+    expect(isFilterConditionsMatch("hello", { startsWith: "^" })).toBe(false);
+    expect(isFilterConditionsMatch("^hello", { startsWith: "^" })).toBe(true);
+    expect(isFilterConditionsMatch("abc", { startsWith: "(a" })).toBe(false);
+    expect(isFilterConditionsMatch("(abc)", { startsWith: "(a" })).toBe(true);
+  });
 });
