@@ -49,7 +49,7 @@ const gassma = new GassmaClient();
 
 // スプレッドシートからデータを取得
 function myFunction(){
-    const result = gassma.sheets.User.findMany({
+    const result = gassma.User.findMany({
         where: {
             age: { gte: 25 }
         },
@@ -67,7 +67,7 @@ const gassma = new Gassma.GassmaClient();
 
 // スプレッドシートからデータを取得
 function myFunction(){
-    const result = gassma.sheets.YOUR_SHEET_NAME.findMany({
+    const result = gassma.YOUR_SHEET_NAME.findMany({
         where: {
             city: "Tokyo",
             age: 22
