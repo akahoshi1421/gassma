@@ -7,11 +7,19 @@ import type {
   UpdateAnyUse,
   WhereUse,
 } from "./coreTypes";
-import type { IncludeData } from "./relationTypes";
+import type {
+  CountValue,
+  IncludeData,
+  IncludeItemOptions,
+} from "./relationTypes";
+
+type FindSelect = {
+  [key: string]: true | IncludeItemOptions | CountValue;
+};
 
 type FindFirstData = {
   where?: WhereUse;
-  select?: Select;
+  select?: FindSelect;
   omit?: Omit;
   orderBy?: OrderBy | OrderBy[];
   include?: IncludeData;
@@ -20,7 +28,7 @@ type FindFirstData = {
 
 type FindData = {
   where?: WhereUse;
-  select?: Select;
+  select?: FindSelect;
   omit?: Omit;
   orderBy?: OrderBy | OrderBy[];
   take?: number;

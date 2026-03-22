@@ -51,7 +51,10 @@ import { groupByFunc } from "./util/groupby/groupby";
 import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
 import { resolveOnUpdate } from "./util/relation/onUpdate/resolveOnUpdate";
 import { resolveInclude } from "./util/relation/resolveInclude";
+import { resolveCount } from "./util/relation/resolveCount";
 import { applySelectCount } from "./util/find/findUtil/applySelectCount";
+import { applySelectRelations } from "./util/find/findUtil/applySelectRelations";
+import { extractSelectRelations } from "./util/find/findUtil/extractSelectRelations";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { updateManyFunc } from "./util/update/updateMany";
@@ -128,7 +131,9 @@ class GassmaController {
     return stripIgnoredFields(data, this.ignoredFields);
   }
 
-  private applyIgnoreToSelect(select: Select): Select {
+  private applyIgnoreToSelect(
+    select: Record<string, unknown>,
+  ): Record<string, unknown> {
     if (!this.ignoredFields) return select;
     return stripIgnoreFromSelect(select, this.ignoredFields);
   }
@@ -214,7 +219,7 @@ class GassmaController {
   }
 
   private resolveEffectiveOmit(
-    select: Select | null | undefined,
+    select: Record<string, unknown> | null | undefined,
     queryOmit: Omit | null | undefined,
   ): Omit | null {
     return resolveGlobalOmit(this.globalOmit, select, queryOmit);
@@ -236,12 +241,12 @@ class GassmaController {
     return resolveWhereRelation(stripped, this.relationContext);
   }
 
-  private buildScalarSelect(select: Select): Select | null {
+  private buildScalarSelect(select: Record<string, unknown>): Select | null {
     const scalarKeys = Object.keys(select).filter((key) => key !== "_count");
     if (scalarKeys.length === 0) return null;
     const result: Select = {};
     scalarKeys.forEach((key) => {
-      result[key] = select[key];
+      result[key] = true;
     });
     return result;
   }
@@ -422,14 +427,22 @@ class GassmaController {
     const { hasRelationOrderBy } = separateRelationOrderBy(orderByArr);
 
     if (hasRelationOrderBy && this.relationContext) {
+      const ffRelationNames = Object.keys(this.relationContext.relations);
+      const ffExtracted = findData.select
+        ? extractSelectRelations(findData.select, ffRelationNames)
+        : null;
+      const ffHasSelectRelations =
+        ffExtracted?.relationInclude !== null &&
+        ffExtracted?.relationInclude !== undefined;
+      const ffHasCount =
+        findData.select !== undefined && "_count" in findData.select;
+      const ffStripSelect = ffHasSelectRelations || ffHasCount;
+
       const baseResult = findFirstWithRelationOrderBy(
         this.getGassmaControllerUtil(),
         {
           ...findData,
-          select:
-            findData.select && "_count" in findData.select
-              ? undefined
-              : findData.select,
+          select: ffStripSelect ? undefined : findData.select,
         },
         this.relationContext,
         orderByArr,
@@ -437,9 +450,31 @@ class GassmaController {
 
       if (!baseResult) return null;
 
-      if (findData.select && "_count" in findData.select) {
-        const countValue = findData.select._count;
-        const scalarSelect = this.buildScalarSelect(findData.select);
+      if (ffHasSelectRelations && ffExtracted?.relationInclude) {
+        const countValue = ffHasCount ? findData.select!._count : undefined;
+
+        let result = resolveInclude(
+          [baseResult],
+          ffExtracted.relationInclude,
+          this.relationContext,
+        );
+
+        if (countValue !== undefined) {
+          result = resolveCount(result, countValue, this.relationContext);
+        }
+
+        const filtered = applySelectRelations(
+          result,
+          ffExtracted.scalarSelect,
+          Object.keys(ffExtracted.relationInclude),
+          countValue,
+        );
+        return filtered[0] ?? null;
+      }
+
+      if (ffHasCount) {
+        const countValue = findData.select!._count;
+        const scalarSelect = this.buildScalarSelect(findData.select!);
         const resolved = applySelectCount(
           [baseResult],
           countValue,
@@ -461,29 +496,62 @@ class GassmaController {
       return baseResult;
     }
 
-    if (
-      findData.select &&
-      "_count" in findData.select &&
-      this.relationContext
-    ) {
-      const select = findData.select;
-      const countValue = select._count;
-      const scalarSelect = this.buildScalarSelect(select);
-
-      const baseResult = findFirstFunc(this.getGassmaControllerUtil(), {
-        ...findData,
-        select: undefined,
-      });
-
-      if (!baseResult) return null;
-
-      const resolved = applySelectCount(
-        [baseResult],
-        countValue,
-        scalarSelect,
-        this.relationContext,
+    if (findData.select && this.relationContext) {
+      const ffRelationNames2 = Object.keys(this.relationContext.relations);
+      const ffExtracted2 = extractSelectRelations(
+        findData.select,
+        ffRelationNames2,
       );
-      return resolved[0] ?? null;
+
+      if (ffExtracted2.relationInclude) {
+        const countValue =
+          "_count" in findData.select ? findData.select._count : undefined;
+
+        const fullResult = findFirstFunc(this.getGassmaControllerUtil(), {
+          ...findData,
+          select: undefined,
+        });
+
+        if (!fullResult) return null;
+
+        let result = resolveInclude(
+          [fullResult],
+          ffExtracted2.relationInclude,
+          this.relationContext,
+        );
+
+        if (countValue !== undefined) {
+          result = resolveCount(result, countValue, this.relationContext);
+        }
+
+        const filtered = applySelectRelations(
+          result,
+          ffExtracted2.scalarSelect,
+          Object.keys(ffExtracted2.relationInclude),
+          countValue,
+        );
+        return filtered[0] ?? null;
+      }
+
+      if ("_count" in findData.select) {
+        const countValue = findData.select._count;
+        const scalarSelect = this.buildScalarSelect(findData.select);
+
+        const fullResult = findFirstFunc(this.getGassmaControllerUtil(), {
+          ...findData,
+          select: undefined,
+        });
+
+        if (!fullResult) return null;
+
+        const resolved = applySelectCount(
+          [fullResult],
+          countValue,
+          scalarSelect,
+          this.relationContext,
+        );
+        return resolved[0] ?? null;
+      }
     }
 
     const baseResult = findFirstFunc(this.getGassmaControllerUtil(), findData);
@@ -552,22 +620,51 @@ class GassmaController {
       separateRelationOrderBy(fmOrderByArr);
 
     if (fmHasRelation && this.relationContext) {
+      const fmRelationNames = Object.keys(this.relationContext.relations);
+      const fmExtracted = findData.select
+        ? extractSelectRelations(findData.select, fmRelationNames)
+        : null;
+      const fmHasSelectRelations =
+        fmExtracted?.relationInclude !== null &&
+        fmExtracted?.relationInclude !== undefined;
+      const fmHasCount =
+        findData.select !== undefined && "_count" in findData.select;
+      const fmStripSelect = fmHasSelectRelations || fmHasCount;
+
       const baseResult = findManyWithRelationOrderBy(
         this.getGassmaControllerUtil(),
         {
           ...findData,
-          select:
-            findData.select && "_count" in findData.select
-              ? undefined
-              : findData.select,
+          select: fmStripSelect ? undefined : findData.select,
         },
         this.relationContext,
         fmOrderByArr,
       );
 
-      if (findData.select && "_count" in findData.select) {
-        const countValue = findData.select._count;
-        const scalarSelect = this.buildScalarSelect(findData.select);
+      if (fmHasSelectRelations && fmExtracted?.relationInclude) {
+        const countValue = fmHasCount ? findData.select!._count : undefined;
+
+        let result = resolveInclude(
+          baseResult,
+          fmExtracted.relationInclude,
+          this.relationContext,
+        );
+
+        if (countValue !== undefined) {
+          result = resolveCount(result, countValue, this.relationContext);
+        }
+
+        return applySelectRelations(
+          result,
+          fmExtracted.scalarSelect,
+          Object.keys(fmExtracted.relationInclude),
+          countValue,
+        );
+      }
+
+      if (fmHasCount) {
+        const countValue = findData.select!._count;
+        const scalarSelect = this.buildScalarSelect(findData.select!);
         return applySelectCount(
           baseResult,
           countValue,
@@ -587,26 +684,53 @@ class GassmaController {
       return baseResult;
     }
 
-    if (
-      findData.select &&
-      "_count" in findData.select &&
-      this.relationContext
-    ) {
-      const select = findData.select;
-      const countValue = select._count;
-      const scalarSelect = this.buildScalarSelect(select);
+    if (findData.select && this.relationContext) {
+      const relationNames = Object.keys(this.relationContext.relations);
+      const extracted = extractSelectRelations(findData.select, relationNames);
 
-      const fullRecords = findManyFunc(this.getGassmaControllerUtil(), {
-        ...findData,
-        select: undefined,
-      });
+      if (extracted.relationInclude) {
+        const countValue =
+          "_count" in findData.select ? findData.select._count : undefined;
 
-      return applySelectCount(
-        fullRecords,
-        countValue,
-        scalarSelect,
-        this.relationContext,
-      );
+        const fullRecords = findManyFunc(this.getGassmaControllerUtil(), {
+          ...findData,
+          select: undefined,
+        });
+
+        let result = resolveInclude(
+          fullRecords,
+          extracted.relationInclude,
+          this.relationContext,
+        );
+
+        if (countValue !== undefined) {
+          result = resolveCount(result, countValue, this.relationContext);
+        }
+
+        return applySelectRelations(
+          result,
+          extracted.scalarSelect,
+          Object.keys(extracted.relationInclude),
+          countValue,
+        );
+      }
+
+      if ("_count" in findData.select) {
+        const countValue = findData.select._count;
+        const scalarSelect = this.buildScalarSelect(findData.select);
+
+        const fullRecords = findManyFunc(this.getGassmaControllerUtil(), {
+          ...findData,
+          select: undefined,
+        });
+
+        return applySelectCount(
+          fullRecords,
+          countValue,
+          scalarSelect,
+          this.relationContext,
+        );
+      }
     }
 
     const baseResult = findManyFunc(this.getGassmaControllerUtil(), findData);

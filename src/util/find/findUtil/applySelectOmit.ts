@@ -1,11 +1,11 @@
-import type { Select, Omit } from "../../../types/coreTypes";
+import type { Omit } from "../../../types/coreTypes";
 import { GassmaFindSelectOmitConflictError } from "../../../errors/find/findError";
 import { findedDataSelect } from "./findDataSelect";
 import { omitFunc } from "./omit";
 
 const applySelectOmit = (
   records: Record<string, unknown>[],
-  select: Select | null | undefined,
+  select: Record<string, unknown> | null | undefined,
   omit: Omit | null | undefined,
 ): Record<string, unknown>[] => {
   if (select && omit) {

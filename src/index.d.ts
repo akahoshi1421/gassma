@@ -287,7 +287,7 @@ declare namespace Gassma {
   };
 
   type FindSelect = {
-    [key: string]: true | CountValue;
+    [key: string]: true | IncludeItemOptions | CountValue;
   };
 
   type FindFirstData = {
