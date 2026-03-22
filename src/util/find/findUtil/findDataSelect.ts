@@ -1,6 +1,7 @@
-import type { Select } from "../../../types/coreTypes";
-
-const findedDataSelect = (select: Select, row: Record<string, unknown>) => {
+const findedDataSelect = (
+  select: Record<string, unknown>,
+  row: Record<string, unknown>,
+) => {
   const result = {};
   const selectKeys = Object.keys(select);
 

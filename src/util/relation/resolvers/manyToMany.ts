@@ -8,7 +8,9 @@ import { GassmaSkipNegativeError } from "../../../errors/find/findError";
 import { GassmaThroughRequiredError } from "../../../errors/relation/relationError";
 import { orderByFunc } from "../../find/findUtil/orderBy";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
+import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
 import { collectKeys } from "../collectKeys";
+import { processSelectForInclude } from "../processSelectForInclude";
 
 type FindManyOnSheet = (
   sheetName: string,
@@ -49,9 +51,16 @@ const resolveManyToMany = (
     ? { AND: [baseWhere, options.where] }
     : baseWhere;
 
+  const processed = options?.select
+    ? processSelectForInclude(options.select)
+    : null;
+  const mergedInclude = processed?.nestedInclude
+    ? { ...(options?.include ?? {}), ...processed.nestedInclude }
+    : options?.include;
+
   const targets = findManyOnSheet(relation.to, {
     where: targetWhere,
-    include: options?.include,
+    include: mergedInclude,
   });
 
   // Step 3: ターゲットをルックアップマップに
@@ -98,6 +107,16 @@ const resolveManyToMany = (
       }
     } else if (options?.skip !== undefined) {
       items = items.slice(options.skip);
+    }
+
+    if (processed?.nestedInclude) {
+      const nestedKeys = Object.keys(processed.nestedInclude);
+      const filtered = applySelectRelations(
+        items,
+        processed.scalarSelect,
+        nestedKeys,
+      );
+      return { ...parent, [relationName]: filtered };
     }
 
     const filtered = applySelectOmit(items, options?.select, options?.omit);

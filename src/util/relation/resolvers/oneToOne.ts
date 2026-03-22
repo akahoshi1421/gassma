@@ -6,7 +6,9 @@ import type {
 import type { WhereUse } from "../../../types/coreTypes";
 import { GassmaRelationDuplicateError } from "../../../errors/relation/relationError";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
+import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
 import { collectKeys } from "../collectKeys";
+import { processSelectForInclude } from "../processSelectForInclude";
 
 type FindManyOnSheet = (
   sheetName: string,
@@ -29,9 +31,16 @@ const resolveOneToOne = (
     ? { AND: [baseWhere, options.where] }
     : baseWhere;
 
+  const processed = options?.select
+    ? processSelectForInclude(options.select)
+    : null;
+  const mergedInclude = processed?.nestedInclude
+    ? { ...(options?.include ?? {}), ...processed.nestedInclude }
+    : options?.include;
+
   const children = findManyOnSheet(relation.to, {
     where,
-    include: options?.include,
+    include: mergedInclude,
   });
 
   const lookup = new Map<unknown, Record<string, unknown>>();
@@ -49,9 +58,23 @@ const resolveOneToOne = (
 
   return parents.map((parent) => {
     const child = lookup.get(parent[relation.field]) ?? null;
-    const filtered = child
-      ? applySelectOmit([child], options?.select, options?.omit)[0]
-      : null;
+    if (!child) return { ...parent, [relationName]: null };
+
+    if (processed?.nestedInclude) {
+      const nestedKeys = Object.keys(processed.nestedInclude);
+      const filtered = applySelectRelations(
+        [child],
+        processed.scalarSelect,
+        nestedKeys,
+      );
+      return { ...parent, [relationName]: filtered[0] ?? null };
+    }
+
+    const filtered = applySelectOmit(
+      [child],
+      options?.select,
+      options?.omit,
+    )[0];
     return { ...parent, [relationName]: filtered };
   });
 };

@@ -1,10 +1,8 @@
-import type { Select } from "../../types/coreTypes";
-
 const stripIgnoreFromSelect = (
-  select: Select,
+  select: Record<string, unknown>,
   ignoredFields: string[],
-): Select => {
-  const result: Select = {};
+): Record<string, unknown> => {
+  const result: Record<string, unknown> = {};
   Object.keys(select).forEach((key) => {
     if (ignoredFields.indexOf(key) === -1) {
       result[key] = select[key];
