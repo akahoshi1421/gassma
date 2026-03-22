@@ -17,8 +17,6 @@ const isClientOptions = (
 };
 
 class GassmaClient {
-  public readonly sheets: GassmaSheet = {};
-
   constructor(idOrOptions?: string | GassmaClientOptions) {
     const id = isClientOptions(idOrOptions) ? idOrOptions.id : idOrOptions;
     const relations = isClientOptions(idOrOptions)
@@ -57,6 +55,8 @@ class GassmaClient {
       : SpreadsheetApp.getActiveSpreadsheet();
     const mySheets = spreadSheet.getSheets();
 
+    const controllers: GassmaSheet = {};
+
     mySheets.forEach((sheet) => {
       const sheetName = sheet.getName();
       const codeName = resolveCodeName(sheetName, mapSheets);
@@ -90,31 +90,36 @@ class GassmaClient {
       if (map && map[codeName]) {
         sheetController._setMap(map[codeName]);
       }
-      this.sheets[codeName] = sheetController;
+      controllers[codeName] = sheetController;
     });
 
+    Object.assign(this, controllers);
+
     if (relations) {
-      this.injectRelations(relations);
+      this.injectRelations(relations, controllers);
     }
   }
 
-  private injectRelations(relations: RelationsConfig) {
+  private injectRelations(
+    relations: RelationsConfig,
+    controllers: GassmaSheet,
+  ) {
     const cache = new Map<string, string[]>();
     const getColumnHeaders = (sheetName: string): string[] => {
       const cached = cache.get(sheetName);
       if (cached) return cached;
-      const headers = this.sheets[sheetName].getColumnHeaders();
+      const headers = controllers[sheetName].getColumnHeaders();
       cache.set(sheetName, headers);
       return headers;
     };
 
-    validateRelationsConfig(relations, this.sheets, getColumnHeaders);
+    validateRelationsConfig(relations, controllers, getColumnHeaders);
 
     const findManyOnSheet = (
       sheetName: string,
       findData: { where?: WhereUse; include?: IncludeData },
     ): Record<string, unknown>[] => {
-      const controller = this.sheets[sheetName];
+      const controller = controllers[sheetName];
       if (!controller) {
         throw new Error(`Target sheet "${sheetName}" is not accessible`);
       }
@@ -125,7 +130,7 @@ class GassmaClient {
       sheetName: string,
       deleteData: { where: WhereUse },
     ): { count: number } => {
-      const controller = this.sheets[sheetName];
+      const controller = controllers[sheetName];
       if (!controller) {
         throw new Error(`Target sheet "${sheetName}" is not accessible`);
       }
@@ -136,7 +141,7 @@ class GassmaClient {
       sheetName: string,
       updateData: { where?: WhereUse; data: AnyUse },
     ): { count: number } => {
-      const controller = this.sheets[sheetName];
+      const controller = controllers[sheetName];
       if (!controller) {
         throw new Error(`Target sheet "${sheetName}" is not accessible`);
       }
@@ -147,7 +152,7 @@ class GassmaClient {
       sheetName: string,
       createData: { data: Record<string, unknown> },
     ): Record<string, unknown> => {
-      const controller = this.sheets[sheetName];
+      const controller = controllers[sheetName];
       if (!controller) {
         throw new Error(`Target sheet "${sheetName}" is not accessible`);
       }
@@ -158,7 +163,7 @@ class GassmaClient {
       sheetName: string,
       createManyData: { data: AnyUse[] },
     ): { count: number } | undefined => {
-      const controller = this.sheets[sheetName];
+      const controller = controllers[sheetName];
       if (!controller) {
         throw new Error(`Target sheet "${sheetName}" is not accessible`);
       }
@@ -166,7 +171,7 @@ class GassmaClient {
     };
 
     Object.keys(relations).forEach((sheetName) => {
-      const controller = this.sheets[sheetName];
+      const controller = controllers[sheetName];
       if (!controller) return;
 
       controller._setRelationContext({

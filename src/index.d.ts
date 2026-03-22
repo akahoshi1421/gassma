@@ -8,7 +8,7 @@ declare namespace Gassma {
   class GassmaClient {
     constructor(idOrOptions?: string | GassmaClientOptions);
 
-    readonly sheets: GassmaSheet;
+    [sheetName: string]: GassmaController;
   }
 
   class GassmaController {
