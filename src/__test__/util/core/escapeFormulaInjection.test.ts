@@ -89,3 +89,52 @@ describe("escapeFormulaInjectionRow", () => {
     expect(escapeFormulaInjectionRow([])).toEqual([]);
   });
 });
+
+describe("escapeFormulaInjection 配列の再帰サニタイズ", () => {
+  it("1次元配列内の数式文字列をエスケープする", () => {
+    expect(escapeFormulaInjection(["=1+1"])).toEqual(["'=1+1"]);
+  });
+
+  it("1次元配列内の複数要素をエスケープする", () => {
+    expect(escapeFormulaInjection(["=1+1", "normal", "+cmd"])).toEqual([
+      "'=1+1",
+      "normal",
+      "'+cmd",
+    ]);
+  });
+
+  it("2次元配列を再帰的にエスケープする", () => {
+    expect(escapeFormulaInjection([["=1+1"]])).toEqual([["'=1+1"]]);
+  });
+
+  it("3次元配列を再帰的にエスケープする", () => {
+    expect(escapeFormulaInjection([[["=1+1"]]])).toEqual([[["'=1+1"]]]);
+  });
+
+  it("5次元配列を再帰的にエスケープする", () => {
+    expect(escapeFormulaInjection([[[[["=SUM(A1:A10)"]]]]])).toEqual([
+      [[[["'=SUM(A1:A10)"]]]],
+    ]);
+  });
+
+  it("配列内に数値やnullが混在してもエスケープする", () => {
+    expect(escapeFormulaInjection(["=1+1", 42, null, "normal"])).toEqual([
+      "'=1+1",
+      42,
+      null,
+      "normal",
+    ]);
+  });
+
+  it("空配列はそのまま返す", () => {
+    expect(escapeFormulaInjection([])).toEqual([]);
+  });
+
+  it("配列内にネストされた配列とスカラーが混在する場合", () => {
+    expect(escapeFormulaInjection(["=1+1", ["=SUM(A1)"], "normal"])).toEqual([
+      "'=1+1",
+      ["'=SUM(A1)"],
+      "normal",
+    ]);
+  });
+});

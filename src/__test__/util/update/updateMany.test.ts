@@ -379,7 +379,8 @@ describe("updateMany functionality tests", () => {
 
       const currentData = (mockUtil.sheet as any)._getMockData();
       const eveRow = currentData.find(
-        (row, index) => index > 0 && row[0] === arrayData,
+        (row, index) =>
+          index > 0 && JSON.stringify(row[0]) === JSON.stringify(arrayData),
       );
       expect(eveRow).toBeDefined();
       expect(eveRow[1]).toEqual(objectData);
