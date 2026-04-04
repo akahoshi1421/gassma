@@ -80,7 +80,7 @@ function myFunction(){
 
 ## Official Reference
 
-https://akahoshi1421.github.io/gassma-reference/
+https://akahoshi1421.github.io/gassma-reference/en
 
 ## version
 
