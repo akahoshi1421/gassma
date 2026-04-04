@@ -22,6 +22,9 @@ npm i gassma
 
 Claspを使用する場合...
 
+> [!NOTE]
+> この方法では [GASsma-cli](https://github.com/akahoshi1421/gassma-cli) が必要です。`npm i gassma` でインストールし、`npx gassma init` でプロジェクトをセットアップしてください。
+
 1. `./gassma/` ディレクトリにPrismaスキーマファイルを作成します:
 
 ```prisma

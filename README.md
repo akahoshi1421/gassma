@@ -22,6 +22,9 @@ npm i gassma
 
 When using Clasp...
 
+> [!NOTE]
+> This approach requires [GASsma-cli](https://github.com/akahoshi1421/gassma-cli). Install it with `npm i gassma` and run `npx gassma init` to set up your project.
+
 1. Create a Prisma schema file under `./gassma/` directory:
 
 ```prisma
