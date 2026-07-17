@@ -35,6 +35,7 @@ const resolveInclude = (
         includeValue === true ? undefined : includeValue;
 
       const findMany = context.findManyOnSheet;
+      const targetRelationNames = context.relationNamesOnSheet?.(relation.to);
 
       switch (relation.type) {
         case "oneToMany":
@@ -44,6 +45,7 @@ const resolveInclude = (
             relationName,
             findMany,
             options,
+            targetRelationNames,
           );
         case "oneToOne":
           return resolveOneToOne(
@@ -52,6 +54,7 @@ const resolveInclude = (
             relationName,
             findMany,
             options,
+            targetRelationNames,
           );
         case "manyToOne":
           return resolveManyToOne(
@@ -60,6 +63,7 @@ const resolveInclude = (
             relationName,
             findMany,
             options,
+            targetRelationNames,
           );
         case "manyToMany":
           return resolveManyToMany(
@@ -68,6 +72,7 @@ const resolveInclude = (
             relationName,
             findMany,
             options,
+            targetRelationNames,
           );
         default:
           return acc;

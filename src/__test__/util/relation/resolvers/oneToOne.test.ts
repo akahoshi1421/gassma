@@ -152,4 +152,30 @@ describe("resolveOneToOne", () => {
       'Duplicate value "1" found in "Profiles.userId" for a unique relation',
     );
   });
+
+  it("targetRelationNames にある select 内の true 形式 relation を include として解決する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 10, userId: 1, bio: "Hello", user: { id: 1, name: "Alice" } },
+    ]);
+
+    const result = resolveOneToOne(
+      parents,
+      relation,
+      "profile",
+      mockFindMany,
+      { select: { bio: true, user: true } },
+      ["user"],
+    );
+
+    expect(mockFindMany).toHaveBeenCalledWith("Profiles", {
+      where: { userId: { in: [1] } },
+      include: { user: true },
+    });
+    expect(result[0].profile).toEqual({
+      bio: "Hello",
+      user: { id: 1, name: "Alice" },
+    });
+  });
 });

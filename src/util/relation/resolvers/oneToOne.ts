@@ -21,6 +21,7 @@ const resolveOneToOne = (
   relationName: string,
   findManyOnSheet: FindManyOnSheet,
   options?: IncludeItemOptions,
+  targetRelationNames?: string[],
 ): Record<string, unknown>[] => {
   if (parents.length === 0) return [];
 
@@ -32,7 +33,7 @@ const resolveOneToOne = (
     : baseWhere;
 
   const processed = options?.select
-    ? processSelectForInclude(options.select)
+    ? processSelectForInclude(options.select, targetRelationNames)
     : null;
   const mergedInclude = processed?.nestedInclude
     ? { ...(options?.include ?? {}), ...processed.nestedInclude }

@@ -170,12 +170,16 @@ class GassmaClient {
       return controller.createMany(createManyData);
     };
 
+    const relationNamesOnSheet = (sheetName: string): string[] =>
+      Object.keys(relations[sheetName] ?? {});
+
     Object.keys(relations).forEach((sheetName) => {
       const controller = controllers[sheetName];
       if (!controller) return;
 
       controller._setRelationContext({
         relations: relations[sheetName],
+        relationNamesOnSheet,
         findManyOnSheet,
         deleteManyOnSheet,
         updateManyOnSheet,

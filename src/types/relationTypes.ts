@@ -102,6 +102,7 @@ type GassmaClientOptions = {
 
 type RelationContext = {
   relations: { [relationName: string]: RelationDefinition };
+  relationNamesOnSheet?: (sheetName: string) => string[];
   findManyOnSheet: (
     sheetName: string,
     findData: { where?: WhereUse; include?: IncludeData },
