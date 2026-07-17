@@ -111,6 +111,23 @@ describe("resolveOneToOne", () => {
     expect(result[0].profile).toEqual({ id: 10, userId: 1, bio: "Hello" });
   });
 
+  it("omit の false エントリのみを findManyOnSheet に渡す", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 10, userId: 1, bio: "Hello", avatar: "pic.png" },
+    ]);
+
+    resolveOneToOne(parents, relation, "profile", mockFindMany, {
+      omit: { avatar: true, secret: false },
+    });
+
+    expect(mockFindMany).toHaveBeenCalledWith("Profiles", {
+      where: { userId: { in: [1] } },
+      omit: { secret: false },
+    });
+  });
+
   it("子レコードがnullの場合selectオプションがあってもnullを返す", () => {
     const parents = [{ id: 1, name: "Alice" }];
 

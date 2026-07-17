@@ -170,7 +170,7 @@ declare namespace Gassma {
     skip?: number;
     take?: number;
     select?: Select;
-    omit?: Omit;
+    omit?: Record<string, boolean>;
     include?: IncludeData;
   };
 

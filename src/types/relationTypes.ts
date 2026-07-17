@@ -3,6 +3,7 @@ import type {
   GassmaAny,
   Omit,
   OrderBy,
+  QueryOmit,
   Select,
   WhereUse,
 } from "./coreTypes";
@@ -41,7 +42,7 @@ type IncludeItemOptions = {
   skip?: number;
   take?: number;
   select?: Select;
-  omit?: Omit;
+  omit?: QueryOmit;
   include?: IncludeData;
 };
 
@@ -105,7 +106,7 @@ type RelationContext = {
   relationNamesOnSheet?: (sheetName: string) => string[];
   findManyOnSheet: (
     sheetName: string,
-    findData: { where?: WhereUse; include?: IncludeData },
+    findData: { where?: WhereUse; include?: IncludeData; omit?: QueryOmit },
   ) => Record<string, unknown>[];
   deleteManyOnSheet?: (
     sheetName: string,

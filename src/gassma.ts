@@ -1,5 +1,5 @@
 import { GassmaController } from "./gassmaController";
-import type { AnyUse, WhereUse } from "./types/coreTypes";
+import type { AnyUse, QueryOmit, WhereUse } from "./types/coreTypes";
 import type { GassmaSheet } from "./types/gassmaTypes";
 import type {
   GassmaClientOptions,
@@ -117,7 +117,7 @@ class GassmaClient {
 
     const findManyOnSheet = (
       sheetName: string,
-      findData: { where?: WhereUse; include?: IncludeData },
+      findData: { where?: WhereUse; include?: IncludeData; omit?: QueryOmit },
     ): Record<string, unknown>[] => {
       const controller = controllers[sheetName];
       if (!controller) {
