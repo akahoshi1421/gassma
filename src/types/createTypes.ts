@@ -1,10 +1,10 @@
-import type { AnyUse, ManyReturn, Omit, Select } from "./coreTypes";
+import type { AnyUse, ManyReturn, QueryOmit, Select } from "./coreTypes";
 import type { IncludeData } from "./relationTypes";
 
 type CreateData = {
   data: AnyUse;
   select?: Select;
-  omit?: Omit;
+  omit?: QueryOmit;
   include?: IncludeData;
 };
 
@@ -15,7 +15,7 @@ type CreateManyData = {
 type CreateManyAndReturnData = {
   data: AnyUse[];
   select?: Select;
-  omit?: Omit;
+  omit?: QueryOmit;
   include?: IncludeData;
 };
 

@@ -21,6 +21,10 @@ type Omit = {
   [key: string]: true;
 };
 
+type QueryOmit = {
+  [key: string]: boolean;
+};
+
 type NumberOperation = {
   increment?: number;
   decrement?: number;
@@ -159,6 +163,7 @@ export type {
   OrderBy,
   Select,
   Omit,
+  QueryOmit,
   NumberOperation,
   AnyUse,
   UpdateAnyUse,
