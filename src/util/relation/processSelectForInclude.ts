@@ -7,6 +7,7 @@ type ProcessedSelect = {
 
 const processSelectForInclude = (
   select: Record<string, unknown>,
+  relationNames?: string[],
 ): ProcessedSelect => {
   const scalar: Record<string, unknown> = {};
   const nested: IncludeData = {};
@@ -14,7 +15,9 @@ const processSelectForInclude = (
   Object.keys(select).forEach((key) => {
     if (key === "_count") return;
     const value = select[key];
-    if (value === true) {
+    if (value === true && relationNames?.includes(key)) {
+      nested[key] = true;
+    } else if (value === true) {
       scalar[key] = true;
     } else if (typeof value === "object" && value !== null) {
       nested[key] = value as IncludeData[string];

@@ -329,4 +329,30 @@ describe("resolveManyToMany", () => {
     expect(result).toEqual([]);
     expect(mockFindMany).not.toHaveBeenCalled();
   });
+
+  it("targetRelationNames にある select 内の true 形式 relation を include として解決する", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech", posts: [{ id: 1, title: "Post A" }] },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      relation,
+      "categories",
+      mockFindMany,
+      { select: { name: true, posts: true } },
+      ["posts"],
+    );
+
+    expect(mockFindMany).toHaveBeenNthCalledWith(2, "Categories", {
+      where: { id: { in: [10] } },
+      include: { posts: true },
+    });
+    expect(result[0].categories).toEqual([
+      { name: "Tech", posts: [{ id: 1, title: "Post A" }] },
+    ]);
+  });
 });

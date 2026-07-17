@@ -173,4 +173,34 @@ describe("resolveManyToOne", () => {
       resolveManyToOne(parents, relation, "author", mockFindMany),
     ).toThrow('Duplicate value "1" found in "Users.id" for a unique relation');
   });
+
+  it("targetRelationNames にある select 内の true 形式 relation を include として解決する", () => {
+    const parents = [{ id: 101, authorId: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValue([
+      {
+        id: 1,
+        name: "Alice",
+        posts: [{ id: 101, authorId: 1, title: "Post A" }],
+      },
+    ]);
+
+    const result = resolveManyToOne(
+      parents,
+      relation,
+      "author",
+      mockFindMany,
+      { select: { name: true, posts: true } },
+      ["posts"],
+    );
+
+    expect(mockFindMany).toHaveBeenCalledWith("Users", {
+      where: { id: { in: [1] } },
+      include: { posts: true },
+    });
+    expect(result[0].author).toEqual({
+      name: "Alice",
+      posts: [{ id: 101, authorId: 1, title: "Post A" }],
+    });
+  });
 });

@@ -262,6 +262,54 @@ describe("resolveOneToMany", () => {
     ]);
   });
 
+  it("targetRelationNames にある select 内の true 形式 relation を include として解決する", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      {
+        id: 101,
+        authorId: 1,
+        title: "Post A",
+        comments: [{ id: 201, postId: 101, body: "Nice" }],
+      },
+    ]);
+
+    const result = resolveOneToMany(
+      parents,
+      relation,
+      "posts",
+      mockFindMany,
+      { select: { title: true, comments: true } },
+      ["comments"],
+    );
+
+    expect(mockFindMany).toHaveBeenCalledWith("Posts", {
+      where: { authorId: { in: [1] } },
+      include: { comments: true },
+    });
+    expect(result[0].posts).toEqual([
+      {
+        title: "Post A",
+        comments: [{ id: 201, postId: 101, body: "Nice" }],
+      },
+    ]);
+  });
+
+  it("targetRelationNames が無い場合は select 内の true を scalar として扱う（後方互換）", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([{ id: 101, authorId: 1, title: "Post A" }]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      select: { title: true, comments: true },
+    });
+
+    expect(mockFindMany).toHaveBeenCalledWith("Posts", {
+      where: { authorId: { in: [1] } },
+    });
+    expect(result[0].posts).toEqual([{ title: "Post A" }]);
+  });
+
   it("includeオプション付きでfindManyOnSheetにincludeが渡される", () => {
     const parents = [{ id: 1, name: "Alice" }];
 

@@ -57,4 +57,48 @@ describe("processSelectForInclude", () => {
       profile: { select: { bio: true } },
     });
   });
+
+  describe("relationNames が渡された場合", () => {
+    it("relationNames にあるキーの true は nestedInclude に入る", () => {
+      const result = processSelectForInclude({ id: true, posts: true }, [
+        "posts",
+      ]);
+
+      expect(result.scalarSelect).toEqual({ id: true });
+      expect(result.nestedInclude).toEqual({ posts: true });
+    });
+
+    it("relationNames にないキーの true は scalarSelect のまま", () => {
+      const result = processSelectForInclude({ id: true, posts: true }, [
+        "comments",
+      ]);
+
+      expect(result.scalarSelect).toEqual({ id: true, posts: true });
+      expect(result.nestedInclude).toBeNull();
+    });
+
+    it("true 形式とオブジェクト形式の relation を同時に扱える", () => {
+      const result = processSelectForInclude(
+        {
+          id: true,
+          posts: true,
+          profile: { select: { bio: true } },
+        },
+        ["posts", "profile"],
+      );
+
+      expect(result.scalarSelect).toEqual({ id: true });
+      expect(result.nestedInclude).toEqual({
+        posts: true,
+        profile: { select: { bio: true } },
+      });
+    });
+
+    it("relationNames 未指定なら true は scalarSelect に入る（後方互換）", () => {
+      const result = processSelectForInclude({ id: true, posts: true });
+
+      expect(result.scalarSelect).toEqual({ id: true, posts: true });
+      expect(result.nestedInclude).toBeNull();
+    });
+  });
 });

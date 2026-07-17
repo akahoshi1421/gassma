@@ -359,6 +359,80 @@ describe("resolveInclude", () => {
     });
   });
 
+  describe("nested select の true 形式 relation", () => {
+    const selectRelations: { [name: string]: RelationDefinition } = {
+      posts: {
+        type: "oneToMany",
+        to: "Posts",
+        field: "id",
+        reference: "authorId",
+      },
+    };
+
+    it("relationNamesOnSheet がある場合、select 内の true 形式 relation を include として渡す", () => {
+      const mockFindManySelect = jest.fn();
+
+      const selectContext: RelationContext = {
+        relations: selectRelations,
+        findManyOnSheet: mockFindManySelect,
+        relationNamesOnSheet: (sheetName) =>
+          sheetName === "Posts" ? ["comments"] : [],
+      };
+
+      const parents = [{ id: 1, name: "Alice" }];
+      const include: IncludeData = {
+        posts: { select: { title: true, comments: true } },
+      };
+
+      mockFindManySelect.mockReturnValueOnce([
+        {
+          id: 101,
+          authorId: 1,
+          title: "Post A",
+          comments: [{ id: 201, postId: 101, body: "Nice" }],
+        },
+      ]);
+
+      const result = resolveInclude(parents, include, selectContext);
+
+      expect(mockFindManySelect).toHaveBeenCalledWith("Posts", {
+        where: { authorId: { in: [1] } },
+        include: { comments: true },
+      });
+      expect(result[0].posts).toEqual([
+        {
+          title: "Post A",
+          comments: [{ id: 201, postId: 101, body: "Nice" }],
+        },
+      ]);
+    });
+
+    it("relationNamesOnSheet が無い場合は従来どおり scalar として扱う", () => {
+      const mockFindManySelect = jest.fn();
+
+      const selectContext: RelationContext = {
+        relations: selectRelations,
+        findManyOnSheet: mockFindManySelect,
+      };
+
+      const parents = [{ id: 1, name: "Alice" }];
+      const include: IncludeData = {
+        posts: { select: { title: true, comments: true } },
+      };
+
+      mockFindManySelect.mockReturnValueOnce([
+        { id: 101, authorId: 1, title: "Post A" },
+      ]);
+
+      const result = resolveInclude(parents, include, selectContext);
+
+      expect(mockFindManySelect).toHaveBeenCalledWith("Posts", {
+        where: { authorId: { in: [1] } },
+      });
+      expect(result[0].posts).toEqual([{ title: "Post A" }]);
+    });
+  });
+
   describe("_count", () => {
     it("include: { _count: { select: { posts: true } } } で _count が付与される", () => {
       const parents = [
