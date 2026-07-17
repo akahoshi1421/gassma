@@ -3,16 +3,17 @@ import type {
   IncludeItemOptions,
   RelationDefinition,
 } from "../../../types/relationTypes";
-import type { WhereUse } from "../../../types/coreTypes";
+import type { QueryOmit, WhereUse } from "../../../types/coreTypes";
 import { GassmaRelationDuplicateError } from "../../../errors/relation/relationError";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
 import { collectKeys } from "../collectKeys";
+import { pickOmitFalse } from "../pickOmitFalse";
 import { processSelectForInclude } from "../processSelectForInclude";
 
 type FindManyOnSheet = (
   sheetName: string,
-  findData: { where?: WhereUse; include?: IncludeData },
+  findData: { where?: WhereUse; include?: IncludeData; omit?: QueryOmit },
 ) => Record<string, unknown>[];
 
 const resolveManyToOne = (
@@ -42,6 +43,7 @@ const resolveManyToOne = (
   const targets = findManyOnSheet(relation.to, {
     where,
     include: mergedInclude,
+    omit: pickOmitFalse(options?.omit),
   });
 
   const lookup = new Map<unknown, Record<string, unknown>>();

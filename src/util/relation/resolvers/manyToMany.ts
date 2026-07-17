@@ -3,18 +3,19 @@ import type {
   IncludeItemOptions,
   RelationDefinition,
 } from "../../../types/relationTypes";
-import type { WhereUse } from "../../../types/coreTypes";
+import type { QueryOmit, WhereUse } from "../../../types/coreTypes";
 import { GassmaSkipNegativeError } from "../../../errors/find/findError";
 import { GassmaThroughRequiredError } from "../../../errors/relation/relationError";
 import { orderByFunc } from "../../find/findUtil/orderBy";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
 import { collectKeys } from "../collectKeys";
+import { pickOmitFalse } from "../pickOmitFalse";
 import { processSelectForInclude } from "../processSelectForInclude";
 
 type FindManyOnSheet = (
   sheetName: string,
-  findData: { where?: WhereUse; include?: IncludeData },
+  findData: { where?: WhereUse; include?: IncludeData; omit?: QueryOmit },
 ) => Record<string, unknown>[];
 
 const resolveManyToMany = (
@@ -62,6 +63,7 @@ const resolveManyToMany = (
   const targets = findManyOnSheet(relation.to, {
     where: targetWhere,
     include: mergedInclude,
+    omit: pickOmitFalse(options?.omit),
   });
 
   // Step 3: ターゲットをルックアップマップに

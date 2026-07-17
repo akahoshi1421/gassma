@@ -301,6 +301,25 @@ describe("resolveManyToMany", () => {
     expect(result[0].categories).toEqual([{ id: 10, name: "Tech" }]);
   });
 
+  it("omit の false エントリのみをターゲット取得に渡し、中間テーブルには渡さない", () => {
+    const parents = [{ id: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValueOnce([{ postId: 1, categoryId: 10 }]);
+    mockFindMany.mockReturnValueOnce([
+      { id: 10, name: "Tech", description: "Tech stuff" },
+    ]);
+
+    resolveManyToMany(parents, relation, "categories", mockFindMany, {
+      omit: { description: true, secret: false },
+    });
+
+    expect(mockFindMany.mock.calls[0][1].omit).toBeUndefined();
+    expect(mockFindMany).toHaveBeenNthCalledWith(2, "Categories", {
+      where: { id: { in: [10] } },
+      omit: { secret: false },
+    });
+  });
+
   it("ターゲット取得にincludeが渡され、中間テーブルには渡されない", () => {
     const parents = [{ id: 1, title: "Post A" }];
 

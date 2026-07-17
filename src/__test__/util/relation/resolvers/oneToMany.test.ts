@@ -262,6 +262,37 @@ describe("resolveOneToMany", () => {
     ]);
   });
 
+  it("omit の false エントリのみを findManyOnSheet に渡す", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A", content: "Body A" },
+    ]);
+
+    resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      omit: { content: true, secret: false },
+    });
+
+    expect(mockFindMany).toHaveBeenCalledWith("Posts", {
+      where: { authorId: { in: [1] } },
+      omit: { secret: false },
+    });
+  });
+
+  it("omit に false エントリが無ければ omit を渡さない", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "Post A", content: "Body A" },
+    ]);
+
+    resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      omit: { content: true },
+    });
+
+    expect(mockFindMany.mock.calls[0][1].omit).toBeUndefined();
+  });
+
   it("targetRelationNames にある select 内の true 形式 relation を include として解決する", () => {
     const parents = [{ id: 1, name: "Alice" }];
 

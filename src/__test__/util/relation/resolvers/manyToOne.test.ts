@@ -134,6 +134,23 @@ describe("resolveManyToOne", () => {
     expect(result[0].author).toEqual({ id: 1, name: "Alice" });
   });
 
+  it("omit の false エントリのみを findManyOnSheet に渡す", () => {
+    const parents = [{ id: 101, authorId: 1, title: "Post A" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 1, name: "Alice", email: "alice@test.com" },
+    ]);
+
+    resolveManyToOne(parents, relation, "author", mockFindMany, {
+      omit: { email: true, password: false },
+    });
+
+    expect(mockFindMany).toHaveBeenCalledWith("Users", {
+      where: { id: { in: [1] } },
+      omit: { password: false },
+    });
+  });
+
   it("FK値がnullの場合selectオプションがあってもnullを返す", () => {
     const parents = [{ id: 101, authorId: null, title: "Draft" }];
 
