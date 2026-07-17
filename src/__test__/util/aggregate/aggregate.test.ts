@@ -272,7 +272,7 @@ describe("aggregate functionality tests", () => {
       });
     });
 
-    test("should return null values when cursor not found", () => {
+    test("should return null avg and zero count when cursor not found", () => {
       const result = aggregateFunc(getExtendedMockControllerUtil(), {
         cursor: { 名前: "NonExistent" },
         _avg: { 年齢: true },
@@ -281,7 +281,7 @@ describe("aggregate functionality tests", () => {
 
       expect(result).toEqual({
         _avg: { 年齢: null },
-        _count: { 名前: null },
+        _count: { 名前: 0 },
       });
     });
   });
@@ -296,7 +296,7 @@ describe("aggregate functionality tests", () => {
 
       expect(result).toEqual({
         _avg: { 年齢: null },
-        _count: { 名前: null },
+        _count: { 名前: 0 },
       });
     });
 
@@ -309,7 +309,7 @@ describe("aggregate functionality tests", () => {
 
       expect(result).toEqual({
         _avg: { 年齢: null },
-        _count: { 名前: null },
+        _count: { 名前: 0 },
       });
     });
 
@@ -322,7 +322,7 @@ describe("aggregate functionality tests", () => {
 
       expect(result).toEqual({
         _sum: { 年齢: null },
-        _count: { 名前: null },
+        _count: { 名前: 0 },
       });
     });
 

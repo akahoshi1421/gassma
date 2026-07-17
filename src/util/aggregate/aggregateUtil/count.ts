@@ -10,7 +10,7 @@ const getCount = (rows: Record<string, any>[], avgData: Select) => {
       return row[key] !== null && row[key] !== undefined;
     }).length;
 
-    countResult[key] = hitCount !== 0 ? hitCount : null;
+    countResult[key] = hitCount;
   });
 
   return countResult;
