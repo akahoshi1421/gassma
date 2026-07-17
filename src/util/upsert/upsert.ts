@@ -24,7 +24,9 @@ const applyOptions = (
       upsertData.include,
       relationContext,
     );
-    return resolved[0] ?? result;
+    const included = resolved[0] ?? result;
+    if (upsertData.omit) return omitFunc(upsertData.omit, included);
+    return included;
   }
   if (upsertData.select) return findedDataSelect(upsertData.select, result);
   if (upsertData.omit) return omitFunc(upsertData.omit, result);

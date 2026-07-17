@@ -1,8 +1,8 @@
 import type {
   AnyUse,
   ManyReturn,
-  Omit,
   OrderBy,
+  QueryOmit,
   Select,
   UpdateAnyUse,
   WhereUse,
@@ -20,7 +20,7 @@ type FindSelect = {
 type FindFirstData = {
   where?: WhereUse;
   select?: FindSelect;
-  omit?: Omit;
+  omit?: QueryOmit;
   orderBy?: OrderBy | OrderBy[];
   include?: IncludeData;
   cursor?: Record<string, unknown>;
@@ -29,7 +29,7 @@ type FindFirstData = {
 type FindData = {
   where?: WhereUse;
   select?: FindSelect;
-  omit?: Omit;
+  omit?: QueryOmit;
   orderBy?: OrderBy | OrderBy[];
   take?: number;
   skip?: number;
@@ -42,7 +42,7 @@ type UpdateSingleData = {
   where: WhereUse;
   data: Record<string, unknown>;
   select?: Select;
-  omit?: Omit;
+  omit?: QueryOmit;
   include?: IncludeData;
 };
 
@@ -58,14 +58,14 @@ type UpsertSingleData = {
   update: AnyUse;
   select?: Select;
   include?: IncludeData;
-  omit?: Omit;
+  omit?: QueryOmit;
 };
 
 type DeleteSingleData = {
   where: WhereUse;
   select?: Select;
   include?: IncludeData;
-  omit?: Omit;
+  omit?: QueryOmit;
 };
 
 type DeleteData = {

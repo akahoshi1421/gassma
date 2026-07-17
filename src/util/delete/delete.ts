@@ -33,7 +33,11 @@ const deleteFunc = (
 
   deleteManyFunc(gassmaControllerUtil, { where: deleteData.where, limit: 1 });
 
-  if (includeResult) return includeResult[0] ?? null;
+  if (includeResult) {
+    const included = includeResult[0] ?? null;
+    if (included && deleteData.omit) return omitFunc(deleteData.omit, included);
+    return included;
+  }
   if (deleteData.select) return findedDataSelect(deleteData.select, record);
   if (deleteData.omit) return omitFunc(deleteData.omit, record);
 

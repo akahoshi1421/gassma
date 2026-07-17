@@ -1,9 +1,9 @@
-import type { Omit } from "../../types/coreTypes";
+import type { Omit, QueryOmit } from "../../types/coreTypes";
 
 const resolveGlobalOmit = (
   globalOmit: Omit | null,
   select: Record<string, unknown> | null | undefined,
-  queryOmit: Record<string, boolean> | null | undefined,
+  queryOmit: QueryOmit | null | undefined,
 ): Omit | null => {
   if (select) return null;
 

@@ -17,7 +17,13 @@ import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
 import type { AggregateData } from "./types/aggregateType";
-import type { AnyUse, Select, Omit, WhereUse } from "./types/coreTypes";
+import type {
+  AnyUse,
+  Select,
+  Omit,
+  QueryOmit,
+  WhereUse,
+} from "./types/coreTypes";
 import type { CountData } from "./types/countType";
 import type {
   CreateData,
@@ -220,7 +226,7 @@ class GassmaController {
 
   private resolveEffectiveOmit(
     select: Record<string, unknown> | null | undefined,
-    queryOmit: Omit | null | undefined,
+    queryOmit: QueryOmit | null | undefined,
   ): Omit | null {
     return resolveGlobalOmit(this.globalOmit, select, queryOmit);
   }
@@ -325,10 +331,8 @@ class GassmaController {
         createdData.include,
         this.relationContext,
       );
-      if (createdData.omit) {
-        return resolved.map((r) => omitFunc(createdData.omit!, r));
-      }
-      return resolved.map((r) => this.applyOmitToResult(r, this.globalOmit));
+      const includeOmit = this.resolveEffectiveOmit(null, createdData.omit);
+      return resolved.map((r) => this.applyOmitToResult(r, includeOmit));
     }
 
     if (createdData.select) {
@@ -375,8 +379,10 @@ class GassmaController {
         this.relationContext,
       );
       const included = resolved[0] ?? mapped;
-      if (createdData.omit) return omitFunc(createdData.omit, included);
-      return this.applyOmitToResult(included, this.globalOmit);
+      return this.applyOmitToResult(
+        included,
+        this.resolveEffectiveOmit(null, createdData.omit),
+      );
     }
 
     if (createdData.select) return findedDataSelect(createdData.select, mapped);
@@ -788,8 +794,10 @@ class GassmaController {
         this.relationContext,
       );
       const included = resolved[0] ?? stripped;
-      if (updateData.omit) return omitFunc(updateData.omit, included);
-      return this.applyOmitToResult(included, this.globalOmit);
+      return this.applyOmitToResult(
+        included,
+        this.resolveEffectiveOmit(null, updateData.omit),
+      );
     }
 
     if (updateData.select) return findedDataSelect(updateData.select, stripped);

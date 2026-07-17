@@ -1,8 +1,8 @@
-import type { Omit } from "../../../types/coreTypes";
+import type { QueryOmit } from "../../../types/coreTypes";
 
-const omitFunc = (omit: Omit, row: Record<string, unknown>) => {
+const omitFunc = (omit: QueryOmit, row: Record<string, unknown>) => {
   const result = { ...row };
-  const omitKeys = Object.keys(omit);
+  const omitKeys = Object.keys(omit).filter((key) => omit[key]);
 
   omitKeys.forEach((key) => {
     delete result[key];
