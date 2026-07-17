@@ -879,6 +879,9 @@ class GassmaController {
     if (upsertData.include && !this.relationContext) {
       throw new IncludeWithoutRelationsError();
     }
+    if (upsertData.select && upsertData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
 
     const resolvedWhere =
       this.resolveWhere(upsertData.where) ?? upsertData.where;
@@ -914,6 +917,9 @@ class GassmaController {
     }
     if (deleteData.include && !this.relationContext) {
       throw new IncludeWithoutRelationsError();
+    }
+    if (deleteData.select && deleteData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
     }
 
     const resolvedWhere =
