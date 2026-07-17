@@ -37,6 +37,23 @@ describe("groupByFunc with having clause", () => {
     ]);
   });
 
+  test("should filter groups with having count gt on string field", () => {
+    const result = groupByFunc(getExtendedMockControllerUtil(), {
+      by: "住所",
+      having: {
+        名前: {
+          _count: { gt: 2 },
+        },
+      },
+      _count: { 名前: true },
+    });
+
+    // Only Tokyo should pass (count = 4 > 2), Osaka and Kyoto (count = 2) should be filtered out
+    expectArrayToEqualIgnoringOrder(result, [
+      { 住所: "Tokyo", _count: { 名前: 4 } },
+    ]);
+  });
+
   test("should filter groups with having condition - max age", () => {
     const result = groupByFunc(getExtendedMockControllerUtil(), {
       by: "住所",

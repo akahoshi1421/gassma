@@ -48,12 +48,23 @@ type WhereUse = {
   NOT?: WhereUse[] | WhereUse;
 };
 
+type NumberFilterConditions = {
+  equals?: number | null;
+  not?: number | null;
+  in?: number[];
+  notIn?: number[];
+  lt?: number;
+  lte?: number;
+  gt?: number;
+  gte?: number;
+};
+
 type HavingCore = {
-  _avg?: FilterConditions;
-  _count?: FilterConditions;
+  _avg?: NumberFilterConditions;
+  _count?: NumberFilterConditions;
   _max?: FilterConditions;
   _min?: FilterConditions;
-  _sum?: FilterConditions;
+  _sum?: NumberFilterConditions;
 } & FilterConditions;
 
 type HavingUse = {
@@ -152,6 +163,7 @@ export type {
   AnyUse,
   UpdateAnyUse,
   FilterConditions,
+  NumberFilterConditions,
   WhereUse,
   HavingCore,
   HavingUse,
