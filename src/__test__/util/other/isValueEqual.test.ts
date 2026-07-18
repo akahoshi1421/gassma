@@ -1,3 +1,7 @@
+import {
+  createCrossRealmDate,
+  createCrossRealmValue,
+} from "../../consts/crossRealm";
 import { containsValue, isValueEqual } from "../../../util/other/isValueEqual";
 
 describe("isValueEqual", () => {
@@ -44,6 +48,40 @@ describe("isValueEqual", () => {
   });
 });
 
+describe("isValueEqual with cross-realm Dates", () => {
+  test("should return true for same time across realms in both directions", () => {
+    const localDate = new Date("2026-07-18T09:30:00.000Z");
+    const crossDate = createCrossRealmDate("2026-07-18T09:30:00.000Z");
+    expect(crossDate instanceof Date).toBe(false);
+    expect(isValueEqual(localDate, crossDate)).toBe(true);
+    expect(isValueEqual(crossDate, localDate)).toBe(true);
+  });
+
+  test("should return true for two cross-realm Dates with the same time", () => {
+    expect(
+      isValueEqual(
+        createCrossRealmDate("2026-07-18T09:30:00.000Z"),
+        createCrossRealmDate("2026-07-18T09:30:00.000Z"),
+      ),
+    ).toBe(true);
+  });
+
+  test("should return false for different times across realms", () => {
+    expect(
+      isValueEqual(
+        new Date("2026-07-18T09:30:00.000Z"),
+        createCrossRealmDate("2026-07-18T09:30:00.001Z"),
+      ),
+    ).toBe(false);
+  });
+
+  test("should return false for a cross-realm Date vs an ISO string", () => {
+    const crossDate = createCrossRealmDate("2026-07-18T09:30:00.000Z");
+    expect(isValueEqual(crossDate, "2026-07-18T09:30:00.000Z")).toBe(false);
+    expect(isValueEqual("2026-07-18T09:30:00.000Z", crossDate)).toBe(false);
+  });
+});
+
 describe("containsValue", () => {
   test("should find a Date with the same time but different instance", () => {
     const list = [new Date("2026-07-18T09:30:00.000Z")];
@@ -72,5 +110,30 @@ describe("containsValue", () => {
     expect(containsValue(["a", "b"], "a")).toBe(true);
     expect(containsValue([1, 2], 3)).toBe(false);
     expect(containsValue([Number.NaN], Number.NaN)).toBe(true);
+  });
+});
+
+describe("containsValue with cross-realm Dates", () => {
+  test("should find a cross-realm Date in a same-realm list", () => {
+    const list = [new Date("2026-07-18T09:30:00.000Z")];
+    expect(
+      containsValue(list, createCrossRealmDate("2026-07-18T09:30:00.000Z")),
+    ).toBe(true);
+  });
+
+  test("should find a same-realm Date in a cross-realm list", () => {
+    const crossList = createCrossRealmValue<readonly unknown[]>(
+      '[new Date("2026-07-18T09:30:00.000Z")]',
+    );
+    expect(containsValue(crossList, new Date("2026-07-18T09:30:00.000Z"))).toBe(
+      true,
+    );
+  });
+
+  test("should not find a cross-realm Date when no time matches", () => {
+    const list = [new Date("2026-07-18T09:30:00.000Z")];
+    expect(
+      containsValue(list, createCrossRealmDate("2026-07-18T10:00:00.000Z")),
+    ).toBe(false);
   });
 });

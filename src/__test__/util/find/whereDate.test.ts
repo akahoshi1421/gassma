@@ -1,4 +1,9 @@
 import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
+import type { FilterConditions } from "../../../types/coreTypes";
+import {
+  createCrossRealmDate,
+  createCrossRealmValue,
+} from "../../consts/crossRealm";
 import { findManyFunc } from "../../../util/find/findMany";
 
 const aliceDate = "2026-07-18T09:30:00.000Z";
@@ -137,6 +142,85 @@ describe("findManyFunc with Date where", () => {
     expect(result).toEqual([
       { 名前: "Bob", 作成日: new Date(bobDate) },
       { 名前: "Charlie", 作成日: new Date(charlieDate) },
+    ]);
+  });
+});
+
+describe("findManyFunc with cross-realm Date where (GAS library boundary)", () => {
+  test("should match direct value created in another realm", () => {
+    const result = findManyFunc(getDateMockControllerUtil(), {
+      where: { 作成日: createCrossRealmDate(aliceDate) },
+    });
+
+    expect(result).toEqual([{ 名前: "Alice", 作成日: new Date(aliceDate) }]);
+  });
+
+  test("should match equals whose filter object and Date are cross-realm", () => {
+    const crossFilter = createCrossRealmValue<FilterConditions>(
+      `{ equals: new Date(${JSON.stringify(aliceDate)}) }`,
+    );
+    const result = findManyFunc(getDateMockControllerUtil(), {
+      where: { 作成日: crossFilter },
+    });
+
+    expect(result).toEqual([{ 名前: "Alice", 作成日: new Date(aliceDate) }]);
+  });
+
+  test("should exclude same time with cross-realm not", () => {
+    const result = findManyFunc(getDateMockControllerUtil(), {
+      where: { 作成日: { not: createCrossRealmDate(aliceDate) } },
+    });
+
+    expect(result).toEqual([
+      { 名前: "Bob", 作成日: new Date(bobDate) },
+      { 名前: "Charlie", 作成日: new Date(charlieDate) },
+    ]);
+  });
+
+  test("should match in with a fully cross-realm filter", () => {
+    const crossFilter = createCrossRealmValue<FilterConditions>(
+      `{ in: [new Date(${JSON.stringify(aliceDate)}), new Date(${JSON.stringify(bobDate)})] }`,
+    );
+    const result = findManyFunc(getDateMockControllerUtil(), {
+      where: { 作成日: crossFilter },
+    });
+
+    expect(result).toEqual([
+      { 名前: "Alice", 作成日: new Date(aliceDate) },
+      { 名前: "Bob", 作成日: new Date(bobDate) },
+    ]);
+  });
+
+  test("should exclude same times with cross-realm notIn", () => {
+    const result = findManyFunc(getDateMockControllerUtil(), {
+      where: {
+        作成日: {
+          notIn: [
+            createCrossRealmDate(aliceDate),
+            createCrossRealmDate(bobDate),
+          ],
+        },
+      },
+    });
+
+    expect(result).toEqual([
+      { 名前: "Charlie", 作成日: new Date(charlieDate) },
+    ]);
+  });
+
+  test("should match cross-realm direct value inside OR", () => {
+    const result = findManyFunc(getDateMockControllerUtil(), {
+      where: {
+        OR: [
+          { 作成日: createCrossRealmDate(aliceDate) },
+          { 作成日: createCrossRealmDate(bobDate) },
+        ],
+      },
+    });
+
+    expect(result).toEqual([
+      { 名前: "Alice", 作成日: new Date(aliceDate) },
+      { 名前: "Bob", 作成日: new Date(bobDate) },
     ]);
   });
 });

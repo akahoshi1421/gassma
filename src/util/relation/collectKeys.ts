@@ -1,10 +1,11 @@
 import type { GassmaAny } from "../../types/coreTypes";
+import { isDateValue } from "../other/isDateValue";
 
 const isGassmaAny = (value: unknown): value is GassmaAny => {
   if (value === null || value === undefined) return false;
   const t = typeof value;
   return (
-    t === "string" || t === "number" || t === "boolean" || value instanceof Date
+    t === "string" || t === "number" || t === "boolean" || isDateValue(value)
   );
 };
 
