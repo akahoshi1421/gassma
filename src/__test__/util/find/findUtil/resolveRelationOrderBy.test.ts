@@ -15,8 +15,8 @@ const createRelationContext = (
     profile: {
       type: "oneToOne",
       to: "Profiles",
-      field: "profileId",
-      reference: "id",
+      field: "id",
+      reference: "userId",
     },
     posts: {
       type: "oneToMany",
@@ -166,15 +166,15 @@ describe("resolveRelationOrderBy", () => {
 
   test("should sort by oneToOne relation field", () => {
     const records = [
-      { id: 1, name: "User A", profileId: 2 },
-      { id: 2, name: "User B", profileId: 1 },
+      { id: 1, name: "User A" },
+      { id: 2, name: "User B" },
     ];
 
     const findManyOnSheet = jest.fn((sheetName: string) => {
       if (sheetName === "Profiles") {
         return [
-          { id: 1, bio: "Zebra" },
-          { id: 2, bio: "Apple" },
+          { id: 10, userId: 1, bio: "Zebra" },
+          { id: 11, userId: 2, bio: "Apple" },
         ];
       }
       return [];
@@ -185,10 +185,10 @@ describe("resolveRelationOrderBy", () => {
 
     const result = resolveRelationOrderBy(records, orderByArr, context);
 
-    // Apple(profileId=2) < Zebra(profileId=1)
+    // Apple(userId=2) < Zebra(userId=1)
     expect(result).toEqual([
-      { id: 1, name: "User A", profileId: 2 },
-      { id: 2, name: "User B", profileId: 1 },
+      { id: 2, name: "User B" },
+      { id: 1, name: "User A" },
     ]);
   });
 

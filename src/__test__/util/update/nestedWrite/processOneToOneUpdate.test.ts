@@ -1,11 +1,11 @@
-import { processOneToOneNonFkUpdate } from "../../../../util/update/nestedWrite/processOneToOneNonFkUpdate";
+import { processOneToOneUpdate } from "../../../../util/update/nestedWrite/processOneToOneUpdate";
 import type {
   RelationDefinition,
   RelationContext,
 } from "../../../../types/relationTypes";
 import type { NestedWriteOperation } from "../../../../types/nestedWriteTypes";
 
-describe("processOneToOneNonFkUpdate", () => {
+describe("processOneToOneUpdate", () => {
   const mockFindMany = jest.fn();
   const mockUpdateManyOnSheet = jest.fn();
   const mockDeleteManyOnSheet = jest.fn();
@@ -25,12 +25,11 @@ describe("processOneToOneNonFkUpdate", () => {
     mockDeleteManyOnSheet.mockReset();
   });
 
-  const nonFkRelation: RelationDefinition = {
+  const oneToOneRelation: RelationDefinition = {
     type: "oneToOne",
     to: "Profiles",
     field: "id",
     reference: "userId",
-    ownsFk: false,
   };
 
   const makeOps = (op: NestedWriteOperation) => {
@@ -42,10 +41,10 @@ describe("processOneToOneNonFkUpdate", () => {
   it("update（裸 data）で相手行が更新される", () => {
     mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
 
-    processOneToOneNonFkUpdate(
+    processOneToOneUpdate(
       { id: 1, name: "田中" },
       makeOps({ update: { bio: "変更後" } }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Profiles", {
@@ -58,10 +57,10 @@ describe("processOneToOneNonFkUpdate", () => {
     mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
 
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ update: { bio: "変更後" } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('Nested write update failed: no record found in "Profiles"');
   });
@@ -71,10 +70,10 @@ describe("processOneToOneNonFkUpdate", () => {
 
     let caught: unknown;
     try {
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ update: { bio: "変更後" } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       );
     } catch (e) {
       caught = e;
@@ -86,10 +85,10 @@ describe("processOneToOneNonFkUpdate", () => {
   it("disconnect: true で相手の reference 列が null 化される", () => {
     mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
 
-    processOneToOneNonFkUpdate(
+    processOneToOneUpdate(
       { id: 1, name: "田中" },
       makeOps({ disconnect: true }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Profiles", {
@@ -102,20 +101,20 @@ describe("processOneToOneNonFkUpdate", () => {
     mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
 
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ disconnect: true }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).not.toThrow();
   });
 
   it("disconnect に true 以外を渡すとエラー", () => {
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ disconnect: { id: 5 } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "disconnect" is not valid');
   });
@@ -123,10 +122,10 @@ describe("processOneToOneNonFkUpdate", () => {
   it("delete: true で相手行が削除される", () => {
     mockDeleteManyOnSheet.mockReturnValue({ count: 1 });
 
-    processOneToOneNonFkUpdate(
+    processOneToOneUpdate(
       { id: 1, name: "田中" },
       makeOps({ delete: true }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockDeleteManyOnSheet).toHaveBeenCalledWith("Profiles", {
@@ -138,83 +137,66 @@ describe("processOneToOneNonFkUpdate", () => {
     mockDeleteManyOnSheet.mockReturnValue({ count: 0 });
 
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ delete: true }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('Nested write delete failed: no record found in "Profiles"');
   });
 
   it("delete に true 以外を渡すとエラー", () => {
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ delete: { id: 5 } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "delete" is not valid');
   });
 
   it("配列 update はエラー", () => {
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ update: [{ where: { id: 5 }, data: { bio: "a" } }] }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "update" is not valid');
   });
 
   it("where/data 形式の update はエラー", () => {
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ update: { where: { id: 5 }, data: { bio: "a" } } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "update" is not valid');
   });
 
   it("set はエラー", () => {
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ set: [{ id: 5 }] }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "set" is not valid');
   });
 
   it("deleteMany はエラー", () => {
     expect(() =>
-      processOneToOneNonFkUpdate(
+      processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ deleteMany: { id: 5 } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "deleteMany" is not valid');
   });
 
-  it("ownsFk 未指定の oneToOne は無視される", () => {
-    processOneToOneNonFkUpdate(
-      { id: 1, name: "田中" },
-      makeOps({ update: { bio: "変更後" } }),
-      makeContext({
-        profile: {
-          type: "oneToOne",
-          to: "Profiles",
-          field: "profileId",
-          reference: "id",
-        },
-      }),
-    );
-
-    expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
-  });
-
   it("manyToOne は無視される", () => {
-    processOneToOneNonFkUpdate(
+    processOneToOneUpdate(
       { id: 1, title: "記事A", authorId: 5 },
       makeOps({ update: { name: "変更後" } }),
       makeContext({
@@ -223,7 +205,6 @@ describe("processOneToOneNonFkUpdate", () => {
           to: "Users",
           field: "authorId",
           reference: "id",
-          ownsFk: true,
         },
       }),
     );
@@ -232,10 +213,10 @@ describe("processOneToOneNonFkUpdate", () => {
   });
 
   it("親の field 値が欠落している場合はスキップ", () => {
-    processOneToOneNonFkUpdate(
+    processOneToOneUpdate(
       { name: "田中" },
       makeOps({ delete: true }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();

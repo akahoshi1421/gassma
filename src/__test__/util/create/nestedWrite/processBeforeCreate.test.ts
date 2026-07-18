@@ -29,8 +29,8 @@ describe("processBeforeCreate", () => {
     reference: "id",
   };
 
-  const oneToOneRelation: RelationDefinition = {
-    type: "oneToOne",
+  const fkSideProfileRelation: RelationDefinition = {
+    type: "manyToOne",
     to: "Profiles",
     field: "profileId",
     reference: "id",
@@ -43,12 +43,11 @@ describe("processBeforeCreate", () => {
     reference: "authorId",
   };
 
-  const nonFkOneToOneRelation: RelationDefinition = {
+  const oneToOneRelation: RelationDefinition = {
     type: "oneToOne",
     to: "Profiles",
     field: "id",
     reference: "userId",
-    ownsFk: false,
   };
 
   it("manyToOne + connect で既存レコードのFK値が親データに設定される", () => {
@@ -99,7 +98,7 @@ describe("processBeforeCreate", () => {
     });
   });
 
-  it("oneToOne + connectOrCreate で既存レコードがある場合FK値が設定される", () => {
+  it("FK 保有側 1:1（manyToOne）+ connectOrCreate で既存レコードがある場合FK値が設定される", () => {
     mockFindMany.mockReturnValue([{ id: 5, bio: "自己紹介" }]);
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", {
@@ -112,14 +111,14 @@ describe("processBeforeCreate", () => {
     const result = processBeforeCreate(
       { name: "田中" },
       relationOps,
-      makeContext({ profile: oneToOneRelation }),
+      makeContext({ profile: fkSideProfileRelation }),
     );
 
     expect(result).toEqual({ name: "田中", profileId: 5 });
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne + connectOrCreate で既存レコードがない場合新規作成しFK値が設定される", () => {
+  it("FK 保有側 1:1（manyToOne）+ connectOrCreate で既存レコードがない場合新規作成しFK値が設定される", () => {
     mockFindMany.mockReturnValue([]);
     mockCreateOnSheet.mockReturnValue({ id: 5, bio: "自己紹介" });
     const relationOps = new Map<string, NestedWriteOperation>();
@@ -133,7 +132,7 @@ describe("processBeforeCreate", () => {
     const result = processBeforeCreate(
       { name: "田中" },
       relationOps,
-      makeContext({ profile: oneToOneRelation }),
+      makeContext({ profile: fkSideProfileRelation }),
     );
 
     expect(result).toEqual({ name: "田中", profileId: 5 });
@@ -157,7 +156,7 @@ describe("processBeforeCreate", () => {
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne(ownsFk: false) + connect は素通りし親データ・関連先に触れない", () => {
+  it("oneToOne + connect は素通りし親データ・関連先に触れない", () => {
     mockFindMany.mockReturnValue([{ id: 5, userId: 99 }]);
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { connect: { id: 5 } });
@@ -165,7 +164,7 @@ describe("processBeforeCreate", () => {
     const result = processBeforeCreate(
       { id: 1, name: "田中" },
       relationOps,
-      makeContext({ profile: nonFkOneToOneRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(result).toEqual({ id: 1, name: "田中" });
@@ -173,7 +172,7 @@ describe("processBeforeCreate", () => {
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne(ownsFk: false) + create は素通りする", () => {
+  it("oneToOne + create は素通りする", () => {
     mockCreateOnSheet.mockReturnValue({ id: 5, userId: 99 });
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { create: { bio: "自己紹介" } });
@@ -181,14 +180,14 @@ describe("processBeforeCreate", () => {
     const result = processBeforeCreate(
       { id: 1, name: "田中" },
       relationOps,
-      makeContext({ profile: nonFkOneToOneRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(result).toEqual({ id: 1, name: "田中" });
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne(ownsFk: false) + connectOrCreate は素通りする", () => {
+  it("oneToOne + connectOrCreate は素通りする", () => {
     mockFindMany.mockReturnValue([{ id: 5, userId: 99 }]);
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", {
@@ -198,7 +197,7 @@ describe("processBeforeCreate", () => {
     const result = processBeforeCreate(
       { id: 1, name: "田中" },
       relationOps,
-      makeContext({ profile: nonFkOneToOneRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(result).toEqual({ id: 1, name: "田中" });
@@ -206,7 +205,7 @@ describe("processBeforeCreate", () => {
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne(ownsFk: true) は従来どおり before で処理される", () => {
+  it("FK 保有側 1:1 は manyToOne として before で処理される", () => {
     mockFindMany.mockReturnValue([{ id: 5, bio: "自己紹介" }]);
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { connect: { id: 5 } });
@@ -214,7 +213,7 @@ describe("processBeforeCreate", () => {
     const result = processBeforeCreate(
       { name: "田中" },
       relationOps,
-      makeContext({ profile: { ...oneToOneRelation, ownsFk: true } }),
+      makeContext({ profile: fkSideProfileRelation }),
     );
 
     expect(result).toEqual({ name: "田中", profileId: 5 });

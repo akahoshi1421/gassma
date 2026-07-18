@@ -6,7 +6,6 @@ import {
   NestedWriteTargetNotFoundError,
 } from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
-import { isNonFkOneToOne } from "../../create/nestedWrite/isNonFkOneToOne";
 
 const isBareUpdateData = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" &&
@@ -27,7 +26,7 @@ const findInvalidOperation = (ops: NestedWriteOperation): string | null => {
   return null;
 };
 
-const processOneToOneNonFkUpdate = (
+const processOneToOneUpdate = (
   updatedRecord: Record<string, unknown>,
   relationOps: Map<string, NestedWriteOperation>,
   context: RelationContext,
@@ -35,7 +34,7 @@ const processOneToOneNonFkUpdate = (
   relationOps.forEach((ops, relationName) => {
     const relation = context.relations[relationName];
     if (!relation) return;
-    if (!isNonFkOneToOne(relation)) return;
+    if (relation.type !== "oneToOne") return;
 
     const invalidOperation = findInvalidOperation(ops);
     if (invalidOperation !== null) {
@@ -78,4 +77,4 @@ const processOneToOneNonFkUpdate = (
   });
 };
 
-export { processOneToOneNonFkUpdate };
+export { processOneToOneUpdate };

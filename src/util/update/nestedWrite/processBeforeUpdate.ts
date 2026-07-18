@@ -3,7 +3,6 @@ import type { RelationContext } from "../../../types/relationTypes";
 import type { NestedWriteOperation } from "../../../types/nestedWriteTypes";
 import { NestedWriteInvalidOperationError } from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
-import { isNonFkOneToOne } from "../../create/nestedWrite/isNonFkOneToOne";
 
 const processBeforeUpdate = (
   currentRecord: Record<string, unknown>,
@@ -14,8 +13,7 @@ const processBeforeUpdate = (
   relationOps.forEach((ops, relationName) => {
     const relation = context.relations[relationName];
     if (!relation) return;
-    if (relation.type !== "manyToOne" && relation.type !== "oneToOne") return;
-    if (isNonFkOneToOne(relation)) return;
+    if (relation.type !== "manyToOne") return;
 
     const fkValue = currentRecord[relation.field];
     if (!isGassmaAny(fkValue)) return;
