@@ -1,11 +1,11 @@
-import { processOneToOneNonFk } from "../../../../util/create/nestedWrite/processOneToOneNonFk";
+import { processOneToOne } from "../../../../util/create/nestedWrite/processOneToOne";
 import type {
   RelationDefinition,
   RelationContext,
 } from "../../../../types/relationTypes";
 import type { NestedWriteOperation } from "../../../../types/nestedWriteTypes";
 
-describe("processOneToOneNonFk", () => {
+describe("processOneToOne", () => {
   const mockFindMany = jest.fn();
   const mockCreateOnSheet = jest.fn();
   const mockUpdateManyOnSheet = jest.fn();
@@ -25,12 +25,11 @@ describe("processOneToOneNonFk", () => {
     mockUpdateManyOnSheet.mockReset();
   });
 
-  const nonFkRelation: RelationDefinition = {
+  const oneToOneRelation: RelationDefinition = {
     type: "oneToOne",
     to: "Profiles",
     field: "id",
     reference: "userId",
-    ownsFk: false,
   };
 
   const makeOps = (op: NestedWriteOperation) => {
@@ -42,10 +41,10 @@ describe("processOneToOneNonFk", () => {
   it("create で子が親の field 値付きで作成される", () => {
     mockCreateOnSheet.mockReturnValue({ id: 10, bio: "自己紹介", userId: 1 });
 
-    processOneToOneNonFk(
+    processOneToOne(
       { id: 1, name: "田中" },
       makeOps({ create: { bio: "自己紹介" } }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockCreateOnSheet).toHaveBeenCalledWith("Profiles", {
@@ -57,10 +56,10 @@ describe("processOneToOneNonFk", () => {
     mockFindMany.mockReturnValue([{ id: 5, userId: null }]);
     mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
 
-    processOneToOneNonFk(
+    processOneToOne(
       { id: 1, name: "田中" },
       makeOps({ connect: { id: 5 } }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockUpdateManyOnSheet).toHaveBeenNthCalledWith(1, "Profiles", {
@@ -77,10 +76,10 @@ describe("processOneToOneNonFk", () => {
     mockFindMany.mockReturnValue([]);
 
     expect(() =>
-      processOneToOneNonFk(
+      processOneToOne(
         { id: 1, name: "田中" },
         makeOps({ connect: { id: 999 } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('no record found in "Profiles"');
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
@@ -90,12 +89,12 @@ describe("processOneToOneNonFk", () => {
     mockFindMany.mockReturnValue([{ id: 5, userId: 99 }]);
     mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
 
-    processOneToOneNonFk(
+    processOneToOne(
       { id: 1, name: "田中" },
       makeOps({
         connectOrCreate: { where: { id: 5 }, create: { bio: "自己紹介" } },
       }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
@@ -113,12 +112,12 @@ describe("processOneToOneNonFk", () => {
     mockFindMany.mockReturnValue([]);
     mockCreateOnSheet.mockReturnValue({ id: 10, bio: "自己紹介", userId: 1 });
 
-    processOneToOneNonFk(
+    processOneToOne(
       { id: 1, name: "田中" },
       makeOps({
         connectOrCreate: { where: { id: 5 }, create: { bio: "自己紹介" } },
       }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
@@ -129,85 +128,67 @@ describe("processOneToOneNonFk", () => {
 
   it("createMany は NestedWriteInvalidOperationError", () => {
     expect(() =>
-      processOneToOneNonFk(
+      processOneToOne(
         { id: 1, name: "田中" },
         makeOps({ createMany: { data: [{ bio: "自己紹介" }] } }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "createMany" is not valid');
   });
 
   it("配列 create は NestedWriteInvalidOperationError", () => {
     expect(() =>
-      processOneToOneNonFk(
+      processOneToOne(
         { id: 1, name: "田中" },
         makeOps({ create: [{ bio: "自己紹介" }] }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "create" is not valid');
   });
 
   it("配列 connect は NestedWriteInvalidOperationError", () => {
     expect(() =>
-      processOneToOneNonFk(
+      processOneToOne(
         { id: 1, name: "田中" },
         makeOps({ connect: [{ id: 5 }] }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "connect" is not valid');
   });
 
   it("配列 connectOrCreate は NestedWriteInvalidOperationError", () => {
     expect(() =>
-      processOneToOneNonFk(
+      processOneToOne(
         { id: 1, name: "田中" },
         makeOps({
           connectOrCreate: [{ where: { id: 5 }, create: { bio: "a" } }],
         }),
-        makeContext({ profile: nonFkRelation }),
+        makeContext({ profile: oneToOneRelation }),
       ),
     ).toThrow('operation "connectOrCreate" is not valid');
   });
 
   it("親の field 値が欠落している場合はスキップ", () => {
-    processOneToOneNonFk(
+    processOneToOne(
       { name: "田中" },
       makeOps({ create: { bio: "自己紹介" } }),
-      makeContext({ profile: nonFkRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
   });
 
-  it("ownsFk 未指定の oneToOne は無視される", () => {
-    processOneToOneNonFk(
+  it("manyToOne（FK 保有側）は無視される", () => {
+    processOneToOne(
       { id: 1, name: "田中" },
       makeOps({ create: { bio: "自己紹介" } }),
       makeContext({
         profile: {
-          type: "oneToOne",
+          type: "manyToOne",
           to: "Profiles",
           field: "profileId",
           reference: "id",
-        },
-      }),
-    );
-
-    expect(mockCreateOnSheet).not.toHaveBeenCalled();
-  });
-
-  it("ownsFk: true の oneToOne は無視される", () => {
-    processOneToOneNonFk(
-      { id: 1, name: "田中" },
-      makeOps({ create: { bio: "自己紹介" } }),
-      makeContext({
-        profile: {
-          type: "oneToOne",
-          to: "Profiles",
-          field: "profileId",
-          reference: "id",
-          ownsFk: true,
         },
       }),
     );
@@ -216,7 +197,7 @@ describe("processOneToOneNonFk", () => {
   });
 
   it("oneToMany は無視される", () => {
-    processOneToOneNonFk(
+    processOneToOne(
       { id: 1, name: "田中" },
       makeOps({ create: { title: "記事A" } }),
       makeContext({
@@ -225,7 +206,6 @@ describe("processOneToOneNonFk", () => {
           to: "Posts",
           field: "id",
           reference: "authorId",
-          ownsFk: false,
         },
       }),
     );

@@ -7,7 +7,7 @@ import { getWantUpdateIndex } from "../../core/getWantUpdateIndex";
 import { whereFilter } from "../../core/whereFilter";
 import { processBeforeCreate } from "../../create/nestedWrite/processBeforeCreate";
 import { processAfterCreate } from "../../create/nestedWrite/processAfterCreate";
-import { processOneToOneNonFk } from "../../create/nestedWrite/processOneToOneNonFk";
+import { processOneToOne } from "../../create/nestedWrite/processOneToOne";
 import { processManyToMany } from "../../create/nestedWrite/processManyToMany";
 import {
   extractRelationDataForUpdate,
@@ -15,7 +15,7 @@ import {
 } from "./extractRelationDataForUpdate";
 import { processBeforeUpdate } from "./processBeforeUpdate";
 import { processAfterUpdate } from "./processAfterUpdate";
-import { processOneToOneNonFkUpdate } from "./processOneToOneNonFkUpdate";
+import { processOneToOneUpdate } from "./processOneToOneUpdate";
 import { processManyToManyUpdate } from "./processManyToManyUpdate";
 import {
   isNumberOperation,
@@ -145,8 +145,8 @@ const resolveNestedUpdate = (
 
   processAfterCreate(updatedRecord, relationOps, relationContext!);
   processAfterUpdate(updatedRecord, relationOps, relationContext!);
-  processOneToOneNonFk(updatedRecord, relationOps, relationContext!);
-  processOneToOneNonFkUpdate(updatedRecord, relationOps, relationContext!);
+  processOneToOne(updatedRecord, relationOps, relationContext!);
+  processOneToOneUpdate(updatedRecord, relationOps, relationContext!);
   processManyToMany(updatedRecord, relationOps, relationContext!);
   processManyToManyUpdate(updatedRecord, relationOps, relationContext!);
 

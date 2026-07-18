@@ -9,7 +9,6 @@ import {
   NestedWriteInvalidOperationError,
 } from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
-import { isNonFkOneToOne } from "./isNonFkOneToOne";
 
 const findInvalidOperation = (ops: NestedWriteOperation): string | null => {
   if (ops.createMany !== undefined) return "createMany";
@@ -49,7 +48,7 @@ const connectByWhere = (
   });
 };
 
-const processOneToOneNonFk = (
+const processOneToOne = (
   writtenRecord: Record<string, unknown>,
   relationOps: Map<string, NestedWriteOperation>,
   context: RelationContext,
@@ -57,7 +56,7 @@ const processOneToOneNonFk = (
   relationOps.forEach((ops, relationName) => {
     const relation = context.relations[relationName];
     if (!relation) return;
-    if (!isNonFkOneToOne(relation)) return;
+    if (relation.type !== "oneToOne") return;
 
     assertValidOps(relationName, relation, ops);
 
@@ -97,4 +96,4 @@ const processOneToOneNonFk = (
   });
 };
 
-export { processOneToOneNonFk };
+export { processOneToOne };

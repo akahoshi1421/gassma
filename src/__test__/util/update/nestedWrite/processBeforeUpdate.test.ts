@@ -32,8 +32,8 @@ describe("processBeforeUpdate", () => {
     reference: "id",
   };
 
-  const oneToOneRelation: RelationDefinition = {
-    type: "oneToOne",
+  const fkSideProfileRelation: RelationDefinition = {
+    type: "manyToOne",
     to: "Profiles",
     field: "profileId",
     reference: "id",
@@ -65,7 +65,7 @@ describe("processBeforeUpdate", () => {
     });
   });
 
-  it("oneToOne + update で対象レコードが更新される", () => {
+  it("FK 保有側 1:1（manyToOne）+ update で対象レコードが更新される", () => {
     mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { update: { bio: "新しい自己紹介" } });
@@ -75,7 +75,7 @@ describe("processBeforeUpdate", () => {
       { name: "田中", profileId: 5 },
       enrichedData,
       relationOps,
-      makeContext({ profile: oneToOneRelation }),
+      makeContext({ profile: fkSideProfileRelation }),
     );
 
     expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Profiles", {
@@ -138,7 +138,7 @@ describe("processBeforeUpdate", () => {
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne + disconnect: true で FK が null になる", () => {
+  it("FK 保有側 1:1（manyToOne）+ disconnect: true で FK が null になる", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { disconnect: true });
 
@@ -150,7 +150,7 @@ describe("processBeforeUpdate", () => {
       { name: "田中", profileId: 5 },
       enrichedData,
       relationOps,
-      makeContext({ profile: oneToOneRelation }),
+      makeContext({ profile: fkSideProfileRelation }),
     );
 
     expect(enrichedData.profileId).toBeNull();
@@ -177,7 +177,7 @@ describe("processBeforeUpdate", () => {
     ).toThrow("disconnect");
   });
 
-  it("oneToOne + disconnect に true 以外を渡すとエラー", () => {
+  it("FK 保有側 1:1（manyToOne）+ disconnect に true 以外を渡すとエラー", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { disconnect: { id: 5 } });
 
@@ -191,7 +191,7 @@ describe("processBeforeUpdate", () => {
         { name: "田中", profileId: 5 },
         enrichedData,
         relationOps,
-        makeContext({ profile: oneToOneRelation }),
+        makeContext({ profile: fkSideProfileRelation }),
       ),
     ).toThrow("disconnect");
   });
@@ -214,15 +214,14 @@ describe("processBeforeUpdate", () => {
     expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();
   });
 
-  const nonFkOneToOneRelation: RelationDefinition = {
+  const oneToOneRelation: RelationDefinition = {
     type: "oneToOne",
     to: "Profiles",
     field: "id",
     reference: "userId",
-    ownsFk: false,
   };
 
-  it("oneToOne(ownsFk: false) + update は素通りする", () => {
+  it("oneToOne + update は素通りする", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { update: { bio: "変更" } });
 
@@ -231,14 +230,14 @@ describe("processBeforeUpdate", () => {
       { id: 1, name: "田中" },
       enrichedData,
       relationOps,
-      makeContext({ profile: nonFkOneToOneRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
     expect(enrichedData).toEqual({ id: 1, name: "田中" });
   });
 
-  it("oneToOne(ownsFk: false) + disconnect: true は素通りし親の field が null 化されない", () => {
+  it("oneToOne + disconnect: true は素通りし親の field が null 化されない", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { disconnect: true });
 
@@ -247,14 +246,14 @@ describe("processBeforeUpdate", () => {
       { id: 1, name: "田中" },
       enrichedData,
       relationOps,
-      makeContext({ profile: nonFkOneToOneRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(enrichedData.id).toBe(1);
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
   });
 
-  it("oneToOne(ownsFk: false) + delete: true は素通りし親の field が保たれる", () => {
+  it("oneToOne + delete: true は素通りし親の field が保たれる", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("profile", { delete: true });
 
@@ -263,7 +262,7 @@ describe("processBeforeUpdate", () => {
       { id: 1, name: "田中" },
       enrichedData,
       relationOps,
-      makeContext({ profile: nonFkOneToOneRelation }),
+      makeContext({ profile: oneToOneRelation }),
     );
 
     expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();

@@ -6,7 +6,7 @@ import {
 } from "./extractRelationData";
 import { processBeforeCreate } from "./processBeforeCreate";
 import { processAfterCreate } from "./processAfterCreate";
-import { processOneToOneNonFk } from "./processOneToOneNonFk";
+import { processOneToOne } from "./processOneToOne";
 import { processManyToMany } from "./processManyToMany";
 
 const hasNestedWriteFields = (
@@ -46,7 +46,7 @@ const resolveNestedCreate = (
   const createdRecord = createFunc(enrichedData);
 
   processAfterCreate(createdRecord, relationOps, relationContext!);
-  processOneToOneNonFk(createdRecord, relationOps, relationContext!);
+  processOneToOne(createdRecord, relationOps, relationContext!);
   processManyToMany(createdRecord, relationOps, relationContext!);
 
   return createdRecord;

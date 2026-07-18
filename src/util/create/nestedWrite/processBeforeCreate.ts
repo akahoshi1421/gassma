@@ -1,7 +1,6 @@
 import type { RelationContext } from "../../../types/relationTypes";
 import type { NestedWriteOperation } from "../../../types/nestedWriteTypes";
 import { NestedWriteConnectNotFoundError } from "../../../errors/relation/nestedWriteError";
-import { isNonFkOneToOne } from "./isNonFkOneToOne";
 
 const processBeforeCreate = (
   scalarData: Record<string, unknown>,
@@ -13,8 +12,7 @@ const processBeforeCreate = (
   relationOps.forEach((ops, relationName) => {
     const relation = context.relations[relationName];
     if (!relation) return;
-    if (relation.type !== "manyToOne" && relation.type !== "oneToOne") return;
-    if (isNonFkOneToOne(relation)) return;
+    if (relation.type !== "manyToOne") return;
 
     if (ops.connect) {
       const where = Array.isArray(ops.connect) ? ops.connect[0] : ops.connect;

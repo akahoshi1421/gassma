@@ -25,7 +25,6 @@ type RelationDefinition = {
   to: string;
   field: string;
   reference: string;
-  ownsFk?: boolean;
   through?: ManyToManyThrough;
   onDelete?: OnDeleteAction;
   onUpdate?: OnUpdateAction;
