@@ -30,9 +30,19 @@ class NestedWriteWithoutRelationsError extends Error {
   }
 }
 
+class NestedWriteTargetNotFoundError extends Error {
+  constructor(sheetName: string, operation: string) {
+    super(
+      `Nested write ${operation} failed: no record found in "${sheetName}"`,
+    );
+    this.name = "NestedWriteTargetNotFoundError";
+  }
+}
+
 export {
   NestedWriteConnectNotFoundError,
   NestedWriteRelationNotFoundError,
   NestedWriteInvalidOperationError,
   NestedWriteWithoutRelationsError,
+  NestedWriteTargetNotFoundError,
 };

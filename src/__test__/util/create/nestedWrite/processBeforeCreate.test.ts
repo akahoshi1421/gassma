@@ -43,6 +43,14 @@ describe("processBeforeCreate", () => {
     reference: "authorId",
   };
 
+  const nonFkOneToOneRelation: RelationDefinition = {
+    type: "oneToOne",
+    to: "Profiles",
+    field: "id",
+    reference: "userId",
+    ownsFk: false,
+  };
+
   it("manyToOne + connect で既存レコードのFK値が親データに設定される", () => {
     mockFindMany.mockReturnValue([{ id: 1, name: "田中" }]);
     const relationOps = new Map<string, NestedWriteOperation>();
@@ -147,5 +155,68 @@ describe("processBeforeCreate", () => {
     expect(result).toEqual({ id: 1, name: "田中" });
     expect(mockFindMany).not.toHaveBeenCalled();
     expect(mockCreateOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToOne(ownsFk: false) + connect は素通りし親データ・関連先に触れない", () => {
+    mockFindMany.mockReturnValue([{ id: 5, userId: 99 }]);
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { connect: { id: 5 } });
+
+    const result = processBeforeCreate(
+      { id: 1, name: "田中" },
+      relationOps,
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockFindMany).not.toHaveBeenCalled();
+    expect(mockCreateOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToOne(ownsFk: false) + create は素通りする", () => {
+    mockCreateOnSheet.mockReturnValue({ id: 5, userId: 99 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { create: { bio: "自己紹介" } });
+
+    const result = processBeforeCreate(
+      { id: 1, name: "田中" },
+      relationOps,
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockCreateOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToOne(ownsFk: false) + connectOrCreate は素通りする", () => {
+    mockFindMany.mockReturnValue([{ id: 5, userId: 99 }]);
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", {
+      connectOrCreate: { where: { id: 5 }, create: { bio: "自己紹介" } },
+    });
+
+    const result = processBeforeCreate(
+      { id: 1, name: "田中" },
+      relationOps,
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockFindMany).not.toHaveBeenCalled();
+    expect(mockCreateOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToOne(ownsFk: true) は従来どおり before で処理される", () => {
+    mockFindMany.mockReturnValue([{ id: 5, bio: "自己紹介" }]);
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { connect: { id: 5 } });
+
+    const result = processBeforeCreate(
+      { name: "田中" },
+      relationOps,
+      makeContext({ profile: { ...oneToOneRelation, ownsFk: true } }),
+    );
+
+    expect(result).toEqual({ name: "田中", profileId: 5 });
   });
 });

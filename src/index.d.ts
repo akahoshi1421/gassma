@@ -153,6 +153,7 @@ declare namespace Gassma {
     to: string;
     field: string;
     reference: string;
+    ownsFk?: boolean;
     through?: ManyToManyThrough;
     onDelete?: OnDeleteAction;
     onUpdate?: OnUpdateAction;
@@ -476,6 +477,9 @@ declare namespace Gassma {
   }
   class NestedWriteWithoutRelationsError extends Error {
     constructor();
+  }
+  class NestedWriteTargetNotFoundError extends Error {
+    constructor(sheetName: string, operation: string);
   }
   class RelationOrderByUnsupportedTypeError extends Error {
     constructor(relationName: string, relationType: string);
