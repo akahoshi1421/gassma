@@ -30,4 +30,16 @@ describe("filterConditionsNotIn", () => {
     const filterOptions = { notIn: [true] };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should return false when a Date with the same time is listed", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { notIn: [new Date("2026-07-18T09:30:00.000Z")] };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should return true when no listed Date has the same time", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { notIn: [new Date("2026-07-19T00:00:00.000Z")] };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
 });

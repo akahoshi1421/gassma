@@ -148,6 +148,40 @@ describe("matchFilterCondition", () => {
     });
   });
 
+  describe("equals with FieldRef on Date columns", () => {
+    const dateTitles = ["createdAt", "updatedAt"];
+
+    test("should match when both columns hold the same time", () => {
+      const row = [
+        new Date("2026-07-18T09:30:00.000Z"),
+        new Date("2026-07-18T09:30:00.000Z"),
+      ];
+      expect(
+        matchFilterCondition(
+          row[0],
+          fc({ equals: new FieldRef("User", "updatedAt") }),
+          row,
+          dateTitles,
+        ),
+      ).toBe(true);
+    });
+
+    test("should not match when the times differ", () => {
+      const row = [
+        new Date("2026-07-18T09:30:00.000Z"),
+        new Date("2026-07-18T10:00:00.000Z"),
+      ];
+      expect(
+        matchFilterCondition(
+          row[0],
+          fc({ equals: new FieldRef("User", "updatedAt") }),
+          row,
+          dateTitles,
+        ),
+      ).toBe(false);
+    });
+  });
+
   describe("backward compatibility (no FieldRef)", () => {
     test("should delegate to isFilterConditionsMatch for plain values", () => {
       expect(matchFilterCondition("test", { equals: "test" }, [], [])).toBe(

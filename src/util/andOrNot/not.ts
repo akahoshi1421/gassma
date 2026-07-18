@@ -8,6 +8,7 @@ import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndex } from "../core/getWantFindIndex";
 import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
 import { isDict } from "../other/isDict";
+import { isValueEqual } from "../other/isValueEqual";
 import { isLogicMatch } from "./entry";
 
 const isNotMatch = (
@@ -34,7 +35,7 @@ const isNotMatch = (
             titles,
           );
 
-        return row.row[i] === whereOptionContent;
+        return isValueEqual(row.row[i], whereOptionContent);
       });
 
       if (matchRow.length === wantFindIndex.length) return row;

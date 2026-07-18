@@ -65,4 +65,30 @@ describe("applyCursor", () => {
     const result = applyCursor(data, { id: 3, name: "Alice" }, 2);
     expect(result).toEqual([]);
   });
+
+  test("should match a Date cursor with the same time but different instance", () => {
+    const dateData = [
+      { id: 1, createdAt: new Date("2026-07-18T09:30:00.000Z") },
+      { id: 2, createdAt: new Date("2026-07-19T12:00:00.000Z") },
+      { id: 3, createdAt: new Date("2026-07-20T15:45:00.000Z") },
+    ];
+    const result = applyCursor(
+      dateData,
+      { createdAt: new Date("2026-07-19T12:00:00.000Z") },
+      null,
+    );
+    expect(result).toEqual([dateData[1], dateData[2]]);
+  });
+
+  test("should return empty array when no Date time matches", () => {
+    const dateData = [
+      { id: 1, createdAt: new Date("2026-07-18T09:30:00.000Z") },
+    ];
+    const result = applyCursor(
+      dateData,
+      { createdAt: new Date("2026-07-18T09:30:00.001Z") },
+      null,
+    );
+    expect(result).toEqual([]);
+  });
 });

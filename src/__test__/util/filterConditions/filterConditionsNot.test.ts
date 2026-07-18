@@ -42,4 +42,16 @@ describe("filterConditionsNot", () => {
     const filterOptions = { not: "hello", mode: "insensitive" as const };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
   });
+
+  test("should return false for Dates with the same time but different instances", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { not: new Date("2026-07-18T09:30:00.000Z") };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should return true for Dates with different times", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { not: new Date("2026-07-18T10:00:00.000Z") };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
 });
