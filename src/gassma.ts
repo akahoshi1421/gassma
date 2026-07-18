@@ -49,6 +49,9 @@ class GassmaClient {
     const mapSheets = isClientOptions(idOrOptions)
       ? (idOrOptions.mapSheets ?? {})
       : {};
+    const strictUndefinedChecks = isClientOptions(idOrOptions)
+      ? (idOrOptions.strictUndefinedChecks ?? false)
+      : false;
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -89,6 +92,9 @@ class GassmaClient {
       }
       if (map && map[codeName]) {
         sheetController._setMap(map[codeName]);
+      }
+      if (strictUndefinedChecks) {
+        sheetController._setStrictUndefinedChecks(true);
       }
       controllers[codeName] = sheetController;
     });

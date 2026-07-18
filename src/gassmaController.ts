@@ -49,6 +49,7 @@ import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
+import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
 import { deleteFunc } from "./util/delete/delete";
 import { deleteManyFunc } from "./util/delete/deleteMany";
 import { findFirstFunc } from "./util/find/findFirst";
@@ -84,6 +85,7 @@ class GassmaController {
   private ignoredFields: string[] | null = null;
   private fieldMapping: FieldMapping | null = null;
   private codeName: string | null = null;
+  private strictUndefinedChecks: boolean = false;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -130,6 +132,14 @@ class GassmaController {
 
   public _setCodeName(name: string) {
     this.codeName = name;
+  }
+
+  public _setStrictUndefinedChecks(enabled: boolean) {
+    this.strictUndefinedChecks = enabled;
+  }
+
+  private normalizeInput<T>(input: T): T {
+    return normalizeQueryInput(input, this.strictUndefinedChecks);
   }
 
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
@@ -299,6 +309,7 @@ class GassmaController {
   }
 
   public createMany(createdData: CreateManyData) {
+    createdData = this.normalizeInput(createdData);
     return createManyFunc(
       this.getGassmaControllerUtil(),
       this.applyCreateManyPreprocess(createdData),
@@ -306,6 +317,7 @@ class GassmaController {
   }
 
   public createManyAndReturn(createdData: CreateManyAndReturnData) {
+    createdData = this.normalizeInput(createdData);
     if (createdData.include && createdData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -344,6 +356,7 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
+    createdData = this.normalizeInput(createdData);
     if (createdData.include && createdData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -391,7 +404,7 @@ class GassmaController {
   }
 
   public findFirst(findData: FindFirstData) {
-    return this.findFirstRaw(findData);
+    return this.findFirstRaw(this.normalizeInput(findData));
   }
 
   private findFirstRaw(findData: FindFirstData) {
@@ -583,7 +596,7 @@ class GassmaController {
   }
 
   public findMany(findData: FindData) {
-    return this.findManyRaw(findData);
+    return this.findManyRaw(this.normalizeInput(findData));
   }
 
   private findManyRaw(findData: FindData) {
@@ -749,6 +762,7 @@ class GassmaController {
   }
 
   public update(updateData: UpdateSingleData) {
+    updateData = this.normalizeInput(updateData);
     if (updateData.include && updateData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -806,6 +820,7 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
+    updateData = this.normalizeInput(updateData);
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -835,6 +850,7 @@ class GassmaController {
   }
 
   public updateManyAndReturn(updateData: UpdateData) {
+    updateData = this.normalizeInput(updateData);
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -873,6 +889,7 @@ class GassmaController {
   }
 
   public upsert(upsertData: UpsertSingleData) {
+    upsertData = this.normalizeInput(upsertData);
     if (upsertData.include && upsertData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -912,6 +929,7 @@ class GassmaController {
   }
 
   public delete(deleteData: DeleteSingleData) {
+    deleteData = this.normalizeInput(deleteData);
     if (deleteData.include && deleteData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -940,6 +958,7 @@ class GassmaController {
   }
 
   public deleteMany(deleteData: DeleteData) {
+    deleteData = this.normalizeInput(deleteData);
     deleteData = { ...deleteData, where: this.resolveWhere(deleteData.where) };
 
     if (this.relationContext) {
@@ -955,6 +974,7 @@ class GassmaController {
   }
 
   public aggregate(aggregateData: AggregateData) {
+    aggregateData = this.normalizeInput(aggregateData);
     aggregateData = {
       ...aggregateData,
       where: this.resolveWhere(aggregateData.where),
@@ -963,11 +983,13 @@ class GassmaController {
   }
 
   public count(countData: CountData) {
+    countData = this.normalizeInput(countData);
     countData = { ...countData, where: this.resolveWhere(countData.where) };
     return countFunc(this.getGassmaControllerUtil(), countData);
   }
 
   public groupBy(groupByData: GroupByData) {
+    groupByData = this.normalizeInput(groupByData);
     groupByData = {
       ...groupByData,
       where: this.resolveWhere(groupByData.where),

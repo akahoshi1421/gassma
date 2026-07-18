@@ -99,6 +99,7 @@ type GassmaClientOptions = {
   autoincrement?: AutoincrementConfig;
   map?: MapConfig;
   mapSheets?: MapSheetsConfig;
+  strictUndefinedChecks?: boolean;
 };
 
 type RelationContext = {
