@@ -1,3 +1,4 @@
+import { createCrossRealmDate } from "../../../../consts/crossRealm";
 import { getHitsDataType } from "../../../../../util/aggregate/aggregateUtil/getType/getHitsDataType";
 
 describe("getHitsDataType function tests", () => {
@@ -137,6 +138,22 @@ describe("getHitsDataType function tests", () => {
         new Date(1672531200000), // Timestamp
       ];
       const result = getHitsDataType(dates);
+      expect(result).toBe("Date");
+    });
+
+    test("should return 'Date' when a cross-realm Date comes first", () => {
+      const result = getHitsDataType([
+        createCrossRealmDate("2023-01-01T00:00:00Z"),
+        new Date("2023-06-01T00:00:00Z"),
+      ]);
+      expect(result).toBe("Date");
+    });
+
+    test("should return 'Date' when a cross-realm Date comes later", () => {
+      const result = getHitsDataType([
+        new Date("2023-06-01T00:00:00Z"),
+        createCrossRealmDate("2023-01-01T00:00:00Z"),
+      ]);
       expect(result).toBe("Date");
     });
   });

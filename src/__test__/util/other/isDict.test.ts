@@ -1,3 +1,7 @@
+import {
+  createCrossRealmDate,
+  createCrossRealmValue,
+} from "../../consts/crossRealm";
 import { isDict } from "../../../util/other/isDict";
 
 describe("isDict", () => {
@@ -161,5 +165,23 @@ describe("isDict", () => {
 
   test("should return false for -Infinity", () => {
     expect(isDict(-Infinity)).toBe(false);
+  });
+
+  test("should return false for a cross-realm Date", () => {
+    const crossDate = createCrossRealmDate("2026-07-18T09:30:00.000Z");
+    expect(crossDate instanceof Date).toBe(false);
+    expect(isDict(crossDate)).toBe(false);
+  });
+
+  test("should return true for a cross-realm plain object", () => {
+    const crossObject = createCrossRealmValue<Record<string, unknown>>(
+      '{ gt: new Date("2026-07-18T09:30:00.000Z") }',
+    );
+    expect(isDict(crossObject)).toBe(true);
+  });
+
+  test("should return false for a cross-realm array", () => {
+    const crossArray = createCrossRealmValue<unknown[]>("[1, 2, 3]");
+    expect(isDict(crossArray)).toBe(false);
   });
 });

@@ -1,4 +1,5 @@
 import type { GassmaAny } from "../../../../types/coreTypes";
+import { isDateValue } from "../../../other/isDateValue";
 
 type HitDateType =
   | "string"
@@ -14,11 +15,11 @@ type HitDateType =
 
 const getHitsDataType = (hitsData: GassmaAny[]): HitDateType | false => {
   let hitDataType: HitDateType = typeof hitsData[0];
-  if (hitsData[0] instanceof Date) hitDataType = "Date";
+  if (isDateValue(hitsData[0])) hitDataType = "Date";
 
   const isAllDataTypeSame = hitsData.every((data) => {
     if (hitDataType === "Date") {
-      return data instanceof Date;
+      return isDateValue(data);
     }
     return typeof data === hitDataType;
   });

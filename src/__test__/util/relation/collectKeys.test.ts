@@ -1,3 +1,7 @@
+import {
+  createCrossRealmDate,
+  createCrossRealmValue,
+} from "../../consts/crossRealm";
 import { collectKeys, isGassmaAny } from "../../../util/relation/collectKeys";
 
 describe("collectKeys", () => {
@@ -59,5 +63,25 @@ describe("isGassmaAny", () => {
 
   it("配列を false と判定する", () => {
     expect(isGassmaAny([1, 2, 3])).toBe(false);
+  });
+});
+
+describe("クロス realm の値", () => {
+  it("別 realm の Date を true と判定する", () => {
+    const crossDate = createCrossRealmDate("2026-07-18T09:30:00.000Z");
+    expect(crossDate instanceof Date).toBe(false);
+    expect(isGassmaAny(crossDate)).toBe(true);
+  });
+
+  it("別 realm のオブジェクトを false と判定する", () => {
+    const crossObject =
+      createCrossRealmValue<Record<string, unknown>>('{ key: "value" }');
+    expect(isGassmaAny(crossObject)).toBe(false);
+  });
+
+  it("別 realm の Date も収集できる", () => {
+    const crossDate = createCrossRealmDate("2026-07-18T09:30:00.000Z");
+    const records = [{ key: 1 }, { key: crossDate }, { key: null }];
+    expect(collectKeys(records, "key")).toEqual([1, crossDate]);
   });
 });

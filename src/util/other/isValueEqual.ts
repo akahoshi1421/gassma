@@ -1,5 +1,7 @@
+import { isDateValue } from "./isDateValue";
+
 const isValueEqual = (a: unknown, b: unknown): boolean => {
-  if (a instanceof Date && b instanceof Date) {
+  if (isDateValue(a) && isDateValue(b)) {
     return a.getTime() === b.getTime();
   }
   return a === b;
