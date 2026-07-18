@@ -328,6 +328,181 @@ describe("resolveNestedUpdate", () => {
     ).toThrow("Cannot use nested write");
   });
 
+  const nonFkOneToOneRelation: RelationDefinition = {
+    type: "oneToOne",
+    to: "Profiles",
+    field: "id",
+    reference: "userId",
+    ownsFk: false,
+  };
+
+  it("oneToOne(ownsFk: false) + update の統合テスト（親 id 無傷）", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { profile: { update: { bio: "変更後" } } },
+      },
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Profiles", {
+      where: { userId: 1 },
+      data: { bio: "変更後" },
+    });
+  });
+
+  it("oneToOne(ownsFk: false) + update で相手不在ならエラー", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
+
+    expect(() =>
+      resolveNestedUpdate(
+        util,
+        {
+          where: { id: 1 },
+          data: { profile: { update: { bio: "変更後" } } },
+        },
+        makeContext({ profile: nonFkOneToOneRelation }),
+      ),
+    ).toThrow('Nested write update failed: no record found in "Profiles"');
+  });
+
+  it("oneToOne(ownsFk: false) + disconnect: true の統合テスト（親 id は null 化されない）", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { profile: { disconnect: true } },
+      },
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Profiles", {
+      where: { userId: 1 },
+      data: { userId: null },
+    });
+  });
+
+  it("oneToOne(ownsFk: false) + delete: true の統合テスト（親 id 無傷）", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockDeleteManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { profile: { delete: true } },
+      },
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockDeleteManyOnSheet).toHaveBeenCalledWith("Profiles", {
+      where: { userId: 1 },
+    });
+  });
+
+  it("oneToOne(ownsFk: false) + delete: true で相手不在ならエラー", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockDeleteManyOnSheet.mockReturnValue({ count: 0 });
+
+    expect(() =>
+      resolveNestedUpdate(
+        util,
+        {
+          where: { id: 1 },
+          data: { profile: { delete: true } },
+        },
+        makeContext({ profile: nonFkOneToOneRelation }),
+      ),
+    ).toThrow('Nested write delete failed: no record found in "Profiles"');
+  });
+
+  it("oneToOne(ownsFk: false) + connect の統合テスト（置き換え）", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockFindMany.mockReturnValue([{ id: 5, userId: 99 }]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { profile: { connect: { id: 5 } } },
+      },
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockUpdateManyOnSheet).toHaveBeenNthCalledWith(1, "Profiles", {
+      where: { userId: 1 },
+      data: { userId: null },
+    });
+    expect(mockUpdateManyOnSheet).toHaveBeenNthCalledWith(2, "Profiles", {
+      where: { id: 5 },
+      data: { userId: 1 },
+    });
+  });
+
+  it("oneToOne(ownsFk: false) + connectOrCreate の統合テスト（不在時 create 相当）", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockFindMany.mockReturnValue([]);
+    mockCreateOnSheet.mockReturnValue({ id: 10, bio: "自己紹介", userId: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: {
+          profile: {
+            connectOrCreate: { where: { id: 5 }, create: { bio: "自己紹介" } },
+          },
+        },
+      },
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+    expect(mockCreateOnSheet).toHaveBeenCalledWith("Profiles", {
+      data: { bio: "自己紹介", userId: 1 },
+    });
+  });
+
+  it("ownsFk 未指定の oneToOne は従来どおり before 段階で処理される", () => {
+    const util = setupSheet(["id", "name", "profileId"], [[1, "田中", 5]]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 1 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { profile: { update: { bio: "変更後" } } },
+      },
+      makeContext({
+        profile: {
+          type: "oneToOne",
+          to: "Profiles",
+          field: "profileId",
+          reference: "id",
+        },
+      }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中", profileId: 5 });
+    expect(mockUpdateManyOnSheet).toHaveBeenCalledWith("Profiles", {
+      where: { id: 5 },
+      data: { bio: "変更後" },
+    });
+  });
+
   it("manyToOne + oneToMany 同時処理", () => {
     const util = setupSheet(["id", "title", "authorId"], [[1, "記事A", 1]]);
     mockFindMany.mockReturnValue([{ id: 5, name: "佐藤" }]);

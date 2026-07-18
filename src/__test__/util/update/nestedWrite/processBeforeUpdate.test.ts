@@ -213,4 +213,60 @@ describe("processBeforeUpdate", () => {
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
     expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();
   });
+
+  const nonFkOneToOneRelation: RelationDefinition = {
+    type: "oneToOne",
+    to: "Profiles",
+    field: "id",
+    reference: "userId",
+    ownsFk: false,
+  };
+
+  it("oneToOne(ownsFk: false) + update は素通りする", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { update: { bio: "変更" } });
+
+    const enrichedData: Record<string, unknown> = { id: 1, name: "田中" };
+    processBeforeUpdate(
+      { id: 1, name: "田中" },
+      enrichedData,
+      relationOps,
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
+    expect(enrichedData).toEqual({ id: 1, name: "田中" });
+  });
+
+  it("oneToOne(ownsFk: false) + disconnect: true は素通りし親の field が null 化されない", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { disconnect: true });
+
+    const enrichedData: Record<string, unknown> = { id: 1, name: "田中" };
+    processBeforeUpdate(
+      { id: 1, name: "田中" },
+      enrichedData,
+      relationOps,
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(enrichedData.id).toBe(1);
+    expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
+  });
+
+  it("oneToOne(ownsFk: false) + delete: true は素通りし親の field が保たれる", () => {
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("profile", { delete: true });
+
+    const enrichedData: Record<string, unknown> = { id: 1, name: "田中" };
+    processBeforeUpdate(
+      { id: 1, name: "田中" },
+      enrichedData,
+      relationOps,
+      makeContext({ profile: nonFkOneToOneRelation }),
+    );
+
+    expect(mockDeleteManyOnSheet).not.toHaveBeenCalled();
+    expect(enrichedData.id).toBe(1);
+  });
 });
