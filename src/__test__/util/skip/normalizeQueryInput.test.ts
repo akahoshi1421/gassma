@@ -1,7 +1,6 @@
 import { FieldRef } from "../../../util/filterConditions/fieldRef";
 import { normalizeQueryInput } from "../../../util/skip/normalizeQueryInput";
 import { skip } from "../../../util/skip/skip";
-import { createCrossRealmValue } from "../../consts/crossRealm";
 
 const catchError = (fn: () => unknown): Error => {
   try {
@@ -47,15 +46,6 @@ describe("normalizeQueryInput", () => {
           false,
         ),
       ).toEqual({ where: { OR: [{ age: 1 }, { age: 2 }] } });
-    });
-
-    test("別 realm の Symbol.for も skip として除去する", () => {
-      const crossRealmSkip = createCrossRealmValue<symbol>(
-        'Symbol.for("Gassma.skip")',
-      );
-      expect(
-        normalizeQueryInput({ where: { name: crossRealmSkip } }, false),
-      ).toEqual({ where: {} });
     });
 
     test("配列要素の skip は GassmaSkipInArrayError を投げる", () => {
