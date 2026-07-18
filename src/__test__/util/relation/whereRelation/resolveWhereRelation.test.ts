@@ -140,6 +140,42 @@ describe("resolveWhereRelation", () => {
     });
   });
 
+  it("oneToOne(非FK側)のis: nullは相手reference値のnotIn条件に変換する", () => {
+    const where: WhereUse = {
+      profile: { is: null },
+    };
+
+    mockFindMany.mockReturnValue([
+      { id: 301, userId: 1 },
+      { id: 302, userId: 2 },
+    ]);
+
+    const result = resolveWhereRelation(where, context);
+
+    expect(result).toEqual({
+      AND: [{ id: { notIn: [1, 2] } }],
+    });
+    expect(mockFindMany).toHaveBeenCalledWith("Profiles", { where: {} });
+  });
+
+  it("oneToOne(非FK側)のisNot: nullは相手reference値のin条件に変換する", () => {
+    const where: WhereUse = {
+      profile: { isNot: null },
+    };
+
+    mockFindMany.mockReturnValue([
+      { id: 301, userId: 1 },
+      { id: 302, userId: 2 },
+    ]);
+
+    const result = resolveWhereRelation(where, context);
+
+    expect(result).toEqual({
+      AND: [{ id: { in: [1, 2] } }],
+    });
+    expect(mockFindMany).toHaveBeenCalledWith("Profiles", { where: {} });
+  });
+
   it("everyフィルタを含むwhereを変換する", () => {
     const where: WhereUse = {
       posts: { every: { published: true } },

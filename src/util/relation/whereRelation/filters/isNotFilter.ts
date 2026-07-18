@@ -14,6 +14,11 @@ const applyIsNotFilter = (
   findManyOnSheet: FindManyOnSheet,
 ): WhereUse => {
   if (filterWhere === null) {
+    if (relation.type === "oneToOne") {
+      const targets = findManyOnSheet(relation.to, { where: {} });
+      const targetKeys = collectKeys(targets, relation.reference);
+      return { [relation.field]: { in: targetKeys } };
+    }
     return { [relation.field]: { not: null } };
   }
 
