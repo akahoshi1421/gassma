@@ -54,4 +54,28 @@ describe("filterConditionsEquals", () => {
     const filterOptions = { equals: 42, mode: "insensitive" as const };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should match Dates with the same time but different instances", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { equals: new Date("2026-07-18T09:30:00.000Z") };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
+
+  test("should not match Dates with different times", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { equals: new Date("2026-07-18T10:00:00.000Z") };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should not match Date cell against ISO string filter", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { equals: "2026-07-18T09:30:00.000Z" };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should not match string cell against Date filter", () => {
+    const cellData = "2026-07-18T09:30:00.000Z";
+    const filterOptions = { equals: new Date("2026-07-18T09:30:00.000Z") };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

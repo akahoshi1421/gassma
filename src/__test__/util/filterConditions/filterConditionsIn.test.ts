@@ -30,4 +30,27 @@ describe("filterConditionsIn", () => {
     const filterOptions = { in: [true, false] };
     expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
   });
+
+  test("should match a Date with the same time but different instance", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = {
+      in: [
+        new Date("2026-07-18T09:30:00.000Z"),
+        new Date("2026-07-19T00:00:00.000Z"),
+      ],
+    };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(true);
+  });
+
+  test("should not match a Date when no time matches", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { in: [new Date("2026-07-19T00:00:00.000Z")] };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
+
+  test("should not match a Date cell against ISO strings", () => {
+    const cellData = new Date("2026-07-18T09:30:00.000Z");
+    const filterOptions = { in: ["2026-07-18T09:30:00.000Z"] };
+    expect(isFilterConditionsMatch(cellData, filterOptions)).toBe(false);
+  });
 });

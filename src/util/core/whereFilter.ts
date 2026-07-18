@@ -5,6 +5,7 @@ import type { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
 import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
 import { isDict } from "../other/isDict";
+import { isValueEqual } from "../other/isValueEqual";
 import { getAllData } from "./getAllData";
 import { getTitle } from "./getTitle";
 import { getWantFindIndex } from "./getWantFindIndex";
@@ -44,7 +45,7 @@ const whereFilter = (
 
       const replacedNullWhereOptionContent =
         whereOptionContent === "" ? null : whereOptionContent;
-      return row[i] === replacedNullWhereOptionContent;
+      return isValueEqual(row[i], replacedNullWhereOptionContent);
     });
 
     if (matchRow.length === wantFindIndex.length) {

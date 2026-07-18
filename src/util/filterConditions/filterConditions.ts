@@ -1,4 +1,5 @@
 import type { FilterConditions, GassmaAny } from "../../types/coreTypes";
+import { containsValue, isValueEqual } from "../other/isValueEqual";
 
 const isFilterConditionsMatch = (
   cellData: GassmaAny,
@@ -16,7 +17,7 @@ const isFilterConditionsMatch = (
         ) {
           return filterEquals.toLowerCase() === cellData.toLowerCase();
         }
-        return filterEquals === cellData;
+        return isValueEqual(filterEquals, cellData);
       }
       case "not": {
         const filterNot = filterOptions.not === "" ? null : filterOptions.not;
@@ -27,14 +28,14 @@ const isFilterConditionsMatch = (
         ) {
           return filterNot.toLowerCase() !== cellData.toLowerCase();
         }
-        return filterNot !== cellData;
+        return !isValueEqual(filterNot, cellData);
       }
       case "in":
         if (cellData === null) return false;
-        return filterOptions.in.includes(cellData);
+        return containsValue(filterOptions.in, cellData);
       case "notIn":
         if (cellData === null) return false;
-        return !filterOptions.notIn.includes(cellData);
+        return !containsValue(filterOptions.notIn, cellData);
       case "lt":
         if (cellData === null) return false;
         return cellData < filterOptions.lt;
