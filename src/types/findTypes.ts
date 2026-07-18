@@ -76,6 +76,7 @@ type DeleteData = {
 type UpdateManyReturn = ManyReturn;
 type DeleteManyReturn = ManyReturn;
 export type {
+  FindSelect,
   FindFirstData,
   FindData,
   UpdateSingleData,

@@ -1,4 +1,4 @@
-const isDict = (val: any): boolean => {
+const isDict = (val: any): val is Record<string, unknown> => {
   return (
     val !== null &&
     typeof val === "object" &&

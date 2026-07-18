@@ -1,4 +1,8 @@
 declare namespace Gassma {
+  const skip: unique symbol;
+
+  type SkipValue = typeof skip;
+
   class FieldRef {
     readonly modelName: string;
     readonly name: string;
@@ -47,6 +51,7 @@ declare namespace Gassma {
     _setAutoincrement(fields: string[]): void;
     _setIgnore(fields: string[]): void;
     _setMap(mapping: { [codeName: string]: string }): void;
+    _setStrictUndefinedChecks(enabled: boolean): void;
   }
 
   type GassmaSheet = {
@@ -65,11 +70,16 @@ declare namespace Gassma {
   };
 
   type OrderBy = {
-    [key: string]: "asc" | "desc" | SortOrderInput | RelationOrderBy;
+    [key: string]:
+      | "asc"
+      | "desc"
+      | SortOrderInput
+      | RelationOrderBy
+      | SkipValue;
   };
 
   type Select = {
-    [key: string]: true;
+    [key: string]: true | SkipValue;
   };
 
   type Omit = {
@@ -84,11 +94,11 @@ declare namespace Gassma {
   };
 
   type AnyUse = {
-    [key: string]: GassmaAny;
+    [key: string]: GassmaAny | SkipValue;
   };
 
   type UpdateAnyUse = {
-    [key: string]: GassmaAny | NumberOperation;
+    [key: string]: GassmaAny | NumberOperation | SkipValue;
   };
 
   type WhereUse = {
@@ -97,32 +107,33 @@ declare namespace Gassma {
       | FilterConditions
       | WhereUse[]
       | WhereUse
-      | undefined;
-    AND?: WhereUse[] | WhereUse;
-    OR?: WhereUse[];
-    NOT?: WhereUse[] | WhereUse;
+      | undefined
+      | SkipValue;
+    AND?: WhereUse[] | WhereUse | SkipValue;
+    OR?: WhereUse[] | SkipValue;
+    NOT?: WhereUse[] | WhereUse | SkipValue;
   };
 
   type FilterConditions = {
-    equals?: GassmaAny | FieldRef;
-    not?: GassmaAny;
-    in?: GassmaAny[];
-    notIn?: GassmaAny[];
-    lt?: GassmaAny | FieldRef;
-    lte?: GassmaAny | FieldRef;
-    gt?: GassmaAny | FieldRef;
-    gte?: GassmaAny | FieldRef;
-    contains?: string | FieldRef;
-    startsWith?: string | FieldRef;
-    endsWith?: string | FieldRef;
-    mode?: "default" | "insensitive";
+    equals?: GassmaAny | FieldRef | SkipValue;
+    not?: GassmaAny | SkipValue;
+    in?: GassmaAny[] | SkipValue;
+    notIn?: GassmaAny[] | SkipValue;
+    lt?: GassmaAny | FieldRef | SkipValue;
+    lte?: GassmaAny | FieldRef | SkipValue;
+    gt?: GassmaAny | FieldRef | SkipValue;
+    gte?: GassmaAny | FieldRef | SkipValue;
+    contains?: string | FieldRef | SkipValue;
+    startsWith?: string | FieldRef | SkipValue;
+    endsWith?: string | FieldRef | SkipValue;
+    mode?: "default" | "insensitive" | SkipValue;
   };
 
   type CreateData = {
     data: AnyUse;
-    select?: Select;
-    omit?: Record<string, boolean>;
-    include?: IncludeData;
+    select?: Select | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    include?: IncludeData | SkipValue;
   };
 
   type CreateManyData = {
@@ -131,9 +142,9 @@ declare namespace Gassma {
 
   type CreateManyAndReturnData = {
     data: AnyUse[];
-    select?: Select;
-    omit?: Record<string, boolean>;
-    include?: IncludeData;
+    select?: Select | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    include?: IncludeData | SkipValue;
   };
 
   type RelationType = "oneToMany" | "oneToOne" | "manyToOne" | "manyToMany";
@@ -165,13 +176,13 @@ declare namespace Gassma {
   };
 
   type IncludeItemOptions = {
-    where?: WhereUse;
-    orderBy?: OrderBy | OrderBy[];
-    skip?: number;
-    take?: number;
-    select?: Select;
-    omit?: Record<string, boolean>;
-    include?: IncludeData;
+    where?: WhereUse | SkipValue;
+    orderBy?: OrderBy | OrderBy[] | SkipValue;
+    skip?: number | SkipValue;
+    take?: number | SkipValue;
+    select?: Select | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    include?: IncludeData | SkipValue;
   };
 
   type CountSelectItem = true | { where?: WhereUse };
@@ -179,7 +190,7 @@ declare namespace Gassma {
   type CountValue = true | CountSelect;
 
   type IncludeData = {
-    [relationName: string]: true | IncludeItemOptions | CountValue;
+    [relationName: string]: true | IncludeItemOptions | CountValue | SkipValue;
   };
 
   type RelationListFilter = {
@@ -238,6 +249,7 @@ declare namespace Gassma {
     ignoreSheets?: IgnoreSheetsConfig;
     map?: MapConfig;
     mapSheets?: MapSheetsConfig;
+    strictUndefinedChecks?: boolean;
   };
 
   type ConnectOrCreateInput = {
@@ -287,84 +299,84 @@ declare namespace Gassma {
   };
 
   type FindSelect = {
-    [key: string]: true | IncludeItemOptions | CountValue;
+    [key: string]: true | IncludeItemOptions | CountValue | SkipValue;
   };
 
   type FindFirstData = {
-    where?: WhereUse;
-    select?: FindSelect;
-    omit?: Record<string, boolean>;
-    orderBy?: OrderBy | OrderBy[];
-    include?: IncludeData;
-    cursor?: Record<string, unknown>;
+    where?: WhereUse | SkipValue;
+    select?: FindSelect | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    orderBy?: OrderBy | OrderBy[] | SkipValue;
+    include?: IncludeData | SkipValue;
+    cursor?: Record<string, unknown> | SkipValue;
   };
 
   type FindData = {
-    where?: WhereUse;
-    select?: FindSelect;
-    omit?: Record<string, boolean>;
-    orderBy?: OrderBy | OrderBy[];
-    take?: number;
-    skip?: number;
-    distinct?: string | string[];
-    include?: IncludeData;
-    cursor?: Record<string, unknown>;
+    where?: WhereUse | SkipValue;
+    select?: FindSelect | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    orderBy?: OrderBy | OrderBy[] | SkipValue;
+    take?: number | SkipValue;
+    skip?: number | SkipValue;
+    distinct?: string | string[] | SkipValue;
+    include?: IncludeData | SkipValue;
+    cursor?: Record<string, unknown> | SkipValue;
   };
 
   type UpdateSingleData = {
     where: WhereUse;
     data: Record<string, unknown>;
-    select?: Select;
-    omit?: Record<string, boolean>;
-    include?: IncludeData;
+    select?: Select | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    include?: IncludeData | SkipValue;
   };
 
   type DeleteSingleData = {
     where: WhereUse;
-    select?: Select;
-    include?: IncludeData;
-    omit?: Record<string, boolean>;
+    select?: Select | SkipValue;
+    include?: IncludeData | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
   };
 
   type UpsertSingleData = {
     where: WhereUse;
     create: AnyUse;
     update: AnyUse;
-    select?: Select;
-    include?: IncludeData;
-    omit?: Record<string, boolean>;
+    select?: Select | SkipValue;
+    include?: IncludeData | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
   };
 
   type DeleteData = {
-    where?: WhereUse;
-    limit?: number;
+    where?: WhereUse | SkipValue;
+    limit?: number | SkipValue;
   };
 
   type UpdateData = {
-    where?: WhereUse;
+    where?: WhereUse | SkipValue;
     data: UpdateAnyUse;
-    limit?: number;
+    limit?: number | SkipValue;
   };
 
   type AggregateData = {
-    where?: WhereUse;
-    orderBy?: OrderBy | OrderBy[];
-    take?: number;
-    skip?: number;
-    cursor?: Record<string, unknown>;
-    _avg?: Select;
-    _count?: Select;
-    _max?: Select;
-    _min?: Select;
-    _sum?: Select;
+    where?: WhereUse | SkipValue;
+    orderBy?: OrderBy | OrderBy[] | SkipValue;
+    take?: number | SkipValue;
+    skip?: number | SkipValue;
+    cursor?: Record<string, unknown> | SkipValue;
+    _avg?: Select | SkipValue;
+    _count?: Select | SkipValue;
+    _max?: Select | SkipValue;
+    _min?: Select | SkipValue;
+    _sum?: Select | SkipValue;
   };
 
   type CountData = {
-    where?: WhereUse;
-    orderBy?: OrderBy | OrderBy[];
-    take?: number;
-    skip?: number;
-    cursor?: Record<string, unknown>;
+    where?: WhereUse | SkipValue;
+    orderBy?: OrderBy | OrderBy[] | SkipValue;
+    take?: number | SkipValue;
+    skip?: number | SkipValue;
+    cursor?: Record<string, unknown> | SkipValue;
   };
 
   type NumberFilterConditions = {
@@ -395,7 +407,7 @@ declare namespace Gassma {
 
   type GroupByData = AggregateData & {
     by: string[] | string;
-    having?: HavingUse;
+    having?: HavingUse | SkipValue;
   };
 
   type ManyReturn = {
@@ -485,6 +497,12 @@ declare namespace Gassma {
   }
   class RelationOrderByCountUnsupportedTypeError extends Error {
     constructor(relationName: string, relationType: string);
+  }
+  class GassmaUndefinedValueError extends Error {
+    constructor(path: string);
+  }
+  class GassmaSkipInArrayError extends Error {
+    constructor(path: string);
   }
 }
 
