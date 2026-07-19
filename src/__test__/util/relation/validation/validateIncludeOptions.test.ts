@@ -115,12 +115,44 @@ describe("validateIncludeOptions", () => {
       ).not.toThrow();
     });
 
-    it("orderBy が object 以外の場合エラーを投げる", () => {
+    it("orderBy が object の配列の場合エラーを投げない", () => {
+      expect(() =>
+        validateIncludeOptions({
+          posts: { orderBy: [{ title: "asc" }, { id: "desc" }] },
+        }),
+      ).not.toThrow();
+    });
+
+    it("orderBy が空配列の場合エラーを投げない", () => {
+      expect(() =>
+        validateIncludeOptions({ posts: { orderBy: [] } }),
+      ).not.toThrow();
+    });
+
+    it("orderBy が object でも配列でもない場合エラーを投げる", () => {
       const include = {
         posts: { orderBy: "invalid" },
       } as unknown as IncludeData;
       expect(() => validateIncludeOptions(include)).toThrow(
-        'option "orderBy" must be an object',
+        'option "orderBy" must be an object or an array of objects',
+      );
+    });
+
+    it("orderBy 配列の要素が object 以外の場合エラーを投げる", () => {
+      const include = {
+        posts: { orderBy: ["invalid"] },
+      } as unknown as IncludeData;
+      expect(() => validateIncludeOptions(include)).toThrow(
+        'option "orderBy" must be an object or an array of objects',
+      );
+    });
+
+    it("orderBy 配列の要素に null が含まれる場合エラーを投げる", () => {
+      const include = {
+        posts: { orderBy: [{ title: "asc" }, null] },
+      } as unknown as IncludeData;
+      expect(() => validateIncludeOptions(include)).toThrow(
+        'option "orderBy" must be an object or an array of objects',
       );
     });
   });

@@ -100,6 +100,44 @@ describe("resolveOneToMany", () => {
     expect(result[0].posts[1].createdAt).toBe(1);
   });
 
+  it("includeオプションのorderBy配列で第2キーがタイブレークとして効く", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorId: 1, title: "B" },
+      { id: 102, authorId: 1, title: "A" },
+      { id: 103, authorId: 1, title: "B" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      orderBy: [{ title: "asc" }, { id: "desc" }],
+    });
+
+    expect(result[0].posts).toEqual([
+      { id: 102, authorId: 1, title: "A" },
+      { id: 103, authorId: 1, title: "B" },
+      { id: 101, authorId: 1, title: "B" },
+    ]);
+  });
+
+  it("includeオプションのorderBy空配列は並び順を変えずエラーにもならない", () => {
+    const parents = [{ id: 1, name: "Alice" }];
+
+    mockFindMany.mockReturnValue([
+      { id: 102, authorId: 1, title: "B" },
+      { id: 101, authorId: 1, title: "A" },
+    ]);
+
+    const result = resolveOneToMany(parents, relation, "posts", mockFindMany, {
+      orderBy: [],
+    });
+
+    expect(result[0].posts).toEqual([
+      { id: 102, authorId: 1, title: "B" },
+      { id: 101, authorId: 1, title: "A" },
+    ]);
+  });
+
   it("includeオプションのtakeを親ごとに適用する", () => {
     const parents = [{ id: 1, name: "Alice" }];
 

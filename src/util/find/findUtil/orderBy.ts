@@ -83,6 +83,8 @@ const orderByFunc = (
   result: Record<string, unknown>[],
   orderByOptions: OrderBy[],
 ) => {
+  if (orderByOptions.length === 0) return result;
+
   const orderByOptionArray = orderByOptions.map(parseOrderByEntry);
   const sortedResult = result.sort((a, b) => search(a, b, orderByOptionArray));
   return sortedResult;

@@ -23,6 +23,18 @@ const validateOptionObject = (
   }
 };
 
+const validateOrderByOption = (relationName: string, value: unknown): void => {
+  if (value === undefined) return;
+  if (isObject(value)) return;
+  if (Array.isArray(value) && value.every(isObject)) return;
+
+  throw new IncludeInvalidOptionTypeError(
+    relationName,
+    "orderBy",
+    "an object or an array of objects",
+  );
+};
+
 const validateIncludeItem = (relationName: string, value: unknown): void => {
   if (value === true) return;
 
@@ -51,7 +63,7 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
   }
 
   validateOptionObject(relationName, "where", value.where);
-  validateOptionObject(relationName, "orderBy", value.orderBy);
+  validateOrderByOption(relationName, value.orderBy);
   validateOptionObject(relationName, "select", value.select);
   validateOptionObject(relationName, "omit", value.omit);
   validateOptionObject(relationName, "include", value.include);
