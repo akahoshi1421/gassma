@@ -59,8 +59,8 @@ declare namespace Gassma {
     getColumnHeaders(): string[];
     changeSettings(
       startRowNumber: number,
-      startColumnNumber: number,
-      endColumnNumber: number,
+      startColumnValue: number | string,
+      endColumnValue: number | string,
     ): void;
     createMany(createdData: CreateManyData): CreateManyReturn;
     createManyAndReturn(
