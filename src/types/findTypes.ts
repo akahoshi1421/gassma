@@ -58,7 +58,7 @@ type UpdateData = {
 type UpsertSingleData = {
   where: WhereUse;
   create: AnyUse;
-  update: AnyUse;
+  update: UpdateAnyUse;
   select?: Select;
   include?: IncludeData;
   omit?: QueryOmit;
