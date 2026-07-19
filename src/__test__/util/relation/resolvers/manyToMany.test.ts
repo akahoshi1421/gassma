@@ -1,5 +1,6 @@
 import { resolveManyToMany } from "../../../../util/relation/resolvers/manyToMany";
 import type { RelationDefinition } from "../../../../types/relationTypes";
+import { createCrossRealmDate } from "../../../consts/crossRealm";
 
 describe("resolveManyToMany", () => {
   const relation: RelationDefinition = {
@@ -373,5 +374,102 @@ describe("resolveManyToMany", () => {
     expect(result[0].categories).toEqual([
       { name: "Tech", posts: [{ id: 1, title: "Post A" }] },
     ]);
+  });
+});
+
+describe("resolveManyToMany with Date keys", () => {
+  const dateRelation: RelationDefinition = {
+    type: "manyToMany",
+    to: "Categories",
+    field: "at",
+    reference: "at",
+    through: {
+      sheet: "PostCategories",
+      field: "postAt",
+      reference: "categoryAt",
+    },
+  };
+
+  const mockFindMany = jest.fn();
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+  });
+
+  it("Dateキーの中間テーブル経由で関連が解決される", () => {
+    const parents = [
+      { at: new Date("2026-07-18T09:30:00.000Z"), title: "Post A" },
+    ];
+
+    mockFindMany.mockReturnValueOnce([
+      {
+        postAt: new Date("2026-07-18T09:30:00.000Z"),
+        categoryAt: new Date("2026-07-18T10:30:00.000Z"),
+      },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { at: new Date("2026-07-18T10:30:00.000Z"), name: "Tech" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      dateRelation,
+      "categories",
+      mockFindMany,
+    );
+
+    expect(result[0].categories).toEqual([
+      { at: new Date("2026-07-18T10:30:00.000Z"), name: "Tech" },
+    ]);
+  });
+
+  it("ミリ秒差のターゲットはマッチしない", () => {
+    const parents = [
+      { at: new Date("2026-07-18T09:30:00.000Z"), title: "Post A" },
+    ];
+
+    mockFindMany.mockReturnValueOnce([
+      {
+        postAt: new Date("2026-07-18T09:30:00.000Z"),
+        categoryAt: new Date("2026-07-18T10:30:00.000Z"),
+      },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { at: new Date("2026-07-18T10:30:00.001Z"), name: "Tech" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      dateRelation,
+      "categories",
+      mockFindMany,
+    );
+
+    expect(result[0].categories).toEqual([]);
+  });
+
+  it("クロスrealmのDateキーでも関連が解決される", () => {
+    const parents = [
+      { at: new Date("2026-07-18T09:30:00.000Z"), title: "Post A" },
+    ];
+
+    mockFindMany.mockReturnValueOnce([
+      {
+        postAt: createCrossRealmDate("2026-07-18T09:30:00.000Z"),
+        categoryAt: createCrossRealmDate("2026-07-18T10:30:00.000Z"),
+      },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { at: new Date("2026-07-18T10:30:00.000Z"), name: "Tech" },
+    ]);
+
+    const result = resolveManyToMany(
+      parents,
+      dateRelation,
+      "categories",
+      mockFindMany,
+    );
+
+    expect(result[0].categories).toHaveLength(1);
   });
 });

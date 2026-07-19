@@ -7,6 +7,7 @@ import type { QueryOmit, WhereUse } from "../../../types/coreTypes";
 import { GassmaRelationDuplicateError } from "../../../errors/relation/relationError";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
+import { toLookupKey } from "../../other/toLookupKey";
 import { collectKeys } from "../collectKeys";
 import { pickOmitFalse } from "../pickOmitFalse";
 import { processSelectForInclude } from "../processSelectForInclude";
@@ -49,20 +50,23 @@ const resolveManyToOne = (
   const lookup = new Map<unknown, Record<string, unknown>>();
   targets.forEach((target) => {
     const key = target[relation.reference];
-    if (lookup.has(key)) {
+    const lookupKey = toLookupKey(key);
+    if (lookup.has(lookupKey)) {
       throw new GassmaRelationDuplicateError(
         relation.to,
         relation.reference,
         key,
       );
     }
-    lookup.set(key, target);
+    lookup.set(lookupKey, target);
   });
 
   return parents.map((parent) => {
     const fk = parent[relation.field];
     const raw =
-      fk !== null && fk !== undefined ? (lookup.get(fk) ?? null) : null;
+      fk !== null && fk !== undefined
+        ? (lookup.get(toLookupKey(fk)) ?? null)
+        : null;
     if (!raw) return { ...parent, [relationName]: null };
 
     if (processed?.nestedInclude) {

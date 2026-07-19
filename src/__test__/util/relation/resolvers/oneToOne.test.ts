@@ -1,5 +1,6 @@
 import { resolveOneToOne } from "../../../../util/relation/resolvers/oneToOne";
 import type { RelationDefinition } from "../../../../types/relationTypes";
+import { createCrossRealmDate } from "../../../consts/crossRealm";
 
 describe("resolveOneToOne", () => {
   const relation: RelationDefinition = {
@@ -194,5 +195,89 @@ describe("resolveOneToOne", () => {
       bio: "Hello",
       user: { id: 1, name: "Alice" },
     });
+  });
+});
+
+describe("resolveOneToOne with Date keys", () => {
+  const dateRelation: RelationDefinition = {
+    type: "oneToOne",
+    to: "Profiles",
+    field: "registeredAt",
+    reference: "userRegisteredAt",
+  };
+
+  const mockFindMany = jest.fn();
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+  });
+
+  it("同時刻・別インスタンスのDateキーで子が解決される", () => {
+    const parents = [
+      { id: 1, registeredAt: new Date("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      {
+        userRegisteredAt: new Date("2026-07-18T09:30:00.000Z"),
+        bio: "Hello",
+      },
+    ]);
+
+    const result = resolveOneToOne(
+      parents,
+      dateRelation,
+      "profile",
+      mockFindMany,
+    );
+
+    expect(result[0].profile).toEqual({
+      userRegisteredAt: new Date("2026-07-18T09:30:00.000Z"),
+      bio: "Hello",
+    });
+  });
+
+  it("ミリ秒差のDateキーはマッチせずnullになる", () => {
+    const parents = [
+      { id: 1, registeredAt: new Date("2026-07-18T09:30:00.001Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      {
+        userRegisteredAt: new Date("2026-07-18T09:30:00.000Z"),
+        bio: "Hello",
+      },
+    ]);
+
+    const result = resolveOneToOne(
+      parents,
+      dateRelation,
+      "profile",
+      mockFindMany,
+    );
+
+    expect(result[0].profile).toBeNull();
+  });
+
+  it("クロスrealmのDateキーでも子が解決される", () => {
+    const parents = [
+      { id: 1, registeredAt: createCrossRealmDate("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      {
+        userRegisteredAt: new Date("2026-07-18T09:30:00.000Z"),
+        bio: "Hello",
+      },
+    ]);
+
+    const result = resolveOneToOne(
+      parents,
+      dateRelation,
+      "profile",
+      mockFindMany,
+    );
+
+    expect(result[0].profile).not.toBeNull();
   });
 });

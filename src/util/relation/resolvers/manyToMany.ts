@@ -9,6 +9,7 @@ import { GassmaThroughRequiredError } from "../../../errors/relation/relationErr
 import { orderByFunc } from "../../find/findUtil/orderBy";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
+import { toLookupKey } from "../../other/toLookupKey";
 import { collectKeys } from "../collectKeys";
 import { pickOmitFalse } from "../pickOmitFalse";
 import { processSelectForInclude } from "../processSelectForInclude";
@@ -69,14 +70,14 @@ const resolveManyToMany = (
   // Step 3: ターゲットをルックアップマップに
   const targetLookup = new Map<unknown, Record<string, unknown>>();
   targets.forEach((t) => {
-    targetLookup.set(t[relation.reference], t);
+    targetLookup.set(toLookupKey(t[relation.reference]), t);
   });
 
   // Step 4: 親→中間テーブル→ターゲットのマッピング
   const parentToTargets = new Map<unknown, Record<string, unknown>[]>();
   junctionRows.forEach((jRow) => {
-    const parentKey = jRow[through.field];
-    const target = targetLookup.get(jRow[through.reference]);
+    const parentKey = toLookupKey(jRow[through.field]);
+    const target = targetLookup.get(toLookupKey(jRow[through.reference]));
     if (!target) return;
 
     const list = parentToTargets.get(parentKey) ?? [];
@@ -85,7 +86,7 @@ const resolveManyToMany = (
   });
 
   return parents.map((parent) => {
-    let items = parentToTargets.get(parent[relation.field]) ?? [];
+    let items = parentToTargets.get(toLookupKey(parent[relation.field])) ?? [];
 
     if (options?.orderBy) {
       const orderByArr = Array.isArray(options.orderBy)

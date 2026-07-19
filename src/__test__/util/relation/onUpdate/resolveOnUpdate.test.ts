@@ -4,6 +4,7 @@ import type {
   RelationDefinition,
   RelationContext,
 } from "../../../../types/relationTypes";
+import { createCrossRealmDate } from "../../../consts/crossRealm";
 
 describe("resolveOnUpdate", () => {
   const mockFindMany = jest.fn();
@@ -273,6 +274,141 @@ describe("resolveOnUpdate", () => {
     expect(() =>
       resolveOnUpdate([{ id: 1 }], [{ id: 10 }], baseContext(relations)),
     ).toThrow("comments");
+
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("resolveOnUpdate with Date keys", () => {
+  const mockFindMany = jest.fn();
+  const mockDeleteMany = jest.fn();
+  const mockUpdateMany = jest.fn();
+
+  const context = (
+    relations: Record<string, RelationDefinition>,
+  ): RelationContext => ({
+    relations,
+    findManyOnSheet: mockFindMany,
+    deleteManyOnSheet: mockDeleteMany,
+    updateManyOnSheet: mockUpdateMany,
+  });
+
+  const dateRelations = (
+    onUpdate: RelationDefinition["onUpdate"],
+  ): Record<string, RelationDefinition> => ({
+    posts: {
+      type: "oneToMany",
+      to: "Posts",
+      field: "key",
+      reference: "authorKey",
+      onUpdate,
+    },
+  });
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+    mockDeleteMany.mockReset();
+    mockUpdateMany.mockReset();
+  });
+
+  it("同時刻・別インスタンスのDateへの更新ではRestrictが発火しない", () => {
+    expect(() =>
+      resolveOnUpdate(
+        [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+        [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+        context(dateRelations("Restrict")),
+      ),
+    ).not.toThrow();
+    expect(mockFindMany).not.toHaveBeenCalled();
+  });
+
+  it("同時刻・別インスタンスのDateへの更新ではCascadeが発火しない", () => {
+    resolveOnUpdate(
+      [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+      [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+      context(dateRelations("Cascade")),
+    );
+
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("同時刻・別インスタンスのDateへの更新ではSetNullが発火しない", () => {
+    resolveOnUpdate(
+      [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+      [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+      context(dateRelations("SetNull")),
+    );
+
+    expect(mockUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("ミリ秒差のDateへの更新ではCascadeが発火する", () => {
+    const oldKey = new Date("2026-07-18T09:30:00.000Z");
+    const newKey = new Date("2026-07-18T09:30:00.001Z");
+
+    resolveOnUpdate(
+      [{ key: oldKey }],
+      [{ key: newKey }],
+      context(dateRelations("Cascade")),
+    );
+
+    expect(mockUpdateMany).toHaveBeenCalledWith("Posts", {
+      where: { authorKey: oldKey },
+      data: { authorKey: newKey },
+    });
+  });
+
+  it("ミリ秒差のDateへの更新ではRestrictが発火する", () => {
+    mockFindMany.mockReturnValue([{ id: 101 }]);
+
+    expect(() =>
+      resolveOnUpdate(
+        [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+        [{ key: new Date("2026-07-18T09:30:00.001Z") }],
+        context(dateRelations("Restrict")),
+      ),
+    ).toThrow(RelationOnUpdateRestrictError);
+  });
+
+  it("SetNullは同時刻の行を除外し変更行のみ対象にする", () => {
+    const changedOld = new Date("2026-07-18T10:00:00.000Z");
+
+    resolveOnUpdate(
+      [{ key: new Date("2026-07-18T09:30:00.000Z") }, { key: changedOld }],
+      [
+        { key: new Date("2026-07-18T09:30:00.000Z") },
+        { key: new Date("2026-07-18T11:00:00.000Z") },
+      ],
+      context(dateRelations("SetNull")),
+    );
+
+    expect(mockUpdateMany).toHaveBeenCalledWith("Posts", {
+      where: { authorKey: { in: [changedOld] } },
+      data: { authorKey: null },
+    });
+  });
+
+  it("DateからISO文字列への変更は変更として扱いCascadeが発火する", () => {
+    const oldKey = new Date("2026-07-18T09:30:00.000Z");
+
+    resolveOnUpdate(
+      [{ key: oldKey }],
+      [{ key: "2026-07-18T09:30:00.000Z" }],
+      context(dateRelations("Cascade")),
+    );
+
+    expect(mockUpdateMany).toHaveBeenCalledWith("Posts", {
+      where: { authorKey: oldKey },
+      data: { authorKey: "2026-07-18T09:30:00.000Z" },
+    });
+  });
+
+  it("クロスrealmの同時刻Dateへの更新では発火しない", () => {
+    resolveOnUpdate(
+      [{ key: createCrossRealmDate("2026-07-18T09:30:00.000Z") }],
+      [{ key: new Date("2026-07-18T09:30:00.000Z") }],
+      context(dateRelations("Cascade")),
+    );
 
     expect(mockUpdateMany).not.toHaveBeenCalled();
   });
