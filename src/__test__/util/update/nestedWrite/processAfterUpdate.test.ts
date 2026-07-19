@@ -1,3 +1,4 @@
+import { NestedWriteInvalidOperationError } from "../../../../errors/relation/nestedWriteError";
 import { processAfterUpdate } from "../../../../util/update/nestedWrite/processAfterUpdate";
 import type {
   RelationDefinition,
@@ -230,6 +231,13 @@ describe("processAfterUpdate", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("posts", { disconnect: true });
 
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processAfterUpdate(
         { id: 1, name: "田中" },

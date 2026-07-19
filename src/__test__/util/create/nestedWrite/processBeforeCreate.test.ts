@@ -1,3 +1,4 @@
+import { NestedWriteConnectNotFoundError } from "../../../../errors/relation/nestedWriteError";
 import { processBeforeCreate } from "../../../../util/create/nestedWrite/processBeforeCreate";
 import type {
   RelationDefinition,
@@ -72,6 +73,13 @@ describe("processBeforeCreate", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("author", { connect: { id: 999 } });
 
+    expect(() =>
+      processBeforeCreate(
+        { title: "記事A" },
+        relationOps,
+        makeContext({ author: manyToOneRelation }),
+      ),
+    ).toThrow(NestedWriteConnectNotFoundError);
     expect(() =>
       processBeforeCreate(
         { title: "記事A" },

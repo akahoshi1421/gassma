@@ -1,3 +1,7 @@
+import {
+  NestedWriteConnectNotFoundError,
+  NestedWriteInvalidOperationError,
+} from "../../../../errors/relation/nestedWriteError";
 import { processOneToOne } from "../../../../util/create/nestedWrite/processOneToOne";
 import type {
   RelationDefinition,
@@ -81,6 +85,13 @@ describe("processOneToOne", () => {
         makeOps({ connect: { id: 999 } }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteConnectNotFoundError);
+    expect(() =>
+      processOneToOne(
+        { id: 1, name: "田中" },
+        makeOps({ connect: { id: 999 } }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('no record found in "Profiles"');
     expect(mockUpdateManyOnSheet).not.toHaveBeenCalled();
   });
@@ -133,10 +144,24 @@ describe("processOneToOne", () => {
         makeOps({ createMany: { data: [{ bio: "自己紹介" }] } }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteInvalidOperationError);
+    expect(() =>
+      processOneToOne(
+        { id: 1, name: "田中" },
+        makeOps({ createMany: { data: [{ bio: "自己紹介" }] } }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('operation "createMany" is not valid');
   });
 
   it("配列 create は NestedWriteInvalidOperationError", () => {
+    expect(() =>
+      processOneToOne(
+        { id: 1, name: "田中" },
+        makeOps({ create: [{ bio: "自己紹介" }] }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processOneToOne(
         { id: 1, name: "田中" },
@@ -153,10 +178,26 @@ describe("processOneToOne", () => {
         makeOps({ connect: [{ id: 5 }] }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteInvalidOperationError);
+    expect(() =>
+      processOneToOne(
+        { id: 1, name: "田中" },
+        makeOps({ connect: [{ id: 5 }] }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('operation "connect" is not valid');
   });
 
   it("配列 connectOrCreate は NestedWriteInvalidOperationError", () => {
+    expect(() =>
+      processOneToOne(
+        { id: 1, name: "田中" },
+        makeOps({
+          connectOrCreate: [{ where: { id: 5 }, create: { bio: "a" } }],
+        }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processOneToOne(
         { id: 1, name: "田中" },

@@ -1,3 +1,7 @@
+import {
+  GassmaAggregateAvgError,
+  GassmaAggregateAvgTypeError,
+} from "../../../../errors/aggregate/aggregateError";
 import { getAvg } from "../../../../util/aggregate/aggregateUtil/avg";
 
 describe("getAvg", () => {
@@ -45,12 +49,9 @@ describe("getAvg", () => {
   test("should throw GassmaAggregateAvgError for mixed data types", () => {
     const rows = [{ field: 10 }, { field: "string" }, { field: 30 }];
 
-    try {
-      getAvg(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateAvgError");
-    }
+    expect(() => getAvg(rows, { field: true })).toThrow(
+      GassmaAggregateAvgError,
+    );
   });
 
   test("should throw GassmaAggregateAvgTypeError for non-numeric uniform data types", () => {
@@ -60,23 +61,17 @@ describe("getAvg", () => {
       { field: "string3" },
     ];
 
-    try {
-      getAvg(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateAvgTypeError");
-    }
+    expect(() => getAvg(rows, { field: true })).toThrow(
+      GassmaAggregateAvgTypeError,
+    );
   });
 
   test("should throw GassmaAggregateAvgTypeError for boolean data", () => {
     const rows = [{ field: true }, { field: false }, { field: true }];
 
-    try {
-      getAvg(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateAvgTypeError");
-    }
+    expect(() => getAvg(rows, { field: true })).toThrow(
+      GassmaAggregateAvgTypeError,
+    );
   });
 
   test("should throw GassmaAggregateAvgTypeError for Date data", () => {
@@ -84,12 +79,9 @@ describe("getAvg", () => {
     const date2 = new Date("2023-01-02");
     const rows = [{ field: date1 }, { field: date2 }];
 
-    try {
-      getAvg(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateAvgTypeError");
-    }
+    expect(() => getAvg(rows, { field: true })).toThrow(
+      GassmaAggregateAvgTypeError,
+    );
   });
 
   test("should handle empty rows array", () => {
@@ -107,12 +99,9 @@ describe("getAvg", () => {
       { numeric: 20, allNull: null, mixed: "string" },
     ];
 
-    try {
-      getAvg(rows, { numeric: true, allNull: true, mixed: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateAvgError");
-    }
+    expect(() =>
+      getAvg(rows, { numeric: true, allNull: true, mixed: true }),
+    ).toThrow(GassmaAggregateAvgError);
   });
 
   test("should handle single numeric value", () => {

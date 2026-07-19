@@ -1,3 +1,7 @@
+import {
+  NestedWriteInvalidOperationError,
+  NestedWriteTargetNotFoundError,
+} from "../../../../errors/relation/nestedWriteError";
 import { processOneToOneUpdate } from "../../../../util/update/nestedWrite/processOneToOneUpdate";
 import type {
   RelationDefinition,
@@ -65,21 +69,16 @@ describe("processOneToOneUpdate", () => {
     ).toThrow('Nested write update failed: no record found in "Profiles"');
   });
 
-  it("update 相手不在エラーの name は NestedWriteTargetNotFoundError", () => {
+  it("update 相手不在エラーは NestedWriteTargetNotFoundError", () => {
     mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
 
-    let caught: unknown;
-    try {
+    expect(() =>
       processOneToOneUpdate(
         { id: 1, name: "田中" },
         makeOps({ update: { bio: "変更後" } }),
         makeContext({ profile: oneToOneRelation }),
-      );
-    } catch (e) {
-      caught = e;
-    }
-    expect(caught).toBeInstanceOf(Error);
-    expect((caught as Error).name).toBe("NestedWriteTargetNotFoundError");
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
   });
 
   it("disconnect: true で相手の reference 列が null 化される", () => {
@@ -116,6 +115,13 @@ describe("processOneToOneUpdate", () => {
         makeOps({ disconnect: { id: 5 } }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteInvalidOperationError);
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ disconnect: { id: 5 } }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('operation "disconnect" is not valid');
   });
 
@@ -142,10 +148,24 @@ describe("processOneToOneUpdate", () => {
         makeOps({ delete: true }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ delete: true }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('Nested write delete failed: no record found in "Profiles"');
   });
 
   it("delete に true 以外を渡すとエラー", () => {
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ delete: { id: 5 } }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processOneToOneUpdate(
         { id: 1, name: "田中" },
@@ -162,10 +182,24 @@ describe("processOneToOneUpdate", () => {
         makeOps({ update: [{ where: { id: 5 }, data: { bio: "a" } }] }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteInvalidOperationError);
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ update: [{ where: { id: 5 }, data: { bio: "a" } }] }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('operation "update" is not valid');
   });
 
   it("where/data 形式の update はエラー", () => {
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ update: { where: { id: 5 }, data: { bio: "a" } } }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processOneToOneUpdate(
         { id: 1, name: "田中" },
@@ -182,10 +216,24 @@ describe("processOneToOneUpdate", () => {
         makeOps({ set: [{ id: 5 }] }),
         makeContext({ profile: oneToOneRelation }),
       ),
+    ).toThrow(NestedWriteInvalidOperationError);
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ set: [{ id: 5 }] }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
     ).toThrow('operation "set" is not valid');
   });
 
   it("deleteMany はエラー", () => {
+    expect(() =>
+      processOneToOneUpdate(
+        { id: 1, name: "田中" },
+        makeOps({ deleteMany: { id: 5 } }),
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processOneToOneUpdate(
         { id: 1, name: "田中" },

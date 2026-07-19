@@ -1,3 +1,4 @@
+import { RelationOnDeleteRestrictError } from "../../../../errors/relation/relationError";
 import { resolveOnDelete } from "../../../../util/relation/onDelete/resolveOnDelete";
 import type {
   RelationDefinition,
@@ -147,6 +148,9 @@ describe("resolveOnDelete", () => {
     mockFindMany.mockReturnValue([{ id: 101, authorId: 1 }]);
 
     expect(() => resolveOnDelete([{ id: 1 }], baseContext(relations))).toThrow(
+      RelationOnDeleteRestrictError,
+    );
+    expect(() => resolveOnDelete([{ id: 1 }], baseContext(relations))).toThrow(
       "posts",
     );
   });
@@ -214,6 +218,9 @@ describe("resolveOnDelete", () => {
 
     mockFindMany.mockReturnValue([{ id: 201, userId: 1 }]);
 
+    expect(() => resolveOnDelete([{ id: 1 }], baseContext(relations))).toThrow(
+      RelationOnDeleteRestrictError,
+    );
     expect(() => resolveOnDelete([{ id: 1 }], baseContext(relations))).toThrow(
       "comments",
     );

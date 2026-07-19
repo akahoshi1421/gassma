@@ -1,3 +1,7 @@
+import {
+  IncludeSelectIncludeConflictError,
+  IncludeSelectOmitConflictError,
+} from "../../../../errors/relation/relationValidationError";
 import { validateIncludeOptions } from "../../../../util/relation/validation/validateIncludeOptions";
 import type { IncludeData } from "../../../../types/relationTypes";
 
@@ -38,7 +42,7 @@ describe("validateIncludeOptions", () => {
         validateIncludeOptions({
           posts: { select: { id: true }, omit: { title: true } },
         }),
-      ).toThrow("cannot use both select and omit");
+      ).toThrow(IncludeSelectOmitConflictError);
     });
 
     it("select のみの場合エラーを投げない", () => {
@@ -207,7 +211,7 @@ describe("validateIncludeOptions", () => {
         validateIncludeOptions({
           posts: { select: { id: true }, include: { comments: true } },
         }),
-      ).toThrow("cannot use both select and include");
+      ).toThrow(IncludeSelectIncludeConflictError);
     });
 
     it("ネストされた include を再帰的にバリデーションする", () => {

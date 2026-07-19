@@ -1,3 +1,7 @@
+import {
+  GassmaAggregateSumError,
+  GassmaAggregateSumTypeError,
+} from "../../../../errors/aggregate/aggregateError";
 import { getSum } from "../../../../util/aggregate/aggregateUtil/sum";
 
 describe("getSum", () => {
@@ -45,12 +49,9 @@ describe("getSum", () => {
   test("should throw GassmaAggregateSumError for mixed data types", () => {
     const rows = [{ field: 10 }, { field: "string" }, { field: 30 }];
 
-    try {
-      getSum(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateSumError");
-    }
+    expect(() => getSum(rows, { field: true })).toThrow(
+      GassmaAggregateSumError,
+    );
   });
 
   test("should throw GassmaAggregateSumTypeError for non-numeric uniform data types", () => {
@@ -60,23 +61,17 @@ describe("getSum", () => {
       { field: "string3" },
     ];
 
-    try {
-      getSum(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateSumTypeError");
-    }
+    expect(() => getSum(rows, { field: true })).toThrow(
+      GassmaAggregateSumTypeError,
+    );
   });
 
   test("should throw GassmaAggregateSumTypeError for boolean data", () => {
     const rows = [{ field: true }, { field: false }, { field: true }];
 
-    try {
-      getSum(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateSumTypeError");
-    }
+    expect(() => getSum(rows, { field: true })).toThrow(
+      GassmaAggregateSumTypeError,
+    );
   });
 
   test("should throw GassmaAggregateSumTypeError for Date data", () => {
@@ -84,12 +79,9 @@ describe("getSum", () => {
     const date2 = new Date("2023-01-02");
     const rows = [{ field: date1 }, { field: date2 }];
 
-    try {
-      getSum(rows, { field: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateSumTypeError");
-    }
+    expect(() => getSum(rows, { field: true })).toThrow(
+      GassmaAggregateSumTypeError,
+    );
   });
 
   test("should handle empty rows array", () => {
@@ -134,11 +126,8 @@ describe("getSum", () => {
       { numeric: 20, allNull: null, mixed: "string" },
     ];
 
-    try {
-      getSum(rows, { numeric: true, allNull: true, mixed: true });
-      fail("Expected function to throw an error");
-    } catch (error: any) {
-      expect(error.name).toBe("GassmaAggregateSumError");
-    }
+    expect(() =>
+      getSum(rows, { numeric: true, allNull: true, mixed: true }),
+    ).toThrow(GassmaAggregateSumError);
   });
 });

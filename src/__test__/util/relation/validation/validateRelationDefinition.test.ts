@@ -1,3 +1,7 @@
+import {
+  RelationInvalidOnDeleteError,
+  RelationInvalidOnUpdateError,
+} from "../../../../errors/relation/relationValidationError";
 import { validateRelationDefinition } from "../../../../util/relation/validation/validateRelationDefinition";
 
 describe("validateRelationDefinition", () => {
@@ -260,6 +264,14 @@ describe("validateRelationDefinition", () => {
           definition,
           allSheetNames,
         ),
+      ).toThrow(RelationInvalidOnUpdateError);
+      expect(() =>
+        validateRelationDefinition(
+          sheetName,
+          "posts",
+          definition,
+          allSheetNames,
+        ),
       ).toThrow("InvalidAction");
     });
   });
@@ -296,6 +308,14 @@ describe("validateRelationDefinition", () => {
         onDelete: "InvalidAction",
       };
 
+      expect(() =>
+        validateRelationDefinition(
+          sheetName,
+          "posts",
+          definition,
+          allSheetNames,
+        ),
+      ).toThrow(RelationInvalidOnDeleteError);
       expect(() =>
         validateRelationDefinition(
           sheetName,

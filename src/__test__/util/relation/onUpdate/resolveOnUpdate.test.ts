@@ -1,3 +1,4 @@
+import { RelationOnUpdateRestrictError } from "../../../../errors/relation/relationError";
 import { resolveOnUpdate } from "../../../../util/relation/onUpdate/resolveOnUpdate";
 import type {
   RelationDefinition,
@@ -179,6 +180,9 @@ describe("resolveOnUpdate", () => {
 
     expect(() =>
       resolveOnUpdate([{ id: 1 }], [{ id: 10 }], baseContext(relations)),
+    ).toThrow(RelationOnUpdateRestrictError);
+    expect(() =>
+      resolveOnUpdate([{ id: 1 }], [{ id: 10 }], baseContext(relations)),
     ).toThrow("posts");
   });
 
@@ -263,6 +267,9 @@ describe("resolveOnUpdate", () => {
 
     mockFindMany.mockReturnValue([{ id: 201, userId: 1 }]);
 
+    expect(() =>
+      resolveOnUpdate([{ id: 1 }], [{ id: 10 }], baseContext(relations)),
+    ).toThrow(RelationOnUpdateRestrictError);
     expect(() =>
       resolveOnUpdate([{ id: 1 }], [{ id: 10 }], baseContext(relations)),
     ).toThrow("comments");

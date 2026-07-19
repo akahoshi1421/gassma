@@ -1,3 +1,4 @@
+import { GassmaAggregateMinError } from "../../../../errors/aggregate/aggregateError";
 import { getMin } from "../../../../util/aggregate/aggregateUtil/min";
 import { getBooleanMin } from "../../../../util/aggregate/aggregateUtil/min/booleanMin";
 import { getDateMin } from "../../../../util/aggregate/aggregateUtil/min/dateMin";
@@ -228,6 +229,9 @@ describe("min aggregate functionality tests", () => {
 
     test("should handle mixed data types gracefully", () => {
       const rows = [{ value: "string" }, { value: 123 }, { value: true }];
+      expect(() => {
+        getMin(rows, { value: true });
+      }).toThrow(GassmaAggregateMinError);
       expect(() => {
         getMin(rows, { value: true });
       }).toThrow("Cannot produce a maximum value of more than one type.");
