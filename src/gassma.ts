@@ -1,14 +1,14 @@
 import { GassmaController } from "./gassmaController";
-import type { AnyUse, QueryOmit, WhereUse } from "./types/coreTypes";
-import type { GassmaSheet } from "./types/gassmaTypes";
 import type {
-  GassmaClientOptions,
-  IncludeData,
-  RelationsConfig,
-} from "./types/relationTypes";
+  ExtendedGassmaClient,
+  GassmaExtension,
+} from "./types/extendsTypes";
+import type { GassmaSheet } from "./types/gassmaTypes";
+import type { GassmaClientOptions } from "./types/relationTypes";
+import { buildExtendedClient } from "./util/extends/buildExtendedClient";
 import { isSheetIgnored } from "./util/ignore/isSheetIgnored";
 import { resolveCodeName } from "./util/map/mapSheetName";
-import { validateRelationsConfig } from "./util/relation/validation/validateRelationsConfig";
+import { injectRelations } from "./util/relation/injectRelations";
 
 const isClientOptions = (
   arg: string | GassmaClientOptions | undefined,
@@ -102,97 +102,18 @@ class GassmaClient {
     Object.assign(this, controllers);
 
     if (relations) {
-      this.injectRelations(relations, controllers);
+      injectRelations(relations, controllers);
     }
   }
 
-  private injectRelations(
-    relations: RelationsConfig,
-    controllers: GassmaSheet,
-  ) {
-    const cache = new Map<string, string[]>();
-    const getColumnHeaders = (sheetName: string): string[] => {
-      const cached = cache.get(sheetName);
-      if (cached) return cached;
-      const headers = controllers[sheetName].getColumnHeaders();
-      cache.set(sheetName, headers);
-      return headers;
-    };
-
-    validateRelationsConfig(relations, controllers, getColumnHeaders);
-
-    const findManyOnSheet = (
-      sheetName: string,
-      findData: { where?: WhereUse; include?: IncludeData; omit?: QueryOmit },
-    ): Record<string, unknown>[] => {
-      const controller = controllers[sheetName];
-      if (!controller) {
-        throw new Error(`Target sheet "${sheetName}" is not accessible`);
+  public $extends(extension: GassmaExtension): ExtendedGassmaClient {
+    const controllers: GassmaSheet = {};
+    Object.entries(this).forEach(([sheetName, value]) => {
+      if (value && typeof value.findMany === "function") {
+        controllers[sheetName] = value;
       }
-      return controller.findMany(findData);
-    };
-
-    const deleteManyOnSheet = (
-      sheetName: string,
-      deleteData: { where: WhereUse },
-    ): { count: number } => {
-      const controller = controllers[sheetName];
-      if (!controller) {
-        throw new Error(`Target sheet "${sheetName}" is not accessible`);
-      }
-      return controller.deleteMany(deleteData);
-    };
-
-    const updateManyOnSheet = (
-      sheetName: string,
-      updateData: { where?: WhereUse; data: AnyUse },
-    ): { count: number } => {
-      const controller = controllers[sheetName];
-      if (!controller) {
-        throw new Error(`Target sheet "${sheetName}" is not accessible`);
-      }
-      return controller.updateMany(updateData);
-    };
-
-    const createOnSheet = (
-      sheetName: string,
-      createData: { data: Record<string, unknown> },
-    ): Record<string, unknown> => {
-      const controller = controllers[sheetName];
-      if (!controller) {
-        throw new Error(`Target sheet "${sheetName}" is not accessible`);
-      }
-      return controller.create({ data: createData.data as AnyUse });
-    };
-
-    const createManyOnSheet = (
-      sheetName: string,
-      createManyData: { data: AnyUse[] },
-    ): { count: number } | undefined => {
-      const controller = controllers[sheetName];
-      if (!controller) {
-        throw new Error(`Target sheet "${sheetName}" is not accessible`);
-      }
-      return controller.createMany(createManyData);
-    };
-
-    const relationNamesOnSheet = (sheetName: string): string[] =>
-      Object.keys(relations[sheetName] ?? {});
-
-    Object.keys(relations).forEach((sheetName) => {
-      const controller = controllers[sheetName];
-      if (!controller) return;
-
-      controller._setRelationContext({
-        relations: relations[sheetName],
-        relationNamesOnSheet,
-        findManyOnSheet,
-        deleteManyOnSheet,
-        updateManyOnSheet,
-        createOnSheet,
-        createManyOnSheet,
-      });
     });
+    return buildExtendedClient(controllers, [extension]);
   }
 }
 

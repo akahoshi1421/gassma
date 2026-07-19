@@ -9,11 +9,34 @@ declare namespace Gassma {
     constructor(modelName: string, name: string);
   }
 
-  class GassmaClient {
-    constructor(idOrOptions?: string | GassmaClientOptions);
+  type QueryHookParams = {
+    model: string;
+    operation: string;
+    args: any;
+    query: (args: any) => any;
+  };
 
-    [sheetName: string]: GassmaController;
-  }
+  type QueryHook = (params: QueryHookParams) => any;
+
+  type QueryHookRecord = {
+    [operationName: string]: QueryHook;
+  };
+
+  type QueryExtensionConfig = {
+    [modelName: string]: QueryHookRecord;
+  };
+
+  type GassmaExtension = {
+    query?: QueryExtensionConfig;
+  };
+
+  type GassmaClient = {
+    $extends(extension: GassmaExtension): GassmaClient;
+  } & GassmaSheet;
+
+  const GassmaClient: new (
+    idOrOptions?: string | GassmaClientOptions,
+  ) => GassmaClient;
 
   class GassmaController {
     constructor(sheetName: string, id?: string);
