@@ -5,6 +5,8 @@ import type {
 } from "../../types/extendsTypes";
 import type { GassmaSheet } from "../../types/gassmaTypes";
 import { wrapControllerWithHooks } from "./query/wrapControllerWithHooks";
+import { resolveResultFields } from "./result/resolveResultFields";
+import { wrapControllerWithResult } from "./result/wrapControllerWithResult";
 
 const buildExtendedClient = (
   baseControllers: GassmaSheet,
@@ -12,10 +14,14 @@ const buildExtendedClient = (
 ): ExtendedGassmaClient => {
   const wrapped: GassmaSheet = {};
   Object.keys(baseControllers).forEach((model) => {
-    wrapped[model] = wrapControllerWithHooks(
+    const hooked = wrapControllerWithHooks(
       baseControllers[model],
       model,
       extensions,
+    );
+    wrapped[model] = wrapControllerWithResult(
+      hooked,
+      resolveResultFields(extensions, model),
     );
   });
   const core: ExtendedClientCore = {

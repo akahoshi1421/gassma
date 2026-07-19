@@ -83,6 +83,14 @@ const buildTestClient = (options?: { relations?: boolean }): GassmaClient => {
           reference: "authorId",
         },
       },
+      Posts: {
+        author: {
+          type: "manyToOne",
+          to: "Users",
+          field: "authorId",
+          reference: "id",
+        },
+      },
     },
   });
 };
