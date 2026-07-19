@@ -16,6 +16,7 @@ import { omitFunc } from "./util/find/findUtil/omit";
 import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
+import { GassmaUpdateWhereMissingError } from "./errors/update/updateError";
 import type { AggregateData } from "./types/aggregateType";
 import type {
   AnyUse,
@@ -763,6 +764,9 @@ class GassmaController {
 
   public update(updateData: UpdateSingleData) {
     updateData = this.normalizeInput(updateData);
+    if (updateData.where === undefined) {
+      throw new GassmaUpdateWhereMissingError();
+    }
     if (updateData.include && updateData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
