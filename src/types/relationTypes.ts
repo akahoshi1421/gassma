@@ -138,7 +138,7 @@ type RelationSingleFilter = {
   isNot?: WhereUse | null;
 };
 
-type WhereRelationFilter = RelationListFilter | RelationSingleFilter;
+type WhereRelationFilter = RelationListFilter | RelationSingleFilter | null;
 
 export type {
   RelationType,
