@@ -37,6 +37,7 @@ const upsertFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   upsertData: UpsertSingleData,
   relationContext?: RelationContext | null,
+  prepareCreate?: (data: Record<string, unknown>) => Record<string, unknown>,
 ): Record<string, unknown> => {
   const record = findFirstFunc(gassmaControllerUtil, {
     where: upsertData.where,
@@ -45,8 +46,11 @@ const upsertFunc = (
   if (!record) {
     const wrappedCreate = (data: Record<string, unknown>) =>
       createFunc(gassmaControllerUtil, { data: data as AnyUse });
+    const createData = prepareCreate
+      ? prepareCreate(upsertData.create)
+      : upsertData.create;
     const created = resolveNestedCreate(
-      upsertData.create,
+      createData,
       wrappedCreate,
       relationContext ?? undefined,
     );

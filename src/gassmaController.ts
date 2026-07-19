@@ -925,6 +925,7 @@ class GassmaController {
         omit: upsertOmitWithIgnore,
       },
       this.relationContext,
+      (data) => this.applyAutoincrementToData(data),
     );
   }
 
