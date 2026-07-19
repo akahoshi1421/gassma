@@ -1,6 +1,7 @@
 import type { GassmaAny } from "../../../types/coreTypes";
 import type { RelationContext } from "../../../types/relationTypes";
 import { RelationOnUpdateRestrictError } from "../../../errors/relation/relationError";
+import { isValueEqual } from "../../other/isValueEqual";
 import { collectKeys, isGassmaAny } from "../collectKeys";
 
 type ChangedPair = {
@@ -19,7 +20,7 @@ const extractChangedPairs = (
     if (!after) return;
     const oldValue = before[field];
     const newValue = after[field];
-    if (oldValue === newValue) return;
+    if (isValueEqual(oldValue, newValue)) return;
     if (!isGassmaAny(oldValue) || !isGassmaAny(newValue)) return;
     pairs.push({ oldValue, newValue });
   });
@@ -105,7 +106,10 @@ const resolveOnUpdate = (
       const oldValues = collectKeys(
         beforeRecords.filter((before, i) => {
           const after = afterRecords[i];
-          return after && before[relation.field] !== after[relation.field];
+          return (
+            after &&
+            !isValueEqual(before[relation.field], after[relation.field])
+          );
         }),
         relation.field,
       );

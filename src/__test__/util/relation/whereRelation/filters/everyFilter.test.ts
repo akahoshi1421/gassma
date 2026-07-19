@@ -1,6 +1,7 @@
 import { applyEveryFilter } from "../../../../../util/relation/whereRelation/filters/everyFilter";
 import type { RelationDefinition } from "../../../../../types/relationTypes";
 import type { WhereUse } from "../../../../../types/coreTypes";
+import { createCrossRealmDate } from "../../../../consts/crossRealm";
 
 describe("applyEveryFilter", () => {
   const mockFindMany = jest.fn();
@@ -176,5 +177,150 @@ describe("applyEveryFilter", () => {
       // post2: tag10(合致) → 全数1, 合致数1 → 成功
       expect(result).toEqual({ id: { notIn: [1] } });
     });
+  });
+});
+
+describe("applyEveryFilter with Date keys", () => {
+  const mockFindMany = jest.fn();
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+  });
+
+  const dateRelation: RelationDefinition = {
+    type: "oneToMany",
+    to: "Posts",
+    field: "key",
+    reference: "authorKey",
+  };
+
+  it("全子が合致する親はDateキーでもnotInに含まれない", () => {
+    mockFindMany.mockImplementation(
+      (_sheet: string, findData: { where?: WhereUse }) => {
+        if (!findData.where || Object.keys(findData.where).length === 0) {
+          return [
+            {
+              authorKey: new Date("2026-07-18T09:30:00.000Z"),
+              published: true,
+            },
+          ];
+        }
+        return [
+          { authorKey: new Date("2026-07-18T09:30:00.000Z"), published: true },
+        ];
+      },
+    );
+
+    const result = applyEveryFilter(
+      dateRelation,
+      "posts",
+      { published: true },
+      mockFindMany,
+    );
+
+    expect(result).toEqual({ key: { notIn: [] } });
+  });
+
+  it("合致しない子を持つ親のDateキーは元の値でnotInに含まれる", () => {
+    mockFindMany.mockImplementation(
+      (_sheet: string, findData: { where?: WhereUse }) => {
+        if (!findData.where || Object.keys(findData.where).length === 0) {
+          return [
+            {
+              authorKey: new Date("2026-07-18T09:30:00.000Z"),
+              published: true,
+            },
+            {
+              authorKey: new Date("2026-07-18T10:30:00.000Z"),
+              published: false,
+            },
+          ];
+        }
+        return [
+          { authorKey: new Date("2026-07-18T09:30:00.000Z"), published: true },
+        ];
+      },
+    );
+
+    const result = applyEveryFilter(
+      dateRelation,
+      "posts",
+      { published: true },
+      mockFindMany,
+    );
+
+    expect(result).toEqual({
+      key: { notIn: [new Date("2026-07-18T10:30:00.000Z")] },
+    });
+  });
+
+  it("manyToMany: ミリ秒差のターゲットは合致扱いされない", () => {
+    const m2mRelation: RelationDefinition = {
+      type: "manyToMany",
+      to: "Categories",
+      field: "at",
+      reference: "at",
+      through: {
+        sheet: "PostCategories",
+        field: "postAt",
+        reference: "categoryAt",
+      },
+    };
+
+    mockFindMany.mockImplementation(
+      (sheet: string, _findData: { where?: WhereUse }) => {
+        if (sheet === "PostCategories") {
+          return [
+            {
+              postAt: new Date("2026-07-01T00:00:00.000Z"),
+              categoryAt: new Date("2026-07-18T09:30:00.000Z"),
+            },
+            {
+              postAt: new Date("2026-07-02T00:00:00.000Z"),
+              categoryAt: new Date("2026-07-18T09:30:00.001Z"),
+            },
+          ];
+        }
+        return [{ at: new Date("2026-07-18T09:30:00.000Z"), active: true }];
+      },
+    );
+
+    const result = applyEveryFilter(
+      m2mRelation,
+      "categories",
+      { active: true },
+      mockFindMany,
+    );
+
+    expect(result).toEqual({
+      at: { notIn: [new Date("2026-07-02T00:00:00.000Z")] },
+    });
+  });
+
+  it("クロスrealmのDateキーでも突合される", () => {
+    mockFindMany.mockImplementation(
+      (_sheet: string, findData: { where?: WhereUse }) => {
+        if (!findData.where || Object.keys(findData.where).length === 0) {
+          return [
+            {
+              authorKey: createCrossRealmDate("2026-07-18T09:30:00.000Z"),
+              published: true,
+            },
+          ];
+        }
+        return [
+          { authorKey: new Date("2026-07-18T09:30:00.000Z"), published: true },
+        ];
+      },
+    );
+
+    const result = applyEveryFilter(
+      dateRelation,
+      "posts",
+      { published: true },
+      mockFindMany,
+    );
+
+    expect(result).toEqual({ key: { notIn: [] } });
   });
 });

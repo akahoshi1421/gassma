@@ -3,6 +3,7 @@ import type {
   RelationContext,
   RelationDefinition,
 } from "../../../types/relationTypes";
+import { createCrossRealmDate } from "../../consts/crossRealm";
 
 describe("resolveCount", () => {
   const mockFindMany = jest.fn();
@@ -308,5 +309,200 @@ describe("resolveCount", () => {
 
     expect(result).toEqual([]);
     expect(mockFindMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("resolveCount with Date keys", () => {
+  const mockFindMany = jest.fn();
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+  });
+
+  test("oneToMany: 同時刻・別インスタンスのDateキーでカウントされる", () => {
+    const context: RelationContext = {
+      relations: {
+        posts: {
+          type: "oneToMany",
+          to: "Posts",
+          field: "key",
+          reference: "authorKey",
+        },
+      },
+      findManyOnSheet: mockFindMany,
+    };
+
+    const parents = [
+      { key: new Date("2026-07-18T09:30:00.000Z") },
+      { key: new Date("2026-07-18T10:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { authorKey: new Date("2026-07-18T10:30:00.000Z") },
+    ]);
+
+    const result = resolveCount(parents, { select: { posts: true } }, context);
+
+    expect(result[0]._count).toEqual({ posts: 2 });
+    expect(result[1]._count).toEqual({ posts: 1 });
+  });
+
+  test("oneToMany: ミリ秒差のDateキーはカウントされない", () => {
+    const context: RelationContext = {
+      relations: {
+        posts: {
+          type: "oneToMany",
+          to: "Posts",
+          field: "key",
+          reference: "authorKey",
+        },
+      },
+      findManyOnSheet: mockFindMany,
+    };
+
+    const parents = [{ key: new Date("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValue([
+      { authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { authorKey: new Date("2026-07-18T09:30:00.001Z") },
+    ]);
+
+    const result = resolveCount(parents, { select: { posts: true } }, context);
+
+    expect(result[0]._count).toEqual({ posts: 1 });
+  });
+
+  test("manyToOne: Date FKの存在カウントが時刻一致で1になる", () => {
+    const context: RelationContext = {
+      relations: {
+        author: {
+          type: "manyToOne",
+          to: "Users",
+          field: "authorAt",
+          reference: "at",
+        },
+      },
+      findManyOnSheet: mockFindMany,
+    };
+
+    const parents = [{ authorAt: new Date("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValue([
+      { at: new Date("2026-07-18T09:30:00.000Z") },
+    ]);
+
+    const result = resolveCount(parents, { select: { author: true } }, context);
+
+    expect(result[0]._count).toEqual({ author: 1 });
+  });
+
+  test("manyToMany: Dateキーの中間テーブルでカウントされる", () => {
+    const context: RelationContext = {
+      relations: {
+        categories: {
+          type: "manyToMany",
+          to: "Categories",
+          field: "at",
+          reference: "at",
+          through: {
+            sheet: "PostCategories",
+            field: "postAt",
+            reference: "categoryAt",
+          },
+        },
+      },
+      findManyOnSheet: mockFindMany,
+    };
+
+    const parents = [{ at: new Date("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValue([
+      {
+        postAt: new Date("2026-07-18T09:30:00.000Z"),
+        categoryAt: new Date("2026-07-18T10:30:00.000Z"),
+      },
+      {
+        postAt: new Date("2026-07-18T09:30:00.000Z"),
+        categoryAt: new Date("2026-07-18T11:30:00.000Z"),
+      },
+    ]);
+
+    const result = resolveCount(
+      parents,
+      { select: { categories: true } },
+      context,
+    );
+
+    expect(result[0]._count).toEqual({ categories: 2 });
+  });
+
+  test("manyToMany: filter付きでもDateキーが突合される", () => {
+    const context: RelationContext = {
+      relations: {
+        categories: {
+          type: "manyToMany",
+          to: "Categories",
+          field: "at",
+          reference: "at",
+          through: {
+            sheet: "PostCategories",
+            field: "postAt",
+            reference: "categoryAt",
+          },
+        },
+      },
+      findManyOnSheet: mockFindMany,
+    };
+
+    const parents = [{ at: new Date("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValueOnce([
+      {
+        postAt: new Date("2026-07-18T09:30:00.000Z"),
+        categoryAt: new Date("2026-07-18T10:30:00.000Z"),
+      },
+      {
+        postAt: new Date("2026-07-18T09:30:00.000Z"),
+        categoryAt: new Date("2026-07-18T10:30:00.001Z"),
+      },
+    ]);
+    mockFindMany.mockReturnValueOnce([
+      { at: new Date("2026-07-18T10:30:00.000Z"), active: true },
+    ]);
+
+    const result = resolveCount(
+      parents,
+      { select: { categories: { where: { active: true } } } },
+      context,
+    );
+
+    expect(result[0]._count).toEqual({ categories: 1 });
+  });
+
+  test("oneToMany: クロスrealmのDateキーでもカウントされる", () => {
+    const context: RelationContext = {
+      relations: {
+        posts: {
+          type: "oneToMany",
+          to: "Posts",
+          field: "key",
+          reference: "authorKey",
+        },
+      },
+      findManyOnSheet: mockFindMany,
+    };
+
+    const parents = [{ key: createCrossRealmDate("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValue([
+      { authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { authorKey: new Date("2026-07-18T09:30:00.000Z") },
+    ]);
+
+    const result = resolveCount(parents, { select: { posts: true } }, context);
+
+    expect(result[0]._count).toEqual({ posts: 2 });
   });
 });

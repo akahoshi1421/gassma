@@ -4,6 +4,7 @@ import {
   RelationOrderByUnsupportedTypeError,
   RelationOrderByCountUnsupportedTypeError,
 } from "../../../errors/find/findError";
+import { toLookupKey } from "../../other/toLookupKey";
 import { collectKeys } from "../../relation/collectKeys";
 import { countByRelation } from "../../relation/resolveCount";
 import { isRelationOrderByValue } from "./separateRelationOrderBy";
@@ -40,7 +41,7 @@ const resolveCountOrderBy = (
   );
 
   records.forEach((r) => {
-    const key = r[relationDef.field];
+    const key = toLookupKey(r[relationDef.field]);
     r[tempKey] = countMap.get(key) ?? 0;
   });
 
@@ -79,13 +80,15 @@ const resolveFieldOrderBy = (
 
   const lookup = new Map<unknown, unknown>();
   relatedRecords.forEach((r) => {
-    lookup.set(r[relationDef.reference], r[sortField]);
+    lookup.set(toLookupKey(r[relationDef.reference]), r[sortField]);
   });
 
   records.forEach((r) => {
     const fk = r[relationDef.field];
     r[tempKey] =
-      fk === null || fk === undefined ? null : (lookup.get(fk) ?? null);
+      fk === null || fk === undefined
+        ? null
+        : (lookup.get(toLookupKey(fk)) ?? null);
   });
 
   return tempKey;

@@ -1,5 +1,7 @@
 import { resolveManyToOne } from "../../../../util/relation/resolvers/manyToOne";
 import type { RelationDefinition } from "../../../../types/relationTypes";
+import { GassmaRelationDuplicateError } from "../../../../errors/relation/relationError";
+import { createCrossRealmDate } from "../../../consts/crossRealm";
 
 describe("resolveManyToOne", () => {
   const relation: RelationDefinition = {
@@ -219,5 +221,114 @@ describe("resolveManyToOne", () => {
       name: "Alice",
       posts: [{ id: 101, authorId: 1, title: "Post A" }],
     });
+  });
+});
+
+describe("resolveManyToOne with Date keys", () => {
+  const dateRelation: RelationDefinition = {
+    type: "manyToOne",
+    to: "Users",
+    field: "joinedAt",
+    reference: "createdAt",
+  };
+
+  const mockFindMany = jest.fn();
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+  });
+
+  it("同時刻・別インスタンスのDate FKで参照先が解決される", () => {
+    const parents = [
+      { id: 101, joinedAt: new Date("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { createdAt: new Date("2026-07-18T09:30:00.000Z"), name: "Alice" },
+    ]);
+
+    const result = resolveManyToOne(
+      parents,
+      dateRelation,
+      "author",
+      mockFindMany,
+    );
+
+    expect(result[0].author).toEqual({
+      createdAt: new Date("2026-07-18T09:30:00.000Z"),
+      name: "Alice",
+    });
+  });
+
+  it("ミリ秒差のDate FKはマッチせずnullになる", () => {
+    const parents = [
+      { id: 101, joinedAt: new Date("2026-07-18T09:30:00.001Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { createdAt: new Date("2026-07-18T09:30:00.000Z"), name: "Alice" },
+    ]);
+
+    const result = resolveManyToOne(
+      parents,
+      dateRelation,
+      "author",
+      mockFindMany,
+    );
+
+    expect(result[0].author).toBeNull();
+  });
+
+  it("Date FKとISO文字列の参照はマッチしない", () => {
+    const parents = [
+      { id: 101, joinedAt: new Date("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { createdAt: "2026-07-18T09:30:00.000Z", name: "Alice" },
+    ]);
+
+    const result = resolveManyToOne(
+      parents,
+      dateRelation,
+      "author",
+      mockFindMany,
+    );
+
+    expect(result[0].author).toBeNull();
+  });
+
+  it("同時刻・別インスタンスの参照の重複はエラーになる", () => {
+    const parents = [
+      { id: 101, joinedAt: new Date("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { createdAt: new Date("2026-07-18T09:30:00.000Z"), name: "Alice" },
+      { createdAt: new Date("2026-07-18T09:30:00.000Z"), name: "Alice2" },
+    ]);
+
+    expect(() =>
+      resolveManyToOne(parents, dateRelation, "author", mockFindMany),
+    ).toThrow(GassmaRelationDuplicateError);
+  });
+
+  it("クロスrealmのDate FKでも参照先が解決される", () => {
+    const parents = [
+      { id: 101, joinedAt: createCrossRealmDate("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { createdAt: new Date("2026-07-18T09:30:00.000Z"), name: "Alice" },
+    ]);
+
+    const result = resolveManyToOne(
+      parents,
+      dateRelation,
+      "author",
+      mockFindMany,
+    );
+
+    expect(result[0].author).not.toBeNull();
   });
 });

@@ -1,5 +1,6 @@
 import { resolveOneToMany } from "../../../../util/relation/resolvers/oneToMany";
 import type { RelationDefinition } from "../../../../types/relationTypes";
+import { createCrossRealmDate } from "../../../consts/crossRealm";
 
 describe("resolveOneToMany", () => {
   const relation: RelationDefinition = {
@@ -392,5 +393,76 @@ describe("resolveOneToMany", () => {
       where: { authorId: { in: [1] } },
       include: { comments: true },
     });
+  });
+});
+
+describe("resolveOneToMany with Date keys", () => {
+  const dateRelation: RelationDefinition = {
+    type: "oneToMany",
+    to: "Posts",
+    field: "key",
+    reference: "authorKey",
+  };
+
+  const mockFindMany = jest.fn();
+
+  beforeEach(() => {
+    mockFindMany.mockReset();
+  });
+
+  it("同時刻・別インスタンスのDateキーで子が同じ親に集約される", () => {
+    const parents = [{ id: 1, key: new Date("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { id: 102, authorKey: new Date("2026-07-18T09:30:00.000Z") },
+    ]);
+
+    const result = resolveOneToMany(
+      parents,
+      dateRelation,
+      "posts",
+      mockFindMany,
+    );
+
+    expect(result[0].posts).toHaveLength(2);
+  });
+
+  it("ミリ秒差のDateキーの子は集約されない", () => {
+    const parents = [{ id: 1, key: new Date("2026-07-18T09:30:00.000Z") }];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { id: 102, authorKey: new Date("2026-07-18T09:30:00.001Z") },
+    ]);
+
+    const result = resolveOneToMany(
+      parents,
+      dateRelation,
+      "posts",
+      mockFindMany,
+    );
+
+    expect(result[0].posts).toHaveLength(1);
+  });
+
+  it("クロスrealmのDateキーでも子が集約される", () => {
+    const parents = [
+      { id: 1, key: createCrossRealmDate("2026-07-18T09:30:00.000Z") },
+    ];
+
+    mockFindMany.mockReturnValue([
+      { id: 101, authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { id: 102, authorKey: new Date("2026-07-18T09:30:00.000Z") },
+    ]);
+
+    const result = resolveOneToMany(
+      parents,
+      dateRelation,
+      "posts",
+      mockFindMany,
+    );
+
+    expect(result[0].posts).toHaveLength(2);
   });
 });

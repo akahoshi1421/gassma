@@ -1,4 +1,5 @@
 import type { GassmaAny } from "../../../types/coreTypes";
+import { containsValue, isValueEqual } from "../../other/isValueEqual";
 
 const bySearch = (
   rows: Record<string, any>[],
@@ -12,7 +13,7 @@ const bySearch = (
   rows.forEach((row) => {
     const data: GassmaAny = row[byData[depth]];
 
-    if (matches.includes(data)) return;
+    if (containsValue(matches, data)) return;
 
     matches.push(data);
   });
@@ -21,7 +22,7 @@ const bySearch = (
     rows.filter((row) => {
       const data = row[byData[depth]];
 
-      return data === match;
+      return isValueEqual(data, match);
     }),
   );
 

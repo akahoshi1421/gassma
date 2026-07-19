@@ -5,6 +5,7 @@ import type {
   RelationDefinition,
 } from "../../types/relationTypes";
 import { GassmaThroughRequiredError } from "../../errors/relation/relationError";
+import { toLookupKey } from "../other/toLookupKey";
 import { collectKeys } from "./collectKeys";
 
 type FindManyOnSheet = (
@@ -52,7 +53,7 @@ const countOneToManyOrOne = (
 
   const countMap = new Map<unknown, number>();
   children.forEach((child) => {
-    const key = child[relation.reference];
+    const key = toLookupKey(child[relation.reference]);
     countMap.set(key, (countMap.get(key) ?? 0) + 1);
   });
 
@@ -77,12 +78,13 @@ const countManyToOne = (
 
   const existsSet = new Set<unknown>();
   targets.forEach((t) => {
-    existsSet.add(t[relation.reference]);
+    existsSet.add(toLookupKey(t[relation.reference]));
   });
 
   const countMap = new Map<unknown, number>();
   fkValues.forEach((fk) => {
-    countMap.set(fk, existsSet.has(fk) ? 1 : 0);
+    const key = toLookupKey(fk);
+    countMap.set(key, existsSet.has(key) ? 1 : 0);
   });
 
   return countMap;
@@ -110,7 +112,7 @@ const countManyToMany = (
   if (!filterWhere) {
     const countMap = new Map<unknown, number>();
     junctionRows.forEach((jRow) => {
-      const parentKey = jRow[through.field];
+      const parentKey = toLookupKey(jRow[through.field]);
       countMap.set(parentKey, (countMap.get(parentKey) ?? 0) + 1);
     });
     return countMap;
@@ -123,13 +125,13 @@ const countManyToMany = (
 
   const validTargetKeys = new Set<unknown>();
   targets.forEach((t) => {
-    validTargetKeys.add(t[relation.reference]);
+    validTargetKeys.add(toLookupKey(t[relation.reference]));
   });
 
   const countMap = new Map<unknown, number>();
   junctionRows.forEach((jRow) => {
-    if (!validTargetKeys.has(jRow[through.reference])) return;
-    const parentKey = jRow[through.field];
+    if (!validTargetKeys.has(toLookupKey(jRow[through.reference]))) return;
+    const parentKey = toLookupKey(jRow[through.field]);
     countMap.set(parentKey, (countMap.get(parentKey) ?? 0) + 1);
   });
 
@@ -179,7 +181,7 @@ const resolveCount = (
     );
 
     parents.forEach((parent, index) => {
-      const key = parent[relation.field];
+      const key = toLookupKey(parent[relation.field]);
       countResults[index][relationName] = countMap.get(key) ?? 0;
     });
   });

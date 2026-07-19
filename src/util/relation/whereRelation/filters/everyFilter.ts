@@ -1,5 +1,6 @@
 import type { RelationDefinition } from "../../../../types/relationTypes";
 import type { GassmaAny, WhereUse } from "../../../../types/coreTypes";
+import { toLookupKey } from "../../../other/toLookupKey";
 import { collectKeys } from "../../collectKeys";
 import { isGassmaAny } from "../../collectKeys";
 
@@ -8,28 +9,36 @@ type FindManyOnSheet = (
   findData: { where?: WhereUse },
 ) => Record<string, unknown>[];
 
+type KeyCount = { value: GassmaAny; count: number };
+
 const countByKey = (
   records: Record<string, unknown>[],
   keyField: string,
-): Map<unknown, number> => {
-  const counts = new Map<unknown, number>();
+): Map<unknown, KeyCount> => {
+  const counts = new Map<unknown, KeyCount>();
   records.forEach((r) => {
     const key = r[keyField];
     if (!isGassmaAny(key)) return;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    const lookupKey = toLookupKey(key);
+    const entry = counts.get(lookupKey);
+    if (entry) {
+      entry.count += 1;
+      return;
+    }
+    counts.set(lookupKey, { value: key, count: 1 });
   });
   return counts;
 };
 
 const findFailingKeys = (
-  allCounts: Map<unknown, number>,
-  matchCounts: Map<unknown, number>,
+  allCounts: Map<unknown, KeyCount>,
+  matchCounts: Map<unknown, KeyCount>,
 ): GassmaAny[] => {
   const failing: GassmaAny[] = [];
-  allCounts.forEach((total, key) => {
-    const matched = matchCounts.get(key) ?? 0;
-    if (matched < total && isGassmaAny(key)) {
-      failing.push(key);
+  allCounts.forEach((entry, key) => {
+    const matched = matchCounts.get(key)?.count ?? 0;
+    if (matched < entry.count) {
+      failing.push(entry.value);
     }
   });
   return failing;
@@ -70,12 +79,12 @@ const applyEveryFilterManyToMany = (
 
   const matchTargets = findManyOnSheet(relation.to, { where: filterWhere });
   const matchTargetKeys = new Set(
-    collectKeys(matchTargets, relation.reference).map(String),
+    collectKeys(matchTargets, relation.reference).map(toLookupKey),
   );
 
   const matchJunctions = allJunctions.filter((j) => {
     const ref = j[through.reference];
-    return isGassmaAny(ref) && matchTargetKeys.has(String(ref));
+    return isGassmaAny(ref) && matchTargetKeys.has(toLookupKey(ref));
   });
   const matchCounts = countByKey(matchJunctions, through.field);
 

@@ -8,6 +8,7 @@ import { GassmaSkipNegativeError } from "../../../errors/find/findError";
 import { orderByFunc } from "../../find/findUtil/orderBy";
 import { applySelectOmit } from "../../find/findUtil/applySelectOmit";
 import { applySelectRelations } from "../../find/findUtil/applySelectRelations";
+import { toLookupKey } from "../../other/toLookupKey";
 import { collectKeys } from "../collectKeys";
 import { pickOmitFalse } from "../pickOmitFalse";
 import { processSelectForInclude } from "../processSelectForInclude";
@@ -49,14 +50,14 @@ const resolveOneToMany = (
 
   const grouped = new Map<unknown, Record<string, unknown>[]>();
   children.forEach((child) => {
-    const key = child[relation.reference];
+    const key = toLookupKey(child[relation.reference]);
     const list = grouped.get(key) ?? [];
     list.push(child);
     grouped.set(key, list);
   });
 
   return parents.map((parent) => {
-    let items = grouped.get(parent[relation.field]) ?? [];
+    let items = grouped.get(toLookupKey(parent[relation.field])) ?? [];
 
     if (options?.orderBy) {
       const orderByArr = Array.isArray(options.orderBy)

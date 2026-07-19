@@ -5,6 +5,7 @@ import {
 import { resolveRelationOrderBy } from "../../../../util/find/findUtil/resolveRelationOrderBy";
 import type { RelationContext } from "../../../../types/relationTypes";
 import type { OrderBy } from "../../../../types/coreTypes";
+import { createCrossRealmDate } from "../../../consts/crossRealm";
 
 const createRelationContext = (
   findManyOnSheet: RelationContext["findManyOnSheet"],
@@ -411,5 +412,88 @@ describe("resolveRelationOrderBy", () => {
     expect(() =>
       resolveRelationOrderBy([{ id: 1, authorId: 1 }], orderByArr, context),
     ).toThrow(RelationOrderByCountUnsupportedTypeError);
+  });
+});
+
+describe("resolveRelationOrderBy with Date keys", () => {
+  const dateContext = (
+    findManyOnSheet: RelationContext["findManyOnSheet"],
+  ): RelationContext => ({
+    relations: {
+      author: {
+        type: "manyToOne",
+        to: "Users",
+        field: "authorAt",
+        reference: "at",
+      },
+      posts: {
+        type: "oneToMany",
+        to: "Posts",
+        field: "key",
+        reference: "authorKey",
+      },
+    },
+    findManyOnSheet,
+  });
+
+  test("Date FK経由のmanyToOneフィールドソートが時刻一致で解決される", () => {
+    const records = [
+      { id: 1, authorAt: new Date("2026-07-18T09:30:00.000Z") },
+      { id: 2, authorAt: new Date("2026-07-18T09:30:00.001Z") },
+    ];
+
+    const findManyOnSheet = jest.fn(() => [
+      { at: new Date("2026-07-18T09:30:00.000Z"), name: "Zoe" },
+      { at: new Date("2026-07-18T09:30:00.001Z"), name: "Amy" },
+    ]);
+
+    const result = resolveRelationOrderBy(
+      records,
+      [{ author: { name: "asc" } }],
+      dateContext(findManyOnSheet),
+    );
+
+    expect(result.map((r) => r.id)).toEqual([2, 1]);
+  });
+
+  test("Dateキー経由の_countソートが時刻一致で解決される", () => {
+    const records = [
+      { id: 1, key: new Date("2026-07-18T09:30:00.000Z") },
+      { id: 2, key: new Date("2026-07-18T10:30:00.000Z") },
+    ];
+
+    const findManyOnSheet = jest.fn(() => [
+      { authorKey: new Date("2026-07-18T09:30:00.000Z") },
+      { authorKey: new Date("2026-07-18T10:30:00.000Z") },
+      { authorKey: new Date("2026-07-18T10:30:00.000Z") },
+    ]);
+
+    const result = resolveRelationOrderBy(
+      records,
+      [{ posts: { _count: "desc" } }],
+      dateContext(findManyOnSheet),
+    );
+
+    expect(result.map((r) => r.id)).toEqual([2, 1]);
+  });
+
+  test("クロスrealmのDate FKでもソートが解決される", () => {
+    const records = [
+      { id: 1, authorAt: createCrossRealmDate("2026-07-18T09:30:00.000Z") },
+      { id: 2, authorAt: new Date("2026-07-18T09:30:00.001Z") },
+    ];
+
+    const findManyOnSheet = jest.fn(() => [
+      { at: new Date("2026-07-18T09:30:00.000Z"), name: "Zoe" },
+      { at: new Date("2026-07-18T09:30:00.001Z"), name: "Amy" },
+    ]);
+
+    const result = resolveRelationOrderBy(
+      records,
+      [{ author: { name: "asc" } }],
+      dateContext(findManyOnSheet),
+    );
+
+    expect(result.map((r) => r.id)).toEqual([2, 1]);
   });
 });
