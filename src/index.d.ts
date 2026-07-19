@@ -104,6 +104,7 @@ declare namespace Gassma {
   type WhereUse = {
     [key: string]:
       | GassmaAny
+      | null
       | FilterConditions
       | WhereUse[]
       | WhereUse
