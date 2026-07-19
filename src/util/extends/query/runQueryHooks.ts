@@ -1,4 +1,4 @@
-import type { QueryHook } from "../../types/extendsTypes";
+import type { QueryHook } from "../../../types/extendsTypes";
 
 const runQueryHooks = <A, R>(
   hooks: QueryHook[],

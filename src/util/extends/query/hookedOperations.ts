@@ -1,12 +1,12 @@
-import type { GassmaController } from "../../gassmaController";
-import type { AggregateData } from "../../types/aggregateType";
-import type { CountData } from "../../types/countType";
+import type { GassmaController } from "../../../gassmaController";
+import type { AggregateData } from "../../../types/aggregateType";
+import type { CountData } from "../../../types/countType";
 import type {
   CreateData,
   CreateManyAndReturnData,
   CreateManyData,
-} from "../../types/createTypes";
-import type { QueryHook } from "../../types/extendsTypes";
+} from "../../../types/createTypes";
+import type { QueryHook } from "../../../types/extendsTypes";
 import type {
   DeleteData,
   DeleteSingleData,
@@ -15,8 +15,8 @@ import type {
   UpdateData,
   UpdateSingleData,
   UpsertSingleData,
-} from "../../types/findTypes";
-import type { GroupByData } from "../../types/groupByType";
+} from "../../../types/findTypes";
+import type { GroupByData } from "../../../types/groupByType";
 import { runQueryHooks } from "./runQueryHooks";
 
 type ResolveHooks = (operation: string) => QueryHook[];

@@ -4,7 +4,7 @@ import type {
   GassmaExtension,
 } from "../../types/extendsTypes";
 import type { GassmaSheet } from "../../types/gassmaTypes";
-import { wrapControllerWithHooks } from "./wrapControllerWithHooks";
+import { wrapControllerWithHooks } from "./query/wrapControllerWithHooks";
 
 const buildExtendedClient = (
   baseControllers: GassmaSheet,

@@ -1,5 +1,5 @@
-import type { GassmaController } from "../../gassmaController";
-import type { GassmaExtension } from "../../types/extendsTypes";
+import type { GassmaController } from "../../../gassmaController";
+import type { GassmaExtension } from "../../../types/extendsTypes";
 import {
   buildHookedOperations,
   type HookedOperations,

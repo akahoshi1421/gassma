@@ -3,7 +3,7 @@ import type {
   QueryExtensionConfig,
   QueryHook,
   QueryHookRecord,
-} from "../../types/extendsTypes";
+} from "../../../types/extendsTypes";
 
 const collectFromRecord = (
   record: QueryHookRecord | undefined,
