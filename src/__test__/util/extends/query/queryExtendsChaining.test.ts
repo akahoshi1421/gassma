@@ -1,5 +1,5 @@
-import type { QueryHookParams } from "../../../types/extendsTypes";
-import { buildTestClient, clearSpreadsheetApp } from "./extendsTestClient";
+import type { QueryHookParams } from "../../../../types/extendsTypes";
+import { buildTestClient, clearSpreadsheetApp } from "../extendsTestClient";
 
 afterAll(clearSpreadsheetApp);
 

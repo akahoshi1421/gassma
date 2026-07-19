@@ -2,7 +2,7 @@ import {
   buildTestClient,
   clearSpreadsheetApp,
   sheetOf,
-} from "./extendsTestClient";
+} from "../extendsTestClient";
 
 afterAll(clearSpreadsheetApp);
 
