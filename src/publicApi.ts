@@ -1,4 +1,7 @@
+import * as aggregateErrors from "./errors/aggregate/aggregateError";
+import * as changeSettingsErrors from "./errors/changeSettings/changeSettingsError";
 import * as findErrors from "./errors/find/findError";
+import * as groupByErrors from "./errors/groupBy/groupByError";
 import * as nestedWriteErrors from "./errors/relation/nestedWriteError";
 import * as relationErrors from "./errors/relation/relationError";
 import * as relationValidationErrors from "./errors/relation/relationValidationError";
@@ -76,3 +79,32 @@ export const GassmaSkipInArrayError = skipErrors.GassmaSkipInArrayError;
 
 export const GassmaUpdateWhereMissingError =
   updateErrors.GassmaUpdateWhereMissingError;
+
+export const GassmaFindSelectOmitConflictError =
+  findErrors.GassmaFindSelectOmitConflictError;
+
+export const GassmaInValidColumnValueError =
+  changeSettingsErrors.GassmaInValidColumnValueError;
+
+export const GassmaGroupByHavingDontWriteByError =
+  groupByErrors.GassmaGroupByHavingDontWriteByError;
+
+export const GassmaAggregateMaxError = aggregateErrors.GassmaAggregateMaxError;
+export const GassmaAggregateMinError = aggregateErrors.GassmaAggregateMinError;
+export const GassmaAggregateSumError = aggregateErrors.GassmaAggregateSumError;
+export const GassmaAggregateAvgError = aggregateErrors.GassmaAggregateAvgError;
+export const GassmaAggregateTypeError =
+  aggregateErrors.GassmaAggregateTypeError;
+export const GassmaAggregateSumTypeError =
+  aggregateErrors.GassmaAggregateSumTypeError;
+export const GassmaAggregateAvgTypeError =
+  aggregateErrors.GassmaAggregateAvgTypeError;
+
+export const GassmaRelationNotFoundError =
+  relationErrors.GassmaRelationNotFoundError;
+export const GassmaThroughRequiredError =
+  relationErrors.GassmaThroughRequiredError;
+export const GassmaIncludeSelectConflictError =
+  relationErrors.GassmaIncludeSelectConflictError;
+export const GassmaRelationDuplicateError =
+  relationErrors.GassmaRelationDuplicateError;
