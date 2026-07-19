@@ -94,3 +94,6 @@ jobs:
 
     - name: Build project
       run: npm run build
+
+    - name: Verify bundle globals
+      run: node scripts/verifyBundleGlobals.js

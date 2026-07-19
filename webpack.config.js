@@ -2,7 +2,7 @@ const path = require("path");
 const GasPlugin = require("gas-webpack-plugin");
 
 module.exports = {
-  entry: "./src/gassma.ts",
+  entry: "./src/publicApi.ts",
   mode: "development",
   devtool: false,
 
@@ -28,7 +28,7 @@ module.exports = {
 
   plugins: [
     new GasPlugin({
-      autoGlobalExportsFiles: ["**/*.ts"],
+      autoGlobalExportsFiles: [path.resolve(__dirname, "src/publicApi.ts")],
     }),
   ],
 };
