@@ -6,9 +6,7 @@ import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 import { omitFunc } from "./findUtil/omit";
 import { orderByFunc } from "./findUtil/orderBy";
-import { applyCursor } from "./findUtil/applyCursor";
-import { applyDistinct } from "./findUtil/applyDistinct";
-import { applySkipTake } from "./findUtil/applySkipTake";
+import { applyCursorDistinctSkipTake } from "./findUtil/applyCursorDistinctSkipTake";
 
 const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -36,25 +34,21 @@ const findManyFunc = (
     return result;
   });
 
-  // Apply orderBy first (before distinct, skip, take)
+  // 適用順は Prisma 実測: orderBy → (take 負数は反転順で) cursor → distinct → skip → take
   if (orderBy)
     findDataDictArray = orderByFunc(
       findDataDictArray,
       Array.isArray(orderBy) ? orderBy : [orderBy],
     );
 
-  // Apply distinct after orderBy
-  if (distinct) {
-    findDataDictArray = applyDistinct(findDataDictArray, distinct);
-  }
-
-  // Apply cursor after orderBy + distinct, before skip/take
   const cursor = "cursor" in findData ? findData.cursor : null;
-  if (cursor) {
-    findDataDictArray = applyCursor(findDataDictArray, cursor, take);
-  }
-
-  findDataDictArray = applySkipTake(findDataDictArray, skip, take);
+  findDataDictArray = applyCursorDistinctSkipTake(
+    findDataDictArray,
+    cursor,
+    distinct,
+    skip,
+    take,
+  );
 
   if (select && omit) {
     throw new GassmaFindSelectOmitConflictError();
