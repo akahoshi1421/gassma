@@ -53,4 +53,4 @@ const transformResult = (
   return raw;
 };
 
-export { transformResult };
+export { shapeRecord, transformResult };
