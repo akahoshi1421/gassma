@@ -345,7 +345,7 @@ declare namespace Gassma {
   type UpsertSingleData = {
     where: WhereUse;
     create: AnyUse;
-    update: AnyUse;
+    update: UpdateAnyUse;
     select?: Select | SkipValue;
     include?: IncludeData | SkipValue;
     omit?: Record<string, boolean> | SkipValue;

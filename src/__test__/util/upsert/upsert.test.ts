@@ -55,6 +55,28 @@ describe("upsertFunc", () => {
     });
   });
 
+  test("update データの NumberOperation で数値を演算して更新する", () => {
+    const result = upsertFunc(mockUtil, {
+      where: { 名前: "Alice" },
+      create: {
+        名前: "Alice",
+        年齢: 28,
+        住所: "Tokyo",
+        郵便番号: "100-0001",
+        職業: "Engineer",
+      },
+      update: { 年齢: { increment: 1 } },
+    });
+
+    expect(result).toEqual({
+      名前: "Alice",
+      年齢: 29,
+      住所: "Tokyo",
+      郵便番号: "100-0001",
+      職業: "Engineer",
+    });
+  });
+
   test("作成後にシートのデータが正しく増えている", () => {
     upsertFunc(mockUtil, {
       where: { 名前: "NewPerson" },
