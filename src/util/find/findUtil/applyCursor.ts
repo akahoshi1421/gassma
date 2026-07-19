@@ -3,7 +3,6 @@ import { isValueEqual } from "../../other/isValueEqual";
 const applyCursor = (
   records: Record<string, unknown>[],
   cursor: Record<string, unknown>,
-  take: number | null | undefined,
 ): Record<string, unknown>[] => {
   const cursorEntries = Object.entries(cursor);
   const index = records.findIndex((record) =>
@@ -11,9 +10,6 @@ const applyCursor = (
   );
   if (index === -1) return [];
 
-  if (take !== null && take !== undefined && take < 0) {
-    return records.slice(0, index + 1);
-  }
   return records.slice(index);
 };
 

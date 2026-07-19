@@ -4,12 +4,6 @@ class GassmaRelationNotFoundError extends Error {
   }
 }
 
-class GassmaTargetSheetNotFoundError extends Error {
-  constructor(targetSheetName: string) {
-    super(`Target sheet "${targetSheetName}" is not accessible`);
-  }
-}
-
 class GassmaThroughRequiredError extends Error {
   constructor(relationName: string) {
     super(
@@ -52,7 +46,6 @@ class RelationOnUpdateRestrictError extends Error {
 
 export {
   GassmaRelationNotFoundError,
-  GassmaTargetSheetNotFoundError,
   GassmaThroughRequiredError,
   GassmaIncludeSelectConflictError,
   GassmaRelationDuplicateError,
