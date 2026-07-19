@@ -5,6 +5,7 @@
   "types": "src/index.d.ts",
   "scripts": {
     "build": "webpack",
+    "verify:bundle": "npm run build && node scripts/verifyBundleGlobals.js",
     "push": "npm run build && clasp push",
     "test": "jest",
     "format": "biome format --write src",
