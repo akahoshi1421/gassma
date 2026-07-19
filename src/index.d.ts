@@ -557,6 +557,9 @@ declare namespace Gassma {
   class GassmaSkipInArrayError extends Error {
     constructor(path: string);
   }
+  class GassmaUpdateWhereMissingError extends Error {
+    constructor();
+  }
 }
 
 export { Gassma };
