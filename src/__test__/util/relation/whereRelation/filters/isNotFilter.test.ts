@@ -71,7 +71,7 @@ describe("applyIsNotFilter", () => {
     });
   });
 
-  describe("isNot: null", () => {
+  describe("isNot: null (manyToOne)", () => {
     const relation: RelationDefinition = {
       type: "manyToOne",
       to: "Users",
@@ -84,6 +84,46 @@ describe("applyIsNotFilter", () => {
 
       expect(result).toEqual({ authorId: { not: null } });
       expect(mockFindMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("isNot: null (oneToOne 非FK側)", () => {
+    const relation: RelationDefinition = {
+      type: "oneToOne",
+      to: "Profiles",
+      field: "id",
+      reference: "userId",
+    };
+
+    it("相手シートのreference値に含まれるフィールドのin条件を返す", () => {
+      mockFindMany.mockReturnValue([
+        { id: 301, userId: 1 },
+        { id: 302, userId: 2 },
+      ]);
+
+      const result = applyIsNotFilter(relation, "profile", null, mockFindMany);
+
+      expect(result).toEqual({ id: { in: [1, 2] } });
+      expect(mockFindMany).toHaveBeenCalledWith("Profiles", { where: {} });
+    });
+
+    it("reference値がnullの行はキー収集から除外される", () => {
+      mockFindMany.mockReturnValue([
+        { id: 301, userId: 1 },
+        { id: 303, userId: null },
+      ]);
+
+      const result = applyIsNotFilter(relation, "profile", null, mockFindMany);
+
+      expect(result).toEqual({ id: { in: [1] } });
+    });
+
+    it("相手シートが空の場合はin: []を返す", () => {
+      mockFindMany.mockReturnValue([]);
+
+      const result = applyIsNotFilter(relation, "profile", null, mockFindMany);
+
+      expect(result).toEqual({ id: { in: [] } });
     });
   });
 });
