@@ -9,11 +9,9 @@ const convertToNumber = (ColumnValue: number | string) => {
   const upperAlphabets = ColumnValue.toUpperCase();
   const alphabetsList = upperAlphabets.split("");
 
-  const resultNumber = alphabetsList.reduce((pre, alphabet, index) => {
+  const resultNumber = alphabetsList.reduce((pre, alphabet) => {
     const alphabetNum = alphabet.codePointAt(0) - 64;
-    if (index === 0) return pre + alphabetNum;
-
-    return pre + alphabetNum + 25;
+    return pre * 26 + alphabetNum;
   }, 0);
 
   return resultNumber;
