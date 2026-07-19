@@ -1,16 +1,47 @@
 import type { GassmaController } from "../../../gassmaController";
-import type { ResultFieldRecord } from "../../../types/extendsTypes";
+import type {
+  GassmaExtension,
+  ResultFieldRecord,
+} from "../../../types/extendsTypes";
+import type { ResultTreeContext } from "./prepareResultTree";
+import { resolveResultFields } from "./resolveResultFields";
 import {
   buildResultOperations,
   type ResultOperations,
 } from "./resultOperations";
 
+const hasResultConfig = (extensions: GassmaExtension[]): boolean =>
+  extensions.some(
+    (extension) =>
+      extension.result !== undefined &&
+      Object.keys(extension.result).length > 0,
+  );
+
+const buildFieldsResolver = (
+  extensions: GassmaExtension[],
+): ResultTreeContext["fieldsFor"] => {
+  const cache = new Map<string, ResultFieldRecord>();
+  return (model) => {
+    const cached = cache.get(model);
+    if (cached) return cached;
+    const resolved = resolveResultFields(extensions, model);
+    cache.set(model, resolved);
+    return resolved;
+  };
+};
+
 const wrapControllerWithResult = (
   controller: GassmaController,
-  fields: ResultFieldRecord,
+  model: string,
+  extensions: GassmaExtension[],
+  relationTargets: ResultTreeContext["relationTargets"],
 ): GassmaController => {
-  if (Object.keys(fields).length === 0) return controller;
-  const operations = buildResultOperations(controller, fields);
+  if (!hasResultConfig(extensions)) return controller;
+  const ctx: ResultTreeContext = {
+    fieldsFor: buildFieldsResolver(extensions),
+    relationTargets,
+  };
+  const operations = buildResultOperations(controller, model, ctx);
   const operationNames = new Set<string>(Object.keys(operations));
   const isResultOperation = (
     prop: string | symbol,

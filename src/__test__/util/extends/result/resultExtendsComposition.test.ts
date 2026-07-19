@@ -191,7 +191,7 @@ describe("$extends result: query 併用とマージ", () => {
   });
 });
 
-describe("$extends result: Tier1 の境界", () => {
+describe("$extends result: nested への伝播（Tier2）", () => {
   const fullNameExtension = {
     result: {
       Users: {
@@ -203,7 +203,7 @@ describe("$extends result: Tier1 の境界", () => {
     },
   };
 
-  test("nested include の中の同モデルには付かない", () => {
+  test("nested include の中の同モデルにも付く", () => {
     const client = buildTestClient({ relations: true });
     const extended = client.$extends(fullNameExtension);
     expect(extended.Posts.findMany({ include: { author: true } })).toEqual([
@@ -211,18 +211,18 @@ describe("$extends result: Tier1 の境界", () => {
         id: 101,
         authorId: 1,
         title: "Post A",
-        author: { id: 1, name: "Alice", age: 20 },
+        author: { id: 1, name: "Alice", age: 20, fullName: "Mr. Alice" },
       },
       {
         id: 102,
         authorId: 2,
         title: "Post B",
-        author: { id: 2, name: "Bob", age: 30 },
+        author: { id: 2, name: "Bob", age: 30, fullName: "Mr. Bob" },
       },
     ]);
   });
 
-  test("include したトップレベルのレコードには付き include 先はそのまま", () => {
+  test("result 定義のないモデルの include 先はそのまま", () => {
     const client = buildTestClient({ relations: true });
     const extended = client.$extends(fullNameExtension);
     expect(

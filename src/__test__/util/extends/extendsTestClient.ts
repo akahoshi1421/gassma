@@ -62,6 +62,12 @@ const buildTestClient = (options?: { relations?: boolean }): GassmaClient => {
       [101, 1, "Post A"],
       [102, 2, "Post B"],
     ]),
+    makeSheet("Comments", [
+      ["id", "postId", "body"],
+      [1001, 101, "Hello world"],
+      [1002, 101, "Nice post"],
+      [1003, 102, "Great read"],
+    ]),
   ];
   const mockSpreadsheet = {
     getId: () => "test-spreadsheet",
@@ -88,6 +94,20 @@ const buildTestClient = (options?: { relations?: boolean }): GassmaClient => {
           type: "manyToOne",
           to: "Users",
           field: "authorId",
+          reference: "id",
+        },
+        comments: {
+          type: "oneToMany",
+          to: "Comments",
+          field: "id",
+          reference: "postId",
+        },
+      },
+      Comments: {
+        post: {
+          type: "manyToOne",
+          to: "Posts",
+          field: "postId",
           reference: "id",
         },
       },

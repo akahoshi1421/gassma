@@ -107,6 +107,16 @@ class GassmaController {
     this.relationContext = context;
   }
 
+  public _getRelationTargets(): { [relationName: string]: string } {
+    const targets: { [relationName: string]: string } = {};
+    const relations = this.relationContext?.relations;
+    if (!relations) return targets;
+    Object.keys(relations).forEach((name) => {
+      targets[name] = relations[name].to;
+    });
+    return targets;
+  }
+
   public _setGlobalOmit(omit: Omit) {
     this.globalOmit = omit;
   }

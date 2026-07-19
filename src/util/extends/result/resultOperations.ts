@@ -3,7 +3,6 @@ import type {
   CreateData,
   CreateManyAndReturnData,
 } from "../../../types/createTypes";
-import type { ResultFieldRecord } from "../../../types/extendsTypes";
 import type {
   DeleteSingleData,
   FindData,
@@ -12,18 +11,19 @@ import type {
   UpdateSingleData,
   UpsertSingleData,
 } from "../../../types/findTypes";
-import { prepareResultArgs } from "./prepareResultArgs";
-import { transformResult } from "./transformResult";
+import { prepareResultTree, type ResultTreeContext } from "./prepareResultTree";
+import { transformResultTree } from "./transformResultTree";
 
 const buildResultOperations = (
   controller: GassmaController,
-  fields: ResultFieldRecord,
+  model: string,
+  ctx: ResultTreeContext,
 ) => {
   const wrapped =
     <A, R>(execute: (args: A) => R) =>
     (args: A): R => {
-      const prepared = prepareResultArgs(args, fields);
-      return transformResult(execute(prepared.args), fields, prepared.plan);
+      const prepared = prepareResultTree(model, args, ctx);
+      return transformResultTree(execute(prepared.args), prepared.node);
     };
 
   return {
