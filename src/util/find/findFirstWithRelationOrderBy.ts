@@ -38,7 +38,7 @@ const findFirstWithRelationOrderBy = (
   const directed = applyFindFirstTake(sorted, take);
 
   const cursor = "cursor" in findData ? findData.cursor : null;
-  const cursored = cursor ? applyCursor(directed, cursor, null) : directed;
+  const cursored = cursor ? applyCursor(directed, cursor) : directed;
 
   const distincted = distinct ? applyDistinct(cursored, distinct) : cursored;
 

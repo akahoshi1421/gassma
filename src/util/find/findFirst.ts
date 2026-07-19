@@ -49,7 +49,7 @@ const findFirstFunc = (
 
   const cursor = "cursor" in findData ? findData.cursor : null;
   if (cursor) {
-    findDataDictArray = applyCursor(findDataDictArray, cursor, null);
+    findDataDictArray = applyCursor(findDataDictArray, cursor);
   }
 
   if (distinct) {

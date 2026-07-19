@@ -9,42 +9,13 @@ const data = [
 ];
 
 describe("applyCursor", () => {
-  test("should return records from cursor to end with positive take", () => {
-    const result = applyCursor(data, { id: 2 }, 3);
-    expect(result).toEqual([
-      { id: 2, name: "Bob" },
-      { id: 3, name: "Charlie" },
-      { id: 4, name: "David" },
-      { id: 5, name: "Eve" },
-    ]);
-  });
-
-  test("should return records from start to cursor with negative take", () => {
-    const result = applyCursor(data, { id: 4 }, -3);
-    expect(result).toEqual([
-      { id: 1, name: "Alice" },
-      { id: 2, name: "Bob" },
-      { id: 3, name: "Charlie" },
-      { id: 4, name: "David" },
-    ]);
-  });
-
   test("should return empty array when cursor not found", () => {
-    const result = applyCursor(data, { id: 99 }, 3);
+    const result = applyCursor(data, { id: 99 });
     expect(result).toEqual([]);
   });
 
   test("should return records from cursor to end when take is null", () => {
-    const result = applyCursor(data, { id: 3 }, null);
-    expect(result).toEqual([
-      { id: 3, name: "Charlie" },
-      { id: 4, name: "David" },
-      { id: 5, name: "Eve" },
-    ]);
-  });
-
-  test("should return records from cursor to end when take is undefined", () => {
-    const result = applyCursor(data, { id: 3 }, undefined);
+    const result = applyCursor(data, { id: 3 });
     expect(result).toEqual([
       { id: 3, name: "Charlie" },
       { id: 4, name: "David" },
@@ -53,7 +24,7 @@ describe("applyCursor", () => {
   });
 
   test("should match cursor with multiple keys", () => {
-    const result = applyCursor(data, { id: 3, name: "Charlie" }, 2);
+    const result = applyCursor(data, { id: 3, name: "Charlie" });
     expect(result).toEqual([
       { id: 3, name: "Charlie" },
       { id: 4, name: "David" },
@@ -62,7 +33,7 @@ describe("applyCursor", () => {
   });
 
   test("should return empty array when cursor keys partially match", () => {
-    const result = applyCursor(data, { id: 3, name: "Alice" }, 2);
+    const result = applyCursor(data, { id: 3, name: "Alice" });
     expect(result).toEqual([]);
   });
 
@@ -72,11 +43,9 @@ describe("applyCursor", () => {
       { id: 2, createdAt: new Date("2026-07-19T12:00:00.000Z") },
       { id: 3, createdAt: new Date("2026-07-20T15:45:00.000Z") },
     ];
-    const result = applyCursor(
-      dateData,
-      { createdAt: new Date("2026-07-19T12:00:00.000Z") },
-      null,
-    );
+    const result = applyCursor(dateData, {
+      createdAt: new Date("2026-07-19T12:00:00.000Z"),
+    });
     expect(result).toEqual([dateData[1], dateData[2]]);
   });
 
@@ -84,11 +53,9 @@ describe("applyCursor", () => {
     const dateData = [
       { id: 1, createdAt: new Date("2026-07-18T09:30:00.000Z") },
     ];
-    const result = applyCursor(
-      dateData,
-      { createdAt: new Date("2026-07-18T09:30:00.001Z") },
-      null,
-    );
+    const result = applyCursor(dateData, {
+      createdAt: new Date("2026-07-18T09:30:00.001Z"),
+    });
     expect(result).toEqual([]);
   });
 });

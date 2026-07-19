@@ -14,7 +14,7 @@ const applyCursorDistinctSkipTake = (
 
   let result = backward ? [...records].reverse() : records;
 
-  if (cursor) result = applyCursor(result, cursor, null);
+  if (cursor) result = applyCursor(result, cursor);
   if (distinct) result = applyDistinct(result, distinct);
 
   result = applySkipTake(result, skip, backward ? -take : take);
