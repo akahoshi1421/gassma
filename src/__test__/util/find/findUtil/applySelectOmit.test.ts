@@ -1,3 +1,4 @@
+import { GassmaFindSelectOmitConflictError } from "../../../../errors/find/findError";
 import { applySelectOmit } from "../../../../util/find/findUtil/applySelectOmit";
 
 const data = [
@@ -29,7 +30,7 @@ describe("applySelectOmit", () => {
 
   test("should throw when both select and omit specified", () => {
     expect(() => applySelectOmit(data, { name: true }, { city: true })).toThrow(
-      "Cannot use both select and omit",
+      GassmaFindSelectOmitConflictError,
     );
   });
 });

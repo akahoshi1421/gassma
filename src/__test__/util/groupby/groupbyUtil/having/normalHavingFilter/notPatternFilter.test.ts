@@ -1,3 +1,4 @@
+import { GassmaGroupByHavingDontWriteByError } from "../../../../../../errors/groupBy/groupByError";
 import { notPatternFilter } from "../../../../../../util/groupby/groubyUtil/having/normalHavingFilter/notPatternFilter";
 import type {
   HitByClassificationedRowData,
@@ -558,12 +559,9 @@ describe("notPatternFilter function tests", () => {
         nonExistentField: "value",
       };
 
-      try {
-        notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-        fail("Expected function to throw an error");
-      } catch (error: any) {
-        expect(error.name).toBe("GassmaGroupByHavingDontWriteByError");
-      }
+      expect(() =>
+        notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]),
+      ).toThrow(GassmaGroupByHavingDontWriteByError);
     });
 
     test("should throw error for complex condition with field not in by array", () => {
@@ -571,12 +569,9 @@ describe("notPatternFilter function tests", () => {
         nonExistentField: { equals: "value" },
       };
 
-      try {
-        notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]);
-        fail("Expected function to throw an error");
-      } catch (error: any) {
-        expect(error.name).toBe("GassmaGroupByHavingDontWriteByError");
-      }
+      expect(() =>
+        notPatternFilter(mockClassificationedRows, havingData, ["age", "name"]),
+      ).toThrow(GassmaGroupByHavingDontWriteByError);
     });
 
     test("should handle empty rows array", () => {

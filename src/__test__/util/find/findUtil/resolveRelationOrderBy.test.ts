@@ -1,3 +1,7 @@
+import {
+  RelationOrderByCountUnsupportedTypeError,
+  RelationOrderByUnsupportedTypeError,
+} from "../../../../errors/find/findError";
 import { resolveRelationOrderBy } from "../../../../util/find/findUtil/resolveRelationOrderBy";
 import type { RelationContext } from "../../../../types/relationTypes";
 import type { OrderBy } from "../../../../types/coreTypes";
@@ -199,7 +203,7 @@ describe("resolveRelationOrderBy", () => {
 
     expect(() =>
       resolveRelationOrderBy([{ id: 1 }], orderByArr, context),
-    ).toThrow("Only manyToOne and oneToOne are supported");
+    ).toThrow(RelationOrderByUnsupportedTypeError);
   });
 
   test("should return records as-is when empty", () => {
@@ -406,6 +410,6 @@ describe("resolveRelationOrderBy", () => {
 
     expect(() =>
       resolveRelationOrderBy([{ id: 1, authorId: 1 }], orderByArr, context),
-    ).toThrow("Only oneToMany and manyToMany are supported");
+    ).toThrow(RelationOrderByCountUnsupportedTypeError);
   });
 });

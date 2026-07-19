@@ -1,3 +1,4 @@
+import { NestedWriteConnectNotFoundError } from "../../../../errors/relation/nestedWriteError";
 import { processAfterCreate } from "../../../../util/create/nestedWrite/processAfterCreate";
 import type {
   RelationDefinition,
@@ -129,6 +130,13 @@ describe("processAfterCreate", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("posts", { connect: { id: 999 } });
 
+    expect(() =>
+      processAfterCreate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteConnectNotFoundError);
     expect(() =>
       processAfterCreate(
         { id: 1, name: "田中" },

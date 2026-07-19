@@ -1,3 +1,4 @@
+import { GassmaAggregateMaxError } from "../../../../errors/aggregate/aggregateError";
 import { getMax } from "../../../../util/aggregate/aggregateUtil/max";
 import { getBooleanMax } from "../../../../util/aggregate/aggregateUtil/max/booleanMax";
 import { getDateMax } from "../../../../util/aggregate/aggregateUtil/max/dateMax";
@@ -238,6 +239,9 @@ describe("max aggregate functionality tests", () => {
 
     test("should handle mixed data types gracefully", () => {
       const rows = [{ value: "string" }, { value: 123 }, { value: true }];
+      expect(() => {
+        getMax(rows, { value: true });
+      }).toThrow(GassmaAggregateMaxError);
       expect(() => {
         getMax(rows, { value: true });
       }).toThrow("Cannot produce a maximum value of more than one type.");

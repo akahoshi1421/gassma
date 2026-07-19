@@ -1,3 +1,4 @@
+import { NestedWriteWithoutRelationsError } from "../../../../errors/relation/nestedWriteError";
 import { resolveNestedCreate } from "../../../../util/create/nestedWrite/resolveNestedCreate";
 import type {
   RelationDefinition,
@@ -186,7 +187,7 @@ describe("resolveNestedCreate", () => {
         mockCreateFunc,
         undefined,
       ),
-    ).toThrow("Cannot use nested write");
+    ).toThrow(NestedWriteWithoutRelationsError);
   });
 
   const oneToOneRelation: RelationDefinition = {

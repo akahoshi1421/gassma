@@ -1,3 +1,4 @@
+import { NestedWriteConnectNotFoundError } from "../../../../errors/relation/nestedWriteError";
 import { processManyToMany } from "../../../../util/create/nestedWrite/processManyToMany";
 import type {
   RelationDefinition,
@@ -107,6 +108,13 @@ describe("processManyToMany", () => {
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("tags", { connect: { id: 999 } });
 
+    expect(() =>
+      processManyToMany(
+        { id: 1, title: "記事A" },
+        relationOps,
+        makeContext({ tags: manyToManyRelation }),
+      ),
+    ).toThrow(NestedWriteConnectNotFoundError);
     expect(() =>
       processManyToMany(
         { id: 1, title: "記事A" },

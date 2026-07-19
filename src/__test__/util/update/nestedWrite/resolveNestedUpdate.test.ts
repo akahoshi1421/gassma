@@ -1,3 +1,7 @@
+import {
+  NestedWriteTargetNotFoundError,
+  NestedWriteWithoutRelationsError,
+} from "../../../../errors/relation/nestedWriteError";
 import { resolveNestedUpdate } from "../../../../util/update/nestedWrite/resolveNestedUpdate";
 import type {
   RelationDefinition,
@@ -325,7 +329,7 @@ describe("resolveNestedUpdate", () => {
         },
         undefined,
       ),
-    ).toThrow("Cannot use nested write");
+    ).toThrow(NestedWriteWithoutRelationsError);
   });
 
   const oneToOneRelation: RelationDefinition = {
@@ -362,6 +366,16 @@ describe("resolveNestedUpdate", () => {
     expect(() =>
       resolveNestedUpdate(
         util,
+        {
+          where: { id: 1 },
+          data: { profile: { update: { bio: "変更後" } } },
+        },
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+    expect(() =>
+      resolveNestedUpdate(
+        setupSheet(["id", "name"], [[1, "田中"]]),
         {
           where: { id: 1 },
           data: { profile: { update: { bio: "変更後" } } },
@@ -417,6 +431,16 @@ describe("resolveNestedUpdate", () => {
     expect(() =>
       resolveNestedUpdate(
         util,
+        {
+          where: { id: 1 },
+          data: { profile: { delete: true } },
+        },
+        makeContext({ profile: oneToOneRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+    expect(() =>
+      resolveNestedUpdate(
+        setupSheet(["id", "name"], [[1, "田中"]]),
         {
           where: { id: 1 },
           data: { profile: { delete: true } },

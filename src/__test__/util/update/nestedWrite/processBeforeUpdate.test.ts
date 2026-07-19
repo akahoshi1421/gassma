@@ -1,3 +1,4 @@
+import { NestedWriteInvalidOperationError } from "../../../../errors/relation/nestedWriteError";
 import { processBeforeUpdate } from "../../../../util/update/nestedWrite/processBeforeUpdate";
 import type {
   RelationDefinition,
@@ -174,6 +175,14 @@ describe("processBeforeUpdate", () => {
         relationOps,
         makeContext({ author: manyToOneRelation }),
       ),
+    ).toThrow(NestedWriteInvalidOperationError);
+    expect(() =>
+      processBeforeUpdate(
+        { title: "記事A", authorId: 1 },
+        enrichedData,
+        relationOps,
+        makeContext({ author: manyToOneRelation }),
+      ),
     ).toThrow("disconnect");
   });
 
@@ -186,6 +195,14 @@ describe("processBeforeUpdate", () => {
       profileId: 5,
     };
 
+    expect(() =>
+      processBeforeUpdate(
+        { name: "田中", profileId: 5 },
+        enrichedData,
+        relationOps,
+        makeContext({ profile: fkSideProfileRelation }),
+      ),
+    ).toThrow(NestedWriteInvalidOperationError);
     expect(() =>
       processBeforeUpdate(
         { name: "田中", profileId: 5 },
