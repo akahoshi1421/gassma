@@ -1,4 +1,5 @@
 import * as aggregateErrors from "./errors/aggregate/aggregateError";
+import * as argumentErrors from "./errors/argument/argumentError";
 import * as changeSettingsErrors from "./errors/changeSettings/changeSettingsError";
 import * as findErrors from "./errors/find/findError";
 import * as groupByErrors from "./errors/groupBy/groupByError";
@@ -6,7 +7,6 @@ import * as nestedWriteErrors from "./errors/relation/nestedWriteError";
 import * as relationErrors from "./errors/relation/relationError";
 import * as relationValidationErrors from "./errors/relation/relationValidationError";
 import * as skipErrors from "./errors/skip/skipError";
-import * as updateErrors from "./errors/update/updateError";
 import * as whereRelationErrors from "./errors/relation/whereRelationError";
 import { GassmaClient as GassmaClientClass } from "./gassma";
 import { GassmaController as GassmaControllerClass } from "./gassmaController";
@@ -77,8 +77,8 @@ export const NestedWriteTargetNotFoundError =
 export const GassmaUndefinedValueError = skipErrors.GassmaUndefinedValueError;
 export const GassmaSkipInArrayError = skipErrors.GassmaSkipInArrayError;
 
-export const GassmaUpdateWhereMissingError =
-  updateErrors.GassmaUpdateWhereMissingError;
+export const GassmaMissingArgumentError =
+  argumentErrors.GassmaMissingArgumentError;
 
 export const GassmaFindSelectOmitConflictError =
   findErrors.GassmaFindSelectOmitConflictError;

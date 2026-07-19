@@ -16,7 +16,7 @@ import { omitFunc } from "./util/find/findUtil/omit";
 import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
-import { GassmaUpdateWhereMissingError } from "./errors/update/updateError";
+import { GassmaMissingArgumentError } from "./errors/argument/argumentError";
 import type { AggregateData } from "./types/aggregateType";
 import type {
   AnyUse,
@@ -311,6 +311,9 @@ class GassmaController {
 
   public createMany(createdData: CreateManyData) {
     createdData = this.normalizeInput(createdData);
+    if (createdData.data === undefined) {
+      throw new GassmaMissingArgumentError("data");
+    }
     return createManyFunc(
       this.getGassmaControllerUtil(),
       this.applyCreateManyPreprocess(createdData),
@@ -319,6 +322,9 @@ class GassmaController {
 
   public createManyAndReturn(createdData: CreateManyAndReturnData) {
     createdData = this.normalizeInput(createdData);
+    if (createdData.data === undefined) {
+      throw new GassmaMissingArgumentError("data");
+    }
     if (createdData.include && createdData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -358,6 +364,9 @@ class GassmaController {
 
   public create(createdData: CreateData) {
     createdData = this.normalizeInput(createdData);
+    if (createdData.data === undefined) {
+      throw new GassmaMissingArgumentError("data");
+    }
     if (createdData.include && createdData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -765,7 +774,10 @@ class GassmaController {
   public update(updateData: UpdateSingleData) {
     updateData = this.normalizeInput(updateData);
     if (updateData.where === undefined) {
-      throw new GassmaUpdateWhereMissingError();
+      throw new GassmaMissingArgumentError("where");
+    }
+    if (updateData.data === undefined) {
+      throw new GassmaMissingArgumentError("data");
     }
     if (updateData.include && updateData.select) {
       throw new GassmaIncludeSelectConflictError();
@@ -825,6 +837,9 @@ class GassmaController {
 
   public updateMany(updateData: UpdateData) {
     updateData = this.normalizeInput(updateData);
+    if (updateData.data === undefined) {
+      throw new GassmaMissingArgumentError("data");
+    }
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -855,6 +870,9 @@ class GassmaController {
 
   public updateManyAndReturn(updateData: UpdateData) {
     updateData = this.normalizeInput(updateData);
+    if (updateData.data === undefined) {
+      throw new GassmaMissingArgumentError("data");
+    }
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -894,6 +912,15 @@ class GassmaController {
 
   public upsert(upsertData: UpsertSingleData) {
     upsertData = this.normalizeInput(upsertData);
+    if (upsertData.where === undefined) {
+      throw new GassmaMissingArgumentError("where");
+    }
+    if (upsertData.create === undefined) {
+      throw new GassmaMissingArgumentError("create");
+    }
+    if (upsertData.update === undefined) {
+      throw new GassmaMissingArgumentError("update");
+    }
     if (upsertData.include && upsertData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -935,6 +962,9 @@ class GassmaController {
 
   public delete(deleteData: DeleteSingleData) {
     deleteData = this.normalizeInput(deleteData);
+    if (deleteData.where === undefined) {
+      throw new GassmaMissingArgumentError("where");
+    }
     if (deleteData.include && deleteData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -995,6 +1025,9 @@ class GassmaController {
 
   public groupBy(groupByData: GroupByData) {
     groupByData = this.normalizeInput(groupByData);
+    if (groupByData.by === undefined) {
+      throw new GassmaMissingArgumentError("by");
+    }
     groupByData = {
       ...groupByData,
       where: this.resolveWhere(groupByData.where),
