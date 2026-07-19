@@ -6,6 +6,9 @@ import { findManyFunc } from "./findMany";
 import { resolveRelationOrderBy } from "./findUtil/resolveRelationOrderBy";
 import { applySelectOmit } from "./findUtil/applySelectOmit";
 import { applyCursor } from "./findUtil/applyCursor";
+import { applyDistinct } from "./findUtil/applyDistinct";
+import { applyFindFirstTake } from "./findUtil/applyFindFirstTake";
+import { applySkipTake } from "./findUtil/applySkipTake";
 
 const findFirstWithRelationOrderBy = (
   controllerUtil: GassmaControllerUtil,
@@ -15,6 +18,9 @@ const findFirstWithRelationOrderBy = (
 ): Record<string, unknown> | null => {
   const select = "select" in findData ? findData.select : null;
   const omit = "omit" in findData ? findData.omit : null;
+  const take = "take" in findData ? findData.take : null;
+  const skip = "skip" in findData ? findData.skip : null;
+  const distinct = "distinct" in findData ? findData.distinct : null;
 
   // Step 1: findMany with where only
   const baseRecords = findManyFunc(controllerUtil, {
@@ -28,15 +34,19 @@ const findFirstWithRelationOrderBy = (
     relationContext,
   );
 
-  // Step 3: apply cursor
-  const cursor = "cursor" in findData ? findData.cursor : null;
-  const cursored = cursor ? applyCursor(sorted, cursor, null) : sorted;
+  // Step 3 以降は Prisma 実測順: take(-1 で反転) → cursor → distinct → skip → 先頭
+  const directed = applyFindFirstTake(sorted, take);
 
-  // Step 4: take first
-  const first = cursored[0];
+  const cursor = "cursor" in findData ? findData.cursor : null;
+  const cursored = cursor ? applyCursor(directed, cursor, null) : directed;
+
+  const distincted = distinct ? applyDistinct(cursored, distinct) : cursored;
+
+  const sliced = applySkipTake(distincted, skip, null);
+
+  const first = sliced[0];
   if (!first) return null;
 
-  // Step 5: apply select/omit
   const applied = applySelectOmit([first], select, omit);
   return applied[0] ?? null;
 };

@@ -308,6 +308,9 @@ declare namespace Gassma {
     select?: FindSelect | SkipValue;
     omit?: Record<string, boolean> | SkipValue;
     orderBy?: OrderBy | OrderBy[] | SkipValue;
+    take?: number | SkipValue;
+    skip?: number | SkipValue;
+    distinct?: string | string[] | SkipValue;
     include?: IncludeData | SkipValue;
     cursor?: Record<string, unknown> | SkipValue;
   };
@@ -430,6 +433,9 @@ declare namespace Gassma {
 
   class GassmaSkipNegativeError extends Error {
     constructor(value: number);
+  }
+  class GassmaFindFirstTakeError extends Error {
+    constructor();
   }
   class GassmaLimitNegativeError extends Error {
     constructor(value: number);

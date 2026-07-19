@@ -22,6 +22,9 @@ type FindFirstData = {
   select?: FindSelect;
   omit?: QueryOmit;
   orderBy?: OrderBy | OrderBy[];
+  take?: number;
+  skip?: number;
+  distinct?: string | string[];
   include?: IncludeData;
   cursor?: Record<string, unknown>;
 };
