@@ -1,3 +1,5 @@
+import type { Gassma } from "../../index";
+import type { AggregateData } from "../../types/aggregateType";
 import type { HavingCore } from "../../types/coreTypes";
 import type { GroupByData } from "../../types/groupByType";
 
@@ -29,6 +31,26 @@ describe("HavingCore aggregate filter types", () => {
     };
 
     expect(havingCore).toBeDefined();
+  });
+
+  test("should reject cursor in GroupByData (Prisma groupBy has no cursor)", () => {
+    // @ts-expect-error groupBy に cursor は存在しない
+    const withCursor: GroupByData = { by: "住所", cursor: { 名前: "A" } };
+
+    expect(withCursor).toBeDefined();
+  });
+
+  test("should reject cursor in Gassma.GroupByData (index.d.ts)", () => {
+    // @ts-expect-error groupBy に cursor は存在しない
+    const dtsGroupBy: Gassma.GroupByData = { by: "住所", cursor: {} };
+
+    expect(dtsGroupBy).toBeDefined();
+  });
+
+  test("should keep cursor in AggregateData", () => {
+    const aggregateData: AggregateData = { cursor: { 名前: "Alice" } };
+
+    expect(aggregateData).toBeDefined();
   });
 
   test("should reject string operators and string values for _count/_avg/_sum", () => {
