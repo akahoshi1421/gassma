@@ -17,8 +17,22 @@ type QueryExtensionConfig = {
   [modelName: string]: QueryHookRecord;
 };
 
+type ResultFieldDefinition = {
+  needs?: { [fieldName: string]: boolean };
+  compute: (record: any) => any;
+};
+
+type ResultFieldRecord = {
+  [fieldName: string]: ResultFieldDefinition;
+};
+
+type ResultExtensionConfig = {
+  [modelName: string]: ResultFieldRecord;
+};
+
 type GassmaExtension = {
   query?: QueryExtensionConfig;
+  result?: ResultExtensionConfig;
 };
 
 type ExtendedClientCore = {
@@ -35,4 +49,7 @@ export type {
   QueryHook,
   QueryHookParams,
   QueryHookRecord,
+  ResultExtensionConfig,
+  ResultFieldDefinition,
+  ResultFieldRecord,
 };
