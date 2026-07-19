@@ -22,6 +22,15 @@ class GassmaSkipNegativeError extends Error {
   }
 }
 
+class GassmaFindFirstTakeError extends Error {
+  constructor() {
+    super(
+      "The 'findFirst' operation cannot be used with a 'take' argument that isn't 1 or -1",
+    );
+    this.name = "GassmaFindFirstTakeError";
+  }
+}
+
 class GassmaLimitNegativeError extends Error {
   constructor(value: number) {
     super(
@@ -53,6 +62,7 @@ export {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
   GassmaSkipNegativeError,
+  GassmaFindFirstTakeError,
   GassmaLimitNegativeError,
   RelationOrderByUnsupportedTypeError,
   RelationOrderByCountUnsupportedTypeError,
