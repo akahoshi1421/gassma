@@ -6,6 +6,7 @@ import { whereFilter } from "../core/whereFilter";
 import { findedDataSelect } from "./findUtil/findDataSelect";
 import { omitFunc } from "./findUtil/omit";
 import { orderByFunc } from "./findUtil/orderBy";
+import { applyCursor } from "./findUtil/applyCursor";
 
 const findFirstFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -37,6 +38,12 @@ const findFirstFunc = (
       findDataDictArray,
       Array.isArray(orderBy) ? orderBy : [orderBy],
     );
+
+  // Apply cursor after orderBy, before taking first
+  const cursor = "cursor" in findData ? findData.cursor : null;
+  if (cursor) {
+    findDataDictArray = applyCursor(findDataDictArray, cursor, null);
+  }
 
   // Get the first result
   const firstResult = findDataDictArray[0];

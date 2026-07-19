@@ -406,7 +406,16 @@ declare namespace Gassma {
     NOT?: HavingUse[] | HavingUse;
   };
 
-  type GroupByData = AggregateData & {
+  type GroupByData = {
+    where?: WhereUse | SkipValue;
+    orderBy?: OrderBy | OrderBy[] | SkipValue;
+    take?: number | SkipValue;
+    skip?: number | SkipValue;
+    _avg?: Select | SkipValue;
+    _count?: Select | SkipValue;
+    _max?: Select | SkipValue;
+    _min?: Select | SkipValue;
+    _sum?: Select | SkipValue;
     by: string[] | string;
     having?: HavingUse | SkipValue;
   };

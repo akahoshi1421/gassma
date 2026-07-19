@@ -5,6 +5,7 @@ import type { OrderBy } from "../../types/coreTypes";
 import { findManyFunc } from "./findMany";
 import { resolveRelationOrderBy } from "./findUtil/resolveRelationOrderBy";
 import { applySelectOmit } from "./findUtil/applySelectOmit";
+import { applyCursor } from "./findUtil/applyCursor";
 
 const findFirstWithRelationOrderBy = (
   controllerUtil: GassmaControllerUtil,
@@ -27,11 +28,15 @@ const findFirstWithRelationOrderBy = (
     relationContext,
   );
 
-  // Step 3: take first
-  const first = sorted[0];
+  // Step 3: apply cursor
+  const cursor = "cursor" in findData ? findData.cursor : null;
+  const cursored = cursor ? applyCursor(sorted, cursor, null) : sorted;
+
+  // Step 4: take first
+  const first = cursored[0];
   if (!first) return null;
 
-  // Step 4: apply select/omit
+  // Step 5: apply select/omit
   const applied = applySelectOmit([first], select, omit);
   return applied[0] ?? null;
 };

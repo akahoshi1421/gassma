@@ -1,7 +1,7 @@
 import type { AggregateData } from "./aggregateType";
 import type { HavingUse } from "./coreTypes";
 
-type GroupByData = AggregateData & {
+type GroupByData = Omit<AggregateData, "cursor"> & {
   by: string[] | string;
   having?: HavingUse;
 };
