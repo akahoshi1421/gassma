@@ -3,6 +3,10 @@
   "compilerOptions": {
     "lib": ["ES2021"],
     "target": "ES2019",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "types": ["jest", "node", "google-apps-script"]
   }
 }
