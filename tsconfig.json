@@ -3,9 +3,8 @@
   "compilerOptions": {
     "lib": ["ES2021"],
     "target": "ES2019",
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
+    "module": "CommonJS",
+    "importHelpers": true,
     "skipLibCheck": true,
     "strict": false,
     "types": ["jest", "node", "google-apps-script"]
