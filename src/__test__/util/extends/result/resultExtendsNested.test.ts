@@ -25,7 +25,7 @@ const nestedExtension = {
   },
 };
 
-describe("$extends result: nested include (Tier2)", () => {
+describe("$extends result: nested include", () => {
   test("oneToMany include の各 nested レコードに算出フィールドが付く", () => {
     const client = buildTestClient({ relations: true });
     const extended = client.$extends(nestedExtension);

@@ -191,7 +191,7 @@ describe("$extends result: query 併用とマージ", () => {
   });
 });
 
-describe("$extends result: nested への伝播（Tier2）", () => {
+describe("$extends result: nested への伝播", () => {
   const fullNameExtension = {
     result: {
       Users: {
