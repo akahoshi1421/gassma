@@ -84,7 +84,3 @@ function myFunction(){
 ## 公式リファレンス
 
 https://akahoshi1421.github.io/gassma-reference/
-
-## バージョン
-
-7
