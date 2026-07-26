@@ -51,6 +51,7 @@ declare namespace Gassma {
   type GassmaTransactionOptions = {
     maxWait?: number;
     timeout?: number;
+    rollback?: boolean;
   };
 
   type GassmaTransactionClient = {
@@ -631,6 +632,10 @@ declare namespace Gassma {
   }
   class GassmaNestedTransactionError extends Error {
     constructor();
+  }
+  class GassmaTransactionRollbackError extends Error {
+    constructor(backupSheetNames: string[]);
+    readonly backupSheetNames: string[];
   }
 }
 

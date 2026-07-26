@@ -116,3 +116,5 @@ export const GassmaTransactionTimeoutError =
   transactionErrors.GassmaTransactionTimeoutError;
 export const GassmaNestedTransactionError =
   transactionErrors.GassmaNestedTransactionError;
+export const GassmaTransactionRollbackError =
+  transactionErrors.GassmaTransactionRollbackError;

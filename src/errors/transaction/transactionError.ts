@@ -25,8 +25,24 @@ class GassmaNestedTransactionError extends Error {
   }
 }
 
+class GassmaTransactionRollbackError extends Error {
+  readonly backupSheetNames: string[];
+
+  constructor(backupSheetNames: string[]) {
+    const names = Array.isArray(backupSheetNames)
+      ? backupSheetNames
+      : [String(backupSheetNames)];
+    super(
+      `Transaction API error: The transaction failed during commit and automatic rollback also failed. The affected sheets may be in an inconsistent state. Backup sheets are preserved for manual recovery: ${names.join(", ")}`,
+    );
+    this.name = "GassmaTransactionRollbackError";
+    this.backupSheetNames = names;
+  }
+}
+
 export {
   GassmaNestedTransactionError,
   GassmaTransactionLockTimeoutError,
+  GassmaTransactionRollbackError,
   GassmaTransactionTimeoutError,
 };
