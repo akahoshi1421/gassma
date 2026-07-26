@@ -8,6 +8,10 @@ import type {
   SheetIo,
 } from "../../types/transactionTypes";
 import { buildTransactionClient } from "./buildTransactionClient";
+import {
+  flushWithBackup,
+  warnStaleTransactionBackups,
+} from "./transactionBackup";
 import { createTransactionBuffer } from "./transactionBuffer";
 import { createTransactionDeadline } from "./transactionDeadline";
 
@@ -36,9 +40,11 @@ const runTransaction = <T>(
   }
   const maxWaitMs = options?.maxWait ?? DEFAULT_MAX_WAIT_MS;
   const timeoutMs = options?.timeout ?? DEFAULT_TIMEOUT_MS;
+  const rollback = options?.rollback ?? true;
   const lock = acquireScriptLock(maxWaitMs);
   transactionInProgress = true;
   try {
+    warnStaleTransactionBackups();
     const checkDeadline = createTransactionDeadline(timeoutMs);
     const buffer = createTransactionBuffer();
     const baseClient = buildBufferedClient({
@@ -48,7 +54,11 @@ const runTransaction = <T>(
     const tx = buildTransactionClient(baseClient, () => checkDeadline("query"));
     const result = fn(tx);
     checkDeadline("commit");
-    buffer.flush();
+    if (rollback) {
+      flushWithBackup(buffer);
+    } else {
+      buffer.flush();
+    }
     return result;
   } finally {
     transactionInProgress = false;

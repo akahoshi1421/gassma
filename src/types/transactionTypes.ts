@@ -11,6 +11,7 @@ type SheetIo = {
 type GassmaTransactionOptions = {
   maxWait?: number;
   timeout?: number;
+  rollback?: boolean;
 };
 
 type TransactionClientCore = {
