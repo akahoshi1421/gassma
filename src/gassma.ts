@@ -5,10 +5,16 @@ import type {
 } from "./types/extendsTypes";
 import type { GassmaSheet } from "./types/gassmaTypes";
 import type { GassmaClientOptions } from "./types/relationTypes";
+import type {
+  GassmaTransactionClient,
+  GassmaTransactionOptions,
+  SheetIo,
+} from "./types/transactionTypes";
 import { buildExtendedClient } from "./util/extends/buildExtendedClient";
 import { isSheetIgnored } from "./util/ignore/isSheetIgnored";
 import { resolveCodeName } from "./util/map/mapSheetName";
 import { injectRelations } from "./util/relation/injectRelations";
+import { runTransaction } from "./util/transaction/runTransaction";
 
 const isClientOptions = (
   arg: string | GassmaClientOptions | undefined,
@@ -16,8 +22,14 @@ const isClientOptions = (
   return typeof arg === "object" && arg !== null;
 };
 
+const clientInitArgs = new WeakMap<
+  GassmaClient,
+  string | GassmaClientOptions | undefined
+>();
+
 class GassmaClient {
-  constructor(idOrOptions?: string | GassmaClientOptions) {
+  constructor(idOrOptions?: string | GassmaClientOptions, sheetIo?: SheetIo) {
+    clientInitArgs.set(this, idOrOptions);
     const id = isClientOptions(idOrOptions) ? idOrOptions.id : idOrOptions;
     const relations = isClientOptions(idOrOptions)
       ? idOrOptions.relations
@@ -64,7 +76,7 @@ class GassmaClient {
       const sheetName = sheet.getName();
       const codeName = resolveCodeName(sheetName, mapSheets);
       if (isSheetIgnored(codeName, ignoreSheets)) return;
-      const sheetController = new GassmaController(sheetName, id);
+      const sheetController = new GassmaController(sheetName, id, sheetIo);
       if (codeName !== sheetName) {
         sheetController._setCodeName(codeName);
       }
@@ -104,6 +116,14 @@ class GassmaClient {
     if (relations) {
       injectRelations(relations, controllers);
     }
+  }
+
+  public $transaction<T>(
+    fn: (tx: GassmaTransactionClient) => T,
+    options?: GassmaTransactionOptions,
+  ): T {
+    const initArgs = clientInitArgs.get(this);
+    return runTransaction(fn, options, (io) => new GassmaClient(initArgs, io));
   }
 
   public $extends(extension: GassmaExtension): ExtendedGassmaClient {

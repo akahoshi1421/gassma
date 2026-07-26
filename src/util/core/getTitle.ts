@@ -1,5 +1,6 @@
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { mapTitles } from "../map/mapTitles";
+import { resolveReader } from "../read/sheetReader";
 
 const getTitle = (gassmaControllerUtil: GassmaControllerUtil): string[] => {
   const {
@@ -12,9 +13,13 @@ const getTitle = (gassmaControllerUtil: GassmaControllerUtil): string[] => {
 
   const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
-  const tiltes = sheet
-    .getRange(startRowNumber, startColumnNumber, 1, ColumnLength)
-    .getValues()[0];
+  const tiltes = resolveReader(gassmaControllerUtil.reader).getRangeValues(
+    sheet,
+    startRowNumber,
+    startColumnNumber,
+    1,
+    ColumnLength,
+  )[0];
 
   const stringTitles = tiltes.map((title) => String(title));
 

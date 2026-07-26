@@ -1,4 +1,5 @@
 import type { FieldMapping } from "../util/map/mapFields";
+import type { SheetReader } from "../util/read/sheetReader";
 import type { SheetWriter } from "../util/write/sheetWriter";
 
 type GassmaControllerUtil = {
@@ -8,6 +9,7 @@ type GassmaControllerUtil = {
   endColumnNumber: number;
   fieldMapping?: FieldMapping;
   writer?: SheetWriter;
+  reader?: SheetReader;
 };
 
 export type { GassmaControllerUtil };

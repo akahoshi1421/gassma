@@ -73,6 +73,9 @@ import { findManyWithRelationOrderBy } from "./util/find/findManyWithRelationOrd
 import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationOrderBy";
 import type { SheetWriter } from "./util/write/sheetWriter";
 import { immediateSheetWriter } from "./util/write/sheetWriter";
+import type { SheetReader } from "./util/read/sheetReader";
+import { immediateSheetReader } from "./util/read/sheetReader";
+import type { SheetIo } from "./types/transactionTypes";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -90,8 +93,9 @@ class GassmaController {
   private codeName: string | null = null;
   private strictUndefinedChecks: boolean = false;
   private writer: SheetWriter = immediateSheetWriter;
+  private reader: SheetReader = immediateSheetReader;
 
-  constructor(sheetName: string, id?: string) {
+  constructor(sheetName: string, id?: string, sheetIo?: SheetIo) {
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
       : SpreadsheetApp.getActiveSpreadsheet();
@@ -99,6 +103,11 @@ class GassmaController {
 
     if (!sheet)
       throw new Error(`Error: cant access sheet. sheetName: ${sheetName}`);
+
+    if (sheetIo) {
+      this.writer = sheetIo.writer;
+      this.reader = sheetIo.reader;
+    }
 
     this.sheet = sheet;
     this.spreadsheetId = spreadSheet.getId();
@@ -242,6 +251,7 @@ class GassmaController {
       startColumnNumber: this.startColumnNumber,
       endColumnNumber: this.endColumnNumber,
       writer: this.writer,
+      reader: this.reader,
     };
     if (this.fieldMapping) {
       util.fieldMapping = this.fieldMapping;
