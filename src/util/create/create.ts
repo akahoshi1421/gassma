@@ -4,6 +4,7 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
+import { resolveWriter } from "../write/sheetWriter";
 
 const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -28,12 +29,14 @@ const createFunc = (
     return data[titles[index]];
   });
 
-  const rowNumber = sheet.getLastRow() + 1;
   const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
-  sheet
-    .getRange(rowNumber, startColumnNumber, 1, ColumnLength)
-    .setValues([escapeFormulaInjectionRow(newData)]);
+  resolveWriter(gassmaControllerUtil.writer).appendRows(
+    sheet,
+    startColumnNumber,
+    ColumnLength,
+    [escapeFormulaInjectionRow(newData)],
+  );
 
   return createReturn;
 };

@@ -7,6 +7,7 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
+import { resolveWriter } from "../write/sheetWriter";
 
 function createManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
@@ -45,13 +46,14 @@ function createManyFunc(
     });
   });
 
-  const rowNumber = sheet.getLastRow() + 1;
   const ColumnLength = endColumnNumber - startColumnNumber + 1;
-  const rowLength = newData.length;
 
-  sheet
-    .getRange(rowNumber, startColumnNumber, rowLength, ColumnLength)
-    .setValues(newData.map(escapeFormulaInjectionRow));
+  resolveWriter(gassmaControllerUtil.writer).appendRows(
+    sheet,
+    startColumnNumber,
+    ColumnLength,
+    newData.map(escapeFormulaInjectionRow),
+  );
 
   if (withReturn) {
     return data.map((row) =>

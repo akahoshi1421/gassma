@@ -2,6 +2,7 @@ import type { DeleteData, DeleteManyReturn } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import { whereFilter } from "../core/whereFilter";
+import { resolveWriter } from "../write/sheetWriter";
 
 const deleteManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -25,9 +26,10 @@ const deleteManyFunc = (
   // sortDescendingを使って降順にソート
   const sortedData = findedData.sort((a, b) => b.rowNumber - a.rowNumber);
 
+  const writer = resolveWriter(gassmaControllerUtil.writer);
   sortedData.forEach((row) => {
     const actualRowNumber = row.rowNumber + startRowNumber;
-    sheet.deleteRow(actualRowNumber);
+    writer.deleteRow(sheet, actualRowNumber);
   });
 
   return { count: findedDataLength };

@@ -71,6 +71,8 @@ import { upsertFunc } from "./util/upsert/upsert";
 import { separateRelationOrderBy } from "./util/find/findUtil/separateRelationOrderBy";
 import { findManyWithRelationOrderBy } from "./util/find/findManyWithRelationOrderBy";
 import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationOrderBy";
+import type { SheetWriter } from "./util/write/sheetWriter";
+import { immediateSheetWriter } from "./util/write/sheetWriter";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -87,6 +89,7 @@ class GassmaController {
   private fieldMapping: FieldMapping | null = null;
   private codeName: string | null = null;
   private strictUndefinedChecks: boolean = false;
+  private writer: SheetWriter = immediateSheetWriter;
 
   constructor(sheetName: string, id?: string) {
     const spreadSheet = id
@@ -238,6 +241,7 @@ class GassmaController {
       startRowNumber: this.startRowNumber,
       startColumnNumber: this.startColumnNumber,
       endColumnNumber: this.endColumnNumber,
+      writer: this.writer,
     };
     if (this.fieldMapping) {
       util.fieldMapping = this.fieldMapping;
