@@ -22,6 +22,7 @@ import {
   resolveNumberOperation,
 } from "../resolveNumberOperation";
 import { escapeFormulaInjectionRow } from "../../core/escapeFormulaInjection";
+import { resolveWriter } from "../../write/sheetWriter";
 
 type UpdateInput = {
   where: WhereUse;
@@ -82,13 +83,13 @@ const resolveNestedUpdate = (
     });
 
     const rowNumber = firstRow.rowNumber + startRowNumber;
-    const updateRange = sheet.getRange(
+    resolveWriter(util.writer).updateRow(
+      sheet,
       rowNumber,
       startColumnNumber,
-      1,
       columnLength,
+      escapeFormulaInjectionRow(updatedRow),
     );
-    updateRange.setValues([escapeFormulaInjectionRow(updatedRow)]);
 
     return titles.reduce<Record<string, unknown>>((record, title, index) => {
       record[title] = updatedRow[index];
@@ -127,13 +128,13 @@ const resolveNestedUpdate = (
   });
 
   const rowNumber = firstRow.rowNumber + startRowNumber;
-  const updateRange = sheet.getRange(
+  resolveWriter(util.writer).updateRow(
+    sheet,
     rowNumber,
     startColumnNumber,
-    1,
     columnLength,
+    escapeFormulaInjectionRow(updatedRow),
   );
-  updateRange.setValues([escapeFormulaInjectionRow(updatedRow)]);
 
   const updatedRecord = titles.reduce<Record<string, unknown>>(
     (record, title, index) => {

@@ -9,6 +9,7 @@ import {
   resolveNumberOperation,
 } from "./resolveNumberOperation";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
+import { resolveWriter } from "../write/sheetWriter";
 
 function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
@@ -59,13 +60,13 @@ function updateManyFunc(
 
     if (updatedRow.length > 0) {
       const rowNumber = row.rowNumber + startRowNumber;
-      const updateRange = sheet.getRange(
+      resolveWriter(gassmaControllerUtil.writer).updateRow(
+        sheet,
         rowNumber,
         startColumnNumber,
-        1,
         ColumnLength,
+        escapeFormulaInjectionRow(updatedRow),
       );
-      updateRange.setValues([escapeFormulaInjectionRow(updatedRow)]);
     }
 
     return titles.reduce<Record<string, unknown>>((record, title, index) => {
