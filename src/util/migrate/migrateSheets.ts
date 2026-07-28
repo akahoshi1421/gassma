@@ -16,12 +16,19 @@ const readHeaders = (sheet: Sheet): string[] => {
   return titles.map((title) => String(title));
 };
 
+const ensureColumnCapacity = (sheet: Sheet, requiredColumns: number) => {
+  const maxColumns = sheet.getMaxColumns();
+  if (requiredColumns <= maxColumns) return;
+  sheet.insertColumnsAfter(maxColumns, requiredColumns - maxColumns);
+};
+
 const createSheetWithHeaders = (
   spreadsheet: Spreadsheet,
   model: MigrateModel,
 ) => {
   const sheet = spreadsheet.insertSheet(model.name);
   if (model.columns.length > 0) {
+    ensureColumnCapacity(sheet, model.columns.length);
     sheet.getRange(1, 1, 1, model.columns.length).setValues([model.columns]);
   }
   console.log(
@@ -46,6 +53,7 @@ const appendMissingColumns = (sheet: Sheet, model: MigrateModel) => {
   if (missingColumns.length === 0) {
     console.log(`${LOG_PREFIX} sheet "${model.name}" is up to date`);
   } else {
+    ensureColumnCapacity(sheet, headers.length + missingColumns.length);
     sheet
       .getRange(1, headers.length + 1, 1, missingColumns.length)
       .setValues([missingColumns]);
