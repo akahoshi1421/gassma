@@ -308,6 +308,25 @@ declare namespace Gassma {
     strictUndefinedChecks?: boolean;
   };
 
+  type MigrateModel = {
+    name: string;
+    columns: string[];
+  };
+
+  type MigrateSheetsOptions = {
+    spreadsheetId?: string;
+    models: MigrateModel[];
+  };
+
+  /**
+   * Synchronizes the spreadsheet with the given models like `prisma db push`:
+   * missing sheets are created and missing columns are appended, idempotently.
+   * Assumes the header row is row 1 starting at column A on every sheet
+   * (header positions moved via changeSettings are not supported).
+   * Never deletes or reorders existing sheets/columns, never touches data rows.
+   */
+  function migrateSheets(options: MigrateSheetsOptions): void;
+
   type ConnectOrCreateInput = {
     where: WhereUse;
     create: Record<string, unknown>;
