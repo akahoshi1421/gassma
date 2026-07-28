@@ -559,6 +559,38 @@ describe("updateMany NumberOperation tests", () => {
     expect(davidRow[1]).toBe(22.5); // 45 / 2
   });
 
+  test("連続行への increment は各行の元値から計算されシートに行別の値が書かれる", () => {
+    const result = updateManyFunc(mockUtil, {
+      where: { OR: [{ 名前: "Alice" }, { 名前: "Bob" }, { 名前: "Charlie" }] },
+      data: { 年齢: { increment: 5 } },
+    });
+
+    expect(result).toEqual({ count: 3 });
+
+    const currentData = (mockUtil.sheet as any)._getMockData();
+    expect(currentData[1]).toEqual([
+      "Alice",
+      33,
+      "Tokyo",
+      "100-0001",
+      "Engineer",
+    ]);
+    expect(currentData[2]).toEqual([
+      "Bob",
+      40,
+      "Osaka",
+      "550-0001",
+      "Designer",
+    ]);
+    expect(currentData[3]).toEqual([
+      "Charlie",
+      27,
+      "Tokyo",
+      "100-0002",
+      "Student",
+    ]);
+  });
+
   test("NumberOperation と通常値の混在が正しく動作する", () => {
     const result = updateManyFunc(mockUtil, {
       where: { 名前: "Eve" },

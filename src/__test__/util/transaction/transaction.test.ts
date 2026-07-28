@@ -176,6 +176,85 @@ describe("$transaction の nested write / cascade", () => {
   });
 });
 
+describe("$transaction の updateMany / deleteMany 束ね", () => {
+  test("連続行の updateMany は tx 内でバッファされ flush で 1 回の setValues になる", () => {
+    const env = buildTxTestEnv();
+
+    env.client.$transaction((tx) => {
+      tx.Users.updateMany({ data: { age: { increment: 1 } } });
+      expect(env.users.writes).toEqual([]);
+    });
+
+    expect(env.users.writes).toEqual([
+      {
+        method: "setValues",
+        args: [
+          2,
+          1,
+          [
+            [1, "Alice", 21],
+            [2, "Bob", 31],
+          ],
+        ],
+      },
+    ]);
+    expect(env.users.snapshot()).toEqual([
+      ["id", "name", "age"],
+      [1, "Alice", 21],
+      [2, "Bob", 31],
+    ]);
+  });
+
+  test("updateMany の行別 increment 結果が tx 内読み取りに見える", () => {
+    const env = buildTxTestEnv();
+
+    env.client.$transaction((tx) => {
+      tx.Users.updateMany({ data: { age: { increment: 1 } } });
+      expect(tx.Users.findMany({})).toEqual([
+        { id: 1, name: "Alice", age: 21 },
+        { id: 2, name: "Bob", age: 31 },
+      ]);
+      expect(env.users.snapshot()).toEqual([
+        ["id", "name", "age"],
+        [1, "Alice", 20],
+        [2, "Bob", 30],
+      ]);
+    });
+  });
+
+  test("連続行の deleteMany は tx 内でバッファされ flush で 1 回の deleteRows になる", () => {
+    const env = buildTxTestEnv();
+
+    env.client.$transaction((tx) => {
+      tx.Users.deleteMany({});
+      expect(tx.Users.count({})).toBe(0);
+      expect(env.users.writes).toEqual([]);
+    });
+
+    expect(env.users.writes).toEqual([{ method: "deleteRows", args: [2, 2] }]);
+    expect(env.users.snapshot()).toEqual([["id", "name", "age"]]);
+  });
+
+  test("deleteMany 後に create しても flush の発行順再生で行位置が一致する", () => {
+    const env = buildTxTestEnv();
+
+    env.client.$transaction((tx) => {
+      tx.Users.deleteMany({ where: { id: 1 } });
+      tx.Users.create({ data: { id: 3, name: "Carol", age: 40 } });
+      expect(tx.Users.findMany({})).toEqual([
+        { id: 2, name: "Bob", age: 30 },
+        { id: 3, name: "Carol", age: 40 },
+      ]);
+    });
+
+    expect(env.users.snapshot()).toEqual([
+      ["id", "name", "age"],
+      [2, "Bob", 30],
+      [3, "Carol", 40],
+    ]);
+  });
+});
+
 describe("$transaction の autoincrement", () => {
   test("tx 内で即時採番され戻り値に入る", () => {
     const env = buildTxTestEnv({ autoincrement: true });

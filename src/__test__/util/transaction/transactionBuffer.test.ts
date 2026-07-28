@@ -1,7 +1,7 @@
+import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 import { getAllData } from "../../../util/core/getAllData";
 import { getTitle } from "../../../util/core/getTitle";
 import { createTransactionBuffer } from "../../../util/transaction/transactionBuffer";
-import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 import { makeLoggedSheet } from "./transactionTestClient";
 
 const initialUsers = [
@@ -27,6 +27,20 @@ describe("createTransactionBuffer の書き込みバッファ", () => {
 
     buffer.writer.updateRow(sheet, 2, 1, 3, [1, "Alice", 21]);
     buffer.writer.deleteRow(sheet, 3);
+
+    expect(writes).toEqual([]);
+    expect(snapshot()).toEqual(initialUsers);
+  });
+
+  test("updateRows / deleteRows も実シートに書かない", () => {
+    const { sheet, snapshot, writes } = makeLoggedSheet("Users", initialUsers);
+    const buffer = createTransactionBuffer();
+
+    buffer.writer.updateRows(sheet, 2, 1, 3, [
+      [1, "Alice", 21],
+      [2, "Bob", 31],
+    ]);
+    buffer.writer.deleteRows(sheet, 2, 2);
 
     expect(writes).toEqual([]);
     expect(snapshot()).toEqual(initialUsers);
@@ -66,6 +80,33 @@ describe("createTransactionBuffer の読み取りオーバーレイ", () => {
     expect(buffer.reader.getLastRow(sheet)).toBe(2);
     expect(buffer.reader.getRangeValues(sheet, 2, 1, 1, 3)).toEqual([
       [2, "Bob", 30],
+    ]);
+  });
+
+  test("updateRows の行ごとの変更が読み取りに見える", () => {
+    const { sheet } = makeLoggedSheet("Users", initialUsers);
+    const buffer = createTransactionBuffer();
+
+    buffer.writer.updateRows(sheet, 2, 1, 3, [
+      [1, "Alice", 21],
+      [2, "Bob", 31],
+    ]);
+
+    expect(buffer.reader.getRangeValues(sheet, 2, 1, 2, 3)).toEqual([
+      [1, "Alice", 21],
+      [2, "Bob", 31],
+    ]);
+  });
+
+  test("deleteRows で複数行がまとめて詰まる", () => {
+    const { sheet } = makeLoggedSheet("Users", initialUsers);
+    const buffer = createTransactionBuffer();
+
+    buffer.writer.deleteRows(sheet, 2, 2);
+
+    expect(buffer.reader.getLastRow(sheet)).toBe(1);
+    expect(buffer.reader.getRangeValues(sheet, 1, 1, 1, 3)).toEqual([
+      ["id", "name", "age"],
     ]);
   });
 
@@ -122,6 +163,65 @@ describe("flush の発行順再生", () => {
       { method: "deleteRow", args: [2] },
     ]);
     expect(snapshot()).toEqual([["id", "name", "age"]]);
+  });
+
+  test("updateRows は flush で 1 回の setValues として再生される", () => {
+    const { sheet, snapshot, writes } = makeLoggedSheet("Users", initialUsers);
+    const buffer = createTransactionBuffer();
+
+    buffer.writer.updateRows(sheet, 2, 1, 3, [
+      [1, "Alice", 21],
+      [2, "Bob", 31],
+    ]);
+    buffer.flush();
+
+    expect(writes).toEqual([
+      {
+        method: "setValues",
+        args: [
+          2,
+          1,
+          [
+            [1, "Alice", 21],
+            [2, "Bob", 31],
+          ],
+        ],
+      },
+    ]);
+    expect(snapshot()).toEqual([
+      ["id", "name", "age"],
+      [1, "Alice", 21],
+      [2, "Bob", 31],
+    ]);
+  });
+
+  test("deleteRows は flush で 1 回の deleteRows として再生される", () => {
+    const { sheet, snapshot, writes } = makeLoggedSheet("Users", initialUsers);
+    const buffer = createTransactionBuffer();
+
+    buffer.writer.deleteRows(sheet, 2, 2);
+    buffer.flush();
+
+    expect(writes).toEqual([{ method: "deleteRows", args: [2, 2] }]);
+    expect(snapshot()).toEqual([["id", "name", "age"]]);
+  });
+
+  test("deleteRows 後の append の交錯も発行順の再生で行位置が一致する", () => {
+    const { sheet, snapshot, writes } = makeLoggedSheet("Users", initialUsers);
+    const buffer = createTransactionBuffer();
+
+    buffer.writer.deleteRows(sheet, 2, 2);
+    buffer.writer.appendRows(sheet, 1, 3, [[3, "Carol", 40]]);
+    buffer.flush();
+
+    expect(writes).toEqual([
+      { method: "deleteRows", args: [2, 2] },
+      { method: "setValues", args: [2, 1, [[3, "Carol", 40]]] },
+    ]);
+    expect(snapshot()).toEqual([
+      ["id", "name", "age"],
+      [3, "Carol", 40],
+    ]);
   });
 });
 

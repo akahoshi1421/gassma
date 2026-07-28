@@ -1,15 +1,16 @@
+import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import type { UpdateData, UpdateManyReturn } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
-import { GassmaLimitNegativeError } from "../../errors/find/findError";
+import { groupUpdateRuns } from "../write/rowRuns";
+import { resolveWriter } from "../write/sheetWriter";
 import {
   isNumberOperation,
   resolveNumberOperation,
 } from "./resolveNumberOperation";
-import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
-import { resolveWriter } from "../write/sheetWriter";
 
 function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
@@ -48,7 +49,7 @@ function updateManyFunc(
   const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);
   const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
-  const records = findedData.map((row) => {
+  const updates = findedData.map((row) => {
     const updatedRow = row.row.map((cell, cellIndex) => {
       if (!wantUpdateIndex.includes(cellIndex)) return cell;
       const value = data[String(titles[cellIndex])];
@@ -58,22 +59,43 @@ function updateManyFunc(
       return value;
     });
 
-    if (updatedRow.length > 0) {
-      const rowNumber = row.rowNumber + startRowNumber;
-      resolveWriter(gassmaControllerUtil.writer).updateRow(
+    return { rowNumber: row.rowNumber + startRowNumber, updatedRow };
+  });
+
+  const writeEntries = updates
+    .filter((update) => update.updatedRow.length > 0)
+    .map((update) => ({
+      rowNumber: update.rowNumber,
+      row: escapeFormulaInjectionRow(update.updatedRow),
+    }));
+
+  const writer = resolveWriter(gassmaControllerUtil.writer);
+  groupUpdateRuns(writeEntries).forEach((run) => {
+    if (run.rows.length === 1) {
+      writer.updateRow(
         sheet,
-        rowNumber,
+        run.startRowNumber,
         startColumnNumber,
         ColumnLength,
-        escapeFormulaInjectionRow(updatedRow),
+        run.rows[0],
       );
+      return;
     }
+    writer.updateRows(
+      sheet,
+      run.startRowNumber,
+      startColumnNumber,
+      ColumnLength,
+      run.rows,
+    );
+  });
 
-    return titles.reduce<Record<string, unknown>>((record, title, index) => {
+  const records = updates.map(({ updatedRow }) =>
+    titles.reduce<Record<string, unknown>>((record, title, index) => {
       record[title] = updatedRow[index];
       return record;
-    }, {});
-  });
+    }, {}),
+  );
 
   return withReturn ? records : { count: findedData.length };
 }

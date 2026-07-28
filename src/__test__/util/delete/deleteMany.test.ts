@@ -252,6 +252,26 @@ describe("deleteMany functionality tests", () => {
       expect(deleteRowCallCount).toBe(EXPECTED_ENGINEER_COUNT);
     });
 
+    test("連続 3 行の削除でシートから該当行だけが消え他行が保存される", () => {
+      const result = deleteManyFunc(mockUtil, {
+        where: {
+          OR: [{ 名前: "Alice" }, { 名前: "Bob" }, { 名前: "Charlie" }],
+        },
+      });
+
+      expect(result).toEqual({ count: 3 });
+
+      const currentData = (mockUtil.sheet as any)._getMockData();
+      expect(currentData).toEqual([
+        ["名前", "年齢", "住所", "郵便番号", "職業"],
+        ["David", 45, "Kyoto", "600-8000", "Manager"],
+        ["Eve", 28, "Tokyo", "100-0003", "Engineer"],
+        ["Frank", 52, "Osaka", "550-0002", "Director"],
+        ["Grace", 31, "Tokyo", "100-0004", "Designer"],
+        ["Henry", 28, "Kyoto", "600-8001", "Engineer"],
+      ]);
+    });
+
     test("should handle empty where conditions gracefully", () => {
       const result = deleteManyFunc(mockUtil, {
         where: {},

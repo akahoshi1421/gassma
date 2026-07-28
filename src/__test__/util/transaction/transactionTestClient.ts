@@ -101,6 +101,11 @@ const makeLoggedSheet = (
       data.splice(rowIndex - 1, 1);
       formulas.splice(rowIndex - 1, 1);
     },
+    deleteRows: (rowPosition: number, howMany: number) => {
+      beginWrite("deleteRows", [rowPosition, howMany]);
+      data.splice(rowPosition - 1, howMany);
+      formulas.splice(rowPosition - 1, howMany);
+    },
     clearContents: () => {
       if (config?.failOnClearContents) {
         throw new Error("mock clearContents failure");
