@@ -1,5 +1,4 @@
 import type { GassmaAny, WhereUse } from "../../types/coreTypes";
-import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { isAndMatch } from "./and";
 import { isNotMatch } from "./not";
@@ -9,7 +8,6 @@ const isLogicMatch = (
   rowData: HitRowData[],
   where: WhereUse,
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil,
 ) => {
   const and = "AND" in where ? where.AND : null;
   const or = "OR" in where ? where.OR : null;
@@ -19,11 +17,11 @@ const isLogicMatch = (
 
   if (and) {
     const andArray = Array.isArray(and) ? and : [and];
-    result = isAndMatch(rowData, andArray, titles, gassmaControllerUtil);
+    result = isAndMatch(rowData, andArray, titles);
   }
 
   if (or) {
-    const orResult = isOrMatch(rowData, or, titles, gassmaControllerUtil);
+    const orResult = isOrMatch(rowData, or, titles);
 
     if (result.length === 0) result = orResult;
     else {
@@ -37,12 +35,7 @@ const isLogicMatch = (
 
   if (not) {
     const notArray = Array.isArray(not) ? not : [not];
-    const notResult = isNotMatch(
-      rowData,
-      notArray,
-      titles,
-      gassmaControllerUtil,
-    );
+    const notResult = isNotMatch(rowData, notArray, titles);
 
     if (result.length === 0) result = notResult;
     else {

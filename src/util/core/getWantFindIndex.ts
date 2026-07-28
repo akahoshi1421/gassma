@@ -1,14 +1,12 @@
+import type { GassmaAny, WhereUse } from "../../types/coreTypes";
 import type { DeleteData, FindData, UpdateData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "./getTitle";
 
-const getWantFindIndex = (
-  gassmaControllerUtil: GassmaControllerUtil,
-  wantData: FindData | DeleteData | UpdateData,
-) => {
-  const where = wantData.where;
-  const titles = getTitle(gassmaControllerUtil);
-
+const getWantFindIndexFromTitles = (
+  titles: GassmaAny[],
+  where: WhereUse,
+): number[] => {
   const wantFindKeys = Object.entries(where).map((oneData) => {
     return oneData[0];
   });
@@ -26,4 +24,13 @@ const getWantFindIndex = (
   return wantFindIndexRemovedMinusOne;
 };
 
-export { getWantFindIndex };
+const getWantFindIndex = (
+  gassmaControllerUtil: GassmaControllerUtil,
+  wantData: FindData | DeleteData | UpdateData,
+) => {
+  const titles = getTitle(gassmaControllerUtil);
+
+  return getWantFindIndexFromTitles(titles, wantData.where);
+};
+
+export { getWantFindIndex, getWantFindIndexFromTitles };
