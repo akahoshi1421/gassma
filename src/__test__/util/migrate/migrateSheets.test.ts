@@ -9,6 +9,11 @@ type SetValuesCall = {
   values: unknown[][];
 };
 
+type InsertColumnsAfterCall = {
+  afterPosition: number;
+  howMany: number;
+};
+
 type MockRange = {
   getValues: () => unknown[][];
   setValues: (values: unknown[][]) => void;
@@ -18,45 +23,81 @@ type MockSheet = {
   getName: () => string;
   getLastRow: () => number;
   getLastColumn: () => number;
+  getMaxColumns: () => number;
   getRange: (
     row: number,
     col: number,
     numRows: number,
     numCols: number,
   ) => MockRange;
+  insertColumnsAfter: (afterPosition: number, howMany: number) => void;
 };
 
 type SheetHandle = {
   sheet: MockSheet;
   snapshot: () => unknown[][];
   writes: SetValuesCall[];
+  columnInsertions: InsertColumnsAfterCall[];
 };
 
-const makeSheet = (name: string, initial: unknown[][]): SheetHandle => {
+const DEFAULT_MAX_COLUMNS = 26;
+
+const makeSheet = (
+  name: string,
+  initial: unknown[][],
+  initialMaxColumns: number = DEFAULT_MAX_COLUMNS,
+): SheetHandle => {
   const data = initial.map((row) => [...row]);
   const writes: SetValuesCall[] = [];
+  const columnInsertions: InsertColumnsAfterCall[] = [];
+  let maxColumns = initialMaxColumns;
   const width = () => (data[0] ? data[0].length : 0);
   const sheet: MockSheet = {
     getName: () => name,
     getLastRow: () => data.length,
     getLastColumn: () => width(),
-    getRange: (row, col, numRows, numCols) => ({
-      getValues: () =>
-        data
-          .slice(row - 1, row - 1 + numRows)
-          .map((r) => r.slice(col - 1, col - 1 + numCols)),
-      setValues: (values) => {
-        writes.push({ row, col, numRows, numCols, values });
-        values.forEach((rowValues, i) => {
-          while (data.length < row + i) data.push([]);
-          rowValues.forEach((value, j) => {
-            data[row - 1 + i][col - 1 + j] = value;
+    getMaxColumns: () => maxColumns,
+    getRange: (row, col, numRows, numCols) => {
+      if (col - 1 + numCols > maxColumns) {
+        throw new Error(
+          `Range exceeds grid limits. Max columns: ${maxColumns}`,
+        );
+      }
+      return {
+        getValues: () =>
+          data
+            .slice(row - 1, row - 1 + numRows)
+            .map((r) => r.slice(col - 1, col - 1 + numCols)),
+        setValues: (values) => {
+          writes.push({ row, col, numRows, numCols, values });
+          values.forEach((rowValues, i) => {
+            while (data.length < row + i) data.push([]);
+            rowValues.forEach((value, j) => {
+              data[row - 1 + i][col - 1 + j] = value;
+            });
           });
-        });
-      },
-    }),
+        },
+      };
+    },
+    insertColumnsAfter: (afterPosition, howMany) => {
+      if (afterPosition < 1 || afterPosition > maxColumns || howMany < 1) {
+        throw new Error("Those columns are out of bounds.");
+      }
+      columnInsertions.push({ afterPosition, howMany });
+      data.forEach((row) => {
+        if (row.length <= afterPosition) return;
+        const blanks = Array.from({ length: howMany }, () => "");
+        row.splice(afterPosition, 0, ...blanks);
+      });
+      maxColumns += howMany;
+    },
   };
-  return { sheet, snapshot: () => data.map((row) => [...row]), writes };
+  return {
+    sheet,
+    snapshot: () => data.map((row) => [...row]),
+    writes,
+    columnInsertions,
+  };
 };
 
 type MockSpreadsheet = {
@@ -235,6 +276,79 @@ describe("migrateSheets 既存シートへの列追加", () => {
       expect(write.numRows).toBe(1);
     });
     expect(users.snapshot()).toEqual([["id", "flag"], [1], [2]]);
+  });
+});
+
+describe("migrateSheets グリッド上限", () => {
+  const columnNames = (count: number, prefix = "col"): string[] =>
+    Array.from({ length: count }, (_, i) => `${prefix}${i + 1}`);
+
+  test("デフォルト26列を超えるモデルは新規シートのグリッドを拡張して作成する", () => {
+    const env = makeSpreadsheet("active", []);
+    installSpreadsheetApp(env);
+    const columns = columnNames(30);
+
+    migrateSheets({ models: [{ name: "Wide", columns }] });
+
+    expect(env.handleOf("Wide").snapshot()).toEqual([columns]);
+    expect(env.handleOf("Wide").columnInsertions).toEqual([
+      { afterPosition: 26, howMany: 4 },
+    ]);
+    expect(env.handleOf("Wide").sheet.getMaxColumns()).toBe(30);
+  });
+
+  test("既存シートの空き列が足りない場合はグリッドを拡張して列を追加する", () => {
+    const columns = columnNames(24);
+    const wide = makeSheet("Wide", [columns]);
+    const env = makeSpreadsheet("active", [wide]);
+    installSpreadsheetApp(env);
+    const extras = columnNames(5, "extra");
+
+    migrateSheets({
+      models: [{ name: "Wide", columns: [...columns, ...extras] }],
+    });
+
+    expect(wide.snapshot()).toEqual([[...columns, ...extras]]);
+    expect(wide.columnInsertions).toEqual([{ afterPosition: 26, howMany: 3 }]);
+    expect(wide.sheet.getMaxColumns()).toBe(29);
+  });
+
+  test("列削除で maxColumns が詰まった既存シートにも列を追加できる", () => {
+    const trimmed = makeSheet("User", [["id", "name", "email"]], 3);
+    const env = makeSpreadsheet("active", [trimmed]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [
+        { name: "User", columns: ["id", "name", "email", "age", "flag"] },
+      ],
+    });
+
+    expect(trimmed.snapshot()).toEqual([
+      ["id", "name", "email", "age", "flag"],
+    ]);
+    expect(trimmed.columnInsertions).toEqual([
+      { afterPosition: 3, howMany: 2 },
+    ]);
+    expect(trimmed.sheet.getMaxColumns()).toBe(5);
+  });
+
+  test("グリッドに空きがある場合は insertColumnsAfter を呼ばない", () => {
+    const users = makeSheet("User", [["id", "name"]]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [
+        { name: "User", columns: ["id", "name", "email"] },
+        { name: "Post", columns: ["id", "title"] },
+      ],
+    });
+
+    expect(users.columnInsertions).toEqual([]);
+    expect(env.handleOf("Post").columnInsertions).toEqual([]);
+    expect(users.snapshot()).toEqual([["id", "name", "email"]]);
+    expect(env.handleOf("Post").snapshot()).toEqual([["id", "title"]]);
   });
 });
 
