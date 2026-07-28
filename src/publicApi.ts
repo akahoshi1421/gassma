@@ -12,6 +12,7 @@ import * as whereRelationErrors from "./errors/relation/whereRelationError";
 import { GassmaClient as GassmaClientClass } from "./gassma";
 import { GassmaController as GassmaControllerClass } from "./gassmaController";
 import { FieldRef as FieldRefClass } from "./util/filterConditions/fieldRef";
+import { migrateSheets as migrateSheetsFunc } from "./util/migrate/migrateSheets";
 import { skip as skipSymbol } from "./util/skip/skip";
 
 // GAS ライブラリとして公開する実体。src/index.d.ts の namespace Gassma と 1:1 に保つ。
@@ -21,6 +22,7 @@ export const GassmaClient = GassmaClientClass;
 export const GassmaController = GassmaControllerClass;
 export const FieldRef = FieldRefClass;
 export const skip = skipSymbol;
+export const migrateSheets = migrateSheetsFunc;
 
 export const GassmaSkipNegativeError = findErrors.GassmaSkipNegativeError;
 export const GassmaFindFirstTakeError = findErrors.GassmaFindFirstTakeError;

@@ -3,6 +3,7 @@ import { GassmaClient } from "../gassma";
 import { GassmaController } from "../gassmaController";
 import * as publicApi from "../publicApi";
 import { FieldRef } from "../util/filterConditions/fieldRef";
+import { migrateSheets } from "../util/migrate/migrateSheets";
 import { skip } from "../util/skip/skip";
 import {
   buildTestClient,
@@ -25,6 +26,10 @@ describe("publicApi", () => {
     expect(publicApi.GassmaController).toBe(GassmaController);
     expect(publicApi.FieldRef).toBe(FieldRef);
     expect(publicApi.NotFoundError).toBe(NotFoundError);
+  });
+
+  test("migrateSheets は本体の関数と同一", () => {
+    expect(publicApi.migrateSheets).toBe(migrateSheets);
   });
 
   test("全 export が実体を持つ(skip 以外は function)", () => {
