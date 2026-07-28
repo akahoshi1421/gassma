@@ -159,6 +159,37 @@ describe("mid-flush 失敗からの復元", () => {
     expect(env.propsStore[MARKER_KEY]).toBeUndefined();
   });
 
+  test("updateMany の一括 setValues が失敗しても全行が復元される", () => {
+    const env = buildTxTestEnv({
+      usersConfig: { failOnWriteCall: 1 },
+    });
+
+    expect(() =>
+      env.client.$transaction((tx) => {
+        tx.Users.updateMany({ data: { age: { increment: 1 } } });
+      }),
+    ).toThrow("mock write failure at call 1");
+
+    expect(env.users.snapshot()).toEqual(initialUsers);
+    expect(env.sheetNames()).toEqual(["Users", "Posts"]);
+    expect(env.propsStore[MARKER_KEY]).toBeUndefined();
+  });
+
+  test("deleteMany の一括 deleteRows が失敗しても行数が戻る", () => {
+    const env = buildTxTestEnv({
+      usersConfig: { failOnWriteCall: 1 },
+    });
+
+    expect(() =>
+      env.client.$transaction((tx) => {
+        tx.Users.deleteMany({});
+      }),
+    ).toThrow("mock write failure at call 1");
+
+    expect(env.users.snapshot()).toEqual(initialUsers);
+    expect(env.propsStore[MARKER_KEY]).toBeUndefined();
+  });
+
   test("エラー後は再び $transaction を開始できる", () => {
     const env = buildTxTestEnv({
       usersConfig: { failOnWriteCall: 1 },

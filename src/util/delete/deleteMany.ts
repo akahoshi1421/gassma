@@ -1,7 +1,8 @@
+import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import type { DeleteData, DeleteManyReturn } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
-import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import { whereFilter } from "../core/whereFilter";
+import { groupDeleteBlocksDescending } from "../write/rowRuns";
 import { resolveWriter } from "../write/sheetWriter";
 
 const deleteManyFunc = (
@@ -23,13 +24,18 @@ const deleteManyFunc = (
   const findedDataLength = findedData.length;
 
   // 行を後ろから削除することで、削除による行番号のずれを回避
-  // sortDescendingを使って降順にソート
-  const sortedData = findedData.sort((a, b) => b.rowNumber - a.rowNumber);
+  // 連続する行はブロックにまとめて 1 コールで削除する
+  const actualRowNumbers = findedData.map(
+    (row) => row.rowNumber + startRowNumber,
+  );
 
   const writer = resolveWriter(gassmaControllerUtil.writer);
-  sortedData.forEach((row) => {
-    const actualRowNumber = row.rowNumber + startRowNumber;
-    writer.deleteRow(sheet, actualRowNumber);
+  groupDeleteBlocksDescending(actualRowNumbers).forEach((block) => {
+    if (block.howMany === 1) {
+      writer.deleteRow(sheet, block.rowPosition);
+      return;
+    }
+    writer.deleteRows(sheet, block.rowPosition, block.howMany);
   });
 
   return { count: findedDataLength };

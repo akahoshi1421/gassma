@@ -76,6 +76,10 @@ const createVirtualSheetStore = () => {
     getVirtual(sheet).grid.splice(rowNumber - 1, 1);
   };
 
+  const deleteRows = (sheet: Sheet, rowPosition: number, howMany: number) => {
+    getVirtual(sheet).grid.splice(rowPosition - 1, howMany);
+  };
+
   const getLastRow = (sheet: Sheet): number => getVirtual(sheet).grid.length;
 
   const getRangeValues = (
@@ -95,7 +99,14 @@ const createVirtualSheetStore = () => {
     });
   };
 
-  return { appendRows, updateRow, deleteRow, getLastRow, getRangeValues };
+  return {
+    appendRows,
+    updateRow,
+    deleteRow,
+    deleteRows,
+    getLastRow,
+    getRangeValues,
+  };
 };
 
 type VirtualSheetStore = ReturnType<typeof createVirtualSheetStore>;

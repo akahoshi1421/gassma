@@ -1,13 +1,13 @@
+import { createFunc } from "../../../util/create/create";
+import { createManyFunc } from "../../../util/create/createManyFunc";
+import { deleteManyFunc } from "../../../util/delete/deleteMany";
+import { resolveNestedUpdate } from "../../../util/update/nestedWrite/resolveNestedUpdate";
+import { updateManyFunc } from "../../../util/update/updateMany";
+import type { SheetWriter } from "../../../util/write/sheetWriter";
 import {
   immediateSheetWriter,
   resolveWriter,
 } from "../../../util/write/sheetWriter";
-import type { SheetWriter } from "../../../util/write/sheetWriter";
-import { createFunc } from "../../../util/create/create";
-import { createManyFunc } from "../../../util/create/createManyFunc";
-import { updateManyFunc } from "../../../util/update/updateMany";
-import { deleteManyFunc } from "../../../util/delete/deleteMany";
-import { resolveNestedUpdate } from "../../../util/update/nestedWrite/resolveNestedUpdate";
 import { getMutableMockControllerUtil } from "../../consts/mockControllerUtil";
 
 type WriterCall = { method: string; args: unknown[] };
@@ -27,8 +27,23 @@ const createFakeWriter = (): { writer: SheetWriter; calls: WriterCall[] } => {
         args: [sheet, rowNumber, startColumnNumber, columnLength, row],
       });
     },
+    updateRows: (
+      sheet,
+      startRowNumber,
+      startColumnNumber,
+      columnLength,
+      rows,
+    ) => {
+      calls.push({
+        method: "updateRows",
+        args: [sheet, startRowNumber, startColumnNumber, columnLength, rows],
+      });
+    },
     deleteRow: (sheet, rowNumber) => {
       calls.push({ method: "deleteRow", args: [sheet, rowNumber] });
+    },
+    deleteRows: (sheet, rowPosition, howMany) => {
+      calls.push({ method: "deleteRows", args: [sheet, rowPosition, howMany] });
     },
   };
   return { writer, calls };
@@ -41,6 +56,7 @@ const createSpySheet = () => {
     getLastRow: jest.fn(() => 9),
     getRange,
     deleteRow: jest.fn(),
+    deleteRows: jest.fn(),
   } as any;
   return { sheet, getRange, setValues };
 };
@@ -77,6 +93,32 @@ describe("immediateSheetWriter", () => {
     immediateSheetWriter.deleteRow(sheet, 7);
 
     expect(sheet.deleteRow).toHaveBeenCalledWith(7);
+    expect(getRange).not.toHaveBeenCalled();
+  });
+
+  test("updateRows は連続行の範囲に 1 回の setValues で書く", () => {
+    const { sheet, getRange, setValues } = createSpySheet();
+    const rows = [
+      ["a", 1, "x"],
+      ["b", 2, "y"],
+    ];
+
+    immediateSheetWriter.updateRows(sheet, 5, 2, 3, rows);
+
+    expect(getRange).toHaveBeenCalledTimes(1);
+    expect(getRange).toHaveBeenCalledWith(5, 2, 2, 3);
+    expect(setValues).toHaveBeenCalledWith(rows);
+    expect(sheet.getLastRow).not.toHaveBeenCalled();
+  });
+
+  test("deleteRows は sheet.deleteRows を 1 回で呼ぶ", () => {
+    const { sheet, getRange } = createSpySheet();
+
+    immediateSheetWriter.deleteRows(sheet, 4, 3);
+
+    expect(sheet.deleteRows).toHaveBeenCalledTimes(1);
+    expect(sheet.deleteRows).toHaveBeenCalledWith(4, 3);
+    expect(sheet.deleteRow).not.toHaveBeenCalled();
     expect(getRange).not.toHaveBeenCalled();
   });
 });

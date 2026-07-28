@@ -183,6 +183,9 @@ export const getMutableMockControllerUtil = (): MutableGassmaControllerUtil => {
       deleteRow: jest.fn((rowIndex: number) => {
         mockData.splice(rowIndex - 1, 1);
       }),
+      deleteRows: jest.fn((rowPosition: number, howMany: number) => {
+        mockData.splice(rowPosition - 1, howMany);
+      }),
       // Helper method to get current mock data state
       _getMockData: () => [...mockData],
       // Helper method to reset mock data
