@@ -5,15 +5,14 @@ import type {
   RelationContext,
   RelationDefinition,
 } from "../../../../types/relationTypes";
+import type { JunctionWriter } from "./junctionWriter";
 import { createTargetTable } from "./targetTable";
-
-type JunctionWriter = (targetValue: unknown) => void;
 
 const batchManyToManyConnect = (
   relation: RelationDefinition,
   items: WhereUse[],
   context: RelationContext,
-  createJunctionRow: JunctionWriter,
+  junction: JunctionWriter,
 ): void => {
   const table = createTargetTable(context, relation.to);
 
@@ -29,15 +28,16 @@ const batchManyToManyConnect = (
   }
 
   foundRecords.forEach((record) => {
-    createJunctionRow(record[relation.reference]);
+    junction.add(record[relation.reference]);
   });
+  junction.flush();
 };
 
 const batchManyToManyConnectOrCreate = (
   relation: RelationDefinition,
   items: ConnectOrCreateInput[],
   context: RelationContext,
-  createJunctionRow: JunctionWriter,
+  junction: JunctionWriter,
 ): void => {
   const table = createTargetTable(context, relation.to);
   let stale = false;
@@ -46,6 +46,7 @@ const batchManyToManyConnectOrCreate = (
     const matched = table.matchRecords(where);
     if (matched.length > 0) return matched[0];
     if (!stale) return null;
+    junction.flush();
     table.refresh();
     stale = false;
     const refreshed = table.matchRecords(where);
@@ -53,15 +54,17 @@ const batchManyToManyConnectOrCreate = (
   };
 
   const createTargetWithJunction = (input: ConnectOrCreateInput) => {
+    junction.flush();
     const created = context.createOnSheet(relation.to, { data: input.create });
     stale = true;
-    createJunctionRow(created[relation.reference]);
+    junction.add(created[relation.reference]);
   };
 
   const legacyItem = (input: ConnectOrCreateInput) => {
+    junction.flush();
     const found = context.findManyOnSheet(relation.to, { where: input.where });
     if (found.length > 0) {
-      createJunctionRow(found[0][relation.reference]);
+      junction.add(found[0][relation.reference]);
       return;
     }
     createTargetWithJunction(input);
@@ -74,11 +77,12 @@ const batchManyToManyConnectOrCreate = (
     }
     const found = findLocally(input.where);
     if (found !== null) {
-      createJunctionRow(found[relation.reference]);
+      junction.add(found[relation.reference]);
       return;
     }
     createTargetWithJunction(input);
   });
+  junction.flush();
 };
 
 export { batchManyToManyConnect, batchManyToManyConnectOrCreate };

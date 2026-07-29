@@ -5,6 +5,7 @@ import type { RelationContext } from "../../../types/relationTypes";
 import { isGassmaAny } from "../../relation/collectKeys";
 import { batchConnect } from "./connectBatch/connectItems";
 import { batchConnectOrCreate } from "./connectBatch/connectOrCreateItems";
+import { batchNestedCreate } from "./createItems";
 
 const processAfterCreate = (
   createdRecord: Record<string, unknown>,
@@ -22,11 +23,7 @@ const processAfterCreate = (
 
     if (ops.create) {
       const items = Array.isArray(ops.create) ? ops.create : [ops.create];
-      items.forEach((item) => {
-        context.createOnSheet(relation.to, {
-          data: { ...item, [relation.reference]: parentValue },
-        });
-      });
+      batchNestedCreate(relation, items, parentValue, context);
     }
 
     if (ops.createMany) {
