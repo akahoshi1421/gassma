@@ -1,6 +1,7 @@
 import { NestedWriteConnectNotFoundError } from "../../../errors/relation/nestedWriteError";
 import type { NestedWriteOperation } from "../../../types/nestedWriteTypes";
 import type { RelationContext } from "../../../types/relationTypes";
+import { createJunctionWriter } from "./connectBatch/junctionWriter";
 import {
   batchManyToManyConnect,
   batchManyToManyConnectOrCreate,
@@ -37,10 +38,12 @@ const processManyToMany = (
       });
     }
 
+    const junction = createJunctionWriter(context, through, parentValue);
+
     if (ops.connect) {
       const items = Array.isArray(ops.connect) ? ops.connect : [ops.connect];
       if (items.length > 1 && !selfJunction) {
-        batchManyToManyConnect(relation, items, context, createJunctionRow);
+        batchManyToManyConnect(relation, items, context, junction);
       } else {
         items.forEach((where) => {
           const found = context.findManyOnSheet(relation.to, { where });
@@ -57,12 +60,7 @@ const processManyToMany = (
         ? ops.connectOrCreate
         : [ops.connectOrCreate];
       if (items.length > 1 && !selfJunction) {
-        batchManyToManyConnectOrCreate(
-          relation,
-          items,
-          context,
-          createJunctionRow,
-        );
+        batchManyToManyConnectOrCreate(relation, items, context, junction);
         return;
       }
       items.forEach((input) => {

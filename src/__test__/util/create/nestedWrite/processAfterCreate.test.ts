@@ -60,9 +60,6 @@ describe("processAfterCreate", () => {
   });
 
   it("oneToMany + create（配列）で複数の子レコードが作成される", () => {
-    mockCreateOnSheet
-      .mockReturnValueOnce({ id: 10, title: "記事A", authorId: 1 })
-      .mockReturnValueOnce({ id: 11, title: "記事B", authorId: 1 });
     const relationOps = new Map<string, NestedWriteOperation>();
     relationOps.set("posts", {
       create: [{ title: "記事A" }, { title: "記事B" }],
@@ -74,12 +71,13 @@ describe("processAfterCreate", () => {
       makeContext({ posts: oneToManyRelation }),
     );
 
-    expect(mockCreateOnSheet).toHaveBeenCalledTimes(2);
-    expect(mockCreateOnSheet).toHaveBeenCalledWith("Posts", {
-      data: { title: "記事A", authorId: 1 },
-    });
-    expect(mockCreateOnSheet).toHaveBeenCalledWith("Posts", {
-      data: { title: "記事B", authorId: 1 },
+    expect(mockCreateOnSheet).not.toHaveBeenCalled();
+    expect(mockCreateManyOnSheet).toHaveBeenCalledTimes(1);
+    expect(mockCreateManyOnSheet).toHaveBeenCalledWith("Posts", {
+      data: [
+        { title: "記事A", authorId: 1 },
+        { title: "記事B", authorId: 1 },
+      ],
     });
   });
 
