@@ -3,9 +3,8 @@ import type {
   GassmaAny,
   WhereUse,
 } from "../../types/coreTypes";
-import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
-import { getWantFindIndex } from "../core/getWantFindIndex";
+import { getWantFindIndexFromTitles } from "../core/getWantFindIndex";
 import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
 import { isDict } from "../other/isDict";
 import { isValueEqual } from "../other/isValueEqual";
@@ -15,14 +14,11 @@ const isAndMatch = (
   rowsData: HitRowData[],
   whereArray: WhereUse[],
   titles: GassmaAny[],
-  gassmaControllerUtil: GassmaControllerUtil,
 ) => {
   let resultRowsData: HitRowData[] = rowsData.concat();
 
   whereArray.forEach((where) => {
-    const wantFindIndex = getWantFindIndex(gassmaControllerUtil, {
-      where: where,
-    });
+    const wantFindIndex = getWantFindIndexFromTitles(titles, where);
 
     const findedDataIncludeNull = resultRowsData.map((row) => {
       const matchRow = wantFindIndex.filter((i) => {
@@ -46,12 +42,7 @@ const isAndMatch = (
     resultRowsData = findedDataIncludeNull.filter((data) => data !== null);
 
     if ("OR" in where || "AND" in where || "NOT" in where) {
-      resultRowsData = isLogicMatch(
-        resultRowsData,
-        where,
-        titles,
-        gassmaControllerUtil,
-      );
+      resultRowsData = isLogicMatch(resultRowsData, where, titles);
     }
   });
 

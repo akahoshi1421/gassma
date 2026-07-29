@@ -1,66 +1,18 @@
-import type { FilterConditions, WhereUse } from "../../types/coreTypes";
-import type { FindData } from "../../types/findTypes";
+import type { WhereUse } from "../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { HitRowData } from "../../types/hitRowDataType";
-import { isLogicMatch } from "../andOrNot/entry";
-import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
-import { isDict } from "../other/isDict";
-import { isValueEqual } from "../other/isValueEqual";
+import { filterRowsByWhere } from "./filterRowsByWhere";
 import { getAllData } from "./getAllData";
 import { getTitle } from "./getTitle";
-import { getWantFindIndex } from "./getWantFindIndex";
 
 const whereFilter = (
   where: WhereUse,
   gassmaControllerUtil: GassmaControllerUtil,
-) => {
+): HitRowData[] => {
   const allDataList = getAllData(gassmaControllerUtil);
   const titles = getTitle(gassmaControllerUtil);
 
-  if (Object.keys(where).length === 0) {
-    return allDataList.map((row, index): HitRowData => {
-      return {
-        rowNumber: index + 1,
-        row: row,
-      };
-    });
-  }
-
-  const findData: FindData = {
-    where: where,
-  };
-
-  const wantFindIndex = getWantFindIndex(gassmaControllerUtil, findData);
-
-  const findedDataIncludeNull = allDataList.map((row, rowNumber) => {
-    const matchRow = wantFindIndex.filter((i) => {
-      const whereOptionContent = where[String(titles[i])];
-      if (isDict(whereOptionContent))
-        return matchFilterCondition(
-          row[i],
-          whereOptionContent as FilterConditions,
-          row,
-          titles,
-        );
-
-      const replacedNullWhereOptionContent =
-        whereOptionContent === "" ? null : whereOptionContent;
-      return isValueEqual(row[i], replacedNullWhereOptionContent);
-    });
-
-    if (matchRow.length === wantFindIndex.length) {
-      const hitRowData: HitRowData = { rowNumber: rowNumber + 1, row: row };
-      return hitRowData;
-    }
-
-    return null;
-  });
-
-  const findedData = findedDataIncludeNull.filter((data) => data !== null);
-
-  if (!("OR" in where || "AND" in where || "NOT" in where)) return findedData;
-
-  return isLogicMatch(findedData, where, titles, gassmaControllerUtil);
+  return filterRowsByWhere(allDataList, titles, where);
 };
 
 export { whereFilter };
