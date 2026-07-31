@@ -1,13 +1,9 @@
-import type { GassmaAny } from "../../../types/coreTypes";
-import type { RelationContext } from "../../../types/relationTypes";
 import { RelationOnUpdateRestrictError } from "../../../errors/relation/relationError";
+import type { RelationContext } from "../../../types/relationTypes";
 import { isValueEqual } from "../../other/isValueEqual";
 import { collectKeys, isGassmaAny } from "../collectKeys";
-
-type ChangedPair = {
-  oldValue: GassmaAny;
-  newValue: GassmaAny;
-};
+import { applyCascadeUpdate, resolveCascadeTarget } from "./applyCascadeUpdate";
+import type { ChangedPair } from "./cascadeUpdatePlan";
 
 const extractChangedPairs = (
   beforeRecords: Record<string, unknown>[],
@@ -47,18 +43,10 @@ const resolveOnUpdate = (
     if (changed.length === 0) return;
 
     const oldValues = changed.map(({ oldValue }) => oldValue);
+    const { sheet, field } = resolveCascadeTarget(relation);
 
-    const targetSheet =
-      relation.type === "manyToMany" && relation.through
-        ? relation.through.sheet
-        : relation.to;
-    const targetField =
-      relation.type === "manyToMany" && relation.through
-        ? relation.through.field
-        : relation.reference;
-
-    const children = context.findManyOnSheet(targetSheet, {
-      where: { [targetField]: { in: oldValues } },
+    const children = context.findManyOnSheet(sheet, {
+      where: { [field]: { in: oldValues } },
     });
 
     if (children.length > 0) {
@@ -85,19 +73,7 @@ const resolveOnUpdate = (
     if (changed.length === 0) return;
 
     if (relation.onUpdate === "Cascade") {
-      changed.forEach(({ oldValue, newValue }) => {
-        if (relation.type === "manyToMany" && relation.through) {
-          context.updateManyOnSheet?.(relation.through.sheet, {
-            where: { [relation.through.field]: oldValue },
-            data: { [relation.through.field]: newValue },
-          });
-        } else {
-          context.updateManyOnSheet?.(relation.to, {
-            where: { [relation.reference]: oldValue },
-            data: { [relation.reference]: newValue },
-          });
-        }
-      });
+      applyCascadeUpdate(changed, relation, context);
     }
 
     if (relation.onUpdate === "SetNull") {
