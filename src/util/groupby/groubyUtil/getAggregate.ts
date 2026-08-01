@@ -1,7 +1,7 @@
 import type {
-  AnyUse,
   HavingAggregate,
   MatchKeys,
+  RowRecord,
 } from "../../../types/coreTypes";
 import { getAvg } from "../../aggregate/aggregateUtil/avg";
 import { getCount } from "../../aggregate/aggregateUtil/count";
@@ -10,7 +10,7 @@ import { getMin } from "../../aggregate/aggregateUtil/min";
 import { getSum } from "../../aggregate/aggregateUtil/sum";
 
 const getAggregate = (
-  byClassificationedRow: AnyUse[],
+  byClassificationedRow: RowRecord[],
   matchKeys: MatchKeys,
 ): HavingAggregate => {
   const aggregateResult = {

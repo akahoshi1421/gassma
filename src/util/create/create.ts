@@ -1,9 +1,9 @@
-import type { AnyUse } from "../../types/coreTypes";
 import type { CreateData } from "../../types/createTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
+import { unwrapRawCell } from "../raw/raw";
 import { resolveWriter } from "../write/sheetWriter";
 
 const createFunc = (
@@ -17,7 +17,7 @@ const createFunc = (
 
   const wantCreateIndex = getWantUpdateIndexFromTitles(titles, data);
 
-  const createReturn: AnyUse = {};
+  const createReturn: Record<string, unknown> = {};
 
   const newData = titles.map((_, index) => {
     if (!wantCreateIndex.includes(index)) {
@@ -25,7 +25,7 @@ const createFunc = (
       return "";
     }
 
-    createReturn[titles[index]] = data[titles[index]];
+    createReturn[titles[index]] = unwrapRawCell(data[titles[index]]);
     return data[titles[index]];
   });
 
