@@ -5,6 +5,7 @@ import { createJunctionWriter } from "./connectBatch/junctionWriter";
 import {
   batchManyToManyConnect,
   batchManyToManyConnectOrCreate,
+  batchManyToManyCreate,
 } from "./connectBatch/manyToManyItems";
 
 const processManyToMany = (
@@ -30,15 +31,19 @@ const processManyToMany = (
       });
     };
 
+    const junction = createJunctionWriter(context, through, parentValue);
+
     if (ops.create) {
       const items = Array.isArray(ops.create) ? ops.create : [ops.create];
-      items.forEach((item) => {
-        const created = context.createOnSheet(relation.to, { data: item });
-        createJunctionRow(created[relation.reference]);
-      });
+      if (items.length > 1 && !selfJunction) {
+        batchManyToManyCreate(relation, items, context, junction);
+      } else {
+        items.forEach((item) => {
+          const created = context.createOnSheet(relation.to, { data: item });
+          createJunctionRow(created[relation.reference]);
+        });
+      }
     }
-
-    const junction = createJunctionWriter(context, through, parentValue);
 
     if (ops.connect) {
       const items = Array.isArray(ops.connect) ? ops.connect : [ops.connect];

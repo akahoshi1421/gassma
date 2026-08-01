@@ -81,6 +81,17 @@ const injectRelations = (
     return controller.createMany(createManyData);
   };
 
+  const createManyAndReturnOnSheet = (
+    sheetName: string,
+    createManyData: { data: AnyUse[] },
+  ): Record<string, unknown>[] => {
+    const controller = controllers[sheetName];
+    if (!controller) {
+      throw new Error(`Target sheet "${sheetName}" is not accessible`);
+    }
+    return controller.createManyAndReturn(createManyData);
+  };
+
   const relationNamesOnSheet = (sheetName: string): string[] =>
     Object.keys(relations[sheetName] ?? {});
 
@@ -96,6 +107,7 @@ const injectRelations = (
       updateManyOnSheet,
       createOnSheet,
       createManyOnSheet,
+      createManyAndReturnOnSheet,
     });
   });
 };
