@@ -3,6 +3,7 @@ import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType"
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
+import { unwrapRawCell } from "../raw/raw";
 import { resolveWriter } from "../write/sheetWriter";
 
 function createManyFunc(
@@ -50,7 +51,7 @@ function createManyFunc(
   if (withReturn) {
     return data.map((row) =>
       titles.reduce<Record<string, unknown>>((record, title) => {
-        record[title] = title in row ? row[title] : null;
+        record[title] = title in row ? unwrapRawCell(row[title]) : null;
         return record;
       }, {}),
     );

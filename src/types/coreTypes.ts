@@ -1,3 +1,5 @@
+import type { RawValue } from "../util/raw/raw";
+
 type GassmaAny = string | number | boolean | Date | null;
 
 type SortOrderInput = {
@@ -33,11 +35,11 @@ type NumberOperation = {
 };
 
 type AnyUse = {
-  [key: string]: GassmaAny;
+  [key: string]: GassmaAny | RawValue;
 };
 
 type UpdateAnyUse = {
-  [key: string]: GassmaAny | NumberOperation;
+  [key: string]: GassmaAny | NumberOperation | RawValue;
 };
 
 type WhereUse = {
@@ -143,9 +145,13 @@ type TranspositionHavingAggregateWithIndex = {
   index: number;
 };
 
+type RowRecord = {
+  [key: string]: GassmaAny;
+};
+
 type HitByClassificationedRowData = {
   rowNumber: number;
-  row: AnyUse[];
+  row: RowRecord[];
 };
 
 type TranspositionHavingConditionKeys = {
@@ -167,6 +173,7 @@ export type {
   NumberOperation,
   AnyUse,
   UpdateAnyUse,
+  RowRecord,
   FilterConditions,
   NumberFilterConditions,
   WhereUse,

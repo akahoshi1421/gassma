@@ -22,6 +22,7 @@ import {
   resolveNumberOperation,
 } from "../resolveNumberOperation";
 import { escapeFormulaInjectionRow } from "../../core/escapeFormulaInjection";
+import { unwrapRawCell } from "../../raw/raw";
 import { resolveWriter } from "../../write/sheetWriter";
 
 type UpdateInput = {
@@ -93,7 +94,7 @@ const resolveNestedUpdate = (
     );
 
     return titles.reduce<Record<string, unknown>>((record, title, index) => {
-      record[title] = updatedRow[index];
+      record[title] = unwrapRawCell(updatedRow[index]);
       return record;
     }, {});
   }
@@ -137,7 +138,7 @@ const resolveNestedUpdate = (
 
   const updatedRecord = titles.reduce<Record<string, unknown>>(
     (record, title, index) => {
-      record[title] = updatedRow[index];
+      record[title] = unwrapRawCell(updatedRow[index]);
       return record;
     },
     {},

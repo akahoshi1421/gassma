@@ -1,6 +1,9 @@
+import { isRawValue, unwrapRawValue } from "../raw/raw";
+
 const FORMULA_PREFIXES = ["=", "+", "-", "@"];
 
 const escapeFormulaInjection = (value: unknown): unknown => {
+  if (isRawValue(value)) return unwrapRawValue(value);
   if (Array.isArray(value)) return value.map(escapeFormulaInjection);
   if (typeof value !== "string") return value;
   if (value.length === 0) return value;

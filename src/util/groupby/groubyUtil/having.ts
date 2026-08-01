@@ -1,7 +1,7 @@
 import type {
-  AnyUse,
   HavingUse,
   HitByClassificationedRowData,
+  RowRecord,
 } from "../../../types/coreTypes";
 import { isLogicMatchHaving } from "./andOrNot/entry";
 import { normalHaving } from "./having/normalHavingFilter";
@@ -15,7 +15,7 @@ const removeIndex = (
 };
 
 const havingFilter = (
-  byClassificationedRow: AnyUse[][],
+  byClassificationedRow: RowRecord[][],
   havingData: HavingUse,
   by: string[],
 ) => {

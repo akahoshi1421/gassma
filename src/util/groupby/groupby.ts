@@ -1,4 +1,4 @@
-import type { AnyUse } from "../../types/coreTypes";
+import type { RowRecord } from "../../types/coreTypes";
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { GroupByData } from "../../types/groupByType";
@@ -37,7 +37,7 @@ const groupByFunc = (
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
-  let byClassificationed = byClassification(findedRows, by) as AnyUse[][];
+  let byClassificationed = byClassification(findedRows, by) as RowRecord[][];
 
   if (having) byClassificationed = havingFilter(byClassificationed, having, by);
 

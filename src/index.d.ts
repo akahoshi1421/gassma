@@ -3,6 +3,25 @@ declare namespace Gassma {
 
   type SkipValue = typeof skip;
 
+  type RawValue = {
+    readonly __gassmaRawValueBrand: "Gassma.raw";
+  };
+
+  /**
+   * Writes the value to the cell as-is, skipping formula-injection escaping.
+   * A string starting with `=` therefore becomes a live spreadsheet formula.
+   *
+   * Susceptible to formula injection: never pass unsanitized user input.
+   *
+   * @example
+   * ```
+   * gassma.Report.create({
+   *   data: { title: userInput, total: Gassma.raw("=SUM(B2:B10)") },
+   * });
+   * ```
+   */
+  function raw(value: string): RawValue;
+
   class FieldRef {
     readonly modelName: string;
     readonly name: string;
@@ -149,11 +168,11 @@ declare namespace Gassma {
   };
 
   type AnyUse = {
-    [key: string]: GassmaAny | SkipValue;
+    [key: string]: GassmaAny | RawValue | SkipValue;
   };
 
   type UpdateAnyUse = {
-    [key: string]: GassmaAny | NumberOperation | SkipValue;
+    [key: string]: GassmaAny | NumberOperation | RawValue | SkipValue;
   };
 
   type WhereUse = {

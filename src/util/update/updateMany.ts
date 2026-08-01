@@ -5,6 +5,7 @@ import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
+import { unwrapRawCell } from "../raw/raw";
 import { groupUpdateRuns } from "../write/rowRuns";
 import { resolveWriter } from "../write/sheetWriter";
 import {
@@ -92,7 +93,7 @@ function updateManyFunc(
 
   const records = updates.map(({ updatedRow }) =>
     titles.reduce<Record<string, unknown>>((record, title, index) => {
-      record[title] = updatedRow[index];
+      record[title] = unwrapRawCell(updatedRow[index]);
       return record;
     }, {}),
   );
