@@ -126,12 +126,14 @@ type MockSpreadsheet = {
   getSheets: () => MockSheet[];
   getSheetByName: (name: string) => MockSheet | null;
   insertSheet: (name: string) => MockSheet;
+  deleteSheet: (sheet: MockSheet) => void;
 };
 
 type SpreadsheetHandle = {
   spreadsheet: MockSpreadsheet;
   handleOf: (name: string) => SheetHandle;
   insertedNames: string[];
+  deletedNames: string[];
   sheetNames: () => string[];
 };
 
@@ -141,6 +143,7 @@ const makeSpreadsheet = (
 ): SpreadsheetHandle => {
   const all = [...handles];
   const insertedNames: string[] = [];
+  const deletedNames: string[] = [];
   const spreadsheet: MockSpreadsheet = {
     getId: () => id,
     getSheets: () => all.map((handle) => handle.sheet),
@@ -155,6 +158,17 @@ const makeSpreadsheet = (
       insertedNames.push(name);
       return handle.sheet;
     },
+    deleteSheet: (sheet) => {
+      if (all.length <= 1) {
+        throw new Error("You can't remove all the sheets in a document.");
+      }
+      const index = all.findIndex((handle) => handle.sheet === sheet);
+      if (index === -1) {
+        throw new Error(`mock sheet not found: ${sheet.getName()}`);
+      }
+      deletedNames.push(sheet.getName());
+      all.splice(index, 1);
+    },
   };
   const handleOf = (name: string): SheetHandle => {
     const found = all.find((handle) => handle.sheet.getName() === name);
@@ -165,6 +179,7 @@ const makeSpreadsheet = (
     spreadsheet,
     handleOf,
     insertedNames,
+    deletedNames,
     sheetNames: () => all.map((handle) => handle.sheet.getName()),
   };
 };
@@ -592,6 +607,94 @@ describe("migrateSheets acceptDataLoss 列削除", () => {
     expect(users.deletedColumns).toEqual([3]);
     const warns = messagesOf(warnSpy);
     expect(warns.some((warn) => warn.includes('""'))).toBe(false);
+  });
+});
+
+describe("migrateSheets acceptDataLoss シート削除", () => {
+  test("schema に無いシートを削除しデータ行数を警告する", () => {
+    const users = makeSheet("User", [["id"], [1]]);
+    const old = makeSheet("Old", [["a"], [1], [2]]);
+    const env = makeSpreadsheet("active", [users, old]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["Old"]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the sheet "Old", which still contains 2 rows.',
+    );
+  });
+
+  test("データが空のシートも削除し 0 行として警告する", () => {
+    const users = makeSheet("User", [["id"]]);
+    const empty = makeSheet("Empty", [["a"]]);
+    const env = makeSpreadsheet("active", [users, empty]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["Empty"]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the sheet "Empty", which still contains 0 rows.',
+    );
+  });
+
+  test("最後の1枚になるシートは削除せず警告して残す", () => {
+    const old1 = makeSheet("Old1", [["a"], [1]]);
+    const old2 = makeSheet("Old2", [["b"]]);
+    const env = makeSpreadsheet("active", [old1, old2]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [], acceptDataLoss: true });
+
+    expect(env.deletedNames).toEqual(["Old1"]);
+    expect(env.sheetNames()).toEqual(["Old2"]);
+    const warns = messagesOf(warnSpy);
+    expect(
+      warns.some(
+        (warn) => warn.includes('"Old2"') && warn.includes("at least one"),
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("migrateSheets acceptDataLoss 冪等性", () => {
+  test("削除後に再実行しても変更が発生しない", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy"],
+      [1, "x"],
+    ]);
+    const old = makeSheet("Old", [["a"], [1]]);
+    const env = makeSpreadsheet("active", [users, old]);
+    installSpreadsheetApp(env);
+    const options = {
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    };
+
+    migrateSheets(options);
+    const snapshotAfterFirst = users.snapshot();
+    const writeCountAfterFirst = users.writes.length;
+    const deletedColumnsAfterFirst = [...users.deletedColumns];
+    const deletedNamesAfterFirst = [...env.deletedNames];
+    const warnCountAfterFirst = warnSpy.mock.calls.length;
+
+    migrateSheets(options);
+
+    expect(users.snapshot()).toEqual(snapshotAfterFirst);
+    expect(users.writes.length).toBe(writeCountAfterFirst);
+    expect(users.deletedColumns).toEqual(deletedColumnsAfterFirst);
+    expect(env.deletedNames).toEqual(deletedNamesAfterFirst);
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(warnSpy.mock.calls.length).toBe(warnCountAfterFirst);
   });
 });
 

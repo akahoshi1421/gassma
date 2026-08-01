@@ -120,14 +120,36 @@ const warnExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
   });
 };
 
+const dropExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
+  const modelNames = models.map((model) => model.name);
+  const extraSheets = spreadsheet
+    .getSheets()
+    .filter((sheet) => !modelNames.includes(sheet.getName()));
+  extraSheets.forEach((sheet) => {
+    const sheetName = sheet.getName();
+    if (spreadsheet.getSheets().length <= 1) {
+      console.warn(
+        `${LOG_PREFIX} sheet "${sheetName}" is not in the schema but cannot be deleted because a spreadsheet must contain at least one sheet. It is left untouched.`,
+      );
+      return;
+    }
+    const dataRows = Math.max(sheet.getLastRow() - 1, 0);
+    console.warn(
+      `${LOG_PREFIX} You are about to drop the sheet "${sheetName}", which still contains ${dataRows} rows.`,
+    );
+    spreadsheet.deleteSheet(sheet);
+  });
+};
+
 /**
  * Synchronizes the spreadsheet with the given models like `prisma db push`:
  * missing sheets are created and missing columns are appended, idempotently.
  * Assumes the header row is row 1 starting at column A on every sheet
  * (header positions moved via changeSettings are not supported).
- * Columns not in the schema are only warned about by default; with
- * `acceptDataLoss: true` they are dropped after a warning that reports how
- * much data they still contain. Sheets not in the schema are never deleted.
+ * Columns and sheets not in the schema are only warned about by default;
+ * with `acceptDataLoss: true` they are dropped after a warning that reports
+ * how much data they still contain (the last remaining sheet is kept, since
+ * a spreadsheet must contain at least one sheet).
  * Never reorders existing columns, never writes to data rows.
  */
 const migrateSheets = (options: MigrateSheetsOptions): void => {
@@ -148,6 +170,10 @@ const migrateSheets = (options: MigrateSheetsOptions): void => {
     syncExistingSheet(sheet, model, acceptDataLoss);
   });
 
+  if (acceptDataLoss) {
+    dropExtraSheets(spreadsheet, options.models);
+    return;
+  }
   warnExtraSheets(spreadsheet, options.models);
 };
 
