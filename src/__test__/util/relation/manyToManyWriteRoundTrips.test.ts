@@ -233,7 +233,7 @@ describe("manyToMany set のシート往復回数", () => {
       ...setWheres(20).map((w) => [1, w.id]),
     ]);
     expect([1, 3, 5, 20].map((k) => runSetScenario(k).trips)).toEqual([
-      22, 24, 26, 41,
+      19, 19, 19, 19,
     ]);
   });
 });
@@ -286,7 +286,7 @@ describe("manyToMany create のシート往復回数", () => {
       "25",
     );
     expect([1, 3, 5, 20].map((k) => runCreateScenario(k).trips)).toEqual([
-      12, 16, 20, 50,
+      9, 9, 9, 9,
     ]);
   });
 });

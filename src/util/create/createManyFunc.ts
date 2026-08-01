@@ -1,11 +1,7 @@
-import type {
-  CreateData,
-  CreateManyData,
-  CreateManyReturn,
-} from "../../types/createTypes";
+import type { CreateManyData, CreateManyReturn } from "../../types/createTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getTitle } from "../core/getTitle";
-import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
+import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { resolveWriter } from "../write/sheetWriter";
 
@@ -34,11 +30,7 @@ function createManyFunc(
   const titles = getTitle(gassmaControllerUtil);
 
   const newData = data.map((row) => {
-    const createdData: CreateData = { data: row };
-    const wantCreateIndex = getWantUpdateIndex(
-      gassmaControllerUtil,
-      createdData,
-    );
+    const wantCreateIndex = getWantUpdateIndexFromTitles(titles, row);
 
     return titles.map((_, index) => {
       if (!wantCreateIndex.includes(index)) return "";

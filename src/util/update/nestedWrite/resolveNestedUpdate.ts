@@ -1,9 +1,9 @@
-import type { UpdateAnyUse, WhereUse } from "../../../types/coreTypes";
+import type { WhereUse } from "../../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 import type { RelationContext } from "../../../types/relationTypes";
 import { NestedWriteWithoutRelationsError } from "../../../errors/relation/nestedWriteError";
 import { getTitle } from "../../core/getTitle";
-import { getWantUpdateIndex } from "../../core/getWantUpdateIndex";
+import { getWantUpdateIndexFromTitles } from "../../core/getWantUpdateIndex";
 import { whereFilter } from "../../core/whereFilter";
 import { processBeforeCreate } from "../../create/nestedWrite/processBeforeCreate";
 import { processAfterCreate } from "../../create/nestedWrite/processAfterCreate";
@@ -46,12 +46,12 @@ const resolveNestedUpdate = (
   relationContext: RelationContext | undefined,
 ): Record<string, unknown> | null => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } = util;
-  const matchedRows = whereFilter(updateInput.where, util);
+  const titles = getTitle(util);
+  const matchedRows = whereFilter(updateInput.where, util, titles);
 
   if (matchedRows.length === 0) return null;
 
   const firstRow = matchedRows[0];
-  const titles = getTitle(util);
   const columnLength = endColumnNumber - startColumnNumber + 1;
 
   const currentRecord = titles.reduce<Record<string, unknown>>(
@@ -70,9 +70,10 @@ const resolveNestedUpdate = (
       throw new NestedWriteWithoutRelationsError();
     }
 
-    const wantUpdateIndex = getWantUpdateIndex(util, {
-      data: updateInput.data as UpdateAnyUse,
-    });
+    const wantUpdateIndex = getWantUpdateIndexFromTitles(
+      titles,
+      updateInput.data,
+    );
     const updatedRow = firstRow.row.map((cell, cellIndex) => {
       if (!wantUpdateIndex.includes(cellIndex)) return cell;
       const value = updateInput.data[String(titles[cellIndex])];
@@ -115,9 +116,7 @@ const resolveNestedUpdate = (
     relationContext!,
   );
 
-  const wantUpdateIndex = getWantUpdateIndex(util, {
-    data: enrichedData as UpdateAnyUse,
-  });
+  const wantUpdateIndex = getWantUpdateIndexFromTitles(titles, enrichedData);
   const updatedRow = firstRow.row.map((cell, cellIndex) => {
     if (!wantUpdateIndex.includes(cellIndex)) return cell;
     const value = enrichedData[String(titles[cellIndex])];
