@@ -33,11 +33,18 @@ generator client {
   output   = "./generated/gassma"
 }
 
-model User {
-  id    Int     @id
+model Author {
+  id    Int    @id
   name  String
-  email String?
-  age   Int
+  books Book[]
+}
+
+model Book {
+  id        Int     @id
+  title     String
+  published Boolean
+  authorId  Int
+  author    Author  @relation(fields: [authorId], references: [id])
 }
 ```
 
@@ -50,18 +57,24 @@ import { GassmaClient } from "./generated/gassma/schemaClient";
 
 const gassma = new GassmaClient();
 
-// スプレッドシートからデータを取得
-function myFunction(){
-    const result = gassma.User.findMany({
-        where: {
-            age: { gte: 25 }
-        },
-        orderBy: { name: "asc" }
-    });
+// 一冊でも本を出版したことのある著者を取得
+function myFunction() {
+  const result = gassma.Author.findMany({
+    where: {
+      books: {
+        some: { published: true },
+      },
+    },
+    select: {
+      name: true,
+    },
+  });
 
-    console.log(result);
+  console.log(result);
 }
 ```
+
+シートはあくまでシートのまま。GASsma がシートをまたいだリレーションを型安全に解決します。
 
 GASのスクリプトエディタを使用する場合...
 
@@ -69,15 +82,15 @@ GASのスクリプトエディタを使用する場合...
 const gassma = new Gassma.GassmaClient();
 
 // スプレッドシートからデータを取得
-function myFunction(){
-    const result = gassma.YOUR_SHEET_NAME.findMany({
-        where: {
-            city: "Tokyo",
-            age: 22
-        }
-    });
+function myFunction() {
+  const result = gassma.YOUR_SHEET_NAME.findMany({
+    where: {
+      city: "Tokyo",
+      age: 22,
+    },
+  });
 
-    console.log(result);
+  console.log(result);
 }
 ```
 
