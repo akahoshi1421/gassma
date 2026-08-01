@@ -8,11 +8,12 @@ import { getTitle } from "./getTitle";
 const whereFilter = (
   where: WhereUse,
   gassmaControllerUtil: GassmaControllerUtil,
+  titles?: string[],
 ): HitRowData[] => {
   const allDataList = getAllData(gassmaControllerUtil);
-  const titles = getTitle(gassmaControllerUtil);
+  const resolvedTitles = titles ?? getTitle(gassmaControllerUtil);
 
-  return filterRowsByWhere(allDataList, titles, where);
+  return filterRowsByWhere(allDataList, resolvedTitles, where);
 };
 
 export { whereFilter };

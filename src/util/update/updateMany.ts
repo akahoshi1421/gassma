@@ -3,7 +3,7 @@ import type { UpdateData, UpdateManyReturn } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { getTitle } from "../core/getTitle";
-import { getWantUpdateIndex } from "../core/getWantUpdateIndex";
+import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
 import { groupUpdateRuns } from "../write/rowRuns";
 import { resolveWriter } from "../write/sheetWriter";
@@ -34,7 +34,8 @@ function updateManyFunc(
   const data = updateData.data;
   const limit = updateData.limit;
 
-  let findedData = whereFilter(where, gassmaControllerUtil);
+  const titles = getTitle(gassmaControllerUtil);
+  let findedData = whereFilter(where, gassmaControllerUtil, titles);
 
   if (limit !== undefined && limit !== null) {
     if (limit < 0) throw new GassmaLimitNegativeError(limit);
@@ -45,8 +46,7 @@ function updateManyFunc(
     return withReturn ? [] : { count: 0 };
   }
 
-  const titles = getTitle(gassmaControllerUtil);
-  const wantUpdateIndex = getWantUpdateIndex(gassmaControllerUtil, updateData);
+  const wantUpdateIndex = getWantUpdateIndexFromTitles(titles, data);
   const ColumnLength = endColumnNumber - startColumnNumber + 1;
 
   const updates = findedData.map((row) => {
