@@ -170,8 +170,12 @@ class GassmaController {
     this.strictUndefinedChecks = enabled;
   }
 
-  private normalizeInput<T>(input: T): T {
-    return normalizeQueryInput(input, this.strictUndefinedChecks);
+  private normalizeInput<T>(input: T): T;
+  private normalizeInput(input: unknown): unknown {
+    return normalizeQueryInput(
+      input === undefined ? {} : input,
+      this.strictUndefinedChecks,
+    );
   }
 
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
@@ -458,7 +462,7 @@ class GassmaController {
     return this.applyOmitToResult(mapped, effectiveOmit);
   }
 
-  public findFirst(findData: FindFirstData) {
+  public findFirst(findData: FindFirstData = {}) {
     return runWithReadCache(() =>
       this.findFirstRaw(this.normalizeInput(findData)),
     );
@@ -644,7 +648,7 @@ class GassmaController {
     return resolved[0] ?? null;
   }
 
-  public findFirstOrThrow(findData: FindFirstData) {
+  public findFirstOrThrow(findData: FindFirstData = {}) {
     const result = this.findFirst(findData);
     if (!result) {
       throw new NotFoundError();
@@ -652,7 +656,7 @@ class GassmaController {
     return result;
   }
 
-  public findMany(findData: FindData) {
+  public findMany(findData: FindData = {}) {
     return runWithReadCache(() =>
       this.findManyRaw(this.normalizeInput(findData)),
     );
@@ -1061,7 +1065,7 @@ class GassmaController {
     );
   }
 
-  public deleteMany(deleteData: DeleteData) {
+  public deleteMany(deleteData: DeleteData = {}) {
     return runWithoutReadCache(() => this.deleteManyRaw(deleteData));
   }
 
@@ -1095,7 +1099,7 @@ class GassmaController {
     return aggregateFunc(this.getGassmaControllerUtil(), aggregateData);
   }
 
-  public count(countData: CountData) {
+  public count(countData: CountData = {}) {
     return runWithReadCache(() =>
       this.countRaw(this.normalizeInput(countData)),
     );
