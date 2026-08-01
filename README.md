@@ -33,11 +33,18 @@ generator client {
   output   = "./generated/gassma"
 }
 
-model User {
-  id    Int     @id
+model Author {
+  id    Int    @id
   name  String
-  email String?
-  age   Int
+  books Book[]
+}
+
+model Book {
+  id        Int     @id
+  title     String
+  published Boolean
+  authorId  Int
+  author    Author  @relation(fields: [authorId], references: [id])
 }
 ```
 
@@ -50,18 +57,24 @@ import { GassmaClient } from "./generated/gassma/schemaClient";
 
 const gassma = new GassmaClient();
 
-// Getting data from the SpreadSheet
-function myFunction(){
-    const result = gassma.User.findMany({
-        where: {
-            age: { gte: 25 }
-        },
-        orderBy: { name: "asc" }
-    });
+// Getting authors who have published at least one book
+function myFunction() {
+  const result = gassma.Author.findMany({
+    where: {
+      books: {
+        some: { published: true },
+      },
+    },
+    select: {
+      name: true,
+    },
+  });
 
-    console.log(result);
+  console.log(result);
 }
 ```
+
+Sheets are just sheets — GASsma resolves the relation across them for you, with full type safety.
 
 When using script editor in GAS...
 
@@ -69,15 +82,15 @@ When using script editor in GAS...
 const gassma = new Gassma.GassmaClient();
 
 // Getting data from the SpreadSheet
-function myFunction(){
-    const result = gassma.YOUR_SHEET_NAME.findMany({
-        where: {
-            city: "Tokyo",
-            age: 22
-        }
-    });
+function myFunction() {
+  const result = gassma.YOUR_SHEET_NAME.findMany({
+    where: {
+      city: "Tokyo",
+      age: 22,
+    },
+  });
 
-    console.log(result);
+  console.log(result);
 }
 ```
 
