@@ -55,6 +55,8 @@ export const RelationInvalidOnDeleteError =
   relationValidationErrors.RelationInvalidOnDeleteError;
 export const RelationInvalidOnUpdateError =
   relationValidationErrors.RelationInvalidOnUpdateError;
+export const RelationIgnoredColumnError =
+  relationValidationErrors.RelationIgnoredColumnError;
 
 export const WhereRelationInvalidFilterError =
   whereRelationErrors.WhereRelationInvalidFilterError;

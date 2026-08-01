@@ -567,6 +567,14 @@ declare namespace Gassma {
   class RelationInvalidOnUpdateError extends Error {
     constructor(sheetName: string, relationName: string, value: string);
   }
+  class RelationIgnoredColumnError extends Error {
+    constructor(
+      sheetName: string,
+      relationName: string,
+      columnName: string,
+      ignoredSheetName: string,
+    );
+  }
   class NestedWriteConnectNotFoundError extends Error {
     constructor(sheetName: string);
   }

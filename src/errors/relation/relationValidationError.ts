@@ -96,6 +96,20 @@ class RelationInvalidOnUpdateError extends Error {
   }
 }
 
+class RelationIgnoredColumnError extends Error {
+  constructor(
+    sheetName: string,
+    relationName: string,
+    columnName: string,
+    ignoredSheetName: string,
+  ) {
+    super(
+      `Relation "${relationName}" on sheet "${sheetName}": column "${columnName}" is ignored on sheet "${ignoredSheetName}". Ignored columns are stripped from where conditions, so relation processing (onDelete/onUpdate/nested writes) could modify all rows in sheet "${ignoredSheetName}". Remove "${columnName}" from the ignore option or remove this relation`,
+    );
+    this.name = "RelationIgnoredColumnError";
+  }
+}
+
 export {
   RelationSheetNotFoundError,
   RelationMissingPropertyError,
@@ -108,4 +122,5 @@ export {
   IncludeSelectIncludeConflictError,
   RelationInvalidOnDeleteError,
   RelationInvalidOnUpdateError,
+  RelationIgnoredColumnError,
 };

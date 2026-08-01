@@ -16,7 +16,15 @@ const injectRelations = (
     return headers;
   };
 
-  validateRelationsConfig(relations, controllers, getColumnHeaders);
+  const getIgnoredFields = (sheetName: string): string[] =>
+    controllers[sheetName]._getIgnoredFields();
+
+  validateRelationsConfig(
+    relations,
+    controllers,
+    getColumnHeaders,
+    getIgnoredFields,
+  );
 
   const findManyOnSheet = (
     sheetName: string,
