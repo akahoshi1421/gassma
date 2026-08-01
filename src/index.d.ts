@@ -104,17 +104,17 @@ declare namespace Gassma {
       createdData: CreateManyAndReturnData,
     ): Record<string, unknown>[];
     create(createdData: CreateData): Record<string, unknown>;
-    findFirst(findData: FindFirstData): Record<string, any>;
-    findFirstOrThrow(findData: FindFirstData): Record<string, any>;
-    findMany(findData: FindData): Record<string, any>[];
+    findFirst(findData?: FindFirstData): Record<string, any>;
+    findFirstOrThrow(findData?: FindFirstData): Record<string, any>;
+    findMany(findData?: FindData): Record<string, any>[];
     update(updateData: UpdateSingleData): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
     updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
     upsert(upsertData: UpsertSingleData): Record<string, unknown>;
     delete(deleteData: DeleteSingleData): Record<string, unknown> | null;
-    deleteMany(deleteData: DeleteData): DeleteManyReturn;
+    deleteMany(deleteData?: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
-    count(countData: CountData): number;
+    count(countData?: CountData): number;
     groupBy(groupByData: GroupByData): Record<string, any>[];
     _setRelationContext(context: RelationContext): void;
     _setGlobalOmit(omit: Omit): void;

@@ -18,6 +18,7 @@ type MockSheet = {
   ) => MockRange;
   getDataRange: () => { getValues: () => unknown[][] };
   deleteRow: (rowIndex: number) => void;
+  deleteRows: (rowPosition: number, howMany: number) => void;
 };
 
 const makeSheet = (name: string, initial: unknown[][]): MockSheet => {
@@ -45,6 +46,9 @@ const makeSheet = (name: string, initial: unknown[][]): MockSheet => {
     getDataRange: () => ({ getValues: () => data }),
     deleteRow: (rowIndex) => {
       data.splice(rowIndex - 1, 1);
+    },
+    deleteRows: (rowPosition, howMany) => {
+      data.splice(rowPosition - 1, howMany);
     },
   };
 };
