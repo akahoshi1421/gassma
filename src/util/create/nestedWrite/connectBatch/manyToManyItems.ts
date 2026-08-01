@@ -1,12 +1,62 @@
 import { NestedWriteConnectNotFoundError } from "../../../../errors/relation/nestedWriteError";
-import type { WhereUse } from "../../../../types/coreTypes";
+import type { AnyUse, WhereUse } from "../../../../types/coreTypes";
 import type { ConnectOrCreateInput } from "../../../../types/nestedWriteTypes";
 import type {
   RelationContext,
   RelationDefinition,
 } from "../../../../types/relationTypes";
+import { isCellValue } from "../cellValue";
+import { hasNestedWrite, isRow } from "../createItems";
 import type { JunctionWriter } from "./junctionWriter";
 import { createTargetTable } from "./targetTable";
+
+const buildTargetRow = (item: Record<string, unknown>): AnyUse | null => {
+  const row: AnyUse = {};
+  let complete = true;
+  Object.keys(item).forEach((key) => {
+    const value = item[key];
+    if (!isCellValue(value)) {
+      complete = false;
+      return;
+    }
+    row[key] = value;
+  });
+  return complete ? row : null;
+};
+
+const batchManyToManyCreate = (
+  relation: RelationDefinition,
+  items: Record<string, unknown>[],
+  context: RelationContext,
+  junction: JunctionWriter,
+): void => {
+  const oneByOne = () => {
+    items.forEach((item) => {
+      const created = context.createOnSheet(relation.to, { data: item });
+      junction.add(created[relation.reference]);
+      junction.flush();
+    });
+  };
+
+  if (!context.createManyAndReturnOnSheet || items.some(hasNestedWrite)) {
+    oneByOne();
+    return;
+  }
+
+  const rows = items.map(buildTargetRow);
+  if (!rows.every(isRow)) {
+    oneByOne();
+    return;
+  }
+
+  const created = context.createManyAndReturnOnSheet(relation.to, {
+    data: rows,
+  });
+  created.forEach((record) => {
+    junction.add(record[relation.reference]);
+  });
+  junction.flush();
+};
 
 const batchManyToManyConnect = (
   relation: RelationDefinition,
@@ -85,4 +135,8 @@ const batchManyToManyConnectOrCreate = (
   junction.flush();
 };
 
-export { batchManyToManyConnect, batchManyToManyConnectOrCreate };
+export {
+  batchManyToManyConnect,
+  batchManyToManyConnectOrCreate,
+  batchManyToManyCreate,
+};

@@ -125,6 +125,10 @@ type RelationContext = {
     sheetName: string,
     createManyData: { data: AnyUse[] },
   ) => { count: number } | undefined;
+  createManyAndReturnOnSheet?: (
+    sheetName: string,
+    createManyData: { data: AnyUse[] },
+  ) => Record<string, unknown>[];
 };
 
 type RelationListFilter = {

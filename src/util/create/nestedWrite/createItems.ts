@@ -59,4 +59,4 @@ const batchNestedCreate = (
   context.createManyOnSheet(relation.to, { data: rows });
 };
 
-export { batchNestedCreate };
+export { batchNestedCreate, hasNestedWrite, isRow };

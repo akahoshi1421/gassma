@@ -1,5 +1,7 @@
-import type { RelationContext } from "../../../types/relationTypes";
 import type { NestedWriteOperation } from "../../../types/nestedWriteTypes";
+import type { RelationContext } from "../../../types/relationTypes";
+import { createJunctionWriter } from "../../create/nestedWrite/connectBatch/junctionWriter";
+import { batchManyToManySet } from "./setItems";
 
 const processManyToManyUpdate = (
   updatedRecord: Record<string, unknown>,
@@ -35,17 +37,12 @@ const processManyToManyUpdate = (
       context.deleteManyOnSheet!(through.sheet, {
         where: { [through.field]: parentValue },
       });
-      ops.set.forEach((where) => {
-        const found = context.findManyOnSheet(relation.to, { where });
-        if (found.length > 0) {
-          context.createOnSheet!(through.sheet, {
-            data: {
-              [through.field]: parentValue,
-              [through.reference]: found[0][relation.reference],
-            },
-          });
-        }
-      });
+      batchManyToManySet(
+        relation,
+        ops.set,
+        context,
+        createJunctionWriter(context, through, parentValue),
+      );
     }
   });
 };
