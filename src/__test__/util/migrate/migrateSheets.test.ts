@@ -31,6 +31,7 @@ type MockSheet = {
     numCols: number,
   ) => MockRange;
   insertColumnsAfter: (afterPosition: number, howMany: number) => void;
+  deleteColumn: (columnPosition: number) => void;
 };
 
 type SheetHandle = {
@@ -38,6 +39,7 @@ type SheetHandle = {
   snapshot: () => unknown[][];
   writes: SetValuesCall[];
   columnInsertions: InsertColumnsAfterCall[];
+  deletedColumns: number[];
 };
 
 const DEFAULT_MAX_COLUMNS = 26;
@@ -50,6 +52,7 @@ const makeSheet = (
   const data = initial.map((row) => [...row]);
   const writes: SetValuesCall[] = [];
   const columnInsertions: InsertColumnsAfterCall[] = [];
+  const deletedColumns: number[] = [];
   let maxColumns = initialMaxColumns;
   const width = () => (data[0] ? data[0].length : 0);
   const sheet: MockSheet = {
@@ -65,9 +68,12 @@ const makeSheet = (
       }
       return {
         getValues: () =>
-          data
-            .slice(row - 1, row - 1 + numRows)
-            .map((r) => r.slice(col - 1, col - 1 + numCols)),
+          Array.from({ length: numRows }, (_, i) =>
+            Array.from({ length: numCols }, (_, j) => {
+              const value = data[row - 1 + i]?.[col - 1 + j];
+              return value === undefined ? "" : value;
+            }),
+          ),
         setValues: (values) => {
           writes.push({ row, col, numRows, numCols, values });
           values.forEach((rowValues, i) => {
@@ -91,12 +97,27 @@ const makeSheet = (
       });
       maxColumns += howMany;
     },
+    deleteColumn: (columnPosition) => {
+      if (columnPosition < 1 || columnPosition > maxColumns) {
+        throw new Error("Those columns are out of bounds.");
+      }
+      if (maxColumns <= 1) {
+        throw new Error("You can't delete all the columns in the sheet.");
+      }
+      deletedColumns.push(columnPosition);
+      data.forEach((row) => {
+        if (row.length < columnPosition) return;
+        row.splice(columnPosition - 1, 1);
+      });
+      maxColumns -= 1;
+    },
   };
   return {
     sheet,
     snapshot: () => data.map((row) => [...row]),
     writes,
     columnInsertions,
+    deletedColumns,
   };
 };
 
@@ -105,12 +126,14 @@ type MockSpreadsheet = {
   getSheets: () => MockSheet[];
   getSheetByName: (name: string) => MockSheet | null;
   insertSheet: (name: string) => MockSheet;
+  deleteSheet: (sheet: MockSheet) => void;
 };
 
 type SpreadsheetHandle = {
   spreadsheet: MockSpreadsheet;
   handleOf: (name: string) => SheetHandle;
   insertedNames: string[];
+  deletedNames: string[];
   sheetNames: () => string[];
 };
 
@@ -120,6 +143,7 @@ const makeSpreadsheet = (
 ): SpreadsheetHandle => {
   const all = [...handles];
   const insertedNames: string[] = [];
+  const deletedNames: string[] = [];
   const spreadsheet: MockSpreadsheet = {
     getId: () => id,
     getSheets: () => all.map((handle) => handle.sheet),
@@ -134,6 +158,17 @@ const makeSpreadsheet = (
       insertedNames.push(name);
       return handle.sheet;
     },
+    deleteSheet: (sheet) => {
+      if (all.length <= 1) {
+        throw new Error("You can't remove all the sheets in a document.");
+      }
+      const index = all.findIndex((handle) => handle.sheet === sheet);
+      if (index === -1) {
+        throw new Error(`mock sheet not found: ${sheet.getName()}`);
+      }
+      deletedNames.push(sheet.getName());
+      all.splice(index, 1);
+    },
   };
   const handleOf = (name: string): SheetHandle => {
     const found = all.find((handle) => handle.sheet.getName() === name);
@@ -144,6 +179,7 @@ const makeSpreadsheet = (
     spreadsheet,
     handleOf,
     insertedNames,
+    deletedNames,
     sheetNames: () => all.map((handle) => handle.sheet.getName()),
   };
 };
@@ -429,6 +465,272 @@ describe("migrateSheets 非破壊", () => {
     ).toBe(true);
     expect(warns.some((warn) => warn.includes('"Old"'))).toBe(true);
     expect(warns.some((warn) => warn.includes('""'))).toBe(false);
+  });
+});
+
+describe("migrateSheets acceptDataLoss 無効時", () => {
+  test("acceptDataLoss: false では schema に無い列もシートも削除しない", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy"],
+      [1, "x"],
+    ]);
+    const old = makeSheet("Old", [["a"], [1]]);
+    const env = makeSpreadsheet("active", [users, old]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: false,
+    });
+
+    expect(users.snapshot()).toEqual([
+      ["id", "legacy"],
+      [1, "x"],
+    ]);
+    expect(users.deletedColumns).toEqual([]);
+    expect(env.sheetNames()).toEqual(["User", "Old"]);
+    const warns = messagesOf(warnSpy);
+    expect(warns.some((warn) => warn.includes('"legacy"'))).toBe(true);
+    expect(warns.some((warn) => warn.includes('"Old"'))).toBe(true);
+  });
+});
+
+describe("migrateSheets acceptDataLoss 列削除", () => {
+  test("schema に無い列を削除し非空セル数を警告する", () => {
+    const users = makeSheet("User", [
+      ["id", "memo"],
+      [1, "a"],
+      [2, ""],
+      [3, "b"],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([["id"], [1], [2], [3]]);
+    expect(users.deletedColumns).toEqual([2]);
+    expect(users.writes).toEqual([]);
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the column "memo" on the sheet "User", which still contains 2 non-empty values.',
+    );
+  });
+
+  test("複数の余分な列を削除しても位置がずれない", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy1", "name", "legacy2", "email"],
+      [1, "a", "Alice", "b", "alice@example.com"],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id", "name", "email"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([
+      ["id", "name", "email"],
+      [1, "Alice", "alice@example.com"],
+    ]);
+    const warns = messagesOf(warnSpy);
+    expect(warns.some((warn) => warn.includes('"legacy1"'))).toBe(true);
+    expect(warns.some((warn) => warn.includes('"legacy2"'))).toBe(true);
+  });
+
+  test("足りない列の追加を先に行ってから余分な列を削除する", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy", "name"],
+      [1, "L", "Alice"],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id", "name", "flag"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([
+      ["id", "name", "flag"],
+      [1, "Alice"],
+    ]);
+    expect(users.writes.length).toBe(1);
+    users.writes.forEach((write) => {
+      expect(write.row).toBe(1);
+      expect(write.numRows).toBe(1);
+    });
+  });
+
+  test("データセルがすべて空の列は警告なしで削除する", () => {
+    const users = makeSheet("User", [
+      ["id", "empty"],
+      [1, ""],
+      [2, ""],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([["id"], [1], [2]]);
+    expect(users.deletedColumns).toEqual([2]);
+    expect(messagesOf(warnSpy)).toEqual([]);
+  });
+
+  test("0 や false のセルも非空としてカウントする", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy"],
+      [1, 0],
+      [2, false],
+      [3, ""],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([["id"], [1], [2], [3]]);
+    expect(users.deletedColumns).toEqual([2]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the column "legacy" on the sheet "User", which still contains 2 non-empty values.',
+    );
+  });
+
+  test("ヘッダーが空文字の列は削除しない", () => {
+    const users = makeSheet("User", [
+      ["id", "", "legacy"],
+      [1, "", "x"],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([
+      ["id", ""],
+      [1, ""],
+    ]);
+    expect(users.deletedColumns).toEqual([3]);
+    const warns = messagesOf(warnSpy);
+    expect(warns.some((warn) => warn.includes('""'))).toBe(false);
+  });
+});
+
+describe("migrateSheets acceptDataLoss シート削除", () => {
+  test("schema に無いシートを削除しデータ行数を警告する", () => {
+    const users = makeSheet("User", [["id"], [1]]);
+    const old = makeSheet("Old", [["a"], [1], [2]]);
+    const env = makeSpreadsheet("active", [users, old]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["Old"]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the sheet "Old", which still contains 2 rows.',
+    );
+  });
+
+  test("データが空のシートは警告なしで削除する", () => {
+    const users = makeSheet("User", [["id"]]);
+    const empty = makeSheet("Empty", [["a"]]);
+    const env = makeSpreadsheet("active", [users, empty]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["Empty"]);
+    expect(messagesOf(warnSpy)).toEqual([]);
+  });
+
+  test("0 や false だけの行もデータ行としてカウントする", () => {
+    const users = makeSheet("User", [["id"]]);
+    const flags = makeSheet("Flags", [["flag"], [0], [false]]);
+    const env = makeSpreadsheet("active", [users, flags]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["Flags"]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the sheet "Flags", which still contains 2 rows.',
+    );
+  });
+
+  test("最後の1枚になるシートは削除せず警告して残す", () => {
+    const old1 = makeSheet("Old1", [["a"], [1]]);
+    const old2 = makeSheet("Old2", [["b"]]);
+    const env = makeSpreadsheet("active", [old1, old2]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [], acceptDataLoss: true });
+
+    expect(env.deletedNames).toEqual(["Old1"]);
+    expect(env.sheetNames()).toEqual(["Old2"]);
+    const warns = messagesOf(warnSpy);
+    expect(
+      warns.some(
+        (warn) => warn.includes('"Old2"') && warn.includes("at least one"),
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("migrateSheets acceptDataLoss 冪等性", () => {
+  test("削除後に再実行しても変更が発生しない", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy"],
+      [1, "x"],
+    ]);
+    const old = makeSheet("Old", [["a"], [1]]);
+    const env = makeSpreadsheet("active", [users, old]);
+    installSpreadsheetApp(env);
+    const options = {
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    };
+
+    migrateSheets(options);
+    const snapshotAfterFirst = users.snapshot();
+    const writeCountAfterFirst = users.writes.length;
+    const deletedColumnsAfterFirst = [...users.deletedColumns];
+    const deletedNamesAfterFirst = [...env.deletedNames];
+    const warnCountAfterFirst = warnSpy.mock.calls.length;
+
+    migrateSheets(options);
+
+    expect(users.snapshot()).toEqual(snapshotAfterFirst);
+    expect(users.writes.length).toBe(writeCountAfterFirst);
+    expect(users.deletedColumns).toEqual(deletedColumnsAfterFirst);
+    expect(env.deletedNames).toEqual(deletedNamesAfterFirst);
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(warnSpy.mock.calls.length).toBe(warnCountAfterFirst);
   });
 });
 
