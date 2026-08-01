@@ -1,35 +1,23 @@
-import { applyAutoincrement } from "./util/defaults/applyAutoincrement";
-import { applyDefaults } from "./util/defaults/applyDefaults";
-import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
-import { generateAutoincrementValues } from "./util/defaults/generateAutoincrementValues";
-import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
-import { FieldRef } from "./util/filterConditions/fieldRef";
-import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
-import { stripIgnoreFromSelect } from "./util/ignore/stripIgnoreFromSelect";
-import type { FieldMapping } from "./util/map/mapFields";
+import { GassmaMissingArgumentError } from "./errors/argument/argumentError";
 import {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
 } from "./errors/find/findError";
-import { findedDataSelect } from "./util/find/findUtil/findDataSelect";
-import { omitFunc } from "./util/find/findUtil/omit";
-import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
 import { GassmaIncludeSelectConflictError } from "./errors/relation/relationError";
 import { IncludeWithoutRelationsError } from "./errors/relation/relationValidationError";
-import { GassmaMissingArgumentError } from "./errors/argument/argumentError";
 import type { AggregateData } from "./types/aggregateType";
 import type {
   AnyUse,
-  Select,
   Omit,
   QueryOmit,
+  Select,
   WhereUse,
 } from "./types/coreTypes";
 import type { CountData } from "./types/countType";
 import type {
   CreateData,
-  CreateManyData,
   CreateManyAndReturnData,
+  CreateManyData,
 } from "./types/createTypes";
 import type {
   DeleteData,
@@ -43,6 +31,7 @@ import type {
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
 import type { RelationContext } from "./types/relationTypes";
+import type { SheetIo } from "./types/transactionTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
 import { getTitle } from "./util/core/getTitle";
@@ -50,32 +39,48 @@ import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
-import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
+import { applyAutoincrement } from "./util/defaults/applyAutoincrement";
+import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
+import { applyDefaults } from "./util/defaults/applyDefaults";
+import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
+import { generateAutoincrementValues } from "./util/defaults/generateAutoincrementValues";
 import { deleteFunc } from "./util/delete/delete";
 import { deleteManyFunc } from "./util/delete/deleteMany";
+import { FieldRef } from "./util/filterConditions/fieldRef";
 import { findFirstFunc } from "./util/find/findFirst";
+import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationOrderBy";
 import { findManyFunc } from "./util/find/findMany";
-import { groupByFunc } from "./util/groupby/groupby";
-import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
-import { resolveOnUpdate } from "./util/relation/onUpdate/resolveOnUpdate";
-import { resolveInclude } from "./util/relation/resolveInclude";
-import { resolveCount } from "./util/relation/resolveCount";
+import { findManyWithRelationOrderBy } from "./util/find/findManyWithRelationOrderBy";
 import { applySelectCount } from "./util/find/findUtil/applySelectCount";
 import { applySelectRelations } from "./util/find/findUtil/applySelectRelations";
 import { extractSelectRelations } from "./util/find/findUtil/extractSelectRelations";
-import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
-import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
-import { updateManyFunc } from "./util/update/updateMany";
-import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
-import { upsertFunc } from "./util/upsert/upsert";
+import { findedDataSelect } from "./util/find/findUtil/findDataSelect";
+import { omitFunc } from "./util/find/findUtil/omit";
 import { separateRelationOrderBy } from "./util/find/findUtil/separateRelationOrderBy";
-import { findManyWithRelationOrderBy } from "./util/find/findManyWithRelationOrderBy";
-import { findFirstWithRelationOrderBy } from "./util/find/findFirstWithRelationOrderBy";
-import type { SheetWriter } from "./util/write/sheetWriter";
-import { immediateSheetWriter } from "./util/write/sheetWriter";
+import { groupByFunc } from "./util/groupby/groupby";
+import { stripIgnoredFields } from "./util/ignore/stripIgnoredFields";
+import { stripIgnoreFromSelect } from "./util/ignore/stripIgnoreFromSelect";
+import type { FieldMapping } from "./util/map/mapFields";
+import { resolveGlobalOmit } from "./util/omit/resolveGlobalOmit";
+import {
+  applyReadCache,
+  runWithoutReadCache,
+  runWithReadCache,
+} from "./util/read/readCacheContext";
 import type { SheetReader } from "./util/read/sheetReader";
 import { immediateSheetReader } from "./util/read/sheetReader";
-import type { SheetIo } from "./types/transactionTypes";
+import { resolveOnDelete } from "./util/relation/onDelete/resolveOnDelete";
+import { resolveOnUpdate } from "./util/relation/onUpdate/resolveOnUpdate";
+import { resolveCount } from "./util/relation/resolveCount";
+import { resolveInclude } from "./util/relation/resolveInclude";
+import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
+import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
+import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
+import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
+import { updateManyFunc } from "./util/update/updateMany";
+import { upsertFunc } from "./util/upsert/upsert";
+import type { SheetWriter } from "./util/write/sheetWriter";
+import { immediateSheetWriter } from "./util/write/sheetWriter";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -256,7 +261,7 @@ class GassmaController {
     if (this.fieldMapping) {
       util.fieldMapping = this.fieldMapping;
     }
-    return util;
+    return applyReadCache(util);
   }
 
   private resolveEffectiveOmit(
@@ -334,6 +339,10 @@ class GassmaController {
   }
 
   public createMany(createdData: CreateManyData) {
+    return runWithoutReadCache(() => this.createManyRaw(createdData));
+  }
+
+  private createManyRaw(createdData: CreateManyData) {
     createdData = this.normalizeInput(createdData);
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
@@ -345,6 +354,10 @@ class GassmaController {
   }
 
   public createManyAndReturn(createdData: CreateManyAndReturnData) {
+    return runWithoutReadCache(() => this.createManyAndReturnRaw(createdData));
+  }
+
+  private createManyAndReturnRaw(createdData: CreateManyAndReturnData) {
     createdData = this.normalizeInput(createdData);
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
@@ -387,6 +400,10 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
+    return runWithoutReadCache(() => this.createRaw(createdData));
+  }
+
+  private createRaw(createdData: CreateData) {
     createdData = this.normalizeInput(createdData);
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
@@ -438,7 +455,9 @@ class GassmaController {
   }
 
   public findFirst(findData: FindFirstData) {
-    return this.findFirstRaw(this.normalizeInput(findData));
+    return runWithReadCache(() =>
+      this.findFirstRaw(this.normalizeInput(findData)),
+    );
   }
 
   private findFirstRaw(findData: FindFirstData) {
@@ -630,7 +649,9 @@ class GassmaController {
   }
 
   public findMany(findData: FindData) {
-    return this.findManyRaw(this.normalizeInput(findData));
+    return runWithReadCache(() =>
+      this.findManyRaw(this.normalizeInput(findData)),
+    );
   }
 
   private findManyRaw(findData: FindData) {
@@ -796,6 +817,10 @@ class GassmaController {
   }
 
   public update(updateData: UpdateSingleData) {
+    return runWithoutReadCache(() => this.updateRaw(updateData));
+  }
+
+  private updateRaw(updateData: UpdateSingleData) {
     updateData = this.normalizeInput(updateData);
     if (updateData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
@@ -860,6 +885,10 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
+    return runWithoutReadCache(() => this.updateManyRaw(updateData));
+  }
+
+  private updateManyRaw(updateData: UpdateData) {
     updateData = this.normalizeInput(updateData);
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
@@ -893,6 +922,10 @@ class GassmaController {
   }
 
   public updateManyAndReturn(updateData: UpdateData) {
+    return runWithoutReadCache(() => this.updateManyAndReturnRaw(updateData));
+  }
+
+  private updateManyAndReturnRaw(updateData: UpdateData) {
     updateData = this.normalizeInput(updateData);
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
@@ -935,6 +968,10 @@ class GassmaController {
   }
 
   public upsert(upsertData: UpsertSingleData) {
+    return runWithoutReadCache(() => this.upsertRaw(upsertData));
+  }
+
+  private upsertRaw(upsertData: UpsertSingleData) {
     upsertData = this.normalizeInput(upsertData);
     if (upsertData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
@@ -985,6 +1022,10 @@ class GassmaController {
   }
 
   public delete(deleteData: DeleteSingleData) {
+    return runWithoutReadCache(() => this.deleteRaw(deleteData));
+  }
+
+  private deleteRaw(deleteData: DeleteSingleData) {
     deleteData = this.normalizeInput(deleteData);
     if (deleteData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
@@ -1017,6 +1058,10 @@ class GassmaController {
   }
 
   public deleteMany(deleteData: DeleteData) {
+    return runWithoutReadCache(() => this.deleteManyRaw(deleteData));
+  }
+
+  private deleteManyRaw(deleteData: DeleteData) {
     deleteData = this.normalizeInput(deleteData);
     deleteData = { ...deleteData, where: this.resolveWhere(deleteData.where) };
 
@@ -1033,7 +1078,12 @@ class GassmaController {
   }
 
   public aggregate(aggregateData: AggregateData) {
-    aggregateData = this.normalizeInput(aggregateData);
+    return runWithReadCache(() =>
+      this.aggregateRaw(this.normalizeInput(aggregateData)),
+    );
+  }
+
+  private aggregateRaw(aggregateData: AggregateData) {
     aggregateData = {
       ...aggregateData,
       where: this.resolveWhere(aggregateData.where),
@@ -1042,13 +1092,23 @@ class GassmaController {
   }
 
   public count(countData: CountData) {
-    countData = this.normalizeInput(countData);
+    return runWithReadCache(() =>
+      this.countRaw(this.normalizeInput(countData)),
+    );
+  }
+
+  private countRaw(countData: CountData) {
     countData = { ...countData, where: this.resolveWhere(countData.where) };
     return countFunc(this.getGassmaControllerUtil(), countData);
   }
 
   public groupBy(groupByData: GroupByData) {
-    groupByData = this.normalizeInput(groupByData);
+    return runWithReadCache(() =>
+      this.groupByRaw(this.normalizeInput(groupByData)),
+    );
+  }
+
+  private groupByRaw(groupByData: GroupByData) {
     if (groupByData.by === undefined) {
       throw new GassmaMissingArgumentError("by");
     }
