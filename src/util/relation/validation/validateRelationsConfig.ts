@@ -1,14 +1,19 @@
 import { RelationSheetNotFoundError } from "../../../errors/relation/relationValidationError";
-import { validateRelationDefinition } from "./validateRelationDefinition";
 import {
-  validateColumnExistence,
   type GetColumnHeaders,
+  validateColumnExistence,
 } from "./validateColumnExistence";
+import {
+  type GetIgnoredFields,
+  validateIgnoredColumns,
+} from "./validateIgnoredColumns";
+import { validateRelationDefinition } from "./validateRelationDefinition";
 
 const validateRelationsConfig = (
   relations: Record<string, Record<string, Record<string, unknown>>>,
   sheets: Record<string, unknown>,
   getColumnHeaders: GetColumnHeaders,
+  getIgnoredFields?: GetIgnoredFields,
 ): void => {
   const allSheetNames = Object.keys(sheets);
 
@@ -29,18 +34,29 @@ const validateRelationsConfig = (
         allSheetNames,
       );
 
+      const checkedDefinition = definition as {
+        type: string;
+        to: string;
+        field: string;
+        reference: string;
+        through?: { sheet: string; field: string; reference: string };
+      };
+
       validateColumnExistence(
         sheetName,
         relationName,
-        definition as {
-          type: string;
-          to: string;
-          field: string;
-          reference: string;
-          through?: { sheet: string; field: string; reference: string };
-        },
+        checkedDefinition,
         getColumnHeaders,
       );
+
+      if (getIgnoredFields) {
+        validateIgnoredColumns(
+          sheetName,
+          relationName,
+          checkedDefinition,
+          getIgnoredFields,
+        );
+      }
     });
   });
 };

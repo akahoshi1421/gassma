@@ -154,6 +154,10 @@ class GassmaController {
     this.ignoredFields = fields;
   }
 
+  public _getIgnoredFields(): string[] {
+    return this.ignoredFields ?? [];
+  }
+
   public _setMap(mapping: FieldMapping) {
     this.fieldMapping = mapping;
   }
