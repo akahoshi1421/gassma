@@ -585,6 +585,28 @@ describe("migrateSheets acceptDataLoss 列削除", () => {
     expect(messagesOf(warnSpy)).toEqual([]);
   });
 
+  test("0 や false のセルも非空としてカウントする", () => {
+    const users = makeSheet("User", [
+      ["id", "legacy"],
+      [1, 0],
+      [2, false],
+      [3, ""],
+    ]);
+    const env = makeSpreadsheet("active", [users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(users.snapshot()).toEqual([["id"], [1], [2], [3]]);
+    expect(users.deletedColumns).toEqual([2]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the column "legacy" on the sheet "User", which still contains 2 non-empty values.',
+    );
+  });
+
   test("ヘッダーが空文字の列は削除しない", () => {
     const users = makeSheet("User", [
       ["id", "", "legacy"],
@@ -641,6 +663,24 @@ describe("migrateSheets acceptDataLoss シート削除", () => {
     expect(env.sheetNames()).toEqual(["User"]);
     expect(env.deletedNames).toEqual(["Empty"]);
     expect(messagesOf(warnSpy)).toEqual([]);
+  });
+
+  test("0 や false だけの行もデータ行としてカウントする", () => {
+    const users = makeSheet("User", [["id"]]);
+    const flags = makeSheet("Flags", [["flag"], [0], [false]]);
+    const env = makeSpreadsheet("active", [users, flags]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "User", columns: ["id"] }],
+      acceptDataLoss: true,
+    });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["Flags"]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the sheet "Flags", which still contains 2 rows.',
+    );
   });
 
   test("最後の1枚になるシートは削除せず警告して残す", () => {
