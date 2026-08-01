@@ -566,7 +566,7 @@ describe("migrateSheets acceptDataLoss 列削除", () => {
     });
   });
 
-  test("データセルがすべて空の列も削除し 0 件として警告する", () => {
+  test("データセルがすべて空の列は警告なしで削除する", () => {
     const users = makeSheet("User", [
       ["id", "empty"],
       [1, ""],
@@ -582,9 +582,7 @@ describe("migrateSheets acceptDataLoss 列削除", () => {
 
     expect(users.snapshot()).toEqual([["id"], [1], [2]]);
     expect(users.deletedColumns).toEqual([2]);
-    expect(messagesOf(warnSpy)).toContain(
-      'Gassma.migrateSheets: You are about to drop the column "empty" on the sheet "User", which still contains 0 non-empty values.',
-    );
+    expect(messagesOf(warnSpy)).toEqual([]);
   });
 
   test("ヘッダーが空文字の列は削除しない", () => {
@@ -629,7 +627,7 @@ describe("migrateSheets acceptDataLoss シート削除", () => {
     );
   });
 
-  test("データが空のシートも削除し 0 行として警告する", () => {
+  test("データが空のシートは警告なしで削除する", () => {
     const users = makeSheet("User", [["id"]]);
     const empty = makeSheet("Empty", [["a"]]);
     const env = makeSpreadsheet("active", [users, empty]);
@@ -642,9 +640,7 @@ describe("migrateSheets acceptDataLoss シート削除", () => {
 
     expect(env.sheetNames()).toEqual(["User"]);
     expect(env.deletedNames).toEqual(["Empty"]);
-    expect(messagesOf(warnSpy)).toContain(
-      'Gassma.migrateSheets: You are about to drop the sheet "Empty", which still contains 0 rows.',
-    );
+    expect(messagesOf(warnSpy)).toEqual([]);
   });
 
   test("最後の1枚になるシートは削除せず警告して残す", () => {

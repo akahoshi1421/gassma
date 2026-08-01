@@ -86,6 +86,7 @@ const dropExtraColumns = (
   const extraColumns = listExtraColumns(headers, model);
   extraColumns.forEach(({ header, position }) => {
     const count = countNonEmptyDataCells(sheet, position);
+    if (count < 1) return;
     console.warn(
       `${LOG_PREFIX} You are about to drop the column "${header}" on the sheet "${model.name}", which still contains ${count} non-empty values.`,
     );
@@ -134,9 +135,11 @@ const dropExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
       return;
     }
     const dataRows = Math.max(sheet.getLastRow() - 1, 0);
-    console.warn(
-      `${LOG_PREFIX} You are about to drop the sheet "${sheetName}", which still contains ${dataRows} rows.`,
-    );
+    if (dataRows >= 1) {
+      console.warn(
+        `${LOG_PREFIX} You are about to drop the sheet "${sheetName}", which still contains ${dataRows} rows.`,
+      );
+    }
     spreadsheet.deleteSheet(sheet);
   });
 };
@@ -148,9 +151,9 @@ const dropExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
  * (header positions moved via changeSettings are not supported).
  * Columns and sheets not in the schema are only warned about by default;
  * with `acceptDataLoss: true` they are dropped after a warning that reports
- * how much data they still contain (the last remaining sheet is kept, since
- * a spreadsheet must contain at least one sheet).
- * Never reorders existing columns, never writes to data rows.
+ * how much data they still contain (silently when they are empty; the last
+ * remaining sheet is kept, since a spreadsheet must contain at least one
+ * sheet). Never reorders existing columns, never writes to data rows.
  */
 const migrateSheets = (options: MigrateSheetsOptions): void => {
   if (!options || !options.models) {
