@@ -45,21 +45,66 @@ const warnExtraColumns = (headers: string[], model: MigrateModel) => {
   });
 };
 
-const appendMissingColumns = (sheet: Sheet, model: MigrateModel) => {
-  const headers = readHeaders(sheet);
+const appendMissingColumns = (
+  sheet: Sheet,
+  model: MigrateModel,
+  headers: string[],
+) => {
   const missingColumns = model.columns.filter(
     (column) => !headers.includes(column),
   );
   if (missingColumns.length === 0) {
     console.log(`${LOG_PREFIX} sheet "${model.name}" is up to date`);
-  } else {
-    ensureColumnCapacity(sheet, headers.length + missingColumns.length);
-    sheet
-      .getRange(1, headers.length + 1, 1, missingColumns.length)
-      .setValues([missingColumns]);
-    console.log(
-      `${LOG_PREFIX} added columns [${missingColumns.join(", ")}] to sheet "${model.name}"`,
+    return;
+  }
+  ensureColumnCapacity(sheet, headers.length + missingColumns.length);
+  sheet
+    .getRange(1, headers.length + 1, 1, missingColumns.length)
+    .setValues([missingColumns]);
+  console.log(
+    `${LOG_PREFIX} added columns [${missingColumns.join(", ")}] to sheet "${model.name}"`,
+  );
+};
+
+const listExtraColumns = (headers: string[], model: MigrateModel) =>
+  headers
+    .map((header, index) => ({ header, position: index + 1 }))
+    .filter(({ header }) => header !== "" && !model.columns.includes(header));
+
+const countNonEmptyDataCells = (sheet: Sheet, columnPosition: number) => {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+  const values = sheet.getRange(2, columnPosition, lastRow - 1, 1).getValues();
+  return values.filter((row) => row[0] !== "").length;
+};
+
+const dropExtraColumns = (
+  sheet: Sheet,
+  model: MigrateModel,
+  headers: string[],
+) => {
+  const extraColumns = listExtraColumns(headers, model);
+  extraColumns.forEach(({ header, position }) => {
+    const count = countNonEmptyDataCells(sheet, position);
+    console.warn(
+      `${LOG_PREFIX} You are about to drop the column "${header}" on the sheet "${model.name}", which still contains ${count} non-empty values.`,
     );
+  });
+  [...extraColumns].reverse().forEach(({ position }) => {
+    sheet.deleteColumn(position);
+  });
+};
+
+const syncExistingSheet = (
+  sheet: Sheet,
+  model: MigrateModel,
+  acceptDataLoss: boolean,
+) => {
+  const headers = readHeaders(sheet);
+  appendMissingColumns(sheet, model, headers);
+  if (acceptDataLoss) {
+    dropExtraColumns(sheet, model, headers);
+    return;
   }
   warnExtraColumns(headers, model);
 };
@@ -80,12 +125,16 @@ const warnExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
  * missing sheets are created and missing columns are appended, idempotently.
  * Assumes the header row is row 1 starting at column A on every sheet
  * (header positions moved via changeSettings are not supported).
- * Never deletes or reorders existing sheets/columns, never touches data rows.
+ * Columns not in the schema are only warned about by default; with
+ * `acceptDataLoss: true` they are dropped after a warning that reports how
+ * much data they still contain. Sheets not in the schema are never deleted.
+ * Never reorders existing columns, never writes to data rows.
  */
 const migrateSheets = (options: MigrateSheetsOptions): void => {
   if (!options || !options.models) {
     throw new GassmaMissingArgumentError("models");
   }
+  const acceptDataLoss = options.acceptDataLoss === true;
   const spreadsheet = options.spreadsheetId
     ? SpreadsheetApp.openById(options.spreadsheetId)
     : SpreadsheetApp.getActiveSpreadsheet();
@@ -96,7 +145,7 @@ const migrateSheets = (options: MigrateSheetsOptions): void => {
       createSheetWithHeaders(spreadsheet, model);
       return;
     }
-    appendMissingColumns(sheet, model);
+    syncExistingSheet(sheet, model, acceptDataLoss);
   });
 
   warnExtraSheets(spreadsheet, options.models);

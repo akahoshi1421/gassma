@@ -316,6 +316,7 @@ declare namespace Gassma {
   type MigrateSheetsOptions = {
     spreadsheetId?: string;
     models: MigrateModel[];
+    acceptDataLoss?: boolean;
   };
 
   /**
@@ -323,7 +324,10 @@ declare namespace Gassma {
    * missing sheets are created and missing columns are appended, idempotently.
    * Assumes the header row is row 1 starting at column A on every sheet
    * (header positions moved via changeSettings are not supported).
-   * Never deletes or reorders existing sheets/columns, never touches data rows.
+   * Columns not in the schema are only warned about by default; with
+   * `acceptDataLoss: true` they are dropped after a warning that reports how
+   * much data they still contain. Sheets not in the schema are never deleted.
+   * Never reorders existing columns, never writes to data rows.
    */
   function migrateSheets(options: MigrateSheetsOptions): void;
 

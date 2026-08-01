@@ -6,6 +6,7 @@ type MigrateModel = {
 type MigrateSheetsOptions = {
   spreadsheetId?: string;
   models: MigrateModel[];
+  acceptDataLoss?: boolean;
 };
 
 export type { MigrateModel, MigrateSheetsOptions };
