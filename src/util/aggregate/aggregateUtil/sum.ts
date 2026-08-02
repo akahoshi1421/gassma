@@ -1,3 +1,4 @@
+import { isMissingAggregateValue } from "./isMissingAggregateValue";
 import {
   GassmaAggregateSumError,
   GassmaAggregateSumTypeError,
@@ -12,13 +13,9 @@ const getSum = (rows: Record<string, any>[], avgData: Select) => {
   const sumResult = {};
 
   sumKeys.forEach((key) => {
-    const hitsDataIncludeNull = rows.map((row) => {
-      if (row[key] === null || row[key] === undefined) return null;
-
-      return row[key];
-    });
-
-    const hitsData = hitsDataIncludeNull.filter((row) => row !== null);
+    const hitsData = rows
+      .map((row) => row[key])
+      .filter((value) => !isMissingAggregateValue(value));
 
     if (hitsData.length === 0) {
       sumResult[key] = null;

@@ -95,13 +95,18 @@ describe("string max/min semantics", () => {
 });
 
 describe("number max/min semantics", () => {
-  test("NaN propagates", () => {
+  test("NaN is ignored like null", () => {
     expect(getMax([{ v: 1 }, { v: NaN }, { v: 2 }], { v: true })).toEqual({
-      v: NaN,
+      v: 2,
     });
     expect(getMin([{ v: 1 }, { v: NaN }, { v: 2 }], { v: true })).toEqual({
-      v: NaN,
+      v: 1,
     });
+  });
+
+  test("all NaN yields null", () => {
+    expect(getMax([{ v: NaN }, { v: NaN }], { v: true })).toEqual({ v: null });
+    expect(getMin([{ v: NaN }, { v: NaN }], { v: true })).toEqual({ v: null });
   });
 
   test("Infinity and -Infinity are handled", () => {
@@ -140,6 +145,21 @@ describe("date max/min semantics", () => {
     const b = new Date(1700000000000);
     expect(getDateMax([a, b]).getTime()).toBe(1700000000000);
     expect(getDateMin([a, b]).getTime()).toBe(1700000000000);
+  });
+
+  test("getMax/getMin ignore Invalid Date like null", () => {
+    const invalid = new Date("invalid");
+    const early = new Date(1600000000000);
+    const late = new Date(1700000000000);
+    const rows = [{ v: early }, { v: invalid }, { v: late }];
+    expect(getMax(rows, { v: true })).toEqual({ v: late });
+    expect(getMin(rows, { v: true })).toEqual({ v: early });
+  });
+
+  test("getMax/getMin with only Invalid Date yield null", () => {
+    const rows = [{ v: new Date("invalid") }, { v: new Date("invalid") }];
+    expect(getMax(rows, { v: true })).toEqual({ v: null });
+    expect(getMin(rows, { v: true })).toEqual({ v: null });
   });
 
   test("Invalid Date propagates as Invalid Date", () => {

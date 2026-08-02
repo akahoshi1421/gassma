@@ -51,6 +51,27 @@ describe("getCount", () => {
     });
   });
 
+  test("should exclude NaN and Invalid Date from field counts like null", () => {
+    const rows = [
+      { age: 10, at: new Date(1700000000000) },
+      { age: NaN, at: new Date("invalid") },
+      { age: 30, at: new Date("invalid") },
+    ];
+    const result = getCount(rows, { age: true, at: true });
+
+    expect(result).toEqual({
+      age: 2,
+      at: 1,
+    });
+  });
+
+  test("should count NaN rows in _all", () => {
+    const rows = [{ age: 10 }, { age: NaN }];
+    const result = getCount(rows, { _all: true, age: true });
+
+    expect(result).toEqual({ _all: 2, age: 1 });
+  });
+
   test("should count zero and false as valid values", () => {
     const rows = [
       { num: 0, flag: false },

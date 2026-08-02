@@ -32,6 +32,20 @@ describe("getAvg", () => {
     });
   });
 
+  test("should ignore NaN like null (denominator excludes NaN)", () => {
+    const rows = [{ age: 20 }, { age: 30 }, { age: NaN }];
+    const result = getAvg(rows, { age: true });
+
+    expect(result).toEqual({ age: 25 });
+  });
+
+  test("should return null when all values are NaN", () => {
+    const rows = [{ age: NaN }, { age: NaN }];
+    const result = getAvg(rows, { age: true });
+
+    expect(result).toEqual({ age: null });
+  });
+
   test("should handle mixed null and numeric values", () => {
     const rows = [
       { age: 10, score: null },

@@ -115,8 +115,8 @@ describe("byClassification の型区別", () => {
   });
 });
 
-describe("byClassification の NaN / Invalid Date(現行挙動の保存)", () => {
-  test("NaN キーは初出位置に空グループを残し行は含まれない", () => {
+describe("byClassification の NaN / Invalid Date", () => {
+  test("NaN の行は初出位置の1グループにまとまる", () => {
     const rows = [
       { k: 1, v: "a" },
       { k: NaN, v: "b" },
@@ -126,43 +126,85 @@ describe("byClassification の NaN / Invalid Date(現行挙動の保存)", () =>
 
     const result = byClassification(rows, ["k"]);
 
-    expect(result).toEqual([[{ k: 1, v: "a" }], [], [{ k: 2, v: "c" }]]);
+    expect(result).toEqual([
+      [{ k: 1, v: "a" }],
+      [
+        { k: NaN, v: "b" },
+        { k: NaN, v: "d" },
+      ],
+      [{ k: 2, v: "c" }],
+    ]);
   });
 
-  test("Invalid Date は同一インスタンスで1つ・別インスタンスで別の空グループ", () => {
+  test("Invalid Date は別インスタンスでも1グループにまとまる", () => {
     const shared = new Date("invalid");
+    const another = new Date("invalid");
     const rows = [
       { k: shared, v: "a" },
       { k: shared, v: "b" },
-      { k: new Date("invalid"), v: "c" },
+      { k: another, v: "c" },
       { k: 1, v: "d" },
     ];
 
     const result = byClassification(rows, ["k"]);
 
-    expect(result).toEqual([[], [], [{ k: 1, v: "d" }]]);
+    expect(result).toEqual([
+      [
+        { k: shared, v: "a" },
+        { k: shared, v: "b" },
+        { k: another, v: "c" },
+      ],
+      [{ k: 1, v: "d" }],
+    ]);
   });
 
-  test("深さ2: 非最終カラムの NaN 行は空グループを残さず消える", () => {
+  test("深さ2: 非最終カラムの NaN 行も消えない", () => {
     const rows = [
       { a: NaN, b: 1, v: "x" },
       { a: 1, b: 1, v: "y" },
+      { a: NaN, b: 2, v: "z" },
     ];
 
     const result = byClassification(rows, ["a", "b"]);
 
-    expect(result).toEqual([[{ a: 1, b: 1, v: "y" }]]);
+    expect(result).toEqual([
+      [{ a: NaN, b: 1, v: "x" }],
+      [{ a: NaN, b: 2, v: "z" }],
+      [{ a: 1, b: 1, v: "y" }],
+    ]);
   });
 
-  test("深さ2: 最終カラムの NaN は空グループを残す", () => {
+  test("深さ2: 最終カラムの NaN も1グループになる", () => {
     const rows = [
       { a: 1, b: NaN, v: "x" },
       { a: 1, b: 2, v: "y" },
+      { a: 1, b: NaN, v: "z" },
     ];
 
     const result = byClassification(rows, ["a", "b"]);
 
-    expect(result).toEqual([[], [{ a: 1, b: 2, v: "y" }]]);
+    expect(result).toEqual([
+      [
+        { a: 1, b: NaN, v: "x" },
+        { a: 1, b: NaN, v: "z" },
+      ],
+      [{ a: 1, b: 2, v: "y" }],
+    ]);
+  });
+
+  test("NaN と null は別グループ", () => {
+    const rows = [{ k: NaN }, { k: null }, { k: NaN }];
+
+    const result = byClassification(rows, ["k"]);
+
+    expect(result).toEqual([[{ k: NaN }, { k: NaN }], [{ k: null }]]);
+  });
+
+  test("Invalid Date と NaN は別グループ", () => {
+    const invalid = new Date("invalid");
+    const rows = [{ k: invalid }, { k: NaN }];
+
+    expect(byClassification(rows, ["k"])).toHaveLength(2);
   });
 });
 

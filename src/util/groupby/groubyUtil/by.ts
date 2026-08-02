@@ -1,10 +1,4 @@
-import { isDateValue } from "../../other/isDateValue";
 import { toLookupKey } from "../../other/toLookupKey";
-
-const isSelfUnequal = (value: unknown): boolean =>
-  isDateValue(value)
-    ? Number.isNaN(value.getTime())
-    : typeof value === "number" && Number.isNaN(value);
 
 const groupByColumn = (
   rows: Record<string, any>[],
@@ -13,17 +7,15 @@ const groupByColumn = (
   const groups = new Map<unknown, Record<string, any>[]>();
 
   rows.forEach((row) => {
-    const data = row[column];
-    const selfUnequal = isSelfUnequal(data);
-    const key = selfUnequal && isDateValue(data) ? data : toLookupKey(data);
+    const key = toLookupKey(row[column]);
     const group = groups.get(key);
 
     if (group === undefined) {
-      groups.set(key, selfUnequal ? [] : [row]);
+      groups.set(key, [row]);
       return;
     }
 
-    if (!selfUnequal) group.push(row);
+    group.push(row);
   });
 
   return Array.from(groups.values());

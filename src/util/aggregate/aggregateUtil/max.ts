@@ -1,3 +1,4 @@
+import { isMissingAggregateValue } from "./isMissingAggregateValue";
 import {
   GassmaAggregateMaxError,
   GassmaAggregateTypeError,
@@ -14,13 +15,9 @@ const getMax = (rows: Record<string, any>[], avgData: Select) => {
   const maxResult = {};
 
   maxKeys.forEach((key) => {
-    const hitsDataIncludeNull = rows.map((row) => {
-      if (row[key] === null || row[key] === undefined) return null;
-
-      return row[key];
-    });
-
-    const hitsData = hitsDataIncludeNull.filter((row) => row !== null);
+    const hitsData = rows
+      .map((row) => row[key])
+      .filter((value) => !isMissingAggregateValue(value));
 
     if (hitsData.length === 0) {
       maxResult[key] = null;
