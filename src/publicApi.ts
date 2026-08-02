@@ -88,6 +88,7 @@ export const GassmaMissingArgumentError =
   argumentErrors.GassmaMissingArgumentError;
 export const GassmaUnknownArgumentError =
   argumentErrors.GassmaUnknownArgumentError;
+export const GassmaInvalidValueError = argumentErrors.GassmaInvalidValueError;
 
 export const GassmaFindSelectOmitConflictError =
   findErrors.GassmaFindSelectOmitConflictError;

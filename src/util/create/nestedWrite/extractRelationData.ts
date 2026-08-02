@@ -36,4 +36,4 @@ const extractRelationData = (
   return { scalarData, relationOps };
 };
 
-export { extractRelationData, isNestedWriteOperation };
+export { NESTED_WRITE_KEYS, extractRelationData, isNestedWriteOperation };

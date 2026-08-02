@@ -46,4 +46,8 @@ const extractRelationDataForUpdate = (
   return { scalarData, relationOps };
 };
 
-export { extractRelationDataForUpdate, isUpdateNestedWriteOperation };
+export {
+  UPDATE_NESTED_WRITE_KEYS,
+  extractRelationDataForUpdate,
+  isUpdateNestedWriteOperation,
+};
