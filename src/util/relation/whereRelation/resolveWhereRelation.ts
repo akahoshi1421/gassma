@@ -37,17 +37,11 @@ const toRelationFilter = (
       "a relation filter object or null",
     );
   }
-  if (Object.keys(dict).some(isFilterKey)) return dict;
+  const keys = Object.keys(dict);
+  if (keys.length === 0) return dict;
+  if (keys.some(isFilterKey)) return dict;
   if (!isListRelationType(relation.type)) return { is: dict };
-
-  const firstKey = Object.keys(dict)[0];
-  if (firstKey === undefined) {
-    throw new GassmaInvalidValueError(
-      relationName,
-      "an object with `some`, `every`, or `none`",
-    );
-  }
-  throw new GassmaUnknownArgumentError(firstKey, LIST_FILTER_KEYS);
+  throw new GassmaUnknownArgumentError(keys[0], LIST_FILTER_KEYS);
 };
 
 const resolveWhereRelation = (
@@ -65,6 +59,7 @@ const resolveWhereRelation = (
 
   const normalConditions: WhereUse = {};
   const relationConditions: WhereUse[] = [];
+  let emptyRelationDropped = false;
 
   Object.entries(where).forEach(([key, value]) => {
     if (LOGICAL_KEYS.has(key)) return;
@@ -89,6 +84,10 @@ const resolveWhereRelation = (
     }
 
     const filterObj = toRelationFilter(relation, key, value);
+    if (Object.keys(filterObj).length === 0) {
+      emptyRelationDropped = true;
+      return;
+    }
 
     Object.entries(filterObj).forEach(([filterKey, filterValue]) => {
       validateFilterType(relation, key, filterKey);
@@ -126,7 +125,13 @@ const resolveWhereRelation = (
     }
   });
 
-  if (relationConditions.length === 0 && !logicalChanged) return where;
+  if (
+    relationConditions.length === 0 &&
+    !logicalChanged &&
+    !emptyRelationDropped
+  ) {
+    return where;
+  }
   if (relationConditions.length === 0) return normalConditions;
 
   const allConditions: WhereUse[] = [];
