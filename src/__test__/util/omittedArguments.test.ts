@@ -1,3 +1,4 @@
+import { GassmaAggregateSelectionRequiredError } from "../../errors/aggregate/aggregateError";
 import { GassmaMissingArgumentError } from "../../errors/argument/argumentError";
 import { NotFoundError } from "../../errors/find/findError";
 import {
@@ -152,9 +153,11 @@ describe("引数なし呼び出し: 必須引数は GassmaMissingArgumentError �
 });
 
 describe("引数なし呼び出し: aggregate は {} と同じ扱い", () => {
-  test("aggregate() は {} を返す", () => {
+  test("aggregate() は集計指定が無いとして throw する", () => {
     const users = usersController();
     // @ts-expect-error 引数必須のまま
-    expect(users.aggregate()).toEqual({});
+    expect(() => users.aggregate()).toThrow(
+      GassmaAggregateSelectionRequiredError,
+    );
   });
 });

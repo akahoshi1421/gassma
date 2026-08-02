@@ -49,6 +49,15 @@ class GassmaAggregateAvgTypeError extends GassmaAggregateSumTypeError {
   }
 }
 
+class GassmaAggregateSelectionRequiredError extends Error {
+  constructor() {
+    super(
+      "At least one aggregation is required: specify `_avg`, `_count`, `_max`, `_min`, or `_sum` with at least one field.",
+    );
+    this.name = "GassmaAggregateSelectionRequiredError";
+  }
+}
+
 export {
   GassmaAggregateMaxError,
   GassmaAggregateMinError,
@@ -57,4 +66,5 @@ export {
   GassmaAggregateTypeError,
   GassmaAggregateSumTypeError,
   GassmaAggregateAvgTypeError,
+  GassmaAggregateSelectionRequiredError,
 };

@@ -659,6 +659,9 @@ declare namespace Gassma {
   class GassmaAggregateAvgTypeError extends GassmaAggregateSumTypeError {
     constructor();
   }
+  class GassmaAggregateSelectionRequiredError extends Error {
+    constructor();
+  }
   class GassmaRelationNotFoundError extends Error {
     constructor(relationName: string, sheetName: string);
   }
