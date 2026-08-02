@@ -153,13 +153,21 @@ describe("前倒し検証が正当な操作を壊さない", () => {
     ]);
   });
 
-  it("update: where が一致しない場合は typo があっても従来どおり null を返す", () => {
+  it("update: where が一致しなくても typo はエラーになり両シートが無変化", () => {
     const { env, users } = buildCascadeEnv();
 
-    const result = users.update({
-      where: { id: 999 },
-      data: { id: 100, nmae: "X" },
-    });
+    expect(() =>
+      users.update({ where: { id: 999 }, data: { id: 100, nmae: "X" } }),
+    ).toThrow(GassmaUnknownArgumentError);
+
+    expect(env.users.snapshot()).toEqual(initialUsers);
+    expect(env.posts.snapshot()).toEqual(initialPosts);
+  });
+
+  it("update: where が一致せず typo も無い場合は従来どおり null を返す", () => {
+    const { env, users } = buildCascadeEnv();
+
+    const result = users.update({ where: { id: 999 }, data: { id: 100 } });
 
     expect(result).toBeNull();
     expect(env.users.snapshot()).toEqual(initialUsers);

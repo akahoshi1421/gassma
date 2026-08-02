@@ -13,6 +13,7 @@ import { resolveInclude } from "../relation/resolveInclude";
 import { resolveOnUpdate } from "../relation/onUpdate/resolveOnUpdate";
 import { resolveNestedUpdate } from "../update/nestedWrite/resolveNestedUpdate";
 import { resolveNumberOperations } from "../update/resolveNumberOperation";
+import { validateCreateColumnsEarly } from "../validate/validateCreateColumnsEarly";
 import { validateUpdateColumnsEarly } from "../validate/validateUpdateColumnsEarly";
 
 const applyOptions = (
@@ -41,19 +42,36 @@ const upsertFunc = (
   relationContext?: RelationContext | null,
   prepareCreate?: (data: Record<string, unknown>) => Record<string, unknown>,
 ): Record<string, unknown> => {
+  const titles = getTitle(gassmaControllerUtil);
+  validateCreateColumnsEarly(
+    gassmaControllerUtil,
+    upsertData.create,
+    relationContext ?? null,
+    titles,
+  );
+  validateUpdateColumnsEarly(
+    gassmaControllerUtil,
+    upsertData.update,
+    relationContext ?? null,
+    "update",
+    titles,
+  );
+
   const record = findFirstFunc(gassmaControllerUtil, {
     where: upsertData.where,
   });
 
   if (!record) {
-    const wrappedCreate = (data: Record<string, unknown>, titles?: string[]) =>
-      createFunc(gassmaControllerUtil, { data: data as AnyUse }, titles);
+    const wrappedCreate = (
+      data: Record<string, unknown>,
+      rowTitles?: string[],
+    ) => createFunc(gassmaControllerUtil, { data: data as AnyUse }, rowTitles);
     const created = resolveNestedCreate(
       upsertData.create,
       wrappedCreate,
       relationContext ?? undefined,
       {
-        getTitles: () => getTitle(gassmaControllerUtil),
+        getTitles: () => titles,
         validation: gassmaControllerUtil.whereValidation,
         ...(prepareCreate ? { prepare: prepareCreate } : {}),
       },
@@ -61,14 +79,7 @@ const upsertFunc = (
     return applyOptions(created, upsertData, relationContext);
   }
 
-  let precomputedTitles: string[] | undefined;
   if (relationContext) {
-    precomputedTitles = validateUpdateColumnsEarly(
-      gassmaControllerUtil,
-      upsertData.update,
-      relationContext,
-      "update",
-    );
     const beforeRecords = findManyFunc(gassmaControllerUtil, {
       where: upsertData.where,
       take: 1,
@@ -86,7 +97,7 @@ const upsertFunc = (
     gassmaControllerUtil,
     { where: upsertData.where, data: upsertData.update },
     relationContext ?? undefined,
-    precomputedTitles,
+    titles,
   );
   if (!updated) return record;
 

@@ -198,6 +198,76 @@ describe("リレーション名に不正な値", () => {
   });
 });
 
+describe("対象行が無くても入力は検証される", () => {
+  test("update: where 不一致でも typo はエラー", () => {
+    const { loose, typed } = looseUsers();
+    const fn = () => loose.update({ where: { id: 999 }, data: { nmae: "X" } });
+    expect(fn).toThrow(GassmaUnknownArgumentError);
+    expect(fn).toThrow("Unknown argument `nmae`. Did you mean `name`?");
+    expect(typed.count({})).toBe(3);
+  });
+
+  test("update: relations ありでも where 不一致の typo はエラー", () => {
+    const { loose, typed } = looseUsers({ relations: true });
+    expect(() =>
+      loose.update({ where: { id: 999 }, data: { nmae: "X" } }),
+    ).toThrow(GassmaUnknownArgumentError);
+    expect(typed.count({})).toBe(3);
+  });
+
+  test("update: where 不一致で typo 無しは従来どおり null", () => {
+    const { loose, typed } = looseUsers();
+    expect(
+      loose.update({ where: { id: 999 }, data: { name: "X" } }),
+    ).toBeNull();
+    expect(typed.count({})).toBe(3);
+  });
+
+  test("updateMany: where 不一致でも typo はエラー", () => {
+    const { loose, typed } = looseUsers();
+    expect(() =>
+      loose.updateMany({ where: { id: 999 }, data: { nmae: "X" } }),
+    ).toThrow(GassmaUnknownArgumentError);
+    aliceUnchanged(typed);
+  });
+
+  test("upsert(作成分岐): 未実行の update 側の typo もエラーになり追加されない", () => {
+    const { loose, typed } = looseUsers();
+    expect(() =>
+      loose.upsert({
+        where: { id: 999 },
+        create: { id: 999, name: "A", age: 1 },
+        update: { nmae: "X" },
+      }),
+    ).toThrow(GassmaUnknownArgumentError);
+    expect(typed.count({})).toBe(3);
+  });
+
+  test("upsert(更新分岐): 未実行の create 側の typo もエラーになり更新されない", () => {
+    const { loose, typed } = looseUsers();
+    expect(() =>
+      loose.upsert({
+        where: { id: 1 },
+        create: { id: 1, nmae: "Alice", age: 20 },
+        update: { name: "X" },
+      }),
+    ).toThrow(GassmaUnknownArgumentError);
+    aliceUnchanged(typed);
+  });
+
+  test("upsert: relations ありでも未実行の update 側の typo はエラー", () => {
+    const { loose, typed } = looseUsers({ relations: true });
+    expect(() =>
+      loose.upsert({
+        where: { id: 999 },
+        create: { id: 999, name: "A", age: 1 },
+        update: { nmae: "X" },
+      }),
+    ).toThrow(GassmaUnknownArgumentError);
+    expect(typed.count({})).toBe(3);
+  });
+});
+
 describe("従来どおり動くこと", () => {
   test("正しい列名の create は通る", () => {
     const { typed } = looseUsers();
