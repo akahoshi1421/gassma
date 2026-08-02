@@ -1,7 +1,8 @@
 const getBooleanMin = (booleanArray: boolean[]) => {
-  const changedBooleanToNumber = booleanArray.map((bool) => (bool ? 1 : 0));
-
-  const booleanToNumberMin = Math.min(...changedBooleanToNumber);
+  const booleanToNumberMin = booleanArray.reduce(
+    (min, bool) => Math.min(min, bool ? 1 : 0),
+    Number.POSITIVE_INFINITY,
+  );
 
   return booleanToNumberMin === 1;
 };

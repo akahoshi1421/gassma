@@ -38,7 +38,10 @@ const getMin = (rows: Record<string, any>[], avgData: Select) => {
         minResult[key] = getBooleanMin(hitsData);
         break;
       case "number":
-        minResult[key] = Math.min(...hitsData);
+        minResult[key] = hitsData.reduce(
+          (a, b) => Math.min(a, b),
+          Number.POSITIVE_INFINITY,
+        );
         break;
       case false:
         throw new GassmaAggregateMinError();
