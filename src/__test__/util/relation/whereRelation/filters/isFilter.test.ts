@@ -98,7 +98,7 @@ describe("applyIsFilter", () => {
       reference: "userId",
     };
 
-    it("相手シートのreference値に含まれないフィールドのnotIn条件を返す", () => {
+    it("相手シートのreference値に含まれないことを示すNOT + in条件を返す", () => {
       mockFindMany.mockReturnValue([
         { id: 301, userId: 1 },
         { id: 302, userId: 2 },
@@ -106,7 +106,7 @@ describe("applyIsFilter", () => {
 
       const result = applyIsFilter(relation, "profile", null, mockFindMany);
 
-      expect(result).toEqual({ id: { notIn: [1, 2] } });
+      expect(result).toEqual({ NOT: { id: { in: [1, 2] } } });
       expect(mockFindMany).toHaveBeenCalledWith("Profiles", { where: {} });
     });
 
@@ -118,15 +118,15 @@ describe("applyIsFilter", () => {
 
       const result = applyIsFilter(relation, "profile", null, mockFindMany);
 
-      expect(result).toEqual({ id: { notIn: [1] } });
+      expect(result).toEqual({ NOT: { id: { in: [1] } } });
     });
 
-    it("相手シートが空の場合はnotIn: []を返す", () => {
+    it("相手シートが空の場合はNOT + in: []を返す", () => {
       mockFindMany.mockReturnValue([]);
 
       const result = applyIsFilter(relation, "profile", null, mockFindMany);
 
-      expect(result).toEqual({ id: { notIn: [] } });
+      expect(result).toEqual({ NOT: { id: { in: [] } } });
     });
   });
 });

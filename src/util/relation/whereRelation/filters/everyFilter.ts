@@ -51,7 +51,7 @@ const applyEveryFilterOneToMany = (
 ): WhereUse => {
   const allChildren = findManyOnSheet(relation.to, { where: {} });
   if (allChildren.length === 0) {
-    return { [relation.field]: { notIn: [] } };
+    return { NOT: { [relation.field]: { in: [] } } };
   }
 
   const matchChildren = findManyOnSheet(relation.to, { where: filterWhere });
@@ -60,7 +60,7 @@ const applyEveryFilterOneToMany = (
   const matchCounts = countByKey(matchChildren, relation.reference);
   const failing = findFailingKeys(allCounts, matchCounts);
 
-  return { [relation.field]: { notIn: failing } };
+  return { NOT: { [relation.field]: { in: failing } } };
 };
 
 const applyEveryFilterManyToMany = (
@@ -72,7 +72,7 @@ const applyEveryFilterManyToMany = (
 
   const allJunctions = findManyOnSheet(through.sheet, { where: {} });
   if (allJunctions.length === 0) {
-    return { [relation.field]: { notIn: [] } };
+    return { NOT: { [relation.field]: { in: [] } } };
   }
 
   const allCounts = countByKey(allJunctions, through.field);
@@ -89,7 +89,7 @@ const applyEveryFilterManyToMany = (
   const matchCounts = countByKey(matchJunctions, through.field);
 
   const failing = findFailingKeys(allCounts, matchCounts);
-  return { [relation.field]: { notIn: failing } };
+  return { NOT: { [relation.field]: { in: failing } } };
 };
 
 const applyEveryFilter = (

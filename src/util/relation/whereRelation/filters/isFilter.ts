@@ -17,7 +17,7 @@ const applyIsFilter = (
     if (relation.type === "oneToOne") {
       const targets = findManyOnSheet(relation.to, { where: {} });
       const targetKeys = collectKeys(targets, relation.reference);
-      return { [relation.field]: { notIn: targetKeys } };
+      return { NOT: { [relation.field]: { in: targetKeys } } };
     }
     return { [relation.field]: null };
   }
