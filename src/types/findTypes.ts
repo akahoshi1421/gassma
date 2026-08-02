@@ -55,6 +55,15 @@ type UpdateData = {
   limit?: number;
 };
 
+type UpdateManyAndReturnData = {
+  where?: WhereUse;
+  data: UpdateAnyUse;
+  limit?: number;
+  select?: Select;
+  omit?: QueryOmit;
+  include?: IncludeData;
+};
+
 type UpsertSingleData = {
   where: WhereUse;
   create: AnyUse;
@@ -84,6 +93,7 @@ export type {
   FindData,
   UpdateSingleData,
   UpdateData,
+  UpdateManyAndReturnData,
   UpsertSingleData,
   DeleteSingleData,
   DeleteData,

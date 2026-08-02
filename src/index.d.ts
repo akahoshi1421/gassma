@@ -109,12 +109,20 @@ declare namespace Gassma {
     findMany(findData?: FindData): Record<string, any>[];
     update(updateData: UpdateSingleData): Record<string, unknown> | null;
     updateMany(updateData: UpdateData): UpdateManyReturn;
-    updateManyAndReturn(updateData: UpdateData): Record<string, unknown>[];
+    updateManyAndReturn(
+      updateData: UpdateManyAndReturnData,
+    ): Record<string, unknown>[];
     upsert(upsertData: UpsertSingleData): Record<string, unknown>;
     delete(deleteData: DeleteSingleData): Record<string, unknown> | null;
     deleteMany(deleteData?: DeleteData): DeleteManyReturn;
     aggregate(aggregateData: AggregateData): Record<string, any>;
-    count(countData?: CountData): number;
+    count<T extends CountData>(
+      countData?: T,
+    ): T extends { select: infer S }
+      ? S extends true
+        ? number
+        : { [K in keyof S]: number }
+      : number;
     groupBy(groupByData: GroupByData): Record<string, any>[];
     _setRelationContext(context: RelationContext): void;
     _setGlobalOmit(omit: Omit): void;
@@ -460,6 +468,15 @@ declare namespace Gassma {
     limit?: number | SkipValue;
   };
 
+  type UpdateManyAndReturnData = {
+    where?: WhereUse | SkipValue;
+    data: UpdateAnyUse;
+    limit?: number | SkipValue;
+    select?: Select | SkipValue;
+    omit?: Record<string, boolean> | SkipValue;
+    include?: IncludeData | SkipValue;
+  };
+
   type AggregateData = {
     where?: WhereUse | SkipValue;
     orderBy?: OrderBy | OrderBy[] | SkipValue;
@@ -473,12 +490,17 @@ declare namespace Gassma {
     _sum?: Select | SkipValue;
   };
 
+  type CountAggregateSelect = {
+    [key: string]: true | SkipValue;
+  };
+
   type CountData = {
     where?: WhereUse | SkipValue;
     orderBy?: OrderBy | OrderBy[] | SkipValue;
     take?: number | SkipValue;
     skip?: number | SkipValue;
     cursor?: Record<string, unknown> | SkipValue;
+    select?: CountAggregateSelect | true | SkipValue;
   };
 
   type NumberFilterConditions = {

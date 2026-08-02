@@ -16,7 +16,7 @@ const FIND_KEYS = [
 const ALLOWED_TOP_LEVEL_KEYS = {
   findMany: FIND_KEYS,
   findFirst: FIND_KEYS,
-  count: ["where", "orderBy", "take", "skip", "cursor"],
+  count: ["where", "orderBy", "take", "skip", "cursor", "select"],
   aggregate: [
     "where",
     "orderBy",
@@ -47,7 +47,7 @@ const ALLOWED_TOP_LEVEL_KEYS = {
   createManyAndReturn: ["data", "select", "omit", "include"],
   update: ["where", "data", "select", "omit", "include"],
   updateMany: ["where", "data", "limit"],
-  updateManyAndReturn: ["where", "data", "limit"],
+  updateManyAndReturn: ["where", "data", "limit", "select", "omit", "include"],
   upsert: ["where", "create", "update", "select", "omit", "include"],
   delete: ["where", "select", "omit", "include"],
   deleteMany: ["where", "limit"],

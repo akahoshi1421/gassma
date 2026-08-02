@@ -25,6 +25,7 @@ import type {
   FindData,
   FindFirstData,
   UpdateData,
+  UpdateManyAndReturnData,
   UpdateSingleData,
   UpsertSingleData,
 } from "./types/findTypes";
@@ -980,16 +981,25 @@ class GassmaController {
     return updateManyFunc(this.getGassmaControllerUtil(), updateData);
   }
 
-  public updateManyAndReturn(updateData: UpdateData) {
+  public updateManyAndReturn(updateData: UpdateManyAndReturnData) {
     return runWithoutReadCache(() => this.updateManyAndReturnRaw(updateData));
   }
 
-  private updateManyAndReturnRaw(updateData: UpdateData) {
+  private updateManyAndReturnRaw(updateData: UpdateManyAndReturnData) {
     updateData = this.normalizeInput(updateData, "updateManyAndReturn");
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
     validateUpdateDataOperations(updateData.data, this.relationNames());
+    if (updateData.include && updateData.select) {
+      throw new GassmaIncludeSelectConflictError();
+    }
+    if (updateData.include && !this.relationContext) {
+      throw new IncludeWithoutRelationsError();
+    }
+    if (updateData.select && updateData.omit) {
+      throw new GassmaFindSelectOmitConflictError();
+    }
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -1021,10 +1031,24 @@ class GassmaController {
       true,
     );
     if (!Array.isArray(results)) return results;
-    return results.map((r) => {
-      const stripped = this.stripIgnored(r);
-      return this.applyOmitToResult(stripped, this.globalOmit);
-    });
+    const stripped = results.map((r) => this.stripIgnored(r));
+
+    if (updateData.include && this.relationContext) {
+      const resolved = resolveInclude(
+        stripped,
+        updateData.include,
+        this.relationContext,
+      );
+      const includeOmit = this.resolveEffectiveOmit(null, updateData.omit);
+      return resolved.map((r) => this.applyOmitToResult(r, includeOmit));
+    }
+
+    if (updateData.select) {
+      return stripped.map((r) => findedDataSelect(updateData.select!, r));
+    }
+
+    const effectiveOmit = this.resolveEffectiveOmit(null, updateData.omit);
+    return stripped.map((r) => this.applyOmitToResult(r, effectiveOmit));
   }
 
   public upsert(upsertData: UpsertSingleData) {
