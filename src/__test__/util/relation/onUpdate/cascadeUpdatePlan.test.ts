@@ -147,6 +147,92 @@ describe("buildCascadeSteps", () => {
     expect(factory).toHaveBeenCalledTimes(1);
   });
 
+  it("別インスタンスの Invalid Date の旧値は別グループとして残る", () => {
+    const invalidA = new Date("invalid");
+    const invalidB = new Date("invalid");
+    const factory = makeTempFactory();
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: invalidA, newValue: 1 },
+        { oldValue: invalidB, newValue: 2 },
+      ],
+      factory,
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [invalidA], newValue: 1 },
+      { oldValues: [invalidB], newValue: 2 },
+    ]);
+    expect(factory).not.toHaveBeenCalled();
+  });
+
+  it("Invalid Date の新値は同一インスタンスでも併合されない", () => {
+    const invalidA = new Date("invalid");
+    const invalidB = new Date("invalid");
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: 1, newValue: invalidA },
+        { oldValue: 2, newValue: invalidA },
+        { oldValue: 3, newValue: invalidB },
+      ],
+      makeTempFactory(),
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [1], newValue: invalidA },
+      { oldValues: [2], newValue: invalidA },
+      { oldValues: [3], newValue: invalidB },
+    ]);
+  });
+
+  it("後段グループの実行で解けた先頭グループは他の未処理グループより先に実行される", () => {
+    const factory = makeTempFactory();
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: 1, newValue: 2 },
+        { oldValue: 2, newValue: 3 },
+        { oldValue: 9, newValue: 10 },
+      ],
+      factory,
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [2], newValue: 3 },
+      { oldValues: [1], newValue: 2 },
+      { oldValues: [9], newValue: 10 },
+    ]);
+    expect(factory).not.toHaveBeenCalled();
+  });
+
+  it("複数の循環は先頭側から順に一時値で解決し書き戻しはまとめて最後に回る", () => {
+    const factory = makeTempFactory();
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: 1, newValue: 2 },
+        { oldValue: 2, newValue: 1 },
+        { oldValue: 10, newValue: 11 },
+        { oldValue: 11, newValue: 12 },
+        { oldValue: 12, newValue: 10 },
+      ],
+      factory,
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [1], newValue: "tmp0" },
+      { oldValues: [2], newValue: 1 },
+      { oldValues: [10], newValue: "tmp1" },
+      { oldValues: [12], newValue: 10 },
+      { oldValues: [11], newValue: 12 },
+      { oldValues: ["tmp0"], newValue: 2 },
+      { oldValues: ["tmp1"], newValue: 11 },
+    ]);
+    expect(factory).toHaveBeenCalledTimes(2);
+  });
+
   it("どのステップも oldValues が空にならない", () => {
     const scenarios: ChangedPair[][] = [
       [],
