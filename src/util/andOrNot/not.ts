@@ -47,12 +47,12 @@ const isNotMatch = (
     }
   });
 
-  const resultRowsDataNumbers = resultRowsData.map(
-    (oneRow) => oneRow.rowNumber,
+  const resultRowsDataNumbers = new Set(
+    resultRowsData.map((oneRow) => oneRow.rowNumber),
   );
 
   const notResultRowsData = rowsData.filter(
-    (oneRow) => !resultRowsDataNumbers.includes(oneRow.rowNumber),
+    (oneRow) => !resultRowsDataNumbers.has(oneRow.rowNumber),
   );
 
   return notResultRowsData;

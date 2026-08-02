@@ -25,12 +25,12 @@ const isOrMatchHaving = (
       return;
     }
 
-    const alreadyHitByClassificationRowNumbers = resultHavingData.map(
-      (row) => row.rowNumber,
+    const alreadyHitByClassificationRowNumbers = new Set(
+      resultHavingData.map((row) => row.rowNumber),
     );
 
     const newInsertedArray = findedHavingData.filter(
-      (row) => !alreadyHitByClassificationRowNumbers.includes(row.rowNumber),
+      (row) => !alreadyHitByClassificationRowNumbers.has(row.rowNumber),
     );
 
     resultHavingData = resultHavingData.concat(newInsertedArray);
