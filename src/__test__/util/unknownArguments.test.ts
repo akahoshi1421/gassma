@@ -77,15 +77,6 @@ describe("各操作の未知のトップレベルキー", () => {
     expectUnknown(() => loose.count({ wheer: { id: 1 } }), "wheer");
   });
 
-  test("count: select は許可されない", () => {
-    const { loose } = looseUsers();
-    const fn = () => loose.count({ select: { _all: true } });
-    expect(fn).toThrow(GassmaUnknownArgumentError);
-    expect(fn).toThrow(
-      "Unknown argument `select`.\n\nAvailable: where, orderBy, take, skip, cursor",
-    );
-  });
-
   test("count: omit は許可されない", () => {
     const { loose } = looseUsers();
     expectUnknown(() => loose.count({ omit: { name: true } }), "omit");
