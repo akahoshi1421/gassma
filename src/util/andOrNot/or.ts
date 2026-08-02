@@ -50,10 +50,12 @@ const isOrMatch = (
       return;
     }
 
-    const alreadyHitRowNumbers = resultRowsData.map((row) => row.rowNumber);
+    const alreadyHitRowNumbers = new Set(
+      resultRowsData.map((row) => row.rowNumber),
+    );
 
     const newInsertedArray = findedData.filter(
-      (row) => !alreadyHitRowNumbers.includes(row.rowNumber),
+      (row) => !alreadyHitRowNumbers.has(row.rowNumber),
     );
 
     resultRowsData = resultRowsData.concat(newInsertedArray);

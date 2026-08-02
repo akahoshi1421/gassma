@@ -21,12 +21,12 @@ const isNotMatchHaving = (
     }
   });
 
-  const resultHavingDataNumbers = resultHavingData.map(
-    (oneHavingData) => oneHavingData.rowNumber,
+  const resultHavingDataNumbers = new Set(
+    resultHavingData.map((oneHavingData) => oneHavingData.rowNumber),
   );
 
   const notResultHavingData = willHavingData.filter(
-    (oneHaving) => !resultHavingDataNumbers.includes(oneHaving.rowNumber),
+    (oneHaving) => !resultHavingDataNumbers.has(oneHaving.rowNumber),
   );
 
   return notResultHavingData;
