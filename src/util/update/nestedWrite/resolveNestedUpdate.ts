@@ -23,6 +23,7 @@ import {
 } from "../resolveNumberOperation";
 import { escapeFormulaInjectionRow } from "../../core/escapeFormulaInjection";
 import { unwrapRawCell } from "../../raw/raw";
+import { validateDataColumns } from "../../validate/validateDataColumns";
 import { resolveWriter } from "../../write/sheetWriter";
 
 type UpdateInput = {
@@ -66,9 +67,21 @@ const resolveNestedUpdate = (
   if (!hasUpdateNestedWriteFields(updateInput.data, relationContext)) {
     if (
       !relationContext &&
-      Object.values(updateInput.data).some(isUpdateNestedWriteOperation)
+      Object.entries(updateInput.data).some(
+        ([key, value]) =>
+          !titles.includes(key) && isUpdateNestedWriteOperation(value),
+      )
     ) {
       throw new NestedWriteWithoutRelationsError();
+    }
+
+    if (util.whereValidation) {
+      validateDataColumns(
+        updateInput.data,
+        titles,
+        util.whereValidation,
+        "update",
+      );
     }
 
     const wantUpdateIndex = getWantUpdateIndexFromTitles(
@@ -103,6 +116,10 @@ const resolveNestedUpdate = (
     updateInput.data,
     relationContext!.relations,
   );
+
+  if (util.whereValidation) {
+    validateDataColumns(scalarData, titles, util.whereValidation, "update");
+  }
 
   const enrichedData = processBeforeCreate(
     scalarData,

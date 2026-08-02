@@ -4,6 +4,7 @@ import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { unwrapRawCell } from "../raw/raw";
+import { validateDataColumns } from "../validate/validateDataColumns";
 import { resolveWriter } from "../write/sheetWriter";
 
 function createManyFunc(
@@ -29,6 +30,13 @@ function createManyFunc(
   }
 
   const titles = getTitle(gassmaControllerUtil);
+
+  const validation = gassmaControllerUtil.whereValidation;
+  if (validation) {
+    data.forEach((row) => {
+      validateDataColumns(row, titles, validation, "createMany");
+    });
+  }
 
   const newData = data.map((row) => {
     const wantCreateIndex = getWantUpdateIndexFromTitles(titles, row);
