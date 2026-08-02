@@ -1,3 +1,4 @@
+import { GassmaInvalidValueError } from "../../errors/argument/argumentError";
 import type { GassmaAny, WhereUse } from "../../types/coreTypes";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { isAndMatch } from "./and";
@@ -13,38 +14,23 @@ const isLogicMatch = (
   const or = "OR" in where ? where.OR : null;
   const not = "NOT" in where ? where.NOT : null;
 
-  let result: HitRowData[] = [];
+  let result = rowData;
 
   if (and) {
     const andArray = Array.isArray(and) ? and : [and];
-    result = isAndMatch(rowData, andArray, titles);
+    result = isAndMatch(result, andArray, titles);
   }
 
   if (or) {
-    const orResult = isOrMatch(rowData, or, titles);
-
-    if (result.length === 0) result = orResult;
-    else {
-      const alreadyHitRowNumbers = new Set(result.map((row) => row.rowNumber));
-
-      result = orResult.filter((row) =>
-        alreadyHitRowNumbers.has(row.rowNumber),
-      );
+    if (!Array.isArray(or)) {
+      throw new GassmaInvalidValueError("OR", "an array of where conditions");
     }
+    result = isOrMatch(result, or, titles);
   }
 
   if (not) {
     const notArray = Array.isArray(not) ? not : [not];
-    const notResult = isNotMatch(rowData, notArray, titles);
-
-    if (result.length === 0) result = notResult;
-    else {
-      const alreadyHitRowNumbers = new Set(result.map((row) => row.rowNumber));
-
-      result = notResult.filter((row) =>
-        alreadyHitRowNumbers.has(row.rowNumber),
-      );
-    }
+    result = isNotMatch(result, notArray, titles);
   }
 
   return result;

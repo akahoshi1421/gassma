@@ -1,13 +1,7 @@
-import type {
-  FilterConditions,
-  GassmaAny,
-  WhereUse,
-} from "../../types/coreTypes";
+import type { GassmaAny, WhereUse } from "../../types/coreTypes";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndexFromTitles } from "../core/getWantFindIndex";
-import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
-import { isDict } from "../other/isDict";
-import { isValueEqual } from "../other/isValueEqual";
+import { rowMatchesWhereFields } from "../core/rowMatchesWhereFields";
 import { isLogicMatch } from "./entry";
 
 const isOrMatch = (
@@ -15,39 +9,17 @@ const isOrMatch = (
   whereArray: WhereUse[],
   titles: GassmaAny[],
 ) => {
-  let resultRowsData: HitRowData[] = rowsData.concat();
+  let resultRowsData: HitRowData[] = [];
 
-  whereArray.forEach((where, whereArrayIndex) => {
+  whereArray.forEach((where) => {
     const wantFindIndex = getWantFindIndexFromTitles(titles, where);
 
-    const findedDataIncludeNull = rowsData.map((row) => {
-      const matchRow = wantFindIndex.filter((i) => {
-        const whereOptionContent = where[String(titles[i])];
-        if (isDict(whereOptionContent))
-          return matchFilterCondition(
-            row.row[i],
-            whereOptionContent as FilterConditions,
-            row.row,
-            titles,
-          );
-
-        return isValueEqual(row.row[i], whereOptionContent);
-      });
-
-      if (matchRow.length === wantFindIndex.length) return row;
-
-      return null;
-    });
-
-    let findedData = findedDataIncludeNull.filter((data) => data !== null);
+    let findedData = rowsData.filter((row) =>
+      rowMatchesWhereFields(row.row, where, wantFindIndex, titles),
+    );
 
     if ("OR" in where || "AND" in where || "NOT" in where) {
       findedData = isLogicMatch(findedData, where, titles);
-    }
-
-    if (whereArrayIndex === 0) {
-      resultRowsData = findedData;
-      return;
     }
 
     const alreadyHitRowNumbers = new Set(
