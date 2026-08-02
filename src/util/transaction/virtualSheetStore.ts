@@ -82,6 +82,17 @@ const createVirtualSheetStore = () => {
 
   const getLastRow = (sheet: Sheet): number => getVirtual(sheet).grid.length;
 
+  const normalizeCells = (
+    cells: unknown[],
+    columnLength: number,
+  ): unknown[] => {
+    while (cells.length < columnLength) {
+      cells.push("");
+    }
+    if (!cells.includes(undefined)) return cells;
+    return Array.from(cells, (cell) => (cell === undefined ? "" : cell));
+  };
+
   const getRangeValues = (
     sheet: Sheet,
     rowNumber: number,
@@ -90,12 +101,15 @@ const createVirtualSheetStore = () => {
     columnLength: number,
   ): any[][] => {
     const virtual = getVirtual(sheet);
+    const startColumn = columnNumber - 1;
     return Array.from({ length: rowLength }, (_, rowIndex) => {
-      const row = virtual.grid[rowNumber - 1 + rowIndex] ?? [];
-      return Array.from({ length: columnLength }, (_, columnIndex) => {
-        const cell = row[columnNumber - 1 + columnIndex];
-        return cell === undefined ? "" : cell;
-      });
+      const row = virtual.grid[rowNumber - 1 + rowIndex];
+      if (row === undefined)
+        return Array.from({ length: columnLength }, () => "");
+      return normalizeCells(
+        row.slice(startColumn, startColumn + columnLength),
+        columnLength,
+      );
     });
   };
 
