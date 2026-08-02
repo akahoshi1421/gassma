@@ -9,6 +9,7 @@ import type {
 } from "../../../../types/coreTypes";
 import { isFilterConditionsMatch } from "../../../filterConditions/filterConditions";
 import { isDict } from "../../../other/isDict";
+import { resetMembershipCache } from "../../../other/isValueEqual";
 import { getAggregate } from "../getAggregate";
 import { notPatternFilter } from "./normalHavingFilter/notPatternFilter";
 
@@ -37,6 +38,7 @@ const normalHaving = (
   havingData: HavingUse,
   by: string[],
 ) => {
+  resetMembershipCache();
   const byClassificationedRowWithoutPattern = notPatternFilter(
     byClassificationedRow,
     havingData,

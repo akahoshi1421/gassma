@@ -7,7 +7,7 @@ import type { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
 import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
 import { isDict } from "../other/isDict";
-import { isValueEqual } from "../other/isValueEqual";
+import { isValueEqual, resetMembershipCache } from "../other/isValueEqual";
 import { getWantFindIndexFromTitles } from "./getWantFindIndex";
 
 const filterRowsByWhere = (
@@ -15,6 +15,7 @@ const filterRowsByWhere = (
   titles: GassmaAny[],
   where: WhereUse,
 ): HitRowData[] => {
+  resetMembershipCache();
   if (Object.keys(where).length === 0) {
     return allDataList.map((row, index): HitRowData => {
       return {
