@@ -166,14 +166,14 @@ describe("create: 列名キーへの素の dict 値はエラー", () => {
     expect(typed.count({})).toBe(3);
   });
 
-  test("配列値は従来どおり素通しされる", () => {
+  test("配列値もエラーになり追加されない", () => {
     const env = buildEnv();
     const typed = sheetOf(env.client, "Users");
     const loose: any = typed;
     expect(() =>
       loose.create({ data: { id: 8, name: "A", age: [1, 2] } }),
-    ).not.toThrow();
-    expect(typed.count({})).toBe(3);
+    ).toThrow(GassmaInvalidValueError);
+    expect(typed.count({})).toBe(2);
   });
 });
 

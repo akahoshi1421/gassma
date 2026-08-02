@@ -9,6 +9,7 @@ import { isDict } from "../other/isDict";
 import { isRawValue } from "../raw/raw";
 import { UPDATE_NESTED_WRITE_KEYS } from "../update/nestedWrite/extractRelationDataForUpdate";
 import { NUMBER_OPERATION_KEYS } from "../update/resolveNumberOperation";
+import { validateWritableValue } from "./validateWritableValue";
 
 type DataColumnMode = "create" | "createMany" | "update" | "updateMany";
 
@@ -27,14 +28,18 @@ const validateColumnOperations = (
   value: unknown,
   mode: DataColumnMode,
 ): void => {
-  if (!isPlainObjectValue(value)) return;
+  if (!isPlainObjectValue(value)) {
+    validateWritableValue(key, value);
+    return;
+  }
   if (mode === "create" || mode === "createMany") {
     throw new GassmaInvalidValueError(key, "a scalar value");
   }
-  Object.keys(value).forEach((operationKey) => {
+  Object.entries(value).forEach(([operationKey, operationValue]) => {
     if (!NUMBER_OPERATION_KEYS.includes(operationKey)) {
       throw new GassmaUnknownArgumentError(operationKey, NUMBER_OPERATION_KEYS);
     }
+    validateWritableValue(operationKey, operationValue);
   });
 };
 
