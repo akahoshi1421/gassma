@@ -38,7 +38,10 @@ const getMax = (rows: Record<string, any>[], avgData: Select) => {
         maxResult[key] = getBooleanMax(hitsData);
         break;
       case "number":
-        maxResult[key] = Math.max(...hitsData);
+        maxResult[key] = hitsData.reduce(
+          (a, b) => Math.max(a, b),
+          Number.NEGATIVE_INFINITY,
+        );
         break;
       case false:
         throw new GassmaAggregateMaxError();

@@ -1,6 +1,8 @@
 const getDateMin = (dateArray: Date[]) => {
-  const dateNumber = dateArray.map((date) => date.getTime());
-  const minDateNumber = Math.min(...dateNumber);
+  const minDateNumber = dateArray.reduce(
+    (min, date) => Math.min(min, date.getTime()),
+    Number.POSITIVE_INFINITY,
+  );
 
   return new Date(minDateNumber);
 };

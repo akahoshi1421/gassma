@@ -1,6 +1,8 @@
 const getDateMax = (dateArray: Date[]) => {
-  const dateNumber = dateArray.map((date) => date.getTime());
-  const maxDateNumber = Math.max(...dateNumber);
+  const maxDateNumber = dateArray.reduce(
+    (max, date) => Math.max(max, date.getTime()),
+    Number.NEGATIVE_INFINITY,
+  );
 
   return new Date(maxDateNumber);
 };

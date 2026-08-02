@@ -1,7 +1,8 @@
 const getBooleanMax = (booleanArray: boolean[]) => {
-  const changedBooleanToNumber = booleanArray.map((bool) => (bool ? 1 : 0));
-
-  const booleanToNumberMax = Math.max(...changedBooleanToNumber);
+  const booleanToNumberMax = booleanArray.reduce(
+    (max, bool) => Math.max(max, bool ? 1 : 0),
+    Number.NEGATIVE_INFINITY,
+  );
 
   return booleanToNumberMax === 1;
 };
