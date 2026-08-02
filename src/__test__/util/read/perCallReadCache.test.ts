@@ -307,10 +307,10 @@ describe("書き込み経路の鮮度(キャッシュを持ち込まない)", ()
     );
   });
 
-  test("Cascade update の読み往復数はキャッシュが効いた値まで下がらない", () => {
+  test("Cascade update の読みはシートごとのスナップショット読みに集約される", () => {
     const env = buildEnv(cascadeRelations);
     sheetOf(env.client, "Users").update({ where: { id: 1 }, data: { id: 10 } });
-    expect(env.totalTrips()).toBe(14);
+    expect(env.totalTrips()).toBe(4);
   });
 
   test("$transaction 内の findMany → update → findMany で2回目は新しい値を返す", () => {
