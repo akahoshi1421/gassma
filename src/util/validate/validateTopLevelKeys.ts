@@ -16,16 +16,7 @@ const FIND_KEYS = [
 const ALLOWED_TOP_LEVEL_KEYS = {
   findMany: FIND_KEYS,
   findFirst: FIND_KEYS,
-  count: [
-    "where",
-    "orderBy",
-    "cursor",
-    "take",
-    "skip",
-    "distinct",
-    "select",
-    "omit",
-  ],
+  count: ["where", "orderBy", "take", "skip", "cursor"],
   aggregate: [
     "where",
     "orderBy",
