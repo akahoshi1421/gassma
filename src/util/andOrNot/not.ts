@@ -1,13 +1,7 @@
-import type {
-  FilterConditions,
-  GassmaAny,
-  WhereUse,
-} from "../../types/coreTypes";
+import type { GassmaAny, WhereUse } from "../../types/coreTypes";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndexFromTitles } from "../core/getWantFindIndex";
-import { matchFilterCondition } from "../filterConditions/matchFilterCondition";
-import { isDict } from "../other/isDict";
-import { isValueEqual } from "../other/isValueEqual";
+import { rowMatchesWhereFields } from "../core/rowMatchesWhereFields";
 import { isLogicMatch } from "./entry";
 
 const isNotMatch = (
@@ -15,47 +9,33 @@ const isNotMatch = (
   whereArray: WhereUse[],
   titles: GassmaAny[],
 ) => {
-  let resultRowsData: HitRowData[] = rowsData.concat();
+  let matchedRowsData: HitRowData[] = rowsData.concat();
+  let hasCondition = false;
 
   whereArray.forEach((where) => {
     const wantFindIndex = getWantFindIndexFromTitles(titles, where);
+    const hasLogicKey = "OR" in where || "AND" in where || "NOT" in where;
 
-    const findedDataIncludeNull = resultRowsData.map((row) => {
-      const matchRow = wantFindIndex.filter((i) => {
-        const whereOptionContent = where[String(titles[i])];
-        if (isDict(whereOptionContent))
-          return matchFilterCondition(
-            row.row[i],
-            whereOptionContent as FilterConditions,
-            row.row,
-            titles,
-          );
+    if (wantFindIndex.length === 0 && !hasLogicKey) return;
 
-        return isValueEqual(row.row[i], whereOptionContent);
-      });
+    hasCondition = true;
 
-      if (matchRow.length === wantFindIndex.length) return row;
+    matchedRowsData = matchedRowsData.filter((row) =>
+      rowMatchesWhereFields(row.row, where, wantFindIndex, titles),
+    );
 
-      return null;
-    });
-
-    if (wantFindIndex.length !== 0)
-      resultRowsData = findedDataIncludeNull.filter((data) => data !== null);
-
-    if ("OR" in where || "AND" in where || "NOT" in where) {
-      resultRowsData = isLogicMatch(resultRowsData, where, titles);
+    if (hasLogicKey) {
+      matchedRowsData = isLogicMatch(matchedRowsData, where, titles);
     }
   });
 
-  const resultRowsDataNumbers = new Set(
-    resultRowsData.map((oneRow) => oneRow.rowNumber),
+  if (!hasCondition) return rowsData.concat();
+
+  const matchedRowNumbers = new Set(
+    matchedRowsData.map((oneRow) => oneRow.rowNumber),
   );
 
-  const notResultRowsData = rowsData.filter(
-    (oneRow) => !resultRowsDataNumbers.has(oneRow.rowNumber),
-  );
-
-  return notResultRowsData;
+  return rowsData.filter((oneRow) => !matchedRowNumbers.has(oneRow.rowNumber));
 };
 
 export { isNotMatch };
