@@ -25,10 +25,10 @@ const isLogicMatch = (
 
     if (result.length === 0) result = orResult;
     else {
-      const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
+      const alreadyHitRowNumbers = new Set(result.map((row) => row.rowNumber));
 
       result = orResult.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber),
+        alreadyHitRowNumbers.has(row.rowNumber),
       );
     }
   }
@@ -39,10 +39,10 @@ const isLogicMatch = (
 
     if (result.length === 0) result = notResult;
     else {
-      const alreadyHitRowNumbers = result.map((row) => row.rowNumber);
+      const alreadyHitRowNumbers = new Set(result.map((row) => row.rowNumber));
 
       result = notResult.filter((row) =>
-        alreadyHitRowNumbers.includes(row.rowNumber),
+        alreadyHitRowNumbers.has(row.rowNumber),
       );
     }
   }

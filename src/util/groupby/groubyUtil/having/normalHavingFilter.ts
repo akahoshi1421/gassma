@@ -107,12 +107,17 @@ const normalHaving = (
     }),
   );
 
+  const rowByNumber = new Map<number, HitByClassificationedRowData>();
+  byClassificationedRowWithoutPattern.forEach((oneByClassificationedRow) => {
+    if (!rowByNumber.has(oneByClassificationedRow.rowNumber))
+      rowByNumber.set(
+        oneByClassificationedRow.rowNumber,
+        oneByClassificationedRow,
+      );
+  });
+
   const normalHavingFiltered = normalHavingResult.map(
-    (oneHavingAggregateData) =>
-      byClassificationedRowWithoutPattern.find(
-        (oneByClassificationedRow) =>
-          oneByClassificationedRow.rowNumber === oneHavingAggregateData.index,
-      ),
+    (oneHavingAggregateData) => rowByNumber.get(oneHavingAggregateData.index),
   );
 
   return normalHavingFiltered;
