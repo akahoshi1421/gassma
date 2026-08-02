@@ -23,11 +23,14 @@ const isPlainObjectValue = (value: unknown): value is Record<string, unknown> =>
   isDict(value) && !isDateValue(value) && !isRawValue(value);
 
 const validateColumnOperations = (
+  key: string,
   value: unknown,
   mode: DataColumnMode,
 ): void => {
-  if (mode !== "update" && mode !== "updateMany") return;
   if (!isPlainObjectValue(value)) return;
+  if (mode === "create" || mode === "createMany") {
+    throw new GassmaInvalidValueError(key, "a scalar value");
+  }
   Object.keys(value).forEach((operationKey) => {
     if (!NUMBER_OPERATION_KEYS.includes(operationKey)) {
       throw new GassmaUnknownArgumentError(operationKey, NUMBER_OPERATION_KEYS);
@@ -50,7 +53,7 @@ const validateDataColumns = (
   Object.entries(data).forEach(([key, value]) => {
     if (value === undefined) return;
     if (allowed.has(key)) {
-      validateColumnOperations(value, mode);
+      validateColumnOperations(key, value, mode);
       return;
     }
     if (

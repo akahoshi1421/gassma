@@ -10,11 +10,12 @@ import { resolveWriter } from "../write/sheetWriter";
 const createFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   createdData: CreateData,
+  precomputedTitles?: string[],
 ) => {
   const { sheet, startColumnNumber, endColumnNumber } = gassmaControllerUtil;
 
   const data = createdData.data;
-  const titles = getTitle(gassmaControllerUtil);
+  const titles = precomputedTitles ?? getTitle(gassmaControllerUtil);
 
   if (gassmaControllerUtil.whereValidation) {
     validateDataColumns(

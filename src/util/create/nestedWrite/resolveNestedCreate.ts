@@ -1,5 +1,7 @@
 import type { RelationContext } from "../../../types/relationTypes";
+import type { WhereValidation } from "../../../types/gassmaControllerUtilType";
 import { NestedWriteWithoutRelationsError } from "../../../errors/relation/nestedWriteError";
+import { validateDataColumns } from "../../validate/validateDataColumns";
 import {
   extractRelationData,
   isNestedWriteOperation,
@@ -8,6 +10,17 @@ import { processBeforeCreate } from "./processBeforeCreate";
 import { processAfterCreate } from "./processAfterCreate";
 import { processOneToOne } from "./processOneToOne";
 import { processManyToMany } from "./processManyToMany";
+
+type CreateExecutor = (
+  data: Record<string, unknown>,
+  titles?: string[],
+) => Record<string, unknown>;
+
+type NestedCreateDeps = {
+  getTitles: () => string[];
+  validation?: WhereValidation;
+  prepare?: (data: Record<string, unknown>) => Record<string, unknown>;
+};
 
 const hasNestedWriteFields = (
   data: Record<string, unknown>,
@@ -22,34 +35,49 @@ const hasNestedWriteFields = (
 
 const resolveNestedCreate = (
   data: Record<string, unknown>,
-  createFunc: (scalarData: Record<string, unknown>) => Record<string, unknown>,
+  createFunc: CreateExecutor,
   relationContext: RelationContext | undefined,
+  deps?: NestedCreateDeps,
 ): Record<string, unknown> => {
-  if (!hasNestedWriteFields(data, relationContext)) {
+  const titles = deps ? deps.getTitles() : undefined;
+  const validate = (target: Record<string, unknown>) => {
+    if (!deps?.validation || !titles) return;
+    validateDataColumns(target, titles, deps.validation, "create");
+  };
+  const prepare = (target: Record<string, unknown>) =>
+    deps?.prepare ? deps.prepare(target) : target;
+  const exec = (target: Record<string, unknown>) =>
+    titles === undefined ? createFunc(target) : createFunc(target, titles);
+
+  if (!relationContext || !hasNestedWriteFields(data, relationContext)) {
     if (!relationContext && Object.values(data).some(isNestedWriteOperation)) {
       throw new NestedWriteWithoutRelationsError();
     }
-    return createFunc(data);
+    validate(data);
+    return exec(prepare(data));
   }
 
   const { scalarData, relationOps } = extractRelationData(
     data,
-    relationContext!.relations,
+    relationContext.relations,
   );
+
+  validate(scalarData);
 
   const enrichedData = processBeforeCreate(
-    scalarData,
+    prepare(scalarData),
     relationOps,
-    relationContext!,
+    relationContext,
   );
 
-  const createdRecord = createFunc(enrichedData);
+  const createdRecord = exec(enrichedData);
 
-  processAfterCreate(createdRecord, relationOps, relationContext!);
-  processOneToOne(createdRecord, relationOps, relationContext!);
-  processManyToMany(createdRecord, relationOps, relationContext!);
+  processAfterCreate(createdRecord, relationOps, relationContext);
+  processOneToOne(createdRecord, relationOps, relationContext);
+  processManyToMany(createdRecord, relationOps, relationContext);
 
   return createdRecord;
 };
 
 export { resolveNestedCreate };
+export type { NestedCreateDeps };

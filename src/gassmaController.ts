@@ -233,6 +233,16 @@ class GassmaController {
     return applyDefaults(data, this.defaults);
   }
 
+  private prepareCreateData(
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
+    return this.stripIgnored(
+      this.applyUpdatedAtToData(
+        this.applyDefaultsToData(this.applyAutoincrementToData(data)),
+      ),
+    );
+  }
+
   private applyAutoincrementToData(
     data: Record<string, unknown>,
   ): Record<string, unknown> {
@@ -379,7 +389,9 @@ class GassmaController {
     validateCreateDataOperations(createdData.data, this.relationNames());
     return createManyFunc(
       this.getGassmaControllerUtil(),
-      this.applyCreateManyPreprocess(createdData),
+      createdData,
+      false,
+      (data) => this.applyCreateManyPreprocess(data),
     );
   }
 
@@ -405,8 +417,9 @@ class GassmaController {
 
     const results = createManyFunc(
       this.getGassmaControllerUtil(),
-      this.applyCreateManyPreprocess(createdData),
+      createdData,
       true,
+      (data) => this.applyCreateManyPreprocess(data),
     );
     if (!Array.isArray(results)) return results;
 
@@ -451,19 +464,17 @@ class GassmaController {
     }
 
     const util = this.getGassmaControllerUtil();
-    const processed = this.stripIgnored(
-      this.applyUpdatedAtToData(
-        this.applyDefaultsToData(
-          this.applyAutoincrementToData(createdData.data),
-        ),
-      ),
-    );
-    const wrappedCreate = (data: Record<string, unknown>) =>
-      createFunc(util, { data: data as AnyUse });
+    const wrappedCreate = (data: Record<string, unknown>, titles?: string[]) =>
+      createFunc(util, { data: data as AnyUse }, titles);
     const result = resolveNestedCreate(
-      processed,
+      createdData.data,
       wrappedCreate,
       this.relationContext ?? undefined,
+      {
+        getTitles: () => getTitle(util),
+        validation: util.whereValidation,
+        prepare: (data) => this.prepareCreateData(data),
+      },
     );
 
     const mapped = this.stripIgnored(result);
@@ -1050,12 +1061,7 @@ class GassmaController {
       upsertData.omit,
     );
 
-    const createWithDefaults = this.stripIgnored(
-      this.applyUpdatedAtToData(this.applyDefaultsToData(upsertData.create)),
-    );
-    const updateWithTimestamp = this.stripIgnored(
-      this.applyUpdatedAtToData(upsertData.update),
-    );
+    const updateWithTimestamp = this.applyUpdatedAtToData(upsertData.update);
     const upsertOmitWithIgnore = this.mergeIgnoreIntoOmit(upsertOmit);
 
     return upsertFunc(
@@ -1063,12 +1069,11 @@ class GassmaController {
       {
         ...upsertData,
         where: resolvedWhere,
-        create: createWithDefaults as AnyUse,
         update: updateWithTimestamp as AnyUse,
         omit: upsertOmitWithIgnore,
       },
       this.relationContext,
-      (data) => this.applyAutoincrementToData(data),
+      (data) => this.prepareCreateData(data),
     );
   }
 

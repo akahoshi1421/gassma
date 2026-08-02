@@ -2,6 +2,7 @@ import type { AnyUse } from "../../types/coreTypes";
 import type { UpsertSingleData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { RelationContext } from "../../types/relationTypes";
+import { getTitle } from "../core/getTitle";
 import { createFunc } from "../create/create";
 import { resolveNestedCreate } from "../create/nestedWrite/resolveNestedCreate";
 import { findFirstFunc } from "../find/findFirst";
@@ -44,15 +45,17 @@ const upsertFunc = (
   });
 
   if (!record) {
-    const wrappedCreate = (data: Record<string, unknown>) =>
-      createFunc(gassmaControllerUtil, { data: data as AnyUse });
-    const createData = prepareCreate
-      ? prepareCreate(upsertData.create)
-      : upsertData.create;
+    const wrappedCreate = (data: Record<string, unknown>, titles?: string[]) =>
+      createFunc(gassmaControllerUtil, { data: data as AnyUse }, titles);
     const created = resolveNestedCreate(
-      createData,
+      upsertData.create,
       wrappedCreate,
       relationContext ?? undefined,
+      {
+        getTitles: () => getTitle(gassmaControllerUtil),
+        validation: gassmaControllerUtil.whereValidation,
+        ...(prepareCreate ? { prepare: prepareCreate } : {}),
+      },
     );
     return applyOptions(created, upsertData, relationContext);
   }
