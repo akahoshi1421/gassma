@@ -1,4 +1,5 @@
 import type { AggregateData } from "../../types/aggregateType";
+import type { Select } from "../../types/coreTypes";
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { findManyFunc } from "../find/findMany";
@@ -6,7 +7,10 @@ import { getAvg } from "./aggregateUtil/avg";
 import { getCount } from "./aggregateUtil/count";
 import { getMax } from "./aggregateUtil/max";
 import { getMin } from "./aggregateUtil/min";
-import { buildValidatedCountSelect } from "../validate/buildValidatedCountSelect";
+import {
+  buildValidatedCountSelect,
+  buildValidatedFieldSelect,
+} from "../validate/buildValidatedAggregateSelect";
 import { getSum } from "./aggregateUtil/sum";
 import { ensureAggregateSelection } from "./ensureAggregateSelection";
 
@@ -21,15 +25,28 @@ const aggregateFunc = (
   const take = "take" in aggregateData ? aggregateData.take : null;
   const skip = "skip" in aggregateData ? aggregateData.skip : null;
   const cursor = "cursor" in aggregateData ? aggregateData.cursor : null;
-  const avg = "_avg" in aggregateData ? aggregateData._avg : null;
+  const validateFieldSelect = (value: Select | null | undefined) =>
+    typeof value === "object" && value !== null
+      ? buildValidatedFieldSelect(gassmaControllerUtil, value)
+      : value;
+
+  const avg = validateFieldSelect(
+    "_avg" in aggregateData ? aggregateData._avg : null,
+  );
   const rawCount = "_count" in aggregateData ? aggregateData._count : null;
   const count =
     typeof rawCount === "object" && rawCount !== null
       ? buildValidatedCountSelect(gassmaControllerUtil, rawCount)
       : rawCount;
-  const max = "_max" in aggregateData ? aggregateData._max : null;
-  const min = "_min" in aggregateData ? aggregateData._min : null;
-  const sum = "_sum" in aggregateData ? aggregateData._sum : null;
+  const max = validateFieldSelect(
+    "_max" in aggregateData ? aggregateData._max : null,
+  );
+  const min = validateFieldSelect(
+    "_min" in aggregateData ? aggregateData._min : null,
+  );
+  const sum = validateFieldSelect(
+    "_sum" in aggregateData ? aggregateData._sum : null,
+  );
 
   const findData: FindData = {
     where: where,

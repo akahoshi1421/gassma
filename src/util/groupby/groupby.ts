@@ -1,4 +1,4 @@
-import type { RowRecord } from "../../types/coreTypes";
+import type { RowRecord, Select } from "../../types/coreTypes";
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import type { GroupByData } from "../../types/groupByType";
@@ -8,7 +8,10 @@ import { getMax } from "../aggregate/aggregateUtil/max";
 import { getMin } from "../aggregate/aggregateUtil/min";
 import { getSum } from "../aggregate/aggregateUtil/sum";
 import { findManyFunc } from "../find/findMany";
-import { buildValidatedCountSelect } from "../validate/buildValidatedCountSelect";
+import {
+  buildValidatedCountSelect,
+  buildValidatedFieldSelect,
+} from "../validate/buildValidatedAggregateSelect";
 import { byClassification } from "./groubyUtil/by";
 import { havingFilter } from "./groubyUtil/having";
 
@@ -20,15 +23,20 @@ const groupByFunc = (
   const orderBy = groupByData.orderBy || null;
   const take = "take" in groupByData ? groupByData.take : null;
   const skip = groupByData.skip || null;
-  const avg = groupByData._avg || null;
+  const validateFieldSelect = (value: Select | null | undefined) =>
+    typeof value === "object" && value !== null
+      ? buildValidatedFieldSelect(gassmaControllerUtil, value)
+      : value || null;
+
+  const avg = validateFieldSelect(groupByData._avg);
   const rawCount = groupByData._count ?? null;
   const count =
     typeof rawCount === "object" && rawCount !== null
       ? buildValidatedCountSelect(gassmaControllerUtil, rawCount)
       : rawCount;
-  const max = groupByData._max || null;
-  const min = groupByData._min || null;
-  const sum = groupByData._sum || null;
+  const max = validateFieldSelect(groupByData._max);
+  const min = validateFieldSelect(groupByData._min);
+  const sum = validateFieldSelect(groupByData._sum);
   const by = Array.isArray(groupByData.by) ? groupByData.by : [groupByData.by];
   const having = groupByData.having || null;
 

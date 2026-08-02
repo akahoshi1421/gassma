@@ -3,7 +3,7 @@ import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getCount } from "../aggregate/aggregateUtil/count";
 import { findManyFunc } from "../find/findMany";
-import { buildValidatedCountSelect } from "../validate/buildValidatedCountSelect";
+import { buildValidatedCountSelect } from "../validate/buildValidatedAggregateSelect";
 
 const countFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
