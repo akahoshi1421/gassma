@@ -106,6 +106,8 @@ export const GassmaAggregateSumTypeError =
   aggregateErrors.GassmaAggregateSumTypeError;
 export const GassmaAggregateAvgTypeError =
   aggregateErrors.GassmaAggregateAvgTypeError;
+export const GassmaAggregateSelectionRequiredError =
+  aggregateErrors.GassmaAggregateSelectionRequiredError;
 
 export const GassmaRelationNotFoundError =
   relationErrors.GassmaRelationNotFoundError;

@@ -7,11 +7,14 @@ import { getCount } from "./aggregateUtil/count";
 import { getMax } from "./aggregateUtil/max";
 import { getMin } from "./aggregateUtil/min";
 import { getSum } from "./aggregateUtil/sum";
+import { ensureAggregateSelection } from "./ensureAggregateSelection";
 
 const aggregateFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
   aggregateData: AggregateData,
 ) => {
+  ensureAggregateSelection(aggregateData);
+
   const where = aggregateData.where ?? {};
   const orderBy = "orderBy" in aggregateData ? aggregateData.orderBy : null;
   const take = "take" in aggregateData ? aggregateData.take : null;
