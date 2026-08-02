@@ -24,4 +24,17 @@ class GassmaUnknownArgumentError extends Error {
   }
 }
 
-export { GassmaMissingArgumentError, GassmaUnknownArgumentError };
+class GassmaInvalidValueError extends Error {
+  constructor(argumentName: string, expected: string) {
+    super(
+      `Invalid value for argument \`${argumentName}\`. Expected ${expected}.`,
+    );
+    this.name = "GassmaInvalidValueError";
+  }
+}
+
+export {
+  GassmaMissingArgumentError,
+  GassmaUnknownArgumentError,
+  GassmaInvalidValueError,
+};

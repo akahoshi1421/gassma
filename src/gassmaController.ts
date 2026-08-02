@@ -79,6 +79,10 @@ import {
   type ValidatedOperation,
   validateTopLevelKeys,
 } from "./util/validate/validateTopLevelKeys";
+import {
+  validateCreateDataOperations,
+  validateUpdateDataOperations,
+} from "./util/validate/validateDataOperations";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
 import { updateManyFunc } from "./util/update/updateMany";
@@ -185,6 +189,12 @@ class GassmaController {
     );
     validateTopLevelKeys(operation, normalized);
     return normalized;
+  }
+
+  private relationNames(): string[] {
+    return this.relationContext
+      ? Object.keys(this.relationContext.relations)
+      : [];
   }
 
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
@@ -364,6 +374,7 @@ class GassmaController {
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
+    validateCreateDataOperations(createdData.data, this.relationNames());
     return createManyFunc(
       this.getGassmaControllerUtil(),
       this.applyCreateManyPreprocess(createdData),
@@ -379,6 +390,7 @@ class GassmaController {
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
+    validateCreateDataOperations(createdData.data, this.relationNames());
     if (createdData.include && createdData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -425,6 +437,7 @@ class GassmaController {
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
+    validateCreateDataOperations(createdData.data, this.relationNames());
     if (createdData.include && createdData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -845,6 +858,7 @@ class GassmaController {
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
+    validateUpdateDataOperations(updateData.data, this.relationNames());
     if (updateData.include && updateData.select) {
       throw new GassmaIncludeSelectConflictError();
     }
@@ -910,6 +924,7 @@ class GassmaController {
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
+    validateUpdateDataOperations(updateData.data, this.relationNames());
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -947,6 +962,7 @@ class GassmaController {
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
+    validateUpdateDataOperations(updateData.data, this.relationNames());
     updateData = {
       ...updateData,
       where: this.resolveWhere(updateData.where),
@@ -999,6 +1015,8 @@ class GassmaController {
     if (upsertData.update === undefined) {
       throw new GassmaMissingArgumentError("update");
     }
+    validateCreateDataOperations(upsertData.create, this.relationNames());
+    validateUpdateDataOperations(upsertData.update, this.relationNames());
     if (upsertData.include && upsertData.select) {
       throw new GassmaIncludeSelectConflictError();
     }

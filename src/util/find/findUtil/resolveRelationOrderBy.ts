@@ -106,6 +106,7 @@ const resolveRelationOrderBy = (
   orderByArr.forEach((entry) => {
     const [key, value] = Object.entries(entry)[0];
     if (!isRelationOrderByValue(value)) return;
+    if (!(key in context.relations)) return;
 
     const relValue = value as Record<string, "asc" | "desc">;
 
@@ -118,7 +119,8 @@ const resolveRelationOrderBy = (
 
   const resolvedOrderBy: OrderBy[] = orderByArr.map((entry) => {
     const [key, value] = Object.entries(entry)[0];
-    if (!isRelationOrderByValue(value)) return entry;
+    if (!isRelationOrderByValue(value) || !(key in context.relations))
+      return entry;
 
     const relValue = value as Record<string, "asc" | "desc">;
     const [sortField, sortDir] = Object.entries(relValue)[0];

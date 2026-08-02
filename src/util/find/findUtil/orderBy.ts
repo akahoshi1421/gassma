@@ -1,8 +1,13 @@
+import {
+  GassmaInvalidValueError,
+  GassmaUnknownArgumentError,
+} from "../../../errors/argument/argumentError";
 import type {
   OrderBy,
   SortOrderInput,
   RelationOrderBy,
 } from "../../../types/coreTypes";
+import { isDict } from "../../other/isDict";
 
 type ParsedOrderByEntry = [
   string,
@@ -22,16 +27,38 @@ const isScalarDirection = (
   return value === "asc" || value === "desc";
 };
 
+const SORT_INPUT_KEYS = ["sort", "nulls"];
+
 const parseOrderByEntry = (option: OrderBy): ParsedOrderByEntry => {
   const [key, value] = Object.entries(option)[0];
   if (isSortOrderInput(value)) {
+    Object.keys(value).forEach((inputKey) => {
+      if (!SORT_INPUT_KEYS.includes(inputKey)) {
+        throw new GassmaUnknownArgumentError(inputKey, SORT_INPUT_KEYS);
+      }
+    });
+    if (!isScalarDirection(value.sort)) {
+      throw new GassmaInvalidValueError("sort", '"asc" | "desc"');
+    }
+    if (
+      value.nulls !== undefined &&
+      value.nulls !== "first" &&
+      value.nulls !== "last"
+    ) {
+      throw new GassmaInvalidValueError("nulls", '"first" | "last"');
+    }
     return [key, value.sort, value.nulls];
   }
   if (isScalarDirection(value)) {
     return [key, value, undefined];
   }
-  // RelationOrderBy should be resolved before reaching here
-  return [key, "asc", undefined];
+  if (isDict(value)) {
+    const innerKey = Object.keys(value)[0];
+    if (innerKey !== undefined) {
+      throw new GassmaUnknownArgumentError(innerKey, SORT_INPUT_KEYS);
+    }
+  }
+  throw new GassmaInvalidValueError("orderBy", '"asc" | "desc"');
 };
 
 const search = (

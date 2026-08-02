@@ -34,4 +34,9 @@ const resolveNumberOperations = (
   return resolved;
 };
 
-export { isNumberOperation, resolveNumberOperation, resolveNumberOperations };
+export {
+  NUMBER_OPERATION_KEYS,
+  isNumberOperation,
+  resolveNumberOperation,
+  resolveNumberOperations,
+};
