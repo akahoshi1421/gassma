@@ -8,6 +8,7 @@ import { getMax } from "../aggregate/aggregateUtil/max";
 import { getMin } from "../aggregate/aggregateUtil/min";
 import { getSum } from "../aggregate/aggregateUtil/sum";
 import { findManyFunc } from "../find/findMany";
+import { buildValidatedCountSelect } from "../validate/buildValidatedCountSelect";
 import { byClassification } from "./groubyUtil/by";
 import { havingFilter } from "./groubyUtil/having";
 
@@ -20,7 +21,11 @@ const groupByFunc = (
   const take = "take" in groupByData ? groupByData.take : null;
   const skip = groupByData.skip || null;
   const avg = groupByData._avg || null;
-  const count = groupByData._count || null;
+  const rawCount = groupByData._count ?? null;
+  const count =
+    typeof rawCount === "object" && rawCount !== null
+      ? buildValidatedCountSelect(gassmaControllerUtil, rawCount)
+      : rawCount;
   const max = groupByData._max || null;
   const min = groupByData._min || null;
   const sum = groupByData._sum || null;

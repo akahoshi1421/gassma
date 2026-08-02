@@ -2,9 +2,8 @@ import type { CountData } from "../../types/countType";
 import type { FindData } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { getCount } from "../aggregate/aggregateUtil/count";
-import { getTitle } from "../core/getTitle";
 import { findManyFunc } from "../find/findMany";
-import { validateCountSelect } from "../validate/validateCountSelect";
+import { buildValidatedCountSelect } from "../validate/buildValidatedCountSelect";
 
 const countFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -17,15 +16,7 @@ const countFunc = (
 
   if (select === undefined || select === true) return rows.length;
 
-  const titles = getTitle(gassmaControllerUtil);
-  const ignoredFields =
-    gassmaControllerUtil.whereValidation?.ignoredFields ?? [];
-  const truthyKeys = validateCountSelect(select, titles, ignoredFields);
-
-  const truthySelect: Record<string, true> = {};
-  truthyKeys.forEach((key) => {
-    truthySelect[key] = true;
-  });
+  const truthySelect = buildValidatedCountSelect(gassmaControllerUtil, select);
 
   return getCount(rows, truthySelect);
 };
