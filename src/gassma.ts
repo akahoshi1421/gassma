@@ -10,6 +10,7 @@ import type {
   GassmaTransactionOptions,
   SheetIo,
 } from "./types/transactionTypes";
+import { validateConfigColumns } from "./util/config/validateConfigColumns";
 import { buildExtendedClient } from "./util/extends/buildExtendedClient";
 import { isSheetIgnored } from "./util/ignore/isSheetIgnored";
 import { resolveCodeName } from "./util/map/mapSheetName";
@@ -113,8 +114,23 @@ class GassmaClient {
 
     Object.assign(this, controllers);
 
+    const headerCache = new Map<string, string[]>();
+    const getColumnHeaders = (sheetName: string): string[] => {
+      const cached = headerCache.get(sheetName);
+      if (cached) return cached;
+      const headers = controllers[sheetName].getColumnHeaders();
+      headerCache.set(sheetName, headers);
+      return headers;
+    };
+
+    validateConfigColumns(
+      { omit: globalOmit, defaults, updatedAt, autoincrement, ignore, map },
+      controllers,
+      getColumnHeaders,
+    );
+
     if (relations) {
-      injectRelations(relations, controllers);
+      injectRelations(relations, controllers, getColumnHeaders);
     }
   }
 
