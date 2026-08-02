@@ -1,21 +1,14 @@
 import type { AnyUse, QueryOmit, WhereUse } from "../../types/coreTypes";
 import type { GassmaSheet } from "../../types/gassmaTypes";
 import type { IncludeData, RelationsConfig } from "../../types/relationTypes";
+import type { GetColumnHeaders } from "./validation/validateColumnExistence";
 import { validateRelationsConfig } from "./validation/validateRelationsConfig";
 
 const injectRelations = (
   relations: RelationsConfig,
   controllers: GassmaSheet,
+  getColumnHeaders: GetColumnHeaders,
 ) => {
-  const cache = new Map<string, string[]>();
-  const getColumnHeaders = (sheetName: string): string[] => {
-    const cached = cache.get(sheetName);
-    if (cached) return cached;
-    const headers = controllers[sheetName].getColumnHeaders();
-    cache.set(sheetName, headers);
-    return headers;
-  };
-
   const getIgnoredFields = (sheetName: string): string[] =>
     controllers[sheetName]._getIgnoredFields();
 
