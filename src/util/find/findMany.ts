@@ -7,6 +7,10 @@ import { findedDataSelect } from "./findUtil/findDataSelect";
 import { omitFunc } from "./findUtil/omit";
 import { orderByFunc } from "./findUtil/orderBy";
 import { applyCursorDistinctSkipTake } from "./findUtil/applyCursorDistinctSkipTake";
+import {
+  validateCursorKeys,
+  validateDistinctKeys,
+} from "../validate/validateFieldKeys";
 
 const findManyFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -42,6 +46,8 @@ const findManyFunc = (
     );
 
   const cursor = "cursor" in findData ? findData.cursor : null;
+  if (cursor) validateCursorKeys(cursor, titles);
+  if (distinct) validateDistinctKeys(distinct, titles);
   findDataDictArray = applyCursorDistinctSkipTake(
     findDataDictArray,
     cursor,

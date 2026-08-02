@@ -10,6 +10,10 @@ import { applyCursor } from "./findUtil/applyCursor";
 import { applyDistinct } from "./findUtil/applyDistinct";
 import { applyFindFirstTake } from "./findUtil/applyFindFirstTake";
 import { applySkipTake } from "./findUtil/applySkipTake";
+import {
+  validateCursorKeys,
+  validateDistinctKeys,
+} from "../validate/validateFieldKeys";
 
 const findFirstFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -49,10 +53,12 @@ const findFirstFunc = (
 
   const cursor = "cursor" in findData ? findData.cursor : null;
   if (cursor) {
+    validateCursorKeys(cursor, titles);
     findDataDictArray = applyCursor(findDataDictArray, cursor);
   }
 
   if (distinct) {
+    validateDistinctKeys(distinct, titles);
     findDataDictArray = applyDistinct(findDataDictArray, distinct);
   }
 

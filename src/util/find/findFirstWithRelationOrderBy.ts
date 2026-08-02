@@ -9,6 +9,11 @@ import { applyCursor } from "./findUtil/applyCursor";
 import { applyDistinct } from "./findUtil/applyDistinct";
 import { applyFindFirstTake } from "./findUtil/applyFindFirstTake";
 import { applySkipTake } from "./findUtil/applySkipTake";
+import { getTitle } from "../core/getTitle";
+import {
+  validateCursorKeys,
+  validateDistinctKeys,
+} from "../validate/validateFieldKeys";
 
 const findFirstWithRelationOrderBy = (
   controllerUtil: GassmaControllerUtil,
@@ -38,6 +43,11 @@ const findFirstWithRelationOrderBy = (
   const directed = applyFindFirstTake(sorted, take);
 
   const cursor = "cursor" in findData ? findData.cursor : null;
+  if (cursor || distinct) {
+    const titles = getTitle(controllerUtil);
+    if (cursor) validateCursorKeys(cursor, titles);
+    if (distinct) validateDistinctKeys(distinct, titles);
+  }
   const cursored = cursor ? applyCursor(directed, cursor) : directed;
 
   const distincted = distinct ? applyDistinct(cursored, distinct) : cursored;

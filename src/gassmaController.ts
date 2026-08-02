@@ -75,6 +75,7 @@ import { resolveCount } from "./util/relation/resolveCount";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
+import { validateOrderByKeys } from "./util/validate/validateOrderByKeys";
 import {
   type ValidatedOperation,
   validateTopLevelKeys,
@@ -526,6 +527,13 @@ class GassmaController {
         ? orderBy
         : [orderBy]
       : [];
+    if (orderByArr.length > 0) {
+      validateOrderByKeys(
+        orderByArr,
+        this.getColumnHeaders(),
+        this.relationNames(),
+      );
+    }
     const { hasRelationOrderBy } = separateRelationOrderBy(orderByArr);
 
     if (hasRelationOrderBy && this.relationContext) {
@@ -720,6 +728,13 @@ class GassmaController {
         ? fmOrderBy
         : [fmOrderBy]
       : [];
+    if (fmOrderByArr.length > 0) {
+      validateOrderByKeys(
+        fmOrderByArr,
+        this.getColumnHeaders(),
+        this.relationNames(),
+      );
+    }
     const { hasRelationOrderBy: fmHasRelation } =
       separateRelationOrderBy(fmOrderByArr);
 

@@ -6,6 +6,11 @@ import { resolveRelationOrderBy } from "./findUtil/resolveRelationOrderBy";
 import { applySelectOmit } from "./findUtil/applySelectOmit";
 import { applyCursorDistinctSkipTake } from "./findUtil/applyCursorDistinctSkipTake";
 import type { OrderBy } from "../../types/coreTypes";
+import { getTitle } from "../core/getTitle";
+import {
+  validateCursorKeys,
+  validateDistinctKeys,
+} from "../validate/validateFieldKeys";
 
 const findManyWithRelationOrderBy = (
   controllerUtil: GassmaControllerUtil,
@@ -33,6 +38,11 @@ const findManyWithRelationOrderBy = (
 
   // Step 3: Prisma 実測順 (ソート後に cursor → distinct → skip → take)
   const cursor = "cursor" in findData ? findData.cursor : null;
+  if (cursor || distinct) {
+    const titles = getTitle(controllerUtil);
+    if (cursor) validateCursorKeys(cursor, titles);
+    if (distinct) validateDistinctKeys(distinct, titles);
+  }
   const paged = applyCursorDistinctSkipTake(
     sorted,
     cursor,
