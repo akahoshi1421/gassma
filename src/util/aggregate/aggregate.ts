@@ -6,6 +6,7 @@ import { getAvg } from "./aggregateUtil/avg";
 import { getCount } from "./aggregateUtil/count";
 import { getMax } from "./aggregateUtil/max";
 import { getMin } from "./aggregateUtil/min";
+import { buildValidatedCountSelect } from "../validate/buildValidatedCountSelect";
 import { getSum } from "./aggregateUtil/sum";
 import { ensureAggregateSelection } from "./ensureAggregateSelection";
 
@@ -21,7 +22,11 @@ const aggregateFunc = (
   const skip = "skip" in aggregateData ? aggregateData.skip : null;
   const cursor = "cursor" in aggregateData ? aggregateData.cursor : null;
   const avg = "_avg" in aggregateData ? aggregateData._avg : null;
-  const count = "_count" in aggregateData ? aggregateData._count : null;
+  const rawCount = "_count" in aggregateData ? aggregateData._count : null;
+  const count =
+    typeof rawCount === "object" && rawCount !== null
+      ? buildValidatedCountSelect(gassmaControllerUtil, rawCount)
+      : rawCount;
   const max = "_max" in aggregateData ? aggregateData._max : null;
   const min = "_min" in aggregateData ? aggregateData._min : null;
   const sum = "_sum" in aggregateData ? aggregateData._sum : null;
