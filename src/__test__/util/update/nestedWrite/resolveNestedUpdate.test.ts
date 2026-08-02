@@ -243,6 +243,58 @@ describe("resolveNestedUpdate", () => {
     expect(mockDeleteManyOnSheet).toHaveBeenCalledTimes(2);
   });
 
+  it("oneToMany + update で相手不在ならエラー", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
+
+    expect(() =>
+      resolveNestedUpdate(
+        util,
+        {
+          where: { id: 1 },
+          data: {
+            posts: {
+              update: { where: { id: 999 }, data: { title: "新タイトル" } },
+            },
+          },
+        },
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+  });
+
+  it("oneToMany + delete で相手不在ならエラー", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockDeleteManyOnSheet.mockReturnValue({ count: 0 });
+
+    expect(() =>
+      resolveNestedUpdate(
+        util,
+        {
+          where: { id: 1 },
+          data: { posts: { delete: { id: 999 } } },
+        },
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+  });
+
+  it("oneToMany + deleteMany は対象0件でもエラーにならない", () => {
+    const util = setupSheet(["id", "name"], [[1, "田中"]]);
+    mockDeleteManyOnSheet.mockReturnValue({ count: 0 });
+
+    const result = resolveNestedUpdate(
+      util,
+      {
+        where: { id: 1 },
+        data: { posts: { deleteMany: { published: false } } },
+      },
+      makeContext({ posts: oneToManyRelation }),
+    );
+
+    expect(result).toEqual({ id: 1, name: "田中" });
+  });
+
   it("manyToOne + disconnect の統合テスト", () => {
     const util = setupSheet(["id", "title", "authorId"], [[1, "記事A", 1]]);
 

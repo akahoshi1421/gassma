@@ -1,4 +1,7 @@
-import { NestedWriteInvalidOperationError } from "../../../../errors/relation/nestedWriteError";
+import {
+  NestedWriteInvalidOperationError,
+  NestedWriteTargetNotFoundError,
+} from "../../../../errors/relation/nestedWriteError";
 import { processAfterUpdate } from "../../../../util/update/nestedWrite/processAfterUpdate";
 import type {
   RelationDefinition,
@@ -245,6 +248,99 @@ describe("processAfterUpdate", () => {
         makeContext({ posts: oneToManyRelation }),
       ),
     ).toThrow("disconnect");
+  });
+
+  it("oneToMany + update で対象0件なら NestedWriteTargetNotFoundError", () => {
+    mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", {
+      update: { where: { id: 999 }, data: { title: "新タイトル" } },
+    });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+  });
+
+  it("oneToMany + update（配列）で一部が対象0件ならエラー", () => {
+    mockUpdateManyOnSheet
+      .mockReturnValueOnce({ count: 1 })
+      .mockReturnValueOnce({ count: 0 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", {
+      update: [
+        { where: { id: 5 }, data: { title: "A" } },
+        { where: { id: 999 }, data: { title: "B" } },
+      ],
+    });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+  });
+
+  it("oneToMany + delete で対象0件なら NestedWriteTargetNotFoundError", () => {
+    mockDeleteManyOnSheet.mockReturnValue({ count: 0 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { delete: { id: 999 } });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).toThrow(NestedWriteTargetNotFoundError);
+  });
+
+  it("oneToMany + deleteMany は対象0件でもエラーにならない", () => {
+    mockDeleteManyOnSheet.mockReturnValue({ count: 0 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { deleteMany: { published: false } });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).not.toThrow();
+  });
+
+  it("oneToMany + disconnect は対象0件でもエラーにならない", () => {
+    mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { disconnect: { id: 999 } });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).not.toThrow();
+  });
+
+  it("oneToMany + set は対象0件でもエラーにならない", () => {
+    mockUpdateManyOnSheet.mockReturnValue({ count: 0 });
+    const relationOps = new Map<string, NestedWriteOperation>();
+    relationOps.set("posts", { set: [{ id: 999 }] });
+
+    expect(() =>
+      processAfterUpdate(
+        { id: 1, name: "田中" },
+        relationOps,
+        makeContext({ posts: oneToManyRelation }),
+      ),
+    ).not.toThrow();
   });
 
   it("manyToOne は無視される", () => {
