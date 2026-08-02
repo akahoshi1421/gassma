@@ -46,9 +46,10 @@ const resolveNestedUpdate = (
   util: GassmaControllerUtil,
   updateInput: UpdateInput,
   relationContext: RelationContext | undefined,
+  precomputedTitles?: string[],
 ): Record<string, unknown> | null => {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } = util;
-  const titles = getTitle(util);
+  const titles = precomputedTitles ?? getTitle(util);
   const matchedRows = whereFilter(updateInput.where, util, titles);
 
   if (matchedRows.length === 0) return null;

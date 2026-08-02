@@ -18,16 +18,19 @@ function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData,
   withReturn: true,
+  precomputedTitles?: string[],
 ): Record<string, unknown>[];
 function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData,
   withReturn?: false,
+  precomputedTitles?: string[],
 ): UpdateManyReturn;
 function updateManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   updateData: UpdateData,
   withReturn?: boolean,
+  precomputedTitles?: string[],
 ): Record<string, unknown>[] | UpdateManyReturn {
   const { sheet, startRowNumber, startColumnNumber, endColumnNumber } =
     gassmaControllerUtil;
@@ -36,7 +39,7 @@ function updateManyFunc(
   const data = updateData.data;
   const limit = updateData.limit;
 
-  const titles = getTitle(gassmaControllerUtil);
+  const titles = precomputedTitles ?? getTitle(gassmaControllerUtil);
 
   if (gassmaControllerUtil.whereValidation) {
     validateDataColumns(

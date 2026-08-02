@@ -13,6 +13,7 @@ import { resolveInclude } from "../relation/resolveInclude";
 import { resolveOnUpdate } from "../relation/onUpdate/resolveOnUpdate";
 import { resolveNestedUpdate } from "../update/nestedWrite/resolveNestedUpdate";
 import { resolveNumberOperations } from "../update/resolveNumberOperation";
+import { validateUpdateColumnsEarly } from "../validate/validateUpdateColumnsEarly";
 
 const applyOptions = (
   result: Record<string, unknown>,
@@ -60,7 +61,14 @@ const upsertFunc = (
     return applyOptions(created, upsertData, relationContext);
   }
 
+  let precomputedTitles: string[] | undefined;
   if (relationContext) {
+    precomputedTitles = validateUpdateColumnsEarly(
+      gassmaControllerUtil,
+      upsertData.update,
+      relationContext,
+      "update",
+    );
     const beforeRecords = findManyFunc(gassmaControllerUtil, {
       where: upsertData.where,
       take: 1,
@@ -78,6 +86,7 @@ const upsertFunc = (
     gassmaControllerUtil,
     { where: upsertData.where, data: upsertData.update },
     relationContext ?? undefined,
+    precomputedTitles,
   );
   if (!updated) return record;
 
