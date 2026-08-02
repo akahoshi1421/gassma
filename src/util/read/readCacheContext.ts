@@ -1,4 +1,10 @@
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
+import {
+  applyInternalWriteBuffer,
+  closeInternalWriteBuffer,
+  flushInternalWriteBuffer,
+  openInternalWriteBuffer,
+} from "../write/internalWriteBuffer";
 import { resolveWriter } from "../write/sheetWriter";
 import type { SheetReadCache } from "./cachedSheetReader";
 import { createSheetReadCache } from "./cachedSheetReader";
@@ -17,22 +23,28 @@ const runWithReadCache = <T>(fn: () => T): T => {
   }
 };
 
-const runWithoutReadCache = <T>(fn: () => T): T => {
+const runWithoutReadCache = <T>(fn: () => T, buffered = false): T => {
   if (activeCache) activeCache.clear();
+  const isOutermost = writeDepth === 0;
+  if (isOutermost && buffered) openInternalWriteBuffer();
   writeDepth += 1;
   try {
-    return fn();
+    const result = fn();
+    if (isOutermost) flushInternalWriteBuffer();
+    return result;
   } finally {
     writeDepth -= 1;
+    if (isOutermost) closeInternalWriteBuffer();
   }
 };
 
 const applyReadCache = (util: GassmaControllerUtil): GassmaControllerUtil => {
-  if (!activeCache || writeDepth > 0) return util;
+  const base = applyInternalWriteBuffer(util);
+  if (!activeCache || writeDepth > 0) return base;
   return {
-    ...util,
-    reader: activeCache.wrapReader(resolveReader(util.reader)),
-    writer: activeCache.wrapWriter(resolveWriter(util.writer)),
+    ...base,
+    reader: activeCache.wrapReader(resolveReader(base.reader)),
+    writer: activeCache.wrapWriter(resolveWriter(base.writer)),
   };
 };
 

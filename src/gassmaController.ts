@@ -92,6 +92,13 @@ import { updateManyFunc } from "./util/update/updateMany";
 import { upsertFunc } from "./util/upsert/upsert";
 import type { SheetWriter } from "./util/write/sheetWriter";
 import { immediateSheetWriter } from "./util/write/sheetWriter";
+import {
+  shouldBufferCreate,
+  shouldBufferDelete,
+  shouldBufferUpdate,
+  shouldBufferUpdateMany,
+  shouldBufferUpsert,
+} from "./util/write/writeBufferGate";
 
 class GassmaController {
   private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
@@ -446,7 +453,10 @@ class GassmaController {
   }
 
   public create(createdData: CreateData) {
-    return runWithoutReadCache(() => this.createRaw(createdData));
+    return runWithoutReadCache(
+      () => this.createRaw(createdData),
+      shouldBufferCreate(this.relationContext, createdData?.data),
+    );
   }
 
   private createRaw(createdData: CreateData) {
@@ -876,7 +886,10 @@ class GassmaController {
   }
 
   public update(updateData: UpdateSingleData) {
-    return runWithoutReadCache(() => this.updateRaw(updateData));
+    return runWithoutReadCache(
+      () => this.updateRaw(updateData),
+      shouldBufferUpdate(this.relationContext, updateData?.data),
+    );
   }
 
   private updateRaw(updateData: UpdateSingleData) {
@@ -953,7 +966,10 @@ class GassmaController {
   }
 
   public updateMany(updateData: UpdateData) {
-    return runWithoutReadCache(() => this.updateManyRaw(updateData));
+    return runWithoutReadCache(
+      () => this.updateManyRaw(updateData),
+      shouldBufferUpdateMany(this.relationContext, updateData?.data),
+    );
   }
 
   private updateManyRaw(updateData: UpdateData) {
@@ -1003,7 +1019,10 @@ class GassmaController {
   }
 
   public updateManyAndReturn(updateData: UpdateManyAndReturnData) {
-    return runWithoutReadCache(() => this.updateManyAndReturnRaw(updateData));
+    return runWithoutReadCache(
+      () => this.updateManyAndReturnRaw(updateData),
+      shouldBufferUpdateMany(this.relationContext, updateData?.data),
+    );
   }
 
   private updateManyAndReturnRaw(updateData: UpdateManyAndReturnData) {
@@ -1081,7 +1100,10 @@ class GassmaController {
   }
 
   public upsert(upsertData: UpsertSingleData) {
-    return runWithoutReadCache(() => this.upsertRaw(upsertData));
+    return runWithoutReadCache(
+      () => this.upsertRaw(upsertData),
+      shouldBufferUpsert(this.relationContext, upsertData),
+    );
   }
 
   private upsertRaw(upsertData: UpsertSingleData) {
@@ -1131,7 +1153,10 @@ class GassmaController {
   }
 
   public delete(deleteData: DeleteSingleData) {
-    return runWithoutReadCache(() => this.deleteRaw(deleteData));
+    return runWithoutReadCache(
+      () => this.deleteRaw(deleteData),
+      shouldBufferDelete(this.relationContext),
+    );
   }
 
   private deleteRaw(deleteData: DeleteSingleData) {
@@ -1167,7 +1192,10 @@ class GassmaController {
   }
 
   public deleteMany(deleteData: DeleteData = {}) {
-    return runWithoutReadCache(() => this.deleteManyRaw(deleteData));
+    return runWithoutReadCache(
+      () => this.deleteManyRaw(deleteData),
+      shouldBufferDelete(this.relationContext),
+    );
   }
 
   private deleteManyRaw(deleteData: DeleteData) {
