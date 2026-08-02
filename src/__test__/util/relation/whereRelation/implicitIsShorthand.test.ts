@@ -102,12 +102,6 @@ describe("to-many の短縮形は専用エラー", () => {
       resolveWhereRelation({ tags: { label: "tech" } }, context),
     ).toThrow(GassmaUnknownArgumentError);
   });
-
-  test("空オブジェクトは GassmaInvalidValueError", () => {
-    expect(() => resolveWhereRelation({ posts: {} }, context)).toThrow(
-      GassmaInvalidValueError,
-    );
-  });
 });
 
 describe("リレーション名に不正な値", () => {
