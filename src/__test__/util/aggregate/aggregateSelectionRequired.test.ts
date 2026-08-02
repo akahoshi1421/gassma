@@ -1,4 +1,5 @@
 import { GassmaAggregateSelectionRequiredError } from "../../../errors/aggregate/aggregateError";
+import { GassmaInvalidValueError } from "../../../errors/argument/argumentError";
 import {
   buildTestClient,
   clearSpreadsheetApp,
@@ -87,12 +88,11 @@ describe("aggregate: 集計指定があれば従来どおり", () => {
     ).toEqual({ _count: { id: 1 } });
   });
 
-  test("空の集計指定が混ざっていても、有効な集計指定があればエラーにしない", () => {
+  test("空の集計指定は有効な集計指定と同居してもエラー", () => {
     const users = usersController();
-    expect(users.aggregate({ _avg: {}, _count: { age: true } })).toEqual({
-      _avg: {},
-      _count: { age: 3 },
-    });
+    expect(() => users.aggregate({ _avg: {}, _count: { age: true } })).toThrow(
+      GassmaInvalidValueError,
+    );
   });
 });
 

@@ -1,3 +1,5 @@
+import { GassmaUnknownArgumentError } from "../../../errors/argument/argumentError";
+import type { AggregateData } from "../../../types/aggregateType";
 import { aggregateFunc } from "../../../util/aggregate/aggregate";
 import {
   getExtendedMockControllerUtil,
@@ -473,19 +475,18 @@ describe("aggregate functionality tests", () => {
   });
 
   describe("aggregateFunc _all is special only for _count", () => {
-    test("should treat _all as a normal column for _avg/_sum/_max/_min", () => {
-      const result = aggregateFunc(getExtendedMockControllerUtil(), {
-        _avg: { _all: true },
-        _sum: { _all: true },
-        _max: { _all: true },
-        _min: { _all: true },
-      });
+    test("should reject _all as an unknown column for _avg/_sum/_max/_min", () => {
+      const selections: AggregateData[] = [
+        { _avg: { _all: true } },
+        { _sum: { _all: true } },
+        { _max: { _all: true } },
+        { _min: { _all: true } },
+      ];
 
-      expect(result).toEqual({
-        _avg: { _all: null },
-        _sum: { _all: null },
-        _max: { _all: null },
-        _min: { _all: null },
+      selections.forEach((aggregateData) => {
+        expect(() =>
+          aggregateFunc(getExtendedMockControllerUtil(), aggregateData),
+        ).toThrow(GassmaUnknownArgumentError);
       });
     });
   });

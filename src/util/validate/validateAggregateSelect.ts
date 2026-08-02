@@ -4,14 +4,15 @@ import {
 } from "../../errors/argument/argumentError";
 import type { CountAggregateSelect } from "../../types/countType";
 
-const validateCountSelect = (
+const validateAggregateSelect = (
   select: CountAggregateSelect,
   titles: string[],
   ignoredFields: string[],
+  extraKeys: string[],
 ): string[] => {
   const availableArguments = titles
     .filter((title) => !ignoredFields.includes(title))
-    .concat("_all");
+    .concat(extraKeys);
 
   const keys = Object.keys(select);
   if (keys.length === 0) {
@@ -32,4 +33,4 @@ const validateCountSelect = (
   return truthyKeys;
 };
 
-export { validateCountSelect };
+export { validateAggregateSelect };

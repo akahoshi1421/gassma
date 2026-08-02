@@ -198,6 +198,30 @@ describe("読み取り専用クエリの往復回数", () => {
     sheetOf(env.client, "Users").groupBy({ by: ["parentId"] });
     expect(env.totalTrips()).toBe(3);
   });
+
+  test("aggregate は _sum/_avg/_max/_min の検証込みでも3往復", () => {
+    const env = buildEnv(selfRelations);
+    sheetOf(env.client, "Users").aggregate({
+      _sum: { id: true },
+      _avg: { id: true },
+      _max: { id: true },
+      _min: { id: true },
+      _count: { id: true },
+    });
+    expect(env.totalTrips()).toBe(3);
+  });
+
+  test("groupBy は _sum/_avg/_max/_min の検証込みでも3往復", () => {
+    const env = buildEnv(selfRelations);
+    sheetOf(env.client, "Users").groupBy({
+      by: ["parentId"],
+      _sum: { id: true },
+      _avg: { id: true },
+      _max: { id: true },
+      _min: { id: true },
+    });
+    expect(env.totalTrips()).toBe(3);
+  });
 });
 
 describe("キャッシュの寿命(トップレベル呼び出しごとに破棄)", () => {
