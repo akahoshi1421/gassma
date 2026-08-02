@@ -7,25 +7,29 @@ import { unwrapRawCell } from "../raw/raw";
 import { validateDataColumns } from "../validate/validateDataColumns";
 import { resolveWriter } from "../write/sheetWriter";
 
+type PrepareCreateManyData = (data: CreateManyData) => CreateManyData;
+
 function createManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData,
   withReturn: true,
+  prepareData?: PrepareCreateManyData,
 ): Record<string, unknown>[];
 function createManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData,
   withReturn?: false,
+  prepareData?: PrepareCreateManyData,
 ): CreateManyReturn;
 function createManyFunc(
   gassmaControllerUtil: GassmaControllerUtil,
   createManyData: CreateManyData,
   withReturn?: boolean,
+  prepareData?: PrepareCreateManyData,
 ): Record<string, unknown>[] | CreateManyReturn {
   const { sheet, startColumnNumber, endColumnNumber } = gassmaControllerUtil;
 
-  const data = createManyData.data;
-  if (data.length === 0) {
+  if (createManyData.data.length === 0) {
     return withReturn ? [] : { count: 0 };
   }
 
@@ -33,10 +37,13 @@ function createManyFunc(
 
   const validation = gassmaControllerUtil.whereValidation;
   if (validation) {
-    data.forEach((row) => {
+    createManyData.data.forEach((row) => {
       validateDataColumns(row, titles, validation, "createMany");
     });
   }
+
+  const data = (prepareData ? prepareData(createManyData) : createManyData)
+    .data;
 
   const newData = data.map((row) => {
     const wantCreateIndex = getWantUpdateIndexFromTitles(titles, row);
