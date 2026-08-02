@@ -542,3 +542,31 @@ describe("groupByFunc with having clause", () => {
     });
   });
 });
+
+describe("having で使い回した in 配列の in-place 変更", () => {
+  test("同 length で書き換えた値が次のクエリに反映される", () => {
+    const counts = [4, 99];
+
+    const first = groupByFunc(getExtendedMockControllerUtil(), {
+      by: "住所",
+      having: { 名前: { _count: { in: counts } } },
+      _count: { 名前: true },
+    });
+    expectArrayToEqualIgnoringOrder(first, [
+      { 住所: "Tokyo", _count: { 名前: 4 } },
+    ]);
+
+    counts[1] = 2;
+
+    const second = groupByFunc(getExtendedMockControllerUtil(), {
+      by: "住所",
+      having: { 名前: { _count: { in: counts } } },
+      _count: { 名前: true },
+    });
+    expectArrayToEqualIgnoringOrder(second, [
+      { 住所: "Tokyo", _count: { 名前: 4 } },
+      { 住所: "Osaka", _count: { 名前: 2 } },
+      { 住所: "Kyoto", _count: { 名前: 2 } },
+    ]);
+  });
+});
