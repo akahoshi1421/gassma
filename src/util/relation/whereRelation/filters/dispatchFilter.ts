@@ -20,6 +20,11 @@ const SINGLE_RELATION_TYPES = new Set(["oneToOne", "manyToOne"]);
 const isFilterKey = (k: string): boolean =>
   LIST_FILTER_SET.has(k) || SINGLE_FILTER_SET.has(k);
 
+const isListRelationType = (type: string): boolean =>
+  LIST_RELATION_TYPES.has(type);
+
+const LIST_FILTER_KEYS = ["some", "every", "none"];
+
 const validateFilterType = (
   relation: RelationDefinition,
   relationName: string,
@@ -96,4 +101,10 @@ const dispatchFilter = (
   );
 };
 
-export { isFilterKey, validateFilterType, dispatchFilter };
+export {
+  isFilterKey,
+  isListRelationType,
+  validateFilterType,
+  dispatchFilter,
+  LIST_FILTER_KEYS,
+};
