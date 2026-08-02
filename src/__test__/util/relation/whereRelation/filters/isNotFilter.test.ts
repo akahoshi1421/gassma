@@ -17,7 +17,7 @@ describe("applyIsNotFilter", () => {
       reference: "id",
     };
 
-    it("条件に合致するターゲットのキーでnotInフィルタを生成する", () => {
+    it("FK null の行を含めるためNOT+inフィルタを生成する", () => {
       const filterWhere: WhereUse = { name: "Alice" };
 
       mockFindMany.mockReturnValue([{ id: 1, name: "Alice" }]);
@@ -29,10 +29,10 @@ describe("applyIsNotFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ authorId: { notIn: [1] } });
+      expect(result).toEqual({ NOT: { authorId: { in: [1] } } });
     });
 
-    it("条件に合致するターゲットがない場合はnotIn: []を返す", () => {
+    it("条件に合致するターゲットがない場合はNOT+in: []を返す", () => {
       const filterWhere: WhereUse = { name: "Unknown" };
       mockFindMany.mockReturnValue([]);
 
@@ -43,7 +43,19 @@ describe("applyIsNotFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ authorId: { notIn: [] } });
+      expect(result).toEqual({ NOT: { authorId: { in: [] } } });
+    });
+
+    it("空の条件は全ターゲットキーのNOT+inを返す", () => {
+      mockFindMany.mockReturnValue([
+        { id: 1, name: "Alice" },
+        { id: 2, name: "Bob" },
+      ]);
+
+      const result = applyIsNotFilter(relation, "author", {}, mockFindMany);
+
+      expect(result).toEqual({ NOT: { authorId: { in: [1, 2] } } });
+      expect(mockFindMany).toHaveBeenCalledWith("Users", { where: {} });
     });
   });
 
@@ -55,7 +67,7 @@ describe("applyIsNotFilter", () => {
       reference: "userId",
     };
 
-    it("条件に合致するターゲットのreferenceキーでnotInフィルタを生成する", () => {
+    it("条件に合致するターゲットのreferenceキーでNOT+inフィルタを生成する", () => {
       const filterWhere: WhereUse = { bio: "developer" };
 
       mockFindMany.mockReturnValue([{ id: 1, userId: 10, bio: "developer" }]);
@@ -67,7 +79,7 @@ describe("applyIsNotFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ id: { notIn: [10] } });
+      expect(result).toEqual({ NOT: { id: { in: [10] } } });
     });
   });
 

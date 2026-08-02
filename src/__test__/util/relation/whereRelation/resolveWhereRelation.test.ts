@@ -124,7 +124,7 @@ describe("resolveWhereRelation", () => {
     const result = resolveWhereRelation(where, context);
 
     expect(result).toEqual({
-      AND: [{ authorId: { notIn: [1] } }],
+      AND: [{ NOT: { authorId: { in: [1] } } }],
     });
   });
 

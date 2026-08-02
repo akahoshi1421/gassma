@@ -24,7 +24,7 @@ const applyIsNotFilter = (
 
   const targets = findManyOnSheet(relation.to, { where: filterWhere });
   const targetKeys = collectKeys(targets, relation.reference);
-  return { [relation.field]: { notIn: targetKeys } };
+  return { NOT: { [relation.field]: { in: targetKeys } } };
 };
 
 export { applyIsNotFilter };
