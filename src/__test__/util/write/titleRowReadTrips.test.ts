@@ -144,6 +144,36 @@ describe("書き込み系の見出し行読み取り回数", () => {
     expect(env.users.titleReads()).toBe(1);
   });
 
+  test("update: where 不一致でも見出し行は1回だけ読む", () => {
+    const env = buildEnv();
+    const result = sheetOf(env.client, "Users").update({
+      where: { id: 999 },
+      data: { age: 21 },
+    });
+    expect(result).toBeNull();
+    expect(env.users.titleReads()).toBe(1);
+  });
+
+  test("upsert(更新分岐)の見出し行読みは3回のまま増えない", () => {
+    const env = buildEnv();
+    sheetOf(env.client, "Users").upsert({
+      where: { id: 1 },
+      create: { id: 1, name: "Alice", age: 20 },
+      update: { age: 21 },
+    });
+    expect(env.users.titleReads()).toBe(3);
+  });
+
+  test("upsert(作成分岐)の見出し行読みは3回のまま増えない", () => {
+    const env = buildEnv();
+    sheetOf(env.client, "Users").upsert({
+      where: { id: 99 },
+      create: { id: 99, name: "Zed", age: 1 },
+      update: { age: 21 },
+    });
+    expect(env.users.titleReads()).toBe(3);
+  });
+
   test("updateMany は見出し行を1回だけ読む", () => {
     const env = buildEnv();
     const result = sheetOf(env.client, "Users").updateMany({

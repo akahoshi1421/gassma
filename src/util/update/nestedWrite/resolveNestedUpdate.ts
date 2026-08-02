@@ -1,7 +1,6 @@
 import type { WhereUse } from "../../../types/coreTypes";
 import type { GassmaControllerUtil } from "../../../types/gassmaControllerUtilType";
 import type { RelationContext } from "../../../types/relationTypes";
-import { NestedWriteWithoutRelationsError } from "../../../errors/relation/nestedWriteError";
 import { getTitle } from "../../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../../core/getWantUpdateIndex";
 import { whereFilter } from "../../core/whereFilter";
@@ -23,7 +22,7 @@ import {
 } from "../resolveNumberOperation";
 import { escapeFormulaInjectionRow } from "../../core/escapeFormulaInjection";
 import { unwrapRawCell } from "../../raw/raw";
-import { validateDataColumns } from "../../validate/validateDataColumns";
+import { validateUpdateColumnsEarly } from "../../validate/validateUpdateColumnsEarly";
 import { resolveWriter } from "../../write/sheetWriter";
 
 type UpdateInput = {
@@ -52,6 +51,14 @@ const resolveNestedUpdate = (
   const titles = precomputedTitles ?? getTitle(util);
   const matchedRows = whereFilter(updateInput.where, util, titles);
 
+  validateUpdateColumnsEarly(
+    util,
+    updateInput.data,
+    relationContext ?? null,
+    "update",
+    titles,
+  );
+
   if (matchedRows.length === 0) return null;
 
   const firstRow = matchedRows[0];
@@ -66,25 +73,6 @@ const resolveNestedUpdate = (
   );
 
   if (!hasUpdateNestedWriteFields(updateInput.data, relationContext)) {
-    if (
-      !relationContext &&
-      Object.entries(updateInput.data).some(
-        ([key, value]) =>
-          !titles.includes(key) && isUpdateNestedWriteOperation(value),
-      )
-    ) {
-      throw new NestedWriteWithoutRelationsError();
-    }
-
-    if (util.whereValidation) {
-      validateDataColumns(
-        updateInput.data,
-        titles,
-        util.whereValidation,
-        "update",
-      );
-    }
-
     const wantUpdateIndex = getWantUpdateIndexFromTitles(
       titles,
       updateInput.data,
@@ -117,10 +105,6 @@ const resolveNestedUpdate = (
     updateInput.data,
     relationContext!.relations,
   );
-
-  if (util.whereValidation) {
-    validateDataColumns(scalarData, titles, util.whereValidation, "update");
-  }
 
   const enrichedData = processBeforeCreate(
     scalarData,

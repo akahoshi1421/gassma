@@ -907,13 +907,13 @@ class GassmaController {
         where: resolvedWhere,
         take: 1,
       });
+      precomputedTitles = validateUpdateColumnsEarly(
+        this.getGassmaControllerUtil(),
+        updateData.data,
+        this.relationContext,
+        "update",
+      );
       if (beforeRecords.length > 0) {
-        precomputedTitles = validateUpdateColumnsEarly(
-          this.getGassmaControllerUtil(),
-          updateData.data,
-          this.relationContext,
-          "update",
-        );
         const predictedAfter = resolveNumberOperations(
           beforeRecords[0],
           updateData.data,
