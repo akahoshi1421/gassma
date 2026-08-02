@@ -96,24 +96,24 @@ describe("aggregate: 集計指定があれば従来どおり", () => {
   });
 });
 
-describe("aggregate: Select 型を通らない値の実行時挙動", () => {
-  test("_count: true は従来どおり { _count: {} } を返しエラーにしない", () => {
+describe("aggregate: _count の true 省略形", () => {
+  test("_count: true は全行数を数値で返す", () => {
     const users = usersController();
-    // @ts-expect-error Select 型は true を受け付けない
-    expect(users.aggregate({ _count: true })).toEqual({ _count: {} });
+    expect(users.aggregate({ _count: true })).toEqual({ _count: 3 });
   });
 
-  test("where + _count: true も従来どおりエラーにしない", () => {
+  test("where + _count: true は絞り込んだ行数を数値で返す", () => {
     const users = usersController();
-    // @ts-expect-error Select 型は true を受け付けない
     expect(users.aggregate({ where: { age: 20 }, _count: true })).toEqual({
-      _count: {},
+      _count: 1,
     });
   });
+});
 
+describe("aggregate: Select 型を通らない値の実行時挙動", () => {
   test("_count: false は集計指定なしと同じ扱いでエラー", () => {
     const users = usersController();
-    // @ts-expect-error Select 型は false を受け付けない
+    // @ts-expect-error _count は Select | true のみ受け付ける
     expect(() => users.aggregate({ _count: false })).toThrow(
       GassmaAggregateSelectionRequiredError,
     );
