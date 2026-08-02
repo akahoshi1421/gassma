@@ -1,5 +1,21 @@
+import { GassmaUnknownArgumentError } from "../../errors/argument/argumentError";
 import type { FilterConditions, GassmaAny } from "../../types/coreTypes";
 import { containsValue, isValueEqual } from "../other/isValueEqual";
+
+const FILTER_OPERATORS = [
+  "equals",
+  "not",
+  "in",
+  "notIn",
+  "lt",
+  "lte",
+  "gt",
+  "gte",
+  "contains",
+  "startsWith",
+  "endsWith",
+  "mode",
+];
 
 const isFilterConditionsMatch = (
   cellData: GassmaAny,
@@ -78,7 +94,7 @@ const isFilterConditionsMatch = (
       case "mode":
         return true;
       default:
-        return true;
+        throw new GassmaUnknownArgumentError(optionName, FILTER_OPERATORS);
     }
   });
 

@@ -86,6 +86,8 @@ export const GassmaSkipInArrayError = skipErrors.GassmaSkipInArrayError;
 
 export const GassmaMissingArgumentError =
   argumentErrors.GassmaMissingArgumentError;
+export const GassmaUnknownArgumentError =
+  argumentErrors.GassmaUnknownArgumentError;
 
 export const GassmaFindSelectOmitConflictError =
   findErrors.GassmaFindSelectOmitConflictError;
