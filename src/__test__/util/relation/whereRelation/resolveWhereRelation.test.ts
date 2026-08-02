@@ -84,7 +84,7 @@ describe("resolveWhereRelation", () => {
     const result = resolveWhereRelation(where, context);
 
     expect(result).toEqual({
-      AND: [{ id: { notIn: [2] } }],
+      AND: [{ NOT: { id: { in: [2] } } }],
     });
   });
 
@@ -140,7 +140,7 @@ describe("resolveWhereRelation", () => {
     });
   });
 
-  it("oneToOne(非FK側)のis: nullは相手reference値のnotIn条件に変換する", () => {
+  it("oneToOne(非FK側)のis: nullは相手reference値のNOT + in条件に変換する", () => {
     const where: WhereUse = {
       profile: { is: null },
     };
@@ -153,7 +153,7 @@ describe("resolveWhereRelation", () => {
     const result = resolveWhereRelation(where, context);
 
     expect(result).toEqual({
-      AND: [{ id: { notIn: [1, 2] } }],
+      AND: [{ NOT: { id: { in: [1, 2] } } }],
     });
     expect(mockFindMany).toHaveBeenCalledWith("Profiles", { where: {} });
   });
@@ -196,7 +196,7 @@ describe("resolveWhereRelation", () => {
     const result = resolveWhereRelation(where, context);
 
     expect(result).toEqual({
-      AND: [{ id: { notIn: [2] } }],
+      AND: [{ NOT: { id: { in: [2] } } }],
     });
   });
 

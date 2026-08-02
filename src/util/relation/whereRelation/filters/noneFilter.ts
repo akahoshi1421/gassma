@@ -20,12 +20,12 @@ const applyNoneFilter = (
       filterWhere,
       findManyOnSheet,
     );
-    return { [relation.field]: { notIn: parentKeys } };
+    return { NOT: { [relation.field]: { in: parentKeys } } };
   }
 
   const children = findManyOnSheet(relation.to, { where: filterWhere });
   const parentKeys = collectKeys(children, relation.reference);
-  return { [relation.field]: { notIn: parentKeys } };
+  return { NOT: { [relation.field]: { in: parentKeys } } };
 };
 
 export { applyNoneFilter };

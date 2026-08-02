@@ -58,7 +58,7 @@ describe("where 直値 null ショートハンド（resolveWhereRelation 単体�
     expect(mockFindMany).not.toHaveBeenCalled();
   });
 
-  it("oneToOne(非FK側)の直値 null は is: null と同義（reference 値の notIn）", () => {
+  it("oneToOne(非FK側)の直値 null は is: null と同義（reference 値の NOT + in）", () => {
     const where: WhereUse = { profile: null };
 
     mockFindMany.mockReturnValue([
@@ -68,7 +68,7 @@ describe("where 直値 null ショートハンド（resolveWhereRelation 単体�
 
     const result = resolveWhereRelation(where, context);
 
-    expect(result).toEqual({ AND: [{ id: { notIn: [1, 2] } }] });
+    expect(result).toEqual({ AND: [{ NOT: { id: { in: [1, 2] } } }] });
     expect(mockFindMany).toHaveBeenCalledWith("Profiles", { where: {} });
   });
 

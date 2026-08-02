@@ -18,7 +18,7 @@ describe("applyEveryFilter", () => {
       reference: "authorId",
     };
 
-    it("全子レコードが条件に合致する親は通過する（notInに含まれない）", () => {
+    it("全子レコードが条件に合致する親は通過する（NOTのinに含まれない）", () => {
       const filterWhere: WhereUse = { published: true };
 
       mockFindMany.mockImplementation(
@@ -48,10 +48,10 @@ describe("applyEveryFilter", () => {
 
       // authorId=2 は全数1, 合致数0 → 失敗
       // authorId=1 は全数2, 合致数2 → 成功（notInに含まれない）
-      expect(result).toEqual({ id: { notIn: [2] } });
+      expect(result).toEqual({ NOT: { id: { in: [2] } } });
     });
 
-    it("一部の子レコードが条件に合致しない親はnotInに含まれる", () => {
+    it("一部の子レコードが条件に合致しない親はNOTのinに含まれる", () => {
       const filterWhere: WhereUse = { published: true };
 
       mockFindMany.mockImplementation(
@@ -80,10 +80,10 @@ describe("applyEveryFilter", () => {
 
       // authorId=1: 全数2, 合致1 → 失敗
       // authorId=2: 全数2, 合致1 → 失敗
-      expect(result).toEqual({ id: { notIn: [1, 2] } });
+      expect(result).toEqual({ NOT: { id: { in: [1, 2] } } });
     });
 
-    it("子レコードが0件の親はvacuous truthで通過する（notInに含まれない）", () => {
+    it("子レコードが0件の親はvacuous truthで通過する（NOTのinに含まれない）", () => {
       const filterWhere: WhereUse = { published: true };
 
       // 全子レコードが空
@@ -97,10 +97,10 @@ describe("applyEveryFilter", () => {
       );
 
       // 誰も失敗しない
-      expect(result).toEqual({ id: { notIn: [] } });
+      expect(result).toEqual({ NOT: { id: { in: [] } } });
     });
 
-    it("全子レコードが条件に合致しない場合は全親がnotInに含まれる", () => {
+    it("全子レコードが条件に合致しない場合は全親がNOTのinに含まれる", () => {
       const filterWhere: WhereUse = { published: true };
 
       mockFindMany.mockImplementation(
@@ -122,7 +122,7 @@ describe("applyEveryFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ id: { notIn: [1, 2] } });
+      expect(result).toEqual({ NOT: { id: { in: [1, 2] } } });
     });
   });
 
@@ -139,7 +139,7 @@ describe("applyEveryFilter", () => {
       },
     };
 
-    it("全関連ターゲットが条件合致しない親はnotInに含まれる", () => {
+    it("全関連ターゲットが条件合致しない親はNOTのinに含まれる", () => {
       const filterWhere: WhereUse = { active: true };
 
       mockFindMany.mockImplementation(
@@ -175,7 +175,7 @@ describe("applyEveryFilter", () => {
 
       // post1: tag10(合致) + tag20(不合致) → 全数2, 合致数1 → 失敗
       // post2: tag10(合致) → 全数1, 合致数1 → 成功
-      expect(result).toEqual({ id: { notIn: [1] } });
+      expect(result).toEqual({ NOT: { id: { in: [1] } } });
     });
   });
 });
@@ -194,7 +194,7 @@ describe("applyEveryFilter with Date keys", () => {
     reference: "authorKey",
   };
 
-  it("全子が合致する親はDateキーでもnotInに含まれない", () => {
+  it("全子が合致する親はDateキーでもNOTのinに含まれない", () => {
     mockFindMany.mockImplementation(
       (_sheet: string, findData: { where?: WhereUse }) => {
         if (!findData.where || Object.keys(findData.where).length === 0) {
@@ -218,10 +218,10 @@ describe("applyEveryFilter with Date keys", () => {
       mockFindMany,
     );
 
-    expect(result).toEqual({ key: { notIn: [] } });
+    expect(result).toEqual({ NOT: { key: { in: [] } } });
   });
 
-  it("合致しない子を持つ親のDateキーは元の値でnotInに含まれる", () => {
+  it("合致しない子を持つ親のDateキーは元の値でNOTのinに含まれる", () => {
     mockFindMany.mockImplementation(
       (_sheet: string, findData: { where?: WhereUse }) => {
         if (!findData.where || Object.keys(findData.where).length === 0) {
@@ -250,7 +250,7 @@ describe("applyEveryFilter with Date keys", () => {
     );
 
     expect(result).toEqual({
-      key: { notIn: [new Date("2026-07-18T10:30:00.000Z")] },
+      NOT: { key: { in: [new Date("2026-07-18T10:30:00.000Z")] } },
     });
   });
 
@@ -293,7 +293,7 @@ describe("applyEveryFilter with Date keys", () => {
     );
 
     expect(result).toEqual({
-      at: { notIn: [new Date("2026-07-02T00:00:00.000Z")] },
+      NOT: { at: { in: [new Date("2026-07-02T00:00:00.000Z")] } },
     });
   });
 
@@ -321,6 +321,6 @@ describe("applyEveryFilter with Date keys", () => {
       mockFindMany,
     );
 
-    expect(result).toEqual({ key: { notIn: [] } });
+    expect(result).toEqual({ NOT: { key: { in: [] } } });
   });
 });

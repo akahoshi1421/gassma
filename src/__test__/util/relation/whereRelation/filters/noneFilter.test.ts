@@ -17,7 +17,7 @@ describe("applyNoneFilter", () => {
       reference: "authorId",
     };
 
-    it("条件に合致する子レコードを持つ親のキーでnotInフィルタを生成する", () => {
+    it("条件に合致する子レコードを持つ親のキーでNOT + inフィルタを生成する", () => {
       const filterWhere: WhereUse = { published: true };
 
       mockFindMany.mockReturnValue([
@@ -32,10 +32,10 @@ describe("applyNoneFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ id: { notIn: [1, 3] } });
+      expect(result).toEqual({ NOT: { id: { in: [1, 3] } } });
     });
 
-    it("条件に合致する子レコードがない場合はnotIn: []を返す", () => {
+    it("条件に合致する子レコードがない場合はNOT + in: []を返す", () => {
       const filterWhere: WhereUse = { published: true };
       mockFindMany.mockReturnValue([]);
 
@@ -46,7 +46,7 @@ describe("applyNoneFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ id: { notIn: [] } });
+      expect(result).toEqual({ NOT: { id: { in: [] } } });
     });
   });
 
@@ -63,7 +63,7 @@ describe("applyNoneFilter", () => {
       },
     };
 
-    it("中間テーブル経由で条件合致のparentKeyでnotInフィルタを生成する", () => {
+    it("中間テーブル経由で条件合致のparentKeyでNOT + inフィルタを生成する", () => {
       const filterWhere: WhereUse = { name: "TypeScript" };
 
       mockFindMany.mockImplementation((sheet: string) => {
@@ -84,7 +84,7 @@ describe("applyNoneFilter", () => {
         mockFindMany,
       );
 
-      expect(result).toEqual({ id: { notIn: [1, 3] } });
+      expect(result).toEqual({ NOT: { id: { in: [1, 3] } } });
     });
   });
 });
