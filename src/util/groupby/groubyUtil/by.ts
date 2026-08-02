@@ -1,5 +1,33 @@
-import type { GassmaAny } from "../../../types/coreTypes";
-import { containsValue, isValueEqual } from "../../other/isValueEqual";
+import { isDateValue } from "../../other/isDateValue";
+import { toLookupKey } from "../../other/toLookupKey";
+
+const isSelfUnequal = (value: unknown): boolean =>
+  isDateValue(value)
+    ? Number.isNaN(value.getTime())
+    : typeof value === "number" && Number.isNaN(value);
+
+const groupByColumn = (
+  rows: Record<string, any>[],
+  column: string,
+): Record<string, any>[][] => {
+  const groups = new Map<unknown, Record<string, any>[]>();
+
+  rows.forEach((row) => {
+    const data = row[column];
+    const selfUnequal = isSelfUnequal(data);
+    const key = selfUnequal && isDateValue(data) ? data : toLookupKey(data);
+    const group = groups.get(key);
+
+    if (group === undefined) {
+      groups.set(key, selfUnequal ? [] : [row]);
+      return;
+    }
+
+    if (!selfUnequal) group.push(row);
+  });
+
+  return Array.from(groups.values());
+};
 
 const bySearch = (
   rows: Record<string, any>[],
@@ -8,29 +36,9 @@ const bySearch = (
 ): any[] => {
   if (depth === byData.length) return rows;
 
-  const matches: GassmaAny[] = [];
-
-  rows.forEach((row) => {
-    const data: GassmaAny = row[byData[depth]];
-
-    if (containsValue(matches, data)) return;
-
-    matches.push(data);
-  });
-
-  const classificationedMatches = matches.map((match) =>
-    rows.filter((row) => {
-      const data = row[byData[depth]];
-
-      return isValueEqual(data, match);
-    }),
+  return groupByColumn(rows, byData[depth]).map((group) =>
+    bySearch(group, byData, depth + 1),
   );
-
-  const result = classificationedMatches.map((classificationedMatch) =>
-    bySearch(classificationedMatch, byData, depth + 1),
-  );
-
-  return result;
 };
 
 const byClassification = (rows: Record<string, any>[], byData: string[]) => {
