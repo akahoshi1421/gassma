@@ -289,6 +289,10 @@ class GassmaController {
     if (this.fieldMapping) {
       util.fieldMapping = this.fieldMapping;
     }
+    util.whereValidation = {
+      ignoredFields: this.ignoredFields ?? [],
+      relationNames: this.relationNames(),
+    };
     return applyReadCache(util);
   }
 
@@ -309,10 +313,7 @@ class GassmaController {
 
   private resolveWhere(where: WhereUse | undefined): WhereUse | undefined {
     if (!where) return where;
-    const stripped = this.ignoredFields
-      ? (stripIgnoredFields(where, this.ignoredFields) as WhereUse)
-      : where;
-    return resolveWhereRelation(stripped, this.relationContext);
+    return resolveWhereRelation(where, this.relationContext);
   }
 
   private buildScalarSelect(select: Record<string, unknown>): Select | null {

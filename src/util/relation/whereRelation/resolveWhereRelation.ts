@@ -4,10 +4,16 @@ import type {
 } from "../../../types/relationTypes";
 import type { WhereUse } from "../../../types/coreTypes";
 import { WhereRelationWithoutContextError } from "../../../errors/relation/whereRelationError";
+import {
+  GassmaInvalidValueError,
+  GassmaUnknownArgumentError,
+} from "../../../errors/argument/argumentError";
 import { isDict } from "../../other/isDict";
 import {
+  LIST_FILTER_KEYS,
   dispatchFilter,
   isFilterKey,
+  isListRelationType,
   validateFilterType,
 } from "./filters/dispatchFilter";
 import { applyNullShorthand } from "./filters/nullShorthandFilter";
@@ -19,15 +25,29 @@ const toDict = (value: unknown): Record<string, unknown> | null => {
   return null;
 };
 
-const isRelationFilter = (
-  key: string,
+const toRelationFilter = (
+  relation: RelationDefinition,
+  relationName: string,
   value: unknown,
-  relations: { [name: string]: RelationDefinition },
-): boolean => {
-  if (!(key in relations)) return false;
+): Record<string, unknown> => {
   const dict = toDict(value);
-  if (!dict) return false;
-  return Object.keys(dict).some(isFilterKey);
+  if (!dict) {
+    throw new GassmaInvalidValueError(
+      relationName,
+      "a relation filter object or null",
+    );
+  }
+  if (Object.keys(dict).some(isFilterKey)) return dict;
+  if (!isListRelationType(relation.type)) return { is: dict };
+
+  const firstKey = Object.keys(dict)[0];
+  if (firstKey === undefined) {
+    throw new GassmaInvalidValueError(
+      relationName,
+      "an object with `some`, `every`, or `none`",
+    );
+  }
+  throw new GassmaUnknownArgumentError(firstKey, LIST_FILTER_KEYS);
 };
 
 const resolveWhereRelation = (
@@ -49,9 +69,18 @@ const resolveWhereRelation = (
   Object.entries(where).forEach(([key, value]) => {
     if (LOGICAL_KEYS.has(key)) return;
 
-    if (value === null && key in context.relations) {
+    if (!(key in context.relations)) {
+      normalConditions[key] = value;
+      return;
+    }
+
+    if (value === undefined) return;
+
+    const relation = context.relations[key];
+
+    if (value === null) {
       const resolved = applyNullShorthand(
-        context.relations[key],
+        relation,
         key,
         context.findManyOnSheet,
       );
@@ -59,13 +88,7 @@ const resolveWhereRelation = (
       return;
     }
 
-    if (!isRelationFilter(key, value, context.relations)) {
-      normalConditions[key] = value;
-      return;
-    }
-
-    const relation = context.relations[key];
-    const filterObj = toDict(value)!;
+    const filterObj = toRelationFilter(relation, key, value);
 
     Object.entries(filterObj).forEach(([filterKey, filterValue]) => {
       validateFilterType(relation, key, filterKey);
