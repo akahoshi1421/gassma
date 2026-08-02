@@ -1,4 +1,5 @@
 import type { Select } from "../../../types/coreTypes";
+import { isMissingAggregateValue } from "./isMissingAggregateValue";
 
 const getCount = (rows: Record<string, any>[], countData: Select | true) => {
   if (countData === true) return rows.length;
@@ -13,9 +14,9 @@ const getCount = (rows: Record<string, any>[], countData: Select | true) => {
       return;
     }
 
-    const hitCount = rows.filter((row) => {
-      return row[key] !== null && row[key] !== undefined;
-    }).length;
+    const hitCount = rows.filter(
+      (row) => !isMissingAggregateValue(row[key]),
+    ).length;
 
     countResult[key] = hitCount;
   });

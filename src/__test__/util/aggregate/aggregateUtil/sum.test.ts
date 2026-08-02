@@ -46,6 +46,20 @@ describe("getSum", () => {
     });
   });
 
+  test("should ignore NaN like null", () => {
+    const rows = [{ age: 20 }, { age: 30 }, { age: NaN }];
+    const result = getSum(rows, { age: true });
+
+    expect(result).toEqual({ age: 50 });
+  });
+
+  test("should return null when all values are NaN", () => {
+    const rows = [{ age: NaN }, { age: NaN }];
+    const result = getSum(rows, { age: true });
+
+    expect(result).toEqual({ age: null });
+  });
+
   test("should throw GassmaAggregateSumError for mixed data types", () => {
     const rows = [{ field: 10 }, { field: "string" }, { field: 30 }];
 
