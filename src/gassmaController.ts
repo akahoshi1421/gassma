@@ -84,6 +84,7 @@ import {
   validateCreateDataOperations,
   validateUpdateDataOperations,
 } from "./util/validate/validateDataOperations";
+import { validateUpdateColumnsEarly } from "./util/validate/validateUpdateColumnsEarly";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
 import { updateManyFunc } from "./util/update/updateMany";
@@ -899,12 +900,19 @@ class GassmaController {
     const resolvedWhere =
       this.resolveWhere(updateData.where) ?? updateData.where;
 
+    let precomputedTitles: string[] | undefined;
     if (this.relationContext) {
       const beforeRecords = findManyFunc(this.getGassmaControllerUtil(), {
         where: resolvedWhere,
         take: 1,
       });
       if (beforeRecords.length > 0) {
+        precomputedTitles = validateUpdateColumnsEarly(
+          this.getGassmaControllerUtil(),
+          updateData.data,
+          this.relationContext,
+          "update",
+        );
         const predictedAfter = resolveNumberOperations(
           beforeRecords[0],
           updateData.data,
@@ -919,6 +927,7 @@ class GassmaController {
       this.getGassmaControllerUtil(),
       { where: resolvedWhere, data: updateDataProcessed },
       this.relationContext ?? undefined,
+      precomputedTitles,
     );
     if (!result) return null;
 
@@ -958,7 +967,14 @@ class GassmaController {
       data: this.applyUpdatedAtToData(updateData.data),
     };
 
+    let precomputedTitles: string[] | undefined;
     if (this.relationContext) {
+      precomputedTitles = validateUpdateColumnsEarly(
+        this.getGassmaControllerUtil(),
+        updateData.data,
+        this.relationContext,
+        "updateMany",
+      );
       const findData: FindData = { where: updateData.where };
       if (updateData.limit !== undefined && updateData.limit !== null) {
         findData.take = updateData.limit;
@@ -977,7 +993,12 @@ class GassmaController {
       );
     }
 
-    return updateManyFunc(this.getGassmaControllerUtil(), updateData);
+    return updateManyFunc(
+      this.getGassmaControllerUtil(),
+      updateData,
+      false,
+      precomputedTitles,
+    );
   }
 
   public updateManyAndReturn(updateData: UpdateData) {
@@ -996,7 +1017,14 @@ class GassmaController {
       data: this.applyUpdatedAtToData(updateData.data),
     };
 
+    let precomputedTitles: string[] | undefined;
     if (this.relationContext) {
+      precomputedTitles = validateUpdateColumnsEarly(
+        this.getGassmaControllerUtil(),
+        updateData.data,
+        this.relationContext,
+        "updateMany",
+      );
       const findData: FindData = { where: updateData.where };
       if (updateData.limit !== undefined && updateData.limit !== null) {
         findData.take = updateData.limit;
@@ -1019,6 +1047,7 @@ class GassmaController {
       this.getGassmaControllerUtil(),
       updateData,
       true,
+      precomputedTitles,
     );
     if (!Array.isArray(results)) return results;
     return results.map((r) => {
