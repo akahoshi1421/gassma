@@ -3,7 +3,10 @@ import type {
   NestedWriteOperation,
   NestedUpdateInput,
 } from "../../../types/nestedWriteTypes";
-import { NestedWriteInvalidOperationError } from "../../../errors/relation/nestedWriteError";
+import {
+  NestedWriteInvalidOperationError,
+  NestedWriteTargetNotFoundError,
+} from "../../../errors/relation/nestedWriteError";
 import { isGassmaAny } from "../../relation/collectKeys";
 
 const isNestedUpdateInput = (value: unknown): value is NestedUpdateInput =>
@@ -34,19 +37,25 @@ const processAfterUpdate = (
           : [];
       items.forEach((item) => {
         if (!isNestedUpdateInput(item)) return;
-        context.updateManyOnSheet!(relation.to, {
+        const result = context.updateManyOnSheet!(relation.to, {
           where: { ...item.where, [relation.reference]: parentValue },
           data: item.data as Record<string, never>,
         });
+        if (result.count === 0) {
+          throw new NestedWriteTargetNotFoundError(relation.to, "update");
+        }
       });
     }
 
     if (ops.delete && ops.delete !== true) {
       const items = Array.isArray(ops.delete) ? ops.delete : [ops.delete];
       items.forEach((where) => {
-        context.deleteManyOnSheet!(relation.to, {
+        const result = context.deleteManyOnSheet!(relation.to, {
           where: { ...where, [relation.reference]: parentValue },
         });
+        if (result.count === 0) {
+          throw new NestedWriteTargetNotFoundError(relation.to, "delete");
+        }
       });
     }
 
