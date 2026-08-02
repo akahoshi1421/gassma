@@ -467,7 +467,7 @@ declare namespace Gassma {
     skip?: number | SkipValue;
     cursor?: Record<string, unknown> | SkipValue;
     _avg?: Select | SkipValue;
-    _count?: Select | SkipValue;
+    _count?: Select | true | SkipValue;
     _max?: Select | SkipValue;
     _min?: Select | SkipValue;
     _sum?: Select | SkipValue;
@@ -513,7 +513,7 @@ declare namespace Gassma {
     take?: number | SkipValue;
     skip?: number | SkipValue;
     _avg?: Select | SkipValue;
-    _count?: Select | SkipValue;
+    _count?: Select | true | SkipValue;
     _max?: Select | SkipValue;
     _min?: Select | SkipValue;
     _sum?: Select | SkipValue;

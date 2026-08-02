@@ -1,11 +1,18 @@
 import type { Select } from "../../../types/coreTypes";
 
-const getCount = (rows: Record<string, any>[], avgData: Select) => {
-  const avgKeys = Object.keys(avgData);
+const getCount = (rows: Record<string, any>[], countData: Select | true) => {
+  if (countData === true) return rows.length;
+
+  const countKeys = Object.keys(countData);
 
   const countResult = {};
 
-  avgKeys.forEach((key) => {
+  countKeys.forEach((key) => {
+    if (key === "_all") {
+      countResult[key] = rows.length;
+      return;
+    }
+
     const hitCount = rows.filter((row) => {
       return row[key] !== null && row[key] !== undefined;
     }).length;

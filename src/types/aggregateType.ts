@@ -7,7 +7,7 @@ type AggregateData = {
   skip?: number;
   cursor?: Record<string, unknown>;
   _avg?: Select;
-  _count?: Select;
+  _count?: Select | true;
   _max?: Select;
   _min?: Select;
   _sum?: Select;

@@ -64,3 +64,61 @@ describe("getCount", () => {
     });
   });
 });
+
+describe("getCount with _all", () => {
+  test("should count all rows including rows with null values", () => {
+    const rows = [
+      { cat: "a", memo: "m1" },
+      { cat: "a", memo: null },
+      { cat: "b", memo: "m2" },
+    ];
+    const result = getCount(rows, { _all: true });
+
+    expect(result).toEqual({ _all: 3 });
+  });
+
+  test("should count all rows even when every value in every column is null", () => {
+    const rows = [{ memo: null }, { memo: null }, { memo: null }];
+    const result = getCount(rows, { _all: true });
+
+    expect(result).toEqual({ _all: 3 });
+  });
+
+  test("should return 0 for _all with empty rows", () => {
+    const rows: any[] = [];
+    const result = getCount(rows, { _all: true });
+
+    expect(result).toEqual({ _all: 0 });
+  });
+
+  test("should handle _all mixed with field counts", () => {
+    const rows = [
+      { cat: "a", memo: "m1" },
+      { cat: "a", memo: null },
+      { cat: "b", memo: "m2" },
+    ];
+    const result = getCount(rows, { _all: true, memo: true });
+
+    expect(result).toEqual({ _all: 3, memo: 2 });
+  });
+});
+
+describe("getCount with true shorthand", () => {
+  test("should return total row count as a number", () => {
+    const rows = [
+      { cat: "a", memo: "m1" },
+      { cat: "a", memo: null },
+      { cat: "b", memo: "m2" },
+    ];
+    const result = getCount(rows, true);
+
+    expect(result).toBe(3);
+  });
+
+  test("should return 0 as a number for empty rows", () => {
+    const rows: any[] = [];
+    const result = getCount(rows, true);
+
+    expect(result).toBe(0);
+  });
+});

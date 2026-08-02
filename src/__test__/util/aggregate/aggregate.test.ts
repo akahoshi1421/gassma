@@ -1,5 +1,8 @@
 import { aggregateFunc } from "../../../util/aggregate/aggregate";
-import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import {
+  getExtendedMockControllerUtil,
+  getNullableMockControllerUtil,
+} from "../../consts/mockControllerUtil";
 
 describe("aggregate functionality tests", () => {
   describe("aggregateFunc with single statistics", () => {
@@ -382,6 +385,107 @@ describe("aggregate functionality tests", () => {
 
       expect(result).toEqual({
         _count: { 名前: 8 },
+      });
+    });
+  });
+
+  describe("aggregateFunc _count with _all", () => {
+    test("should count all rows with _all even when some values are null", () => {
+      const result = aggregateFunc(getNullableMockControllerUtil(), {
+        _count: { _all: true },
+      });
+
+      expect(result).toEqual({
+        _count: { _all: 3 },
+      });
+    });
+
+    test("should count all rows with _all even for a column whose values are all null", () => {
+      const result = aggregateFunc(getNullableMockControllerUtil(), {
+        _count: { _all: true, 備考: true },
+      });
+
+      expect(result).toEqual({
+        _count: { _all: 3, 備考: 0 },
+      });
+    });
+
+    test("should keep counting only non-null values for field selection", () => {
+      const result = aggregateFunc(getNullableMockControllerUtil(), {
+        _count: { メモ: true },
+      });
+
+      expect(result).toEqual({
+        _count: { メモ: 2 },
+      });
+    });
+
+    test("should handle _all mixed with field selection", () => {
+      const result = aggregateFunc(getNullableMockControllerUtil(), {
+        _count: { _all: true, メモ: true },
+      });
+
+      expect(result).toEqual({
+        _count: { _all: 3, メモ: 2 },
+      });
+    });
+  });
+
+  describe("aggregateFunc _count with true shorthand", () => {
+    test("should return total row count as a number", () => {
+      const result = aggregateFunc(getNullableMockControllerUtil(), {
+        _count: true,
+      });
+
+      expect(result).toEqual({
+        _count: 3,
+      });
+    });
+
+    test("should respect where condition", () => {
+      const result = aggregateFunc(getNullableMockControllerUtil(), {
+        where: { カテゴリ: "a" },
+        _count: true,
+      });
+
+      expect(result).toEqual({
+        _count: 2,
+      });
+    });
+
+    test("should not affect other aggregations", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        _count: true,
+        _avg: { 年齢: true },
+        _sum: { 年齢: true },
+        _max: { 年齢: true },
+        _min: { 年齢: true },
+      });
+
+      expect(result).toEqual({
+        _count: 8,
+        _avg: { 年齢: (28 + 35 + 22 + 45 + 28 + 52 + 31 + 28) / 8 },
+        _sum: { 年齢: 28 + 35 + 22 + 45 + 28 + 52 + 31 + 28 },
+        _max: { 年齢: 52 },
+        _min: { 年齢: 22 },
+      });
+    });
+  });
+
+  describe("aggregateFunc _all is special only for _count", () => {
+    test("should treat _all as a normal column for _avg/_sum/_max/_min", () => {
+      const result = aggregateFunc(getExtendedMockControllerUtil(), {
+        _avg: { _all: true },
+        _sum: { _all: true },
+        _max: { _all: true },
+        _min: { _all: true },
+      });
+
+      expect(result).toEqual({
+        _avg: { _all: null },
+        _sum: { _all: null },
+        _max: { _all: null },
+        _min: { _all: null },
       });
     });
   });
