@@ -4,6 +4,7 @@ import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { unwrapRawCell } from "../raw/raw";
+import { validateDataColumns } from "../validate/validateDataColumns";
 import { resolveWriter } from "../write/sheetWriter";
 
 const createFunc = (
@@ -14,6 +15,15 @@ const createFunc = (
 
   const data = createdData.data;
   const titles = getTitle(gassmaControllerUtil);
+
+  if (gassmaControllerUtil.whereValidation) {
+    validateDataColumns(
+      data,
+      titles,
+      gassmaControllerUtil.whereValidation,
+      "create",
+    );
+  }
 
   const wantCreateIndex = getWantUpdateIndexFromTitles(titles, data);
 

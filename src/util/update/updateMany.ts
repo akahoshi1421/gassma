@@ -6,6 +6,7 @@ import { getTitle } from "../core/getTitle";
 import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
 import { unwrapRawCell } from "../raw/raw";
+import { validateDataColumns } from "../validate/validateDataColumns";
 import { groupUpdateRuns } from "../write/rowRuns";
 import { resolveWriter } from "../write/sheetWriter";
 import {
@@ -36,6 +37,16 @@ function updateManyFunc(
   const limit = updateData.limit;
 
   const titles = getTitle(gassmaControllerUtil);
+
+  if (gassmaControllerUtil.whereValidation) {
+    validateDataColumns(
+      data,
+      titles,
+      gassmaControllerUtil.whereValidation,
+      "updateMany",
+    );
+  }
+
   let findedData = whereFilter(where, gassmaControllerUtil, titles);
 
   if (limit !== undefined && limit !== null) {
