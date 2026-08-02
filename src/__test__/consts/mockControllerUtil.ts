@@ -98,6 +98,48 @@ export const getExtendedMockControllerUtil = (): GassmaControllerUtil => ({
 // For backward compatibility
 export const extendedMockControllerUtil = getExtendedMockControllerUtil();
 
+// Function to get mock containing null values (メモ has one null, 備考 is all null)
+export const getNullableMockControllerUtil = (): GassmaControllerUtil => ({
+  sheet: {
+    getDataRange: () =>
+      ({
+        getValues: () => [
+          ["カテゴリ", "メモ", "備考"],
+          ["a", "m1", null],
+          ["a", null, null],
+          ["b", "m2", null],
+        ],
+      }) as any,
+    getLastRow: () => 4,
+    getLastColumn: () => 3,
+    getRange: (
+      row: number,
+      _col: number,
+      numRows: number,
+      _numCols: number,
+    ) => {
+      if (row === 1 && numRows === 1) {
+        // Title row request
+        return {
+          getValues: () => [["カテゴリ", "メモ", "備考"]],
+        } as any;
+      } else {
+        // Data rows request
+        return {
+          getValues: () => [
+            ["a", "m1", null],
+            ["a", null, null],
+            ["b", "m2", null],
+          ],
+        } as any;
+      }
+    },
+  } as any,
+  startRowNumber: 1,
+  startColumnNumber: 1,
+  endColumnNumber: 3,
+});
+
 // Type definition for extended mock sheet with helper methods
 interface MockSheetWithHelpers extends GoogleAppsScript.Spreadsheet.Sheet {
   _getMockData: () => any[][];

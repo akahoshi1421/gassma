@@ -1,5 +1,8 @@
 import { groupByFunc } from "../../../util/groupby/groupby";
-import { getExtendedMockControllerUtil } from "../../consts/mockControllerUtil";
+import {
+  getExtendedMockControllerUtil,
+  getNullableMockControllerUtil,
+} from "../../consts/mockControllerUtil";
 import { expectArrayToEqualIgnoringOrder } from "../../helpers/matchers";
 
 describe("groupBy functionality tests", () => {
@@ -294,6 +297,72 @@ describe("groupBy functionality tests", () => {
           _avg: { 年齢: 31 },
           _count: { 名前: 1 },
         },
+      ]);
+    });
+  });
+
+  describe("groupByFunc _count with _all", () => {
+    test("should count all rows per group with _all", () => {
+      const result = groupByFunc(getNullableMockControllerUtil(), {
+        by: "カテゴリ",
+        _count: { _all: true },
+      });
+
+      expectArrayToEqualIgnoringOrder(result, [
+        { カテゴリ: "a", _count: { _all: 2 } },
+        { カテゴリ: "b", _count: { _all: 1 } },
+      ]);
+    });
+
+    test("should keep counting only non-null values for field selection per group", () => {
+      const result = groupByFunc(getNullableMockControllerUtil(), {
+        by: "カテゴリ",
+        _count: { メモ: true },
+      });
+
+      expectArrayToEqualIgnoringOrder(result, [
+        { カテゴリ: "a", _count: { メモ: 1 } },
+        { カテゴリ: "b", _count: { メモ: 1 } },
+      ]);
+    });
+
+    test("should handle _all mixed with field selection per group", () => {
+      const result = groupByFunc(getNullableMockControllerUtil(), {
+        by: "カテゴリ",
+        _count: { _all: true, メモ: true },
+      });
+
+      expectArrayToEqualIgnoringOrder(result, [
+        { カテゴリ: "a", _count: { _all: 2, メモ: 1 } },
+        { カテゴリ: "b", _count: { _all: 1, メモ: 1 } },
+      ]);
+    });
+  });
+
+  describe("groupByFunc _count with true shorthand", () => {
+    test("should return row count per group as a number", () => {
+      const result = groupByFunc(getNullableMockControllerUtil(), {
+        by: "カテゴリ",
+        _count: true,
+      });
+
+      expectArrayToEqualIgnoringOrder(result, [
+        { カテゴリ: "a", _count: 2 },
+        { カテゴリ: "b", _count: 1 },
+      ]);
+    });
+
+    test("should not affect other aggregations", () => {
+      const result = groupByFunc(getExtendedMockControllerUtil(), {
+        by: "住所",
+        _count: true,
+        _avg: { 年齢: true },
+      });
+
+      expectArrayToEqualIgnoringOrder(result, [
+        { 住所: "Tokyo", _count: 4, _avg: { 年齢: (28 + 22 + 28 + 31) / 4 } },
+        { 住所: "Osaka", _count: 2, _avg: { 年齢: (35 + 52) / 2 } },
+        { 住所: "Kyoto", _count: 2, _avg: { 年齢: (45 + 28) / 2 } },
       ]);
     });
   });
