@@ -629,6 +629,9 @@ declare namespace Gassma {
   class GassmaMissingArgumentError extends Error {
     constructor(argumentName: string);
   }
+  class GassmaUnknownArgumentError extends Error {
+    constructor(argumentName: string, availableArguments: string[]);
+  }
   class GassmaFindSelectOmitConflictError extends Error {
     constructor();
   }

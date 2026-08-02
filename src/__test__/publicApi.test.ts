@@ -1,3 +1,4 @@
+import { GassmaUnknownArgumentError } from "../errors/argument/argumentError";
 import { NotFoundError } from "../errors/find/findError";
 import { GassmaClient } from "../gassma";
 import { GassmaController } from "../gassmaController";
@@ -39,6 +40,21 @@ describe("publicApi", () => {
       if (name === "skip") return;
       expect(typeof value).toBe("function");
     });
+  });
+
+  test("GassmaUnknownArgumentError は本体のクラスと同一", () => {
+    expect(publicApi.GassmaUnknownArgumentError).toBe(
+      GassmaUnknownArgumentError,
+    );
+  });
+
+  test("未知キーで投げられたエラーは公開クラスの instanceof を満たす", () => {
+    const client = buildTestClient();
+    const users = sheetOf(client, "Users");
+    const loose: any = users;
+    expect(() => loose.deleteMany({ whre: { name: "Alice" } })).toThrow(
+      publicApi.GassmaUnknownArgumentError,
+    );
   });
 
   test("ライブラリ内部から投げられたエラーは公開クラスの instanceof を満たす", () => {

@@ -75,6 +75,10 @@ import { resolveCount } from "./util/relation/resolveCount";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
+import {
+  type ValidatedOperation,
+  validateTopLevelKeys,
+} from "./util/validate/validateTopLevelKeys";
 import { resolveNestedUpdate } from "./util/update/nestedWrite/resolveNestedUpdate";
 import { resolveNumberOperations } from "./util/update/resolveNumberOperation";
 import { updateManyFunc } from "./util/update/updateMany";
@@ -170,12 +174,17 @@ class GassmaController {
     this.strictUndefinedChecks = enabled;
   }
 
-  private normalizeInput<T>(input: T): T;
-  private normalizeInput(input: unknown): unknown {
-    return normalizeQueryInput(
+  private normalizeInput<T>(input: T, operation: ValidatedOperation): T;
+  private normalizeInput(
+    input: unknown,
+    operation: ValidatedOperation,
+  ): unknown {
+    const normalized = normalizeQueryInput(
       input === undefined ? {} : input,
       this.strictUndefinedChecks,
     );
+    validateTopLevelKeys(operation, normalized);
+    return normalized;
   }
 
   private stripIgnored(data: Record<string, unknown>): Record<string, unknown> {
@@ -351,7 +360,7 @@ class GassmaController {
   }
 
   private createManyRaw(createdData: CreateManyData) {
-    createdData = this.normalizeInput(createdData);
+    createdData = this.normalizeInput(createdData, "createMany");
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
@@ -366,7 +375,7 @@ class GassmaController {
   }
 
   private createManyAndReturnRaw(createdData: CreateManyAndReturnData) {
-    createdData = this.normalizeInput(createdData);
+    createdData = this.normalizeInput(createdData, "createManyAndReturn");
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
@@ -412,7 +421,7 @@ class GassmaController {
   }
 
   private createRaw(createdData: CreateData) {
-    createdData = this.normalizeInput(createdData);
+    createdData = this.normalizeInput(createdData, "create");
     if (createdData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
@@ -464,7 +473,7 @@ class GassmaController {
 
   public findFirst(findData: FindFirstData = {}) {
     return runWithReadCache(() =>
-      this.findFirstRaw(this.normalizeInput(findData)),
+      this.findFirstRaw(this.normalizeInput(findData, "findFirst")),
     );
   }
 
@@ -658,7 +667,7 @@ class GassmaController {
 
   public findMany(findData: FindData = {}) {
     return runWithReadCache(() =>
-      this.findManyRaw(this.normalizeInput(findData)),
+      this.findManyRaw(this.normalizeInput(findData, "findMany")),
     );
   }
 
@@ -829,7 +838,7 @@ class GassmaController {
   }
 
   private updateRaw(updateData: UpdateSingleData) {
-    updateData = this.normalizeInput(updateData);
+    updateData = this.normalizeInput(updateData, "update");
     if (updateData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
     }
@@ -897,7 +906,7 @@ class GassmaController {
   }
 
   private updateManyRaw(updateData: UpdateData) {
-    updateData = this.normalizeInput(updateData);
+    updateData = this.normalizeInput(updateData, "updateMany");
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
@@ -934,7 +943,7 @@ class GassmaController {
   }
 
   private updateManyAndReturnRaw(updateData: UpdateData) {
-    updateData = this.normalizeInput(updateData);
+    updateData = this.normalizeInput(updateData, "updateManyAndReturn");
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
@@ -980,7 +989,7 @@ class GassmaController {
   }
 
   private upsertRaw(upsertData: UpsertSingleData) {
-    upsertData = this.normalizeInput(upsertData);
+    upsertData = this.normalizeInput(upsertData, "upsert");
     if (upsertData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
     }
@@ -1034,7 +1043,7 @@ class GassmaController {
   }
 
   private deleteRaw(deleteData: DeleteSingleData) {
-    deleteData = this.normalizeInput(deleteData);
+    deleteData = this.normalizeInput(deleteData, "delete");
     if (deleteData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
     }
@@ -1070,7 +1079,7 @@ class GassmaController {
   }
 
   private deleteManyRaw(deleteData: DeleteData) {
-    deleteData = this.normalizeInput(deleteData);
+    deleteData = this.normalizeInput(deleteData, "deleteMany");
     deleteData = { ...deleteData, where: this.resolveWhere(deleteData.where) };
 
     if (this.relationContext) {
@@ -1087,7 +1096,7 @@ class GassmaController {
 
   public aggregate(aggregateData: AggregateData) {
     return runWithReadCache(() =>
-      this.aggregateRaw(this.normalizeInput(aggregateData)),
+      this.aggregateRaw(this.normalizeInput(aggregateData, "aggregate")),
     );
   }
 
@@ -1101,7 +1110,7 @@ class GassmaController {
 
   public count(countData: CountData = {}) {
     return runWithReadCache(() =>
-      this.countRaw(this.normalizeInput(countData)),
+      this.countRaw(this.normalizeInput(countData, "count")),
     );
   }
 
@@ -1112,7 +1121,7 @@ class GassmaController {
 
   public groupBy(groupByData: GroupByData) {
     return runWithReadCache(() =>
-      this.groupByRaw(this.normalizeInput(groupByData)),
+      this.groupByRaw(this.normalizeInput(groupByData, "groupBy")),
     );
   }
 
