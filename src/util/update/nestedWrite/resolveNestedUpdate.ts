@@ -79,9 +79,10 @@ const resolveNestedUpdate = (
     );
     const updatedRow = firstRow.row.map((cell, cellIndex) => {
       if (!wantUpdateIndex.includes(cellIndex)) return cell;
-      const value = updateInput.data[String(titles[cellIndex])];
+      const columnName = String(titles[cellIndex]);
+      const value = updateInput.data[columnName];
       if (isNumberOperation(value)) {
-        return resolveNumberOperation(cell, value);
+        return resolveNumberOperation(cell, value, columnName);
       }
       return value;
     });
@@ -122,9 +123,10 @@ const resolveNestedUpdate = (
   const wantUpdateIndex = getWantUpdateIndexFromTitles(titles, enrichedData);
   const updatedRow = firstRow.row.map((cell, cellIndex) => {
     if (!wantUpdateIndex.includes(cellIndex)) return cell;
-    const value = enrichedData[String(titles[cellIndex])];
+    const columnName = String(titles[cellIndex]);
+    const value = enrichedData[columnName];
     if (isNumberOperation(value)) {
-      return resolveNumberOperation(cell, value);
+      return resolveNumberOperation(cell, value, columnName);
     }
     return value;
   });

@@ -69,9 +69,10 @@ function updateManyFunc(
   const updates = findedData.map((row) => {
     const updatedRow = row.row.map((cell, cellIndex) => {
       if (!wantUpdateIndex.includes(cellIndex)) return cell;
-      const value = data[String(titles[cellIndex])];
+      const columnName = String(titles[cellIndex]);
+      const value = data[columnName];
       if (isNumberOperation(value)) {
-        return resolveNumberOperation(cell, value);
+        return resolveNumberOperation(cell, value, columnName);
       }
       return value;
     });

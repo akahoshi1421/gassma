@@ -5,6 +5,7 @@ import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { escapeFormulaInjectionRow } from "../core/escapeFormulaInjection";
 import { unwrapRawCell } from "../raw/raw";
 import { validateDataColumns } from "../validate/validateDataColumns";
+import { validateWritableRow } from "../validate/validateWritableRow";
 import { resolveWriter } from "../write/sheetWriter";
 
 type PrepareCreateManyData = (data: CreateManyData) => CreateManyData;
@@ -44,6 +45,10 @@ function createManyFunc(
 
   const data = (prepareData ? prepareData(createManyData) : createManyData)
     .data;
+
+  data.forEach((row) => {
+    validateWritableRow(row);
+  });
 
   const newData = data.map((row) => {
     const wantCreateIndex = getWantUpdateIndexFromTitles(titles, row);
