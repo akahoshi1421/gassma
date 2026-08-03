@@ -219,16 +219,6 @@ describe("include の take/skip の非有限数はエラー", () => {
 });
 
 describe("現状維持の固定(仕様変更しない)", () => {
-  test("findMany の take: null は無視して全件", () => {
-    const loose = looseUsers();
-    expect(loose.findMany({ take: null })).toHaveLength(3);
-  });
-
-  test("findMany の skip: null は無視して全件", () => {
-    const loose = looseUsers();
-    expect(loose.findMany({ skip: null })).toHaveLength(3);
-  });
-
   test("findMany の take: undefined は無視して全件", () => {
     const loose = looseUsers();
     expect(loose.findMany({ take: undefined })).toHaveLength(3);
@@ -253,21 +243,6 @@ describe("現状維持の固定(仕様変更しない)", () => {
     const loose = looseUsers();
     const result = loose.findMany({ take: -2 });
     expect(result.map((row: any) => row.name)).toEqual(["Bob", "Carol"]);
-  });
-
-  test("updateMany の limit: null は無視して全件更新", () => {
-    const loose = looseUsers();
-    const result = loose.updateMany({
-      where: {},
-      data: { name: "x" },
-      limit: null,
-    });
-    expect(result).toEqual({ count: 3 });
-  });
-
-  test("deleteMany の limit: null は無視して全件削除", () => {
-    const loose = looseUsers();
-    expect(loose.deleteMany({ where: {}, limit: null })).toEqual({ count: 3 });
   });
 
   test("deleteMany の limit: 2.5 は2件削除", () => {
