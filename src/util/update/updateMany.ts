@@ -7,6 +7,7 @@ import { getWantUpdateIndexFromTitles } from "../core/getWantUpdateIndex";
 import { whereFilter } from "../core/whereFilter";
 import { unwrapRawCell } from "../raw/raw";
 import { validateDataColumns } from "../validate/validateDataColumns";
+import { validateFiniteNumberOption } from "../validate/validateFiniteNumberOption";
 import { groupUpdateRuns } from "../write/rowRuns";
 import { resolveWriter } from "../write/sheetWriter";
 import {
@@ -38,6 +39,7 @@ function updateManyFunc(
   const where = updateData.where ?? {};
   const data = updateData.data;
   const limit = updateData.limit;
+  validateFiniteNumberOption("limit", limit);
 
   const titles = precomputedTitles ?? getTitle(gassmaControllerUtil);
 

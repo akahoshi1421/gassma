@@ -1,10 +1,14 @@
 import { GassmaSkipNegativeError } from "../../../errors/find/findError";
+import { validateFiniteNumberOption } from "../../validate/validateFiniteNumberOption";
 
 const applySkipTake = (
   records: Record<string, unknown>[],
   skip: number | null | undefined,
   take: number | null | undefined,
 ): Record<string, unknown>[] => {
+  validateFiniteNumberOption("skip", skip);
+  validateFiniteNumberOption("take", take);
+
   let result = [...records];
 
   if (skip !== null && skip !== undefined && skip < 0) {

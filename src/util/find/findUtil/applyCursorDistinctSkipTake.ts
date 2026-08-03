@@ -1,3 +1,4 @@
+import { validateFiniteNumberOption } from "../../validate/validateFiniteNumberOption";
 import { applyCursor } from "./applyCursor";
 import { applyDistinct } from "./applyDistinct";
 import { applySkipTake } from "./applySkipTake";
@@ -10,6 +11,8 @@ const applyCursorDistinctSkipTake = (
   skip: number | null | undefined,
   take: number | null | undefined,
 ): Record<string, unknown>[] => {
+  validateFiniteNumberOption("take", take);
+
   const backward = typeof take === "number" && take < 0;
 
   let result = backward ? [...records].reverse() : records;

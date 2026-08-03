@@ -2,6 +2,7 @@ import { GassmaLimitNegativeError } from "../../errors/find/findError";
 import type { DeleteData, DeleteManyReturn } from "../../types/findTypes";
 import type { GassmaControllerUtil } from "../../types/gassmaControllerUtilType";
 import { whereFilter } from "../core/whereFilter";
+import { validateFiniteNumberOption } from "../validate/validateFiniteNumberOption";
 import { groupDeleteBlocksDescending } from "../write/rowRuns";
 import { resolveWriter } from "../write/sheetWriter";
 
@@ -13,6 +14,7 @@ const deleteManyFunc = (
 
   const where = deleteData.where ?? {};
   const limit = deleteData.limit;
+  validateFiniteNumberOption("limit", limit);
 
   let findedData = whereFilter(where, gassmaControllerUtil);
 

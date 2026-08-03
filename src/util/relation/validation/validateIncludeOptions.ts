@@ -23,6 +23,28 @@ const validateOptionObject = (
   }
 };
 
+const validateNumberOption = (
+  relationName: string,
+  optionName: string,
+  value: unknown,
+): void => {
+  if (value === undefined) return;
+  if (typeof value !== "number") {
+    throw new IncludeInvalidOptionTypeError(
+      relationName,
+      optionName,
+      "a number",
+    );
+  }
+  if (!Number.isFinite(value)) {
+    throw new IncludeInvalidOptionTypeError(
+      relationName,
+      optionName,
+      "a finite number",
+    );
+  }
+};
+
 const validateOrderByOption = (relationName: string, value: unknown): void => {
   if (value === undefined) return;
   if (isObject(value)) return;
@@ -54,13 +76,8 @@ const validateIncludeItem = (relationName: string, value: unknown): void => {
     throw new IncludeSelectIncludeConflictError(relationName);
   }
 
-  if (value.skip !== undefined && typeof value.skip !== "number") {
-    throw new IncludeInvalidOptionTypeError(relationName, "skip", "a number");
-  }
-
-  if (value.take !== undefined && typeof value.take !== "number") {
-    throw new IncludeInvalidOptionTypeError(relationName, "take", "a number");
-  }
+  validateNumberOption(relationName, "skip", value.skip);
+  validateNumberOption(relationName, "take", value.take);
 
   validateOptionObject(relationName, "where", value.where);
   validateOrderByOption(relationName, value.orderBy);
