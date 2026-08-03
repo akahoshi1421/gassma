@@ -1,5 +1,9 @@
 import type { ChangedPair } from "../../../../util/relation/onUpdate/cascadeUpdatePlan";
 import { buildCascadeSteps } from "../../../../util/relation/onUpdate/cascadeUpdatePlan";
+import {
+  createCrossRealmDate,
+  createCrossRealmValue,
+} from "../../../consts/crossRealm";
 
 const makeTempFactory = () => {
   let counter = 0;
@@ -231,6 +235,100 @@ describe("buildCascadeSteps", () => {
       { oldValues: ["tmp1"], newValue: 11 },
     ]);
     expect(factory).toHaveBeenCalledTimes(2);
+  });
+
+  it("クロスrealmのDateの新値も同時刻の同一realmのDateと同じグループにまとまる", () => {
+    const target = new Date("2026-03-01T00:00:00.000Z");
+    const crossTarget = createCrossRealmDate("2026-03-01T00:00:00.000Z");
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: 1, newValue: target },
+        { oldValue: 2, newValue: crossTarget },
+      ],
+      makeTempFactory(),
+    );
+
+    expect(steps).toEqual([{ oldValues: [1, 2], newValue: target }]);
+  });
+
+  it("クロスrealmのDateの旧値は同時刻の同一realmの新値の玉突きとして検出される", () => {
+    const crossOld = createCrossRealmDate("2026-01-01T00:00:00.000Z");
+    const sameTimeNew = new Date("2026-01-01T00:00:00.000Z");
+    const factory = makeTempFactory();
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: 1, newValue: sameTimeNew },
+        { oldValue: crossOld, newValue: 2 },
+      ],
+      factory,
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [crossOld], newValue: 2 },
+      { oldValues: [1], newValue: sameTimeNew },
+    ]);
+    expect(factory).not.toHaveBeenCalled();
+  });
+
+  it("クロスrealmのDateを含む入れ替えも循環として検出され一時値で解決する", () => {
+    const crossA = createCrossRealmDate("2026-01-01T00:00:00.000Z");
+    const sameTimeA = new Date("2026-01-01T00:00:00.000Z");
+    const b = new Date("2026-02-01T00:00:00.000Z");
+    const factory = makeTempFactory();
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: crossA, newValue: b },
+        { oldValue: b, newValue: sameTimeA },
+      ],
+      factory,
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [crossA], newValue: "tmp0" },
+      { oldValues: [b], newValue: sameTimeA },
+      { oldValues: ["tmp0"], newValue: b },
+    ]);
+    expect(factory).toHaveBeenCalledTimes(1);
+  });
+
+  it("クロスrealmのInvalid Dateの旧値は同一realmのInvalid Dateと併合されず別グループとして残る", () => {
+    const invalidSame = new Date("invalid");
+    const invalidCross = createCrossRealmValue<Date>('new Date("nope")');
+    const factory = makeTempFactory();
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: invalidSame, newValue: 1 },
+        { oldValue: invalidCross, newValue: 2 },
+      ],
+      factory,
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [invalidSame], newValue: 1 },
+      { oldValues: [invalidCross], newValue: 2 },
+    ]);
+    expect(factory).not.toHaveBeenCalled();
+  });
+
+  it("クロスrealmのInvalid Dateの新値は併合されない", () => {
+    const invalidCross = createCrossRealmValue<Date>('new Date("nope")');
+
+    const steps = buildCascadeSteps(
+      [
+        { oldValue: 1, newValue: invalidCross },
+        { oldValue: 2, newValue: invalidCross },
+      ],
+      makeTempFactory(),
+    );
+
+    expect(steps).toEqual([
+      { oldValues: [1], newValue: invalidCross },
+      { oldValues: [2], newValue: invalidCross },
+    ]);
   });
 
   it("どのステップも oldValues が空にならない", () => {
