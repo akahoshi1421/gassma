@@ -1,4 +1,6 @@
 import { GassmaInvalidValueError } from "../../../errors/argument/argumentError";
+import { FieldRef } from "../../../util/filterConditions/fieldRef";
+import { raw } from "../../../util/raw/raw";
 import { validateWritableValue } from "../../../util/validate/validateWritableValue";
 import {
   createCrossRealmDate,
@@ -56,7 +58,63 @@ describe("validateWritableValue", () => {
   });
 });
 
+describe("validateWritableValue with object values", () => {
+  test("should accept a FieldRef and a Gassma.raw value", () => {
+    expect(() =>
+      validateWritableValue("col", new FieldRef("Posts", "rating")),
+    ).not.toThrow();
+    expect(() => validateWritableValue("col", raw("=A1"))).not.toThrow();
+  });
+
+  test("should throw for a Map, a Set and a RegExp", () => {
+    expect(() => validateWritableValue("col", new Map())).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received a Map.",
+    );
+    expect(() => validateWritableValue("col", new Set())).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received a Set.",
+    );
+    expect(() => validateWritableValue("col", /re/)).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received a RegExp.",
+    );
+  });
+
+  test("should throw for a class instance and a plain object", () => {
+    class Point {
+      x = 1;
+    }
+    expect(() => validateWritableValue("col", new Point())).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received an object.",
+    );
+    expect(() => validateWritableValue("col", Object.create({ a: 1 }))).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received an object.",
+    );
+    expect(() => validateWritableValue("col", {})).toThrow(
+      GassmaInvalidValueError,
+    );
+  });
+
+  test("should throw for an Error and a Promise", () => {
+    expect(() => validateWritableValue("col", new Error("x"))).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received an Error.",
+    );
+    expect(() => validateWritableValue("col", Promise.resolve())).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received a Promise.",
+    );
+  });
+});
+
 describe("validateWritableValue with cross-realm values", () => {
+  test("should throw for a cross-realm Map and plain object", () => {
+    const crossMap = createCrossRealmValue<unknown>("new Map()");
+    expect(() => validateWritableValue("col", crossMap)).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received a Map.",
+    );
+    const crossObject = createCrossRealmValue<unknown>("({ a: 1 })");
+    expect(() => validateWritableValue("col", crossObject)).toThrow(
+      "Invalid value for argument `col`. Expected a scalar value, but received an object.",
+    );
+  });
+
   test("should accept a cross-realm valid Date", () => {
     const crossDate = createCrossRealmDate("2026-07-18T09:30:00.000Z");
     expect(crossDate instanceof Date).toBe(false);
