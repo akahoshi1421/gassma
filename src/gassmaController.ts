@@ -80,6 +80,7 @@ import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
 import { validateEmptySelect } from "./util/validate/validateEmptySelect";
+import { validateNullArguments } from "./util/validate/validateNullArguments";
 import { validateNullPagination } from "./util/validate/validateNullPagination";
 import { validateOrderByKeys } from "./util/validate/validateOrderByKeys";
 import {
@@ -204,6 +205,7 @@ class GassmaController {
     );
     validateTopLevelKeys(operation, normalized);
     validateNullPagination(operation, normalized);
+    validateNullArguments(operation, normalized);
     validateEmptySelect(normalized);
     return normalized;
   }
