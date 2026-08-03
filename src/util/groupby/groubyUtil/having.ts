@@ -3,6 +3,7 @@ import type {
   HitByClassificationedRowData,
   RowRecord,
 } from "../../../types/coreTypes";
+import { validateQueryValues } from "../../validate/validateQueryValues";
 import { isLogicMatchHaving } from "./andOrNot/entry";
 import { normalHaving } from "./having/normalHavingFilter";
 
@@ -19,6 +20,7 @@ const havingFilter = (
   havingData: HavingUse,
   by: string[],
 ) => {
+  validateQueryValues(havingData);
   const byClassificationedRowIncludeIndex: HitByClassificationedRowData[] =
     byClassificationedRow.map((byClassificationedOneRow, index) => {
       return { rowNumber: index, row: byClassificationedOneRow };
