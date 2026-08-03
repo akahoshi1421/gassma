@@ -3,6 +3,7 @@ import {
   createCrossRealmValue,
 } from "../../consts/crossRealm";
 import { isDict } from "../../../util/other/isDict";
+import { FieldRef } from "../../../util/filterConditions/fieldRef";
 
 describe("isDict", () => {
   test("should return true for an object", () => {
@@ -143,11 +144,12 @@ describe("isDict", () => {
     expect(isDict(obj)).toBe(true);
   });
 
-  test("should handle objects with prototype chain", () => {
+  // Object.keys は継承キーを返さないので dict として扱う意味がない
+  test("should return false for objects whose prototype is another object", () => {
     const parent = { parentKey: "parentValue" };
     const child = Object.create(parent);
     child.childKey = "childValue";
-    expect(isDict(child)).toBe(true);
+    expect(isDict(child)).toBe(false);
   });
 
   test("should return false for BigInt values", () => {
@@ -183,5 +185,37 @@ describe("isDict", () => {
   test("should return false for a cross-realm array", () => {
     const crossArray = createCrossRealmValue<unknown[]>("[1, 2, 3]");
     expect(isDict(crossArray)).toBe(false);
+  });
+
+  test("should return true for an object with an own constructor property", () => {
+    expect(isDict({ constructor: "x" })).toBe(true);
+    expect(isDict({ constructor: 1 })).toBe(true);
+    expect(isDict({ constructor: null })).toBe(true);
+    expect(isDict({ constructor: { nested: true } })).toBe(true);
+  });
+
+  test("should return false for a FieldRef", () => {
+    expect(isDict(new FieldRef("Users", "age"))).toBe(false);
+  });
+
+  test("should return true for a cross-realm object with an own constructor property", () => {
+    const crossObject = createCrossRealmValue<Record<string, unknown>>(
+      '({ constructor: "x" })',
+    );
+    expect(isDict(crossObject)).toBe(true);
+  });
+
+  test("should return true for a cross-realm Object.create(null)", () => {
+    const crossBareObject = createCrossRealmValue<Record<string, unknown>>(
+      'Object.assign(Object.create(null), { key: "value" })',
+    );
+    expect(isDict(crossBareObject)).toBe(true);
+  });
+
+  test("should return false for a cross-realm class instance", () => {
+    const crossInstance = createCrossRealmValue<object>(
+      "new (class Foo { constructor() { this.a = 1; } })()",
+    );
+    expect(isDict(crossInstance)).toBe(false);
   });
 });
