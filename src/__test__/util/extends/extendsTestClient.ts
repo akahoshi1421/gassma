@@ -1,5 +1,6 @@
 import { GassmaClient } from "../../../gassma";
 import { GassmaController } from "../../../gassmaController";
+import type { GassmaClientOptions } from "../../../types/relationTypes";
 
 type MockRange = {
   getValues: () => unknown[][];
@@ -53,7 +54,10 @@ const makeSheet = (name: string, initial: unknown[][]): MockSheet => {
   };
 };
 
-const buildTestClient = (options?: { relations?: boolean }): GassmaClient => {
+const buildTestClient = (options?: {
+  relations?: boolean;
+  defaults?: GassmaClientOptions["defaults"];
+}): GassmaClient => {
   const sheets = [
     makeSheet("Users", [
       ["id", "name", "age"],
@@ -82,8 +86,13 @@ const buildTestClient = (options?: { relations?: boolean }): GassmaClient => {
   Object.assign(globalThis, {
     SpreadsheetApp: { getActiveSpreadsheet: () => mockSpreadsheet },
   });
-  if (!options?.relations) return new GassmaClient();
+  if (!options?.relations) {
+    return options?.defaults
+      ? new GassmaClient({ defaults: options.defaults })
+      : new GassmaClient();
+  }
   return new GassmaClient({
+    ...(options.defaults ? { defaults: options.defaults } : {}),
     relations: {
       Users: {
         posts: {
