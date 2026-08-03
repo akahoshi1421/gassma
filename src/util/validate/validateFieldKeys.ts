@@ -1,4 +1,7 @@
-import { GassmaUnknownArgumentError } from "../../errors/argument/argumentError";
+import {
+  GassmaInvalidValueError,
+  GassmaUnknownArgumentError,
+} from "../../errors/argument/argumentError";
 import { validateQueryScalar } from "./validateQueryValues";
 
 const validateFieldKeys = (keys: string[], titles: string[]): void => {
@@ -20,6 +23,10 @@ const validateCursorKeys = (
   cursor: Record<string, unknown>,
   titles: string[],
 ): void => {
+  // Prisma 実測(2026-08-03): 空の cursor はエラー("needs at least one of `id` arguments")
+  if (Object.keys(cursor).length === 0) {
+    throw new GassmaInvalidValueError("cursor", "at least one column");
+  }
   validateFieldKeys(Object.keys(cursor), titles);
   Object.entries(cursor).forEach(([key, value]) => {
     if (value === undefined) return;

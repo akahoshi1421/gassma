@@ -382,11 +382,11 @@ describe("正常な値は従来どおり通る", () => {
     ).toEqual([]);
   });
 
-  test("undefined はエラーにならず従来の挙動のまま", () => {
+  test("undefined はエラーにならず条件未指定と同じ（Prisma 実測準拠）", () => {
     const { typed } = looseUsers();
-    expect(typed.findMany({ where: { age: undefined } })).toHaveLength(0);
+    expect(typed.findMany({ where: { age: undefined } })).toHaveLength(3);
     expect(typed.findMany({ where: { age: { gte: undefined } } })).toHaveLength(
-      0,
+      3,
     );
   });
 

@@ -16,8 +16,7 @@ const normalizeArray = (
   values.map((value, index) => {
     const itemPath = `${path}[${index}]`;
     if (isSkipValue(value)) throw new GassmaSkipInArrayError(itemPath);
-    if (value === undefined && strict)
-      throw new GassmaUndefinedValueError(itemPath);
+    if (value === undefined) throw new GassmaUndefinedValueError(itemPath);
     return normalizeValue(value, strict, itemPath);
   });
 
@@ -31,8 +30,10 @@ const normalizeDict = (
     const value = dict[key];
     if (isSkipValue(value)) return;
     const valuePath = joinPath(path, key);
-    if (value === undefined && strict)
-      throw new GassmaUndefinedValueError(valuePath);
+    if (value === undefined) {
+      if (strict) throw new GassmaUndefinedValueError(valuePath);
+      return;
+    }
     result[key] = normalizeValue(value, strict, valuePath);
   });
   return result;

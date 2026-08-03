@@ -3,6 +3,7 @@ import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndexFromTitles } from "../core/getWantFindIndex";
 import { rowMatchesWhereFields } from "../core/rowMatchesWhereFields";
 import { isLogicMatch } from "./entry";
+import { isVacuousBranch } from "./vacuousBranch";
 
 const isAndMatch = (
   rowsData: HitRowData[],
@@ -12,6 +13,8 @@ const isAndMatch = (
   let resultRowsData: HitRowData[] = rowsData.concat();
 
   whereArray.forEach((where) => {
+    if (isVacuousBranch(where)) return;
+
     const wantFindIndex = getWantFindIndexFromTitles(titles, where);
 
     resultRowsData = resultRowsData.filter((row) =>

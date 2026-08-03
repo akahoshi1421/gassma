@@ -3,6 +3,7 @@ import type { HitRowData } from "../../types/hitRowDataType";
 import { getWantFindIndexFromTitles } from "../core/getWantFindIndex";
 import { rowMatchesWhereFields } from "../core/rowMatchesWhereFields";
 import { isLogicMatch } from "./entry";
+import { isVacuousBranch } from "./vacuousBranch";
 
 const isNotMatch = (
   rowsData: HitRowData[],
@@ -17,6 +18,7 @@ const isNotMatch = (
     const hasLogicKey = "OR" in where || "AND" in where || "NOT" in where;
 
     if (wantFindIndex.length === 0 && !hasLogicKey) return;
+    if (isVacuousBranch(where)) return;
 
     hasCondition = true;
 
