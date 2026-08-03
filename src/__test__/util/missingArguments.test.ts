@@ -1,4 +1,7 @@
-import { GassmaMissingArgumentError } from "../../errors/argument/argumentError";
+import {
+  GassmaInvalidValueError,
+  GassmaMissingArgumentError,
+} from "../../errors/argument/argumentError";
 import { GassmaClient } from "../../gassma";
 import { skip } from "../../util/skip/skip";
 import {
@@ -41,11 +44,20 @@ describe("delete: where 必須", () => {
     expect(typed.count({})).toBe(3);
   });
 
-  test("where: {} は従来どおり先頭行を削除する（対象外・挙動維持）", () => {
+  test("where: {} は GassmaInvalidValueError（Prisma 実測準拠）", () => {
     const { loose, typed } = looseUsers();
-    const deleted = loose.delete({ where: {} });
-    expect(deleted).toEqual({ id: 1, name: "Alice", age: 20 });
-    expect(typed.count({})).toBe(2);
+    const fn = () => loose.delete({ where: {} });
+    expect(fn).toThrow(GassmaInvalidValueError);
+    expect(fn).toThrow("Invalid value for argument `where`.");
+    expect(typed.count({})).toBe(3);
+  });
+
+  test("Gassma.skip だけで空になった where も同じエラー", () => {
+    const { loose, typed } = looseUsers();
+    expect(() => loose.delete({ where: { name: skip } })).toThrow(
+      GassmaInvalidValueError,
+    );
+    expect(typed.count({})).toBe(3);
   });
 });
 
@@ -120,10 +132,23 @@ describe("update: where / data 必須", () => {
     expectMissing(() => loose.update({ where: { id: 1 } }), "data");
   });
 
-  test("where: {} + data ありは従来どおり先頭行を更新する（対象外・挙動維持）", () => {
+  test("where: {} + data ありは GassmaInvalidValueError（Prisma 実測準拠）", () => {
+    const { loose, typed } = looseUsers();
+    const fn = () => loose.update({ where: {}, data: { age: 99 } });
+    expect(fn).toThrow(GassmaInvalidValueError);
+    expect(fn).toThrow("Invalid value for argument `where`.");
+    expect(typed.findMany({ where: { age: 99 } })).toEqual([]);
+  });
+
+  test("upsert の where: {} も同じエラー", () => {
     const { loose } = looseUsers();
-    const result = loose.update({ where: {}, data: { age: 99 } });
-    expect(result).toEqual({ id: 1, name: "Alice", age: 99 });
+    expect(() =>
+      loose.upsert({
+        where: {},
+        create: { id: 4, name: "Dave", age: 50 },
+        update: { age: 50 },
+      }),
+    ).toThrow(GassmaInvalidValueError);
   });
 });
 

@@ -39,10 +39,13 @@ const findManyFunc = (
   });
 
   // 適用順は Prisma 実測: orderBy → (take 負数は反転順で) cursor → distinct → skip → take
+  // 空のエントリ({})は Prisma 実測どおり無視する
   if (orderBy)
     findDataDictArray = orderByFunc(
       findDataDictArray,
-      Array.isArray(orderBy) ? orderBy : [orderBy],
+      (Array.isArray(orderBy) ? orderBy : [orderBy]).filter(
+        (entry) => Object.keys(entry).length > 0,
+      ),
     );
 
   const cursor = "cursor" in findData ? findData.cursor : null;

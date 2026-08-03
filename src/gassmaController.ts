@@ -1,4 +1,7 @@
-import { GassmaMissingArgumentError } from "./errors/argument/argumentError";
+import {
+  GassmaInvalidValueError,
+  GassmaMissingArgumentError,
+} from "./errors/argument/argumentError";
 import {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
@@ -76,6 +79,7 @@ import { resolveCount } from "./util/relation/resolveCount";
 import { resolveInclude } from "./util/relation/resolveInclude";
 import { resolveWhereRelation } from "./util/relation/whereRelation/resolveWhereRelation";
 import { normalizeQueryInput } from "./util/skip/normalizeQueryInput";
+import { validateEmptySelect } from "./util/validate/validateEmptySelect";
 import { validateOrderByKeys } from "./util/validate/validateOrderByKeys";
 import {
   type ValidatedOperation,
@@ -198,7 +202,17 @@ class GassmaController {
       this.strictUndefinedChecks,
     );
     validateTopLevelKeys(operation, normalized);
+    validateEmptySelect(normalized);
     return normalized;
+  }
+
+  // Prisma 実測(2026-08-03): 単一行操作の空の where はエラー
+  // ("needs at least one of `id` arguments")。undefined / Gassma.skip だけで
+  // 空になった場合も同じ扱い
+  private assertWhereHasCondition(where: Record<string, unknown>): void {
+    if (Object.keys(where).length === 0) {
+      throw new GassmaInvalidValueError("where", "at least one condition");
+    }
   }
 
   private relationNames(): string[] {
@@ -897,6 +911,7 @@ class GassmaController {
     if (updateData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
     }
+    this.assertWhereHasCondition(updateData.where);
     if (updateData.data === undefined) {
       throw new GassmaMissingArgumentError("data");
     }
@@ -1111,6 +1126,7 @@ class GassmaController {
     if (upsertData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
     }
+    this.assertWhereHasCondition(upsertData.where);
     if (upsertData.create === undefined) {
       throw new GassmaMissingArgumentError("create");
     }
@@ -1164,6 +1180,7 @@ class GassmaController {
     if (deleteData.where === undefined) {
       throw new GassmaMissingArgumentError("where");
     }
+    this.assertWhereHasCondition(deleteData.where);
     if (deleteData.include && deleteData.select) {
       throw new GassmaIncludeSelectConflictError();
     }

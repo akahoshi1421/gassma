@@ -112,9 +112,9 @@ afterAll(() => {
 });
 
 describe("strictUndefinedChecks 無効（デフォルト）", () => {
-  test("where の undefined は従来挙動（何もマッチしない）を維持する", () => {
+  test("where の undefined は条件未指定と同じ（Prisma 実測準拠）", () => {
     const users = sheetOf(buildClient(), "Users");
-    expect(users.findMany({ where: { name: undefined } })).toEqual([]);
+    expect(users.findMany({ where: { name: undefined } })).toHaveLength(2);
   });
 
   test("where の Gassma.skip はフィルタなしとして扱われる", () => {
@@ -149,11 +149,11 @@ describe("strictUndefinedChecks 無効（デフォルト）", () => {
     expect(result).toEqual({ id: 3, name: "Carol", age: null });
   });
 
-  test("update data の undefined は従来挙動（値が消える）を維持する", () => {
+  test("update data の undefined はフィールド未指定と同じ（Prisma 実測準拠）", () => {
     const users = sheetOf(buildClient(), "Users");
     users.updateMany({ where: { id: 1 }, data: { name: undefined } });
     const after = users.findFirst({ where: { id: 1 } });
-    expect(after).toEqual({ id: 1, age: 20 });
+    expect(after).toEqual({ id: 1, name: "Alice", age: 20 });
   });
 
   test("where 全体の Gassma.skip は where 省略と同じになる", () => {

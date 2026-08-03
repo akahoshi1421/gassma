@@ -62,20 +62,51 @@ describe("normalizeQueryInput", () => {
     });
   });
 
-  describe("strict 無効時の undefined（従来挙動の維持）", () => {
-    test("undefined 値のキーはそのまま残す", () => {
+  describe("strict 無効時の undefined（Prisma 実測: dict では無視・配列ではエラー）", () => {
+    test("undefined 値のキーは取り除く", () => {
       const result = normalizeQueryInput(
         { where: { name: undefined, age: 20 } },
         false,
       );
-      expect(result).toEqual({ where: { name: undefined, age: 20 } });
-      expect(Object.keys(result.where)).toContain("name");
+      expect(result).toEqual({ where: { age: 20 } });
+      expect(Object.keys(result.where)).not.toContain("name");
     });
 
-    test("配列内の undefined もそのまま残す", () => {
+    test("深いネストの undefined キーも取り除く", () => {
       expect(
+        normalizeQueryInput(
+          { where: { age: { gte: undefined, lte: 30 } } },
+          false,
+        ),
+      ).toEqual({ where: { age: { lte: 30 } } });
+    });
+
+    test("配列内の undefined は GassmaUndefinedValueError を投げる", () => {
+      expect(
+        catchError(() =>
+          normalizeQueryInput(
+            { where: { age: { in: [1, undefined] } } },
+            false,
+          ),
+        ).name,
+      ).toBe("GassmaUndefinedValueError");
+      expect(() =>
         normalizeQueryInput({ where: { age: { in: [1, undefined] } } }, false),
-      ).toEqual({ where: { age: { in: [1, undefined] } } });
+      ).toThrow("Invalid value for argument `where.age.in[1]`");
+    });
+  });
+
+  describe("undefined / skip だけで空になった dict はリテラルの {} と同じになる", () => {
+    test("剥がされて空になった dict は素の空オブジェクト", () => {
+      const result = normalizeQueryInput({ where: { name: undefined } }, false);
+      expect(result.where).toEqual({});
+      expect(Object.keys(result.where)).toEqual([]);
+    });
+
+    test("skip だけで空になった dict も同じ", () => {
+      expect(normalizeQueryInput({ where: { name: skip } }, false)).toEqual({
+        where: {},
+      });
     });
   });
 
