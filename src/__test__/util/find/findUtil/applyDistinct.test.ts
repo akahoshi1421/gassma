@@ -1,4 +1,8 @@
 import { applyDistinct } from "../../../../util/find/findUtil/applyDistinct";
+import {
+  createCrossRealmDate,
+  createCrossRealmValue,
+} from "../../../consts/crossRealm";
 
 describe("applyDistinct", () => {
   test("should keep first occurrence for a single column", () => {
@@ -122,5 +126,56 @@ describe("applyDistinct", () => {
       ];
       expect(applyDistinct(rows, ["a", "b"])).toEqual(rows);
     });
+  });
+});
+
+describe("applyDistinct with cross-realm Dates", () => {
+  test("should collapse a cross-realm Date with a same-realm Date of the same time", () => {
+    const result = applyDistinct(
+      [
+        { id: 1, v: new Date("2024-01-01T00:00:00.000Z") },
+        { id: 2, v: createCrossRealmDate("2024-01-01T00:00:00.000Z") },
+      ],
+      ["v"],
+    );
+    expect(result.map((row) => row.id)).toEqual([1]);
+  });
+
+  test("should collapse two cross-realm Dates with the same time", () => {
+    const result = applyDistinct(
+      [
+        { id: 1, v: createCrossRealmDate("2024-01-01T00:00:00.000Z") },
+        { id: 2, v: createCrossRealmDate("2024-01-01T00:00:00.000Z") },
+      ],
+      ["v"],
+    );
+    expect(result.map((row) => row.id)).toEqual([1]);
+  });
+
+  test("should keep cross-realm Dates with different times as separate rows", () => {
+    const rows = [
+      { id: 1, v: createCrossRealmDate("2024-01-01T00:00:00.000Z") },
+      { id: 2, v: createCrossRealmDate("2024-01-02T00:00:00.000Z") },
+    ];
+    expect(applyDistinct(rows, ["v"]).map((row) => row.id)).toEqual([1, 2]);
+  });
+
+  test("should not collapse a cross-realm Date with its ISO string", () => {
+    const rows = [
+      { id: 1, v: createCrossRealmDate("2024-01-01T00:00:00.000Z") },
+      { id: 2, v: "2024-01-01T00:00:00.000Z" },
+    ];
+    expect(applyDistinct(rows, ["v"])).toEqual(rows);
+  });
+
+  test("should collapse a cross-realm Invalid Date with a same-realm Invalid Date", () => {
+    const result = applyDistinct(
+      [
+        { id: 1, v: new Date("invalid") },
+        { id: 2, v: createCrossRealmValue<Date>('new Date("nope")') },
+      ],
+      ["v"],
+    );
+    expect(result.map((row) => row.id)).toEqual([1]);
   });
 });

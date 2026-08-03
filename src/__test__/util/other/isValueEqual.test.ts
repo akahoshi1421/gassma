@@ -283,3 +283,52 @@ describe("containsValue with cross-realm Dates", () => {
     ).toBe(false);
   });
 });
+
+describe("isValueEqual with cross-realm Invalid Dates", () => {
+  test("should return false for a cross-realm Invalid Date vs a same-realm Invalid Date", () => {
+    const crossInvalid = createCrossRealmValue<Date>('new Date("nope")');
+    expect(isValueEqual(crossInvalid, new Date("invalid"))).toBe(false);
+    expect(isValueEqual(new Date("invalid"), crossInvalid)).toBe(false);
+  });
+
+  test("should return false for a cross-realm Invalid Date vs a valid Date", () => {
+    const crossInvalid = createCrossRealmValue<Date>('new Date("nope")');
+    expect(
+      isValueEqual(crossInvalid, new Date("2026-07-18T09:30:00.000Z")),
+    ).toBe(false);
+  });
+});
+
+describe("containsValue with cross-realm Invalid Dates and arrays", () => {
+  test("should find a cross-realm Invalid Date only by its own reference", () => {
+    const crossInvalid = createCrossRealmValue<Date>('new Date("nope")');
+    expect(containsValue([crossInvalid], crossInvalid)).toBe(true);
+    expect(containsValue([new Date("invalid")], crossInvalid)).toBe(false);
+    expect(
+      containsValue(
+        [crossInvalid],
+        createCrossRealmValue<Date>('new Date("nope")'),
+      ),
+    ).toBe(false);
+  });
+
+  test("should not match a cross-realm Invalid Date against a valid Date", () => {
+    const crossInvalid = createCrossRealmValue<Date>('new Date("nope")');
+    expect(
+      containsValue([new Date("2026-07-18T09:30:00.000Z")], crossInvalid),
+    ).toBe(false);
+  });
+
+  test("should handle an Invalid Date inside a cross-realm list by reference", () => {
+    const crossList =
+      createCrossRealmValue<readonly unknown[]>('[new Date("nope")]');
+    expect(containsValue(crossList, crossList[0])).toBe(true);
+    expect(containsValue(crossList, new Date("invalid"))).toBe(false);
+  });
+
+  test("should keep reference identity for a cross-realm array used as a value", () => {
+    const crossArray = createCrossRealmValue<unknown[]>("[1, 2]");
+    expect(containsValue([crossArray], crossArray)).toBe(true);
+    expect(containsValue([crossArray], [1, 2])).toBe(false);
+  });
+});
