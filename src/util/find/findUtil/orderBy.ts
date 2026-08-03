@@ -8,6 +8,7 @@ import type {
   RelationOrderBy,
 } from "../../../types/coreTypes";
 import { isDict } from "../../other/isDict";
+import { isMissingValue } from "../../other/isMissingValue";
 
 type ParsedOrderByEntry = [
   string,
@@ -71,8 +72,8 @@ const search = (
   const aVal = a[key];
   const bVal = b[key];
 
-  const aIsNull = aVal === null || aVal === undefined;
-  const bIsNull = bVal === null || bVal === undefined;
+  const aIsNull = isMissingValue(aVal);
+  const bIsNull = isMissingValue(bVal);
 
   if (aIsNull && bIsNull) {
     if (cnt === keys.length - 1) return 0;
