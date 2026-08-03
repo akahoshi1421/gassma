@@ -1,4 +1,5 @@
 import type { OrderBy } from "../../../types/coreTypes";
+import { isDict } from "../../other/isDict";
 
 type SeparateResult = {
   scalarOrderBy: OrderBy[];
@@ -7,7 +8,8 @@ type SeparateResult = {
 };
 
 const isRelationOrderByValue = (value: unknown): boolean => {
-  return typeof value === "object" && value !== null && !("sort" in value);
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn は ES2022 のため target ES2019 ではコンパイルできない
+  return isDict(value) && !Object.prototype.hasOwnProperty.call(value, "sort");
 };
 
 const separateRelationOrderBy = (orderByArr: OrderBy[]): SeparateResult => {

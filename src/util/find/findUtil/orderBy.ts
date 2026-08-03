@@ -19,7 +19,8 @@ type ParsedOrderByEntry = [
 const isSortOrderInput = (
   value: "asc" | "desc" | SortOrderInput | RelationOrderBy,
 ): value is SortOrderInput => {
-  return typeof value === "object" && value !== null && "sort" in value;
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn は ES2022 のため target ES2019 ではコンパイルできない
+  return isDict(value) && Object.prototype.hasOwnProperty.call(value, "sort");
 };
 
 const isScalarDirection = (
