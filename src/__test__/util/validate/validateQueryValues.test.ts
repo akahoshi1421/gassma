@@ -1,4 +1,5 @@
 import { GassmaInvalidValueError } from "../../../errors/argument/argumentError";
+import { FieldRef } from "../../../util/filterConditions/fieldRef";
 import { raw } from "../../../util/raw/raw";
 import { validateQueryValues } from "../../../util/validate/validateQueryValues";
 import {
@@ -49,6 +50,29 @@ describe("validateQueryValues", () => {
   test("should throw for a Gassma.raw value inside where", () => {
     expect(() => validateQueryValues({ name: raw("=A1") })).toThrow(
       "Invalid value for argument `name`. Expected a scalar value, but received a Gassma.raw value.",
+    );
+  });
+
+  test("should accept a FieldRef as a direct value and inside an operator dict", () => {
+    const fieldRef = new FieldRef("Posts", "rating");
+    expect(() => validateQueryValues({ viewCount: fieldRef })).not.toThrow();
+    expect(() =>
+      validateQueryValues({ viewCount: { gt: fieldRef } }),
+    ).not.toThrow();
+    expect(() =>
+      validateQueryValues({ viewCount: { in: [fieldRef] } }),
+    ).not.toThrow();
+  });
+
+  test("should throw for a Map as a direct value and inside an operator dict", () => {
+    expect(() => validateQueryValues({ name: new Map() })).toThrow(
+      "Invalid value for argument `name`. Expected a scalar value, but received a Map.",
+    );
+    expect(() => validateQueryValues({ name: { gt: new Set() } })).toThrow(
+      "Invalid value for argument `gt`. Expected a scalar value, but received a Set.",
+    );
+    expect(() => validateQueryValues({ name: { in: [/re/] } })).toThrow(
+      "Invalid value for argument `in`. Expected a scalar value, but received a RegExp.",
     );
   });
 });
