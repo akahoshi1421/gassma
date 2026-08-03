@@ -12,6 +12,7 @@ import {
   buildValidatedCountSelect,
   buildValidatedFieldSelect,
 } from "../validate/buildValidatedAggregateSelect";
+import { validateFiniteNumberOption } from "../validate/validateFiniteNumberOption";
 import { byClassification } from "./groubyUtil/by";
 import { havingFilter } from "./groubyUtil/having";
 
@@ -22,6 +23,7 @@ const groupByFunc = (
   const where = groupByData.where || {};
   const orderBy = groupByData.orderBy || null;
   const take = "take" in groupByData ? groupByData.take : null;
+  validateFiniteNumberOption("skip", groupByData.skip);
   const skip = groupByData.skip || null;
   const validateFieldSelect = (value: Select | null | undefined) =>
     typeof value === "object" && value !== null

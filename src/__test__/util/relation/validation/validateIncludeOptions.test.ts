@@ -76,6 +76,18 @@ describe("validateIncludeOptions", () => {
         }),
       ).toThrow('option "take" must be a number');
     });
+
+    it("take が NaN の場合エラーを投げる", () => {
+      expect(() => validateIncludeOptions({ posts: { take: NaN } })).toThrow(
+        'option "take" must be a finite number',
+      );
+    });
+
+    it("take が Infinity の場合エラーを投げる", () => {
+      expect(() =>
+        validateIncludeOptions({ posts: { take: Infinity } }),
+      ).toThrow('option "take" must be a finite number');
+    });
   });
 
   describe("skip の型チェック", () => {
@@ -91,6 +103,18 @@ describe("validateIncludeOptions", () => {
           posts: { skip: "5" as unknown as number },
         }),
       ).toThrow('option "skip" must be a number');
+    });
+
+    it("skip が NaN の場合エラーを投げる", () => {
+      expect(() => validateIncludeOptions({ posts: { skip: NaN } })).toThrow(
+        'option "skip" must be a finite number',
+      );
+    });
+
+    it("skip が -Infinity の場合エラーを投げる", () => {
+      expect(() =>
+        validateIncludeOptions({ posts: { skip: -Infinity } }),
+      ).toThrow('option "skip" must be a finite number');
     });
   });
 

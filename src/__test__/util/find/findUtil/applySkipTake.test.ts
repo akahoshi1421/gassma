@@ -66,4 +66,40 @@ describe("applySkipTake", () => {
       "Value can only be positive",
     );
   });
+
+  test("should throw for NaN skip", () => {
+    expect(() => applySkipTake(data, NaN, null)).toThrow(
+      "Invalid value for argument `skip`. Expected a finite number, but received NaN.",
+    );
+  });
+
+  test("should throw for Infinity skip", () => {
+    expect(() => applySkipTake(data, Infinity, null)).toThrow(
+      "Invalid value for argument `skip`. Expected a finite number, but received Infinity.",
+    );
+  });
+
+  test("should throw for -Infinity skip", () => {
+    expect(() => applySkipTake(data, -Infinity, null)).toThrow(
+      "Invalid value for argument `skip`. Expected a finite number, but received -Infinity.",
+    );
+  });
+
+  test("should throw for NaN take", () => {
+    expect(() => applySkipTake(data, null, NaN)).toThrow(
+      "Invalid value for argument `take`. Expected a finite number, but received NaN.",
+    );
+  });
+
+  test("should throw for Infinity take", () => {
+    expect(() => applySkipTake(data, null, Infinity)).toThrow(
+      "Invalid value for argument `take`. Expected a finite number, but received Infinity.",
+    );
+  });
+
+  test("should throw for -Infinity take", () => {
+    expect(() => applySkipTake(data, null, -Infinity)).toThrow(
+      "Invalid value for argument `take`. Expected a finite number, but received -Infinity.",
+    );
+  });
 });

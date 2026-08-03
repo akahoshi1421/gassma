@@ -13,6 +13,7 @@ import {
 } from "../validate/buildValidatedAggregateSelect";
 import { getSum } from "./aggregateUtil/sum";
 import { ensureAggregateSelection } from "./ensureAggregateSelection";
+import { validateFiniteNumberOption } from "../validate/validateFiniteNumberOption";
 
 const aggregateFunc = (
   gassmaControllerUtil: GassmaControllerUtil,
@@ -24,6 +25,7 @@ const aggregateFunc = (
   const orderBy = "orderBy" in aggregateData ? aggregateData.orderBy : null;
   const take = "take" in aggregateData ? aggregateData.take : null;
   const skip = "skip" in aggregateData ? aggregateData.skip : null;
+  validateFiniteNumberOption("skip", skip);
   const cursor = "cursor" in aggregateData ? aggregateData.cursor : null;
   const validateFieldSelect = (value: Select | null | undefined) =>
     typeof value === "object" && value !== null
