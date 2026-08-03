@@ -2,6 +2,7 @@ import type { GassmaAny, WhereUse } from "../../types/coreTypes";
 import type { HitRowData } from "../../types/hitRowDataType";
 import { isLogicMatch } from "../andOrNot/entry";
 import { resetMembershipCache } from "../other/isValueEqual";
+import { validateQueryValues } from "../validate/validateQueryValues";
 import { getWantFindIndexFromTitles } from "./getWantFindIndex";
 import { rowMatchesWhereFields } from "./rowMatchesWhereFields";
 
@@ -10,6 +11,7 @@ const filterRowsByWhere = (
   titles: GassmaAny[],
   where: WhereUse,
 ): HitRowData[] => {
+  validateQueryValues(where);
   resetMembershipCache();
   if (Object.keys(where).length === 0) {
     return allDataList.map((row, index): HitRowData => {
