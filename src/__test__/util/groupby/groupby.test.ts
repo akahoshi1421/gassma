@@ -171,12 +171,11 @@ describe("groupBy functionality tests", () => {
     test("should work with orderBy", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
-        orderBy: { 年齢: "desc" },
+        orderBy: { 住所: "desc" },
         _avg: { 年齢: true },
       });
 
-      // orderBy should not affect the grouping results, only the order of processing
-      expectArrayToEqualIgnoringOrder(result, [
+      expect(result).toEqual([
         { 住所: "Tokyo", _avg: { 年齢: (28 + 22 + 28 + 31) / 4 } },
         { 住所: "Osaka", _avg: { 年齢: (35 + 52) / 2 } },
         { 住所: "Kyoto", _avg: { 年齢: (45 + 28) / 2 } },
@@ -186,30 +185,25 @@ describe("groupBy functionality tests", () => {
     test("should work with skip", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
+        orderBy: { 住所: "asc" },
         skip: 2,
         _count: { 名前: true },
       });
 
-      // Skip should affect the input data before grouping
-      expectArrayToEqualIgnoringOrder(result, [
-        { 住所: "Tokyo", _count: { 名前: 3 } },
-        { 住所: "Kyoto", _count: { 名前: 2 } },
-        { 住所: "Osaka", _count: { 名前: 1 } },
-      ]);
+      expect(result).toEqual([{ 住所: "Tokyo", _count: { 名前: 4 } }]);
     });
 
     test("should work with take", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
-        take: 4,
+        orderBy: { 住所: "asc" },
+        take: 2,
         _count: { 名前: true },
       });
 
-      // Take should limit input data before grouping
-      expectArrayToEqualIgnoringOrder(result, [
-        { 住所: "Tokyo", _count: { 名前: 2 } },
-        { 住所: "Osaka", _count: { 名前: 1 } },
-        { 住所: "Kyoto", _count: { 名前: 1 } },
+      expect(result).toEqual([
+        { 住所: "Kyoto", _count: { 名前: 2 } },
+        { 住所: "Osaka", _count: { 名前: 2 } },
       ]);
     });
   });
@@ -228,6 +222,7 @@ describe("groupBy functionality tests", () => {
     test("should handle take=0", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
+        orderBy: { 住所: "asc" },
         take: 0,
         _count: { 名前: true },
       });
@@ -235,9 +230,10 @@ describe("groupBy functionality tests", () => {
       expect(result).toEqual([]);
     });
 
-    test("should handle skip exceeding total records", () => {
+    test("should handle skip exceeding total groups", () => {
       const result = groupByFunc(getExtendedMockControllerUtil(), {
         by: "住所",
+        orderBy: { 住所: "asc" },
         skip: 20,
         _count: { 名前: true },
       });

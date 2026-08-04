@@ -14,6 +14,16 @@ import {
 } from "../validate/buildValidatedAggregateSelect";
 import { validateFiniteNumberOption } from "../validate/validateFiniteNumberOption";
 import { byClassification } from "./groubyUtil/by";
+import { orderGroups } from "./groubyUtil/groupOrderBy";
+import {
+  buildGroupSortKeys,
+  getAvailableFields,
+  toOrderByArray,
+} from "./groubyUtil/groupOrderByKeys";
+import {
+  applyGroupSkipTake,
+  ensurePaginationOrderBy,
+} from "./groubyUtil/groupPagination";
 import { havingFilter } from "./groubyUtil/having";
 
 const groupByFunc = (
@@ -21,8 +31,9 @@ const groupByFunc = (
   groupByData: GroupByData,
 ) => {
   const where = groupByData.where || {};
-  const orderBy = groupByData.orderBy || null;
+  const orderByArr = toOrderByArray(groupByData.orderBy);
   const take = "take" in groupByData ? groupByData.take : null;
+  validateFiniteNumberOption("take", take);
   validateFiniteNumberOption("skip", groupByData.skip);
   const skip = groupByData.skip || null;
   const validateFieldSelect = (value: Select | null | undefined) =>
@@ -42,13 +53,14 @@ const groupByFunc = (
   const by = Array.isArray(groupByData.by) ? groupByData.by : [groupByData.by];
   const having = groupByData.having || null;
 
+  const sortKeys = buildGroupSortKeys(orderByArr, by, () =>
+    getAvailableFields(gassmaControllerUtil),
+  );
+  ensurePaginationOrderBy(orderByArr, take, skip);
+
   const findData: FindData = {
     where: where,
   };
-
-  if (orderBy) findData.orderBy = orderBy;
-  if (take !== null && take !== undefined) findData.take = take;
-  if (skip) findData.skip = skip;
 
   const findedRows = findManyFunc(gassmaControllerUtil, findData);
 
@@ -90,7 +102,13 @@ const groupByFunc = (
     }
   });
 
-  return groupByResult;
+  const orderedResult = orderGroups(
+    byClassificationed,
+    groupByResult,
+    sortKeys,
+  );
+
+  return applyGroupSkipTake(orderedResult, skip, take);
 };
 
 export { groupByFunc };
