@@ -96,4 +96,4 @@ function myFunction() {
 
 ## Official Reference
 
-https://akahoshi1421.github.io/gassma-reference/en
+https://gassma.io/en
