@@ -124,6 +124,9 @@ declare namespace Gassma {
         : { [K in keyof S]: number }
       : number;
     groupBy(groupByData: GroupByData): Record<string, any>[];
+    $getAutoincrement(field: string): number;
+    $setAutoincrement(field: string, next: number): void;
+    $syncAutoincrement(field: string): number;
     _setRelationContext(context: RelationContext): void;
     _setGlobalOmit(omit: Omit): void;
     _setDefaults(defaults: {
@@ -734,6 +737,12 @@ declare namespace Gassma {
   }
   class GassmaInvalidLockError extends Error {
     constructor();
+  }
+  class GassmaAutoincrementNotConfiguredError extends Error {
+    constructor(sheetName: string, field: string, configuredFields: string[]);
+  }
+  class GassmaAutoincrementInTransactionError extends Error {
+    constructor(methodName: string);
   }
 }
 

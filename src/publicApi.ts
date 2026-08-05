@@ -1,5 +1,6 @@
 import * as aggregateErrors from "./errors/aggregate/aggregateError";
 import * as argumentErrors from "./errors/argument/argumentError";
+import * as autoincrementErrors from "./errors/autoincrement/autoincrementError";
 import * as changeSettingsErrors from "./errors/changeSettings/changeSettingsError";
 import * as findErrors from "./errors/find/findError";
 import * as groupByErrors from "./errors/groupBy/groupByError";
@@ -136,3 +137,8 @@ export const GassmaTransactionLockRequiredError =
   transactionErrors.GassmaTransactionLockRequiredError;
 
 export const GassmaInvalidLockError = lockErrors.GassmaInvalidLockError;
+
+export const GassmaAutoincrementNotConfiguredError =
+  autoincrementErrors.GassmaAutoincrementNotConfiguredError;
+export const GassmaAutoincrementInTransactionError =
+  autoincrementErrors.GassmaAutoincrementInTransactionError;

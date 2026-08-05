@@ -16,11 +16,13 @@ import {
 } from "./transactionBackup";
 import { createTransactionBuffer } from "./transactionBuffer";
 import { createTransactionDeadline } from "./transactionDeadline";
+import {
+  isTransactionInProgress,
+  setTransactionInProgress,
+} from "./transactionState";
 
 const DEFAULT_MAX_WAIT_MS = 20000;
 const DEFAULT_TIMEOUT_MS = 60000;
-
-let transactionInProgress = false;
 
 const acquireLock = (lock: Lock, maxWaitMs: number): boolean => {
   if (lock.hasLock()) return false;
@@ -38,7 +40,7 @@ const runTransaction = <T>(
   buildBufferedClient: (sheetIo: SheetIo) => object,
   lock: Lock | undefined,
 ): T => {
-  if (transactionInProgress) {
+  if (isTransactionInProgress()) {
     throw new GassmaNestedTransactionError();
   }
   if (!lock) {
@@ -48,7 +50,7 @@ const runTransaction = <T>(
   const timeoutMs = options?.timeout ?? DEFAULT_TIMEOUT_MS;
   const rollback = options?.rollback ?? true;
   const acquired = acquireLock(lock, maxWaitMs);
-  transactionInProgress = true;
+  setTransactionInProgress(true);
   try {
     warnStaleTransactionBackups();
     const checkDeadline = createTransactionDeadline(timeoutMs);
@@ -67,7 +69,7 @@ const runTransaction = <T>(
     }
     return result;
   } finally {
-    transactionInProgress = false;
+    setTransactionInProgress(false);
     if (acquired) lock.releaseLock();
   }
 };

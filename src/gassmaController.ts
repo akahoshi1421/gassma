@@ -38,12 +38,19 @@ import type { Lock, RelationContext } from "./types/relationTypes";
 import type { SheetIo } from "./types/transactionTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
+import { getColumnValues } from "./util/core/getColumnValues";
 import { getTitle } from "./util/core/getTitle";
 import { countFunc } from "./util/count/count";
 import { createFunc } from "./util/create/create";
 import { createManyFunc } from "./util/create/createManyFunc";
 import { resolveNestedCreate } from "./util/create/nestedWrite/resolveNestedCreate";
 import { applyAutoincrement } from "./util/defaults/applyAutoincrement";
+import type { AutoincrementTarget } from "./util/defaults/autoincrementCounter";
+import {
+  getAutoincrementCounter,
+  setAutoincrementCounter,
+  syncAutoincrementCounter,
+} from "./util/defaults/autoincrementCounter";
 import type { DefaultsForSheet } from "./util/defaults/applyDefaults";
 import { applyDefaults } from "./util/defaults/applyDefaults";
 import { applyUpdatedAt } from "./util/defaults/applyUpdatedAt";
@@ -275,14 +282,41 @@ class GassmaController {
     );
   }
 
+  private autoincrementKeyBase(): string {
+    return `${this.spreadsheetId}_${this.sheet.getName()}`;
+  }
+
+  private autoincrementTarget(field: string): AutoincrementTarget {
+    return {
+      modelName: this.codeName ?? this.sheet.getName(),
+      field,
+      configuredFields: this.autoincrementFields,
+      keyBase: this.autoincrementKeyBase(),
+      lock: this.lock,
+    };
+  }
+
+  public $getAutoincrement(field: string): number {
+    return getAutoincrementCounter(this.autoincrementTarget(field));
+  }
+
+  public $setAutoincrement(field: string, next: number): void {
+    setAutoincrementCounter(this.autoincrementTarget(field), next);
+  }
+
+  public $syncAutoincrement(field: string): number {
+    return syncAutoincrementCounter(this.autoincrementTarget(field), () =>
+      getColumnValues(this.getGassmaControllerUtil(), field),
+    );
+  }
+
   private applyAutoincrementToData(
     data: Record<string, unknown>,
   ): Record<string, unknown> {
     if (!this.autoincrementFields) return data;
-    const keyBase = `${this.spreadsheetId}_${this.sheet.getName()}`;
     const values = generateAutoincrementValues(
       this.autoincrementFields,
-      keyBase,
+      this.autoincrementKeyBase(),
       this.lock,
     );
     return applyAutoincrement(
@@ -386,7 +420,7 @@ class GassmaController {
     const aiValues = aiFields
       ? generateAutoincrementValues(
           aiFields,
-          `${this.spreadsheetId}_${this.sheet.getName()}`,
+          this.autoincrementKeyBase(),
           this.lock,
           createdData.data.length,
         )
