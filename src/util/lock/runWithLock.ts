@@ -1,5 +1,7 @@
+import type { Lock } from "../../types/relationTypes";
+
 const runWithLock = <T>(
-  lock: GoogleAppsScript.Lock.Lock | null | undefined,
+  lock: Lock | null | undefined,
   timeoutMs: number,
   fn: () => T,
 ): T => {

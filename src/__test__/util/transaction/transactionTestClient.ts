@@ -1,5 +1,5 @@
 import { GassmaClient } from "../../../gassma";
-import type { GassmaClientOptions } from "../../../types/relationTypes";
+import type { GassmaClientOptions, Lock } from "../../../types/relationTypes";
 
 type WriteCall = { method: string; args: unknown[] };
 
@@ -164,7 +164,7 @@ type TxTestEnv = {
   client: GassmaClient;
   users: LoggedSheet;
   posts: LoggedSheet;
-  lock: GoogleAppsScript.Lock.Lock;
+  lock: Lock;
   waitLock: jest.Mock;
   releaseLock: jest.Mock;
   hasLock: jest.Mock;
@@ -226,15 +226,10 @@ const buildTxTestEnv = (config?: TxTestEnvConfig): TxTestEnv => {
     held = false;
   });
   const hasLock = jest.fn(() => held);
-  const tryLock = jest.fn(() => {
-    held = true;
-    return true;
-  });
-  const lock: GoogleAppsScript.Lock.Lock = {
+  const lock: Lock = {
     waitLock,
     releaseLock,
     hasLock,
-    tryLock,
   };
   const propsStore: Record<string, string> = {};
   const propsLog: PropsCall[] = [];

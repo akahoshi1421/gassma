@@ -88,6 +88,12 @@ type MapSheetsConfig = {
   [codeName: string]: string;
 };
 
+type Lock = {
+  waitLock(timeoutInMillis: number): void;
+  releaseLock(): void;
+  hasLock(): boolean;
+};
+
 type GassmaClientOptions = {
   id?: string;
   relations?: RelationsConfig;
@@ -100,7 +106,7 @@ type GassmaClientOptions = {
   map?: MapConfig;
   mapSheets?: MapSheetsConfig;
   strictUndefinedChecks?: boolean;
-  lock?: GoogleAppsScript.Lock.Lock;
+  lock?: Lock;
 };
 
 type RelationContext = {
@@ -146,6 +152,7 @@ type RelationSingleFilter = {
 type WhereRelationFilter = RelationListFilter | RelationSingleFilter | null;
 
 export type {
+  Lock,
   RelationType,
   OnDeleteAction,
   OnUpdateAction,

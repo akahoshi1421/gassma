@@ -166,7 +166,6 @@ describe("GassmaController.upsert の autoincrement", () => {
       waitLock: mockWaitLock,
       releaseLock: mockReleaseLock,
       hasLock: () => false,
-      tryLock: () => true,
     });
     if (withAutoincrement) controller._setAutoincrement(["id"]);
     return controller;

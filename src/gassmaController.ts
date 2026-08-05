@@ -34,7 +34,7 @@ import type {
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
-import type { RelationContext } from "./types/relationTypes";
+import type { Lock, RelationContext } from "./types/relationTypes";
 import type { SheetIo } from "./types/transactionTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
@@ -121,7 +121,7 @@ class GassmaController {
   private fieldMapping: FieldMapping | null = null;
   private codeName: string | null = null;
   private strictUndefinedChecks: boolean = false;
-  private lock: GoogleAppsScript.Lock.Lock | null = null;
+  private lock: Lock | null = null;
   private writer: SheetWriter = immediateSheetWriter;
   private reader: SheetReader = immediateSheetReader;
 
@@ -195,7 +195,7 @@ class GassmaController {
     this.strictUndefinedChecks = enabled;
   }
 
-  public _setLock(lock: GoogleAppsScript.Lock.Lock) {
+  public _setLock(lock: Lock) {
     this.lock = lock;
   }
 

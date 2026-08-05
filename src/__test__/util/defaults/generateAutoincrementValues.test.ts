@@ -1,3 +1,4 @@
+import type { Lock } from "../../../types/relationTypes";
 import { generateAutoincrementValues } from "../../../util/defaults/generateAutoincrementValues";
 
 describe("generateAutoincrementValues", () => {
@@ -7,11 +8,10 @@ describe("generateAutoincrementValues", () => {
   const mockGetProperty = jest.fn();
   const mockSetProperty = jest.fn();
 
-  const lock: GoogleAppsScript.Lock.Lock = {
+  const lock: Lock = {
     waitLock: mockWaitLock,
     releaseLock: mockReleaseLock,
     hasLock: mockHasLock,
-    tryLock: () => true,
   };
 
   beforeEach(() => {

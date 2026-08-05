@@ -3,6 +3,7 @@ import {
   GassmaTransactionLockRequiredError,
   GassmaTransactionLockTimeoutError,
 } from "../../errors/transaction/transactionError";
+import type { Lock } from "../../types/relationTypes";
 import type {
   GassmaTransactionClient,
   GassmaTransactionOptions,
@@ -21,10 +22,7 @@ const DEFAULT_TIMEOUT_MS = 60000;
 
 let transactionInProgress = false;
 
-const acquireLock = (
-  lock: GoogleAppsScript.Lock.Lock,
-  maxWaitMs: number,
-): boolean => {
+const acquireLock = (lock: Lock, maxWaitMs: number): boolean => {
   if (lock.hasLock()) return false;
   try {
     lock.waitLock(maxWaitMs);
@@ -38,7 +36,7 @@ const runTransaction = <T>(
   fn: (tx: GassmaTransactionClient) => T,
   options: GassmaTransactionOptions | undefined,
   buildBufferedClient: (sheetIo: SheetIo) => object,
-  lock: GoogleAppsScript.Lock.Lock | undefined,
+  lock: Lock | undefined,
 ): T => {
   if (transactionInProgress) {
     throw new GassmaNestedTransactionError();

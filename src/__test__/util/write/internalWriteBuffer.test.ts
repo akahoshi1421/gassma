@@ -166,7 +166,6 @@ const buildEnv = (relations: RelationsConfig = defaultRelations): Env => {
       waitLock: () => {},
       releaseLock: () => {},
       hasLock: () => false,
-      tryLock: () => true,
     },
   });
   users.reset();

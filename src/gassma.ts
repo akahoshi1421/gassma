@@ -4,7 +4,7 @@ import type {
   GassmaExtension,
 } from "./types/extendsTypes";
 import type { GassmaSheet } from "./types/gassmaTypes";
-import type { GassmaClientOptions } from "./types/relationTypes";
+import type { GassmaClientOptions, Lock } from "./types/relationTypes";
 import type {
   GassmaTransactionClient,
   GassmaTransactionOptions,
@@ -29,7 +29,7 @@ const clientInitArgs = new WeakMap<
   string | GassmaClientOptions | undefined
 >();
 
-const clientLocks = new WeakMap<GassmaClient, GoogleAppsScript.Lock.Lock>();
+const clientLocks = new WeakMap<GassmaClient, Lock>();
 
 class GassmaClient {
   constructor(idOrOptions?: string | GassmaClientOptions, sheetIo?: SheetIo) {

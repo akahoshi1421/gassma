@@ -321,6 +321,12 @@ declare namespace Gassma {
     [codeName: string]: string;
   };
 
+  type Lock = {
+    waitLock(timeoutInMillis: number): void;
+    releaseLock(): void;
+    hasLock(): boolean;
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
@@ -333,7 +339,7 @@ declare namespace Gassma {
     map?: MapConfig;
     mapSheets?: MapSheetsConfig;
     strictUndefinedChecks?: boolean;
-    lock?: GoogleAppsScript.Lock.Lock;
+    lock?: Lock;
   };
 
   type MigrateModel = {

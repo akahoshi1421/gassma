@@ -1,7 +1,7 @@
 import { GassmaInvalidLockError } from "../../../errors/lock/lockError";
 import { GassmaTransactionLockRequiredError } from "../../../errors/transaction/transactionError";
 import { GassmaClient } from "../../../gassma";
-import type { GassmaClientOptions } from "../../../types/relationTypes";
+import type { GassmaClientOptions, Lock } from "../../../types/relationTypes";
 import { createCrossRealmValue } from "../../consts/crossRealm";
 import { sheetOf } from "../extends/extendsTestClient";
 import { makeLoggedSheet } from "../transaction/transactionTestClient";
@@ -44,10 +44,6 @@ const makeLockMock = () => {
   return {
     waitLock: jest.fn((_timeoutInMillis: number) => {
       held = true;
-    }),
-    tryLock: jest.fn((_timeoutInMillis: number) => {
-      held = true;
-      return true;
     }),
     releaseLock: jest.fn(() => {
       held = false;
@@ -98,9 +94,56 @@ describe("GassmaClient の lock オプション検証", () => {
     ).toThrow(GassmaInvalidLockError);
   });
 
+  test("releaseLock を持たない値は GassmaInvalidLockError", () => {
+    setupSpreadsheet();
+    expect(
+      () =>
+        new GassmaClient(
+          optionsWithLock({ waitLock: () => {}, hasLock: () => false }),
+        ),
+    ).toThrow(GassmaInvalidLockError);
+  });
+
+  test("hasLock を持たない値は GassmaInvalidLockError", () => {
+    setupSpreadsheet();
+    expect(
+      () =>
+        new GassmaClient(
+          optionsWithLock({ waitLock: () => {}, releaseLock: () => {} }),
+        ),
+    ).toThrow(GassmaInvalidLockError);
+  });
+
+  test("3メソッドが揃っていれば余分なキーがあっても受け入れる", () => {
+    setupSpreadsheet();
+    expect(
+      () =>
+        new GassmaClient(
+          optionsWithLock({
+            waitLock: () => {},
+            releaseLock: () => {},
+            hasLock: () => false,
+            tryLock: () => true,
+          }),
+        ),
+    ).not.toThrow();
+  });
+
+  test("プロトタイプにメソッドを持つ Lock も受け入れる", () => {
+    setupSpreadsheet();
+    const proto = {
+      waitLock: () => {},
+      releaseLock: () => {},
+      hasLock: () => false,
+    };
+    expect(
+      () => new GassmaClient(optionsWithLock(Object.create(proto))),
+    ).not.toThrow();
+  });
+
   test("別 realm の Lock でも受け入れる", () => {
     setupSpreadsheet();
-    const lock = createCrossRealmValue<GoogleAppsScript.Lock.Lock>(
+    const lock = createCrossRealmValue<Lock>(
       "{ waitLock: () => {}, releaseLock: () => {}, hasLock: () => false, tryLock: () => true }",
     );
     expect(() => new GassmaClient({ lock })).not.toThrow();

@@ -1,3 +1,4 @@
+import type { Lock } from "../../types/relationTypes";
 import { runWithLock } from "../lock/runWithLock";
 
 const LOCK_TIMEOUT_MS = 10000;
@@ -6,7 +7,7 @@ const KEY_PREFIX = "gassma_autoincrement_";
 const generateAutoincrementValues = (
   fields: string[],
   keyBase: string,
-  lock: GoogleAppsScript.Lock.Lock | null | undefined,
+  lock: Lock | null | undefined,
   count?: number,
 ): Record<string, number | number[]> =>
   runWithLock(lock, LOCK_TIMEOUT_MS, () => {
