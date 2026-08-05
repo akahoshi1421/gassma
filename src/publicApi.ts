@@ -98,6 +98,8 @@ export const GassmaInValidColumnValueError =
 
 export const GassmaGroupByHavingDontWriteByError =
   groupByErrors.GassmaGroupByHavingDontWriteByError;
+export const GassmaGroupByOrderByRequiredError =
+  groupByErrors.GassmaGroupByOrderByRequiredError;
 
 export const GassmaAggregateMaxError = aggregateErrors.GassmaAggregateMaxError;
 export const GassmaAggregateMinError = aggregateErrors.GassmaAggregateMinError;

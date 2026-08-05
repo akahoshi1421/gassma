@@ -7,4 +7,17 @@ class GassmaGroupByHavingDontWriteByError extends Error {
   }
 }
 
-export { GassmaGroupByHavingDontWriteByError };
+class GassmaGroupByOrderByRequiredError extends Error {
+  constructor(...paginationArguments: string[]) {
+    const list = paginationArguments.map((name) => `\`${name}\``).join(" and ");
+    super(
+      `groupBy requires \`orderBy\` when using ${list}. Specify \`orderBy\` with at least one field, or remove ${list}.`,
+    );
+    this.name = "GassmaGroupByOrderByRequiredError";
+  }
+}
+
+export {
+  GassmaGroupByHavingDontWriteByError,
+  GassmaGroupByOrderByRequiredError,
+};

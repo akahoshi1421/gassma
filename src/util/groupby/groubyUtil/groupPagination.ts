@@ -1,4 +1,4 @@
-import { GassmaMissingArgumentError } from "../../../errors/argument/argumentError";
+import { GassmaGroupByOrderByRequiredError } from "../../../errors/groupBy/groupByError";
 import { applySkipTake } from "../../find/findUtil/applySkipTake";
 
 const hasEffectiveOrderBy = (orderByArr: Record<string, unknown>[]): boolean =>
@@ -9,16 +9,25 @@ const hasEffectiveOrderBy = (orderByArr: Record<string, unknown>[]): boolean =>
       Object.keys(entry).length > 0,
   );
 
+const usedPaginationArguments = (
+  take: number | null | undefined,
+  skip: number | null | undefined,
+): string[] => [
+  ...(typeof take === "number" ? ["take"] : []),
+  ...(skip ? ["skip"] : []),
+];
+
 // Prisma 実測: take があるか skip が 0 以外なら orderBy が必須。空の orderBy は数えない
 const ensurePaginationOrderBy = (
   orderByArr: Record<string, unknown>[],
   take: number | null | undefined,
   skip: number | null | undefined,
 ): void => {
-  if (typeof take !== "number" && !skip) return;
+  const used = usedPaginationArguments(take, skip);
+  if (used.length === 0) return;
   if (hasEffectiveOrderBy(orderByArr)) return;
 
-  throw new GassmaMissingArgumentError("orderBy");
+  throw new GassmaGroupByOrderByRequiredError(...used);
 };
 
 // Prisma 実測: groupBy の負の take は findMany と違い、反転した並びのまま返す
