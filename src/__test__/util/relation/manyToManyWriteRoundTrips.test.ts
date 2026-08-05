@@ -114,9 +114,6 @@ const buildM2mEnv = (config: M2mEnvConfig = {}): M2mEnv => {
   }
   Object.assign(globalThis, {
     SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet },
-    LockService: {
-      getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }),
-    },
     PropertiesService: {
       getScriptProperties: () => ({
         getProperty: (key: string) => propsStore[key] ?? null,

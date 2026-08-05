@@ -13,6 +13,7 @@ import type {
 import { validateConfigColumns } from "./util/config/validateConfigColumns";
 import { buildExtendedClient } from "./util/extends/buildExtendedClient";
 import { isSheetIgnored } from "./util/ignore/isSheetIgnored";
+import { resolveClientLock } from "./util/lock/resolveClientLock";
 import { resolveCodeName } from "./util/map/mapSheetName";
 import { injectRelations } from "./util/relation/injectRelations";
 import { runTransaction } from "./util/transaction/runTransaction";
@@ -27,6 +28,8 @@ const clientInitArgs = new WeakMap<
   GassmaClient,
   string | GassmaClientOptions | undefined
 >();
+
+const clientLocks = new WeakMap<GassmaClient, GoogleAppsScript.Lock.Lock>();
 
 class GassmaClient {
   constructor(idOrOptions?: string | GassmaClientOptions, sheetIo?: SheetIo) {
@@ -65,6 +68,10 @@ class GassmaClient {
     const strictUndefinedChecks = isClientOptions(idOrOptions)
       ? (idOrOptions.strictUndefinedChecks ?? false)
       : false;
+    const lock = isClientOptions(idOrOptions)
+      ? resolveClientLock(idOrOptions.lock)
+      : undefined;
+    if (lock) clientLocks.set(this, lock);
 
     const spreadSheet = id
       ? SpreadsheetApp.openById(id)
@@ -78,6 +85,9 @@ class GassmaClient {
       const codeName = resolveCodeName(sheetName, mapSheets);
       if (isSheetIgnored(codeName, ignoreSheets)) return;
       const sheetController = new GassmaController(sheetName, id, sheetIo);
+      if (lock) {
+        sheetController._setLock(lock);
+      }
       if (codeName !== sheetName) {
         sheetController._setCodeName(codeName);
       }
@@ -139,7 +149,12 @@ class GassmaClient {
     options?: GassmaTransactionOptions,
   ): T {
     const initArgs = clientInitArgs.get(this);
-    return runTransaction(fn, options, (io) => new GassmaClient(initArgs, io));
+    return runTransaction(
+      fn,
+      options,
+      (io) => new GassmaClient(initArgs, io),
+      clientLocks.get(this),
+    );
   }
 
   public $extends(extension: GassmaExtension): ExtendedGassmaClient {

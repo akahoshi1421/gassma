@@ -333,6 +333,7 @@ declare namespace Gassma {
     map?: MapConfig;
     mapSheets?: MapSheetsConfig;
     strictUndefinedChecks?: boolean;
+    lock?: GoogleAppsScript.Lock.Lock;
   };
 
   type MigrateModel = {
@@ -721,6 +722,12 @@ declare namespace Gassma {
   class GassmaTransactionRollbackError extends Error {
     constructor(backupSheetNames: string[]);
     readonly backupSheetNames: string[];
+  }
+  class GassmaTransactionLockRequiredError extends Error {
+    constructor();
+  }
+  class GassmaInvalidLockError extends Error {
+    constructor();
   }
 }
 

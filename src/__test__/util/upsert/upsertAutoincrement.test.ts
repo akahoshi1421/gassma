@@ -162,6 +162,12 @@ describe("GassmaController.upsert の autoincrement", () => {
       SpreadsheetApp: { getActiveSpreadsheet: () => mockSpreadsheet },
     });
     const controller = new GassmaController("Users");
+    controller._setLock({
+      waitLock: mockWaitLock,
+      releaseLock: mockReleaseLock,
+      hasLock: () => false,
+      tryLock: () => true,
+    });
     if (withAutoincrement) controller._setAutoincrement(["id"]);
     return controller;
   };
@@ -169,12 +175,6 @@ describe("GassmaController.upsert の autoincrement", () => {
   beforeEach(() => {
     propsStore = { [COUNTER_KEY]: "1" };
     Object.assign(globalThis, {
-      LockService: {
-        getScriptLock: () => ({
-          waitLock: mockWaitLock,
-          releaseLock: mockReleaseLock,
-        }),
-      },
       PropertiesService: {
         getScriptProperties: () => ({
           getProperty: mockGetProperty,
@@ -187,7 +187,6 @@ describe("GassmaController.upsert の autoincrement", () => {
   afterAll(() => {
     Object.assign(globalThis, {
       SpreadsheetApp: undefined,
-      LockService: undefined,
       PropertiesService: undefined,
     });
   });

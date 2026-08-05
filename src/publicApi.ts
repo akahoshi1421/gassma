@@ -3,6 +3,7 @@ import * as argumentErrors from "./errors/argument/argumentError";
 import * as changeSettingsErrors from "./errors/changeSettings/changeSettingsError";
 import * as findErrors from "./errors/find/findError";
 import * as groupByErrors from "./errors/groupBy/groupByError";
+import * as lockErrors from "./errors/lock/lockError";
 import * as nestedWriteErrors from "./errors/relation/nestedWriteError";
 import * as relationErrors from "./errors/relation/relationError";
 import * as relationValidationErrors from "./errors/relation/relationValidationError";
@@ -131,3 +132,7 @@ export const GassmaNestedTransactionError =
   transactionErrors.GassmaNestedTransactionError;
 export const GassmaTransactionRollbackError =
   transactionErrors.GassmaTransactionRollbackError;
+export const GassmaTransactionLockRequiredError =
+  transactionErrors.GassmaTransactionLockRequiredError;
+
+export const GassmaInvalidLockError = lockErrors.GassmaInvalidLockError;

@@ -100,6 +100,7 @@ type GassmaClientOptions = {
   map?: MapConfig;
   mapSheets?: MapSheetsConfig;
   strictUndefinedChecks?: boolean;
+  lock?: GoogleAppsScript.Lock.Lock;
 };
 
 type RelationContext = {

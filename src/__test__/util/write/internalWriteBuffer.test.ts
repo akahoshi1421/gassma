@@ -147,9 +147,6 @@ const buildEnv = (relations: RelationsConfig = defaultRelations): Env => {
   const propsStore: Record<string, string> = {};
   Object.assign(globalThis, {
     SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet },
-    LockService: {
-      getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }),
-    },
     PropertiesService: {
       getScriptProperties: () => ({
         getProperty: (key: string) => propsStore[key] ?? null,
@@ -163,7 +160,15 @@ const buildEnv = (relations: RelationsConfig = defaultRelations): Env => {
       }),
     },
   });
-  const client = new GassmaClient({ relations });
+  const client = new GassmaClient({
+    relations,
+    lock: {
+      waitLock: () => {},
+      releaseLock: () => {},
+      hasLock: () => false,
+      tryLock: () => true,
+    },
+  });
   users.reset();
   posts.reset();
   comments.reset();
