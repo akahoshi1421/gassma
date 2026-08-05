@@ -7,6 +7,10 @@ import {
   GassmaAggregateSumTypeError,
   GassmaAggregateTypeError,
 } from "../../errors/aggregate/aggregateError";
+import {
+  GassmaAutoincrementInTransactionError,
+  GassmaAutoincrementNotConfiguredError,
+} from "../../errors/autoincrement/autoincrementError";
 import { GassmaInValidColumnValueError } from "../../errors/changeSettings/changeSettingsError";
 import {
   GassmaFindFirstTakeError,
@@ -137,6 +141,18 @@ const cases: ErrorCase[] = [
     className: "GassmaAggregateAvgTypeError",
     ctor: GassmaAggregateAvgTypeError,
     create: () => new GassmaAggregateAvgTypeError(),
+  },
+  {
+    className: "GassmaAutoincrementNotConfiguredError",
+    ctor: GassmaAutoincrementNotConfiguredError,
+    create: () =>
+      new GassmaAutoincrementNotConfiguredError("Users", "name", ["id"]),
+  },
+  {
+    className: "GassmaAutoincrementInTransactionError",
+    ctor: GassmaAutoincrementInTransactionError,
+    create: () =>
+      new GassmaAutoincrementInTransactionError("$setAutoincrement"),
   },
 ];
 
