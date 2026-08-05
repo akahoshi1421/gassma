@@ -1,5 +1,6 @@
 import {
   GassmaNestedTransactionError,
+  GassmaTransactionLockRequiredError,
   GassmaTransactionLockTimeoutError,
   GassmaTransactionTimeoutError,
 } from "../../../errors/transaction/transactionError";
@@ -285,6 +286,59 @@ describe("$transaction の autoincrement", () => {
 
     expect(env.propsStore[key]).toBe("1");
     expect(env.users.snapshot()).toHaveLength(3);
+  });
+
+  test("tx 内の採番で lock は取り直されず tx 終了まで解放されない", () => {
+    const env = buildTxTestEnv({ autoincrement: true });
+
+    env.client.$transaction((tx) => {
+      tx.Users.create({ data: { name: "Carol", age: 40 } });
+      expect(env.waitLock).toHaveBeenCalledTimes(1);
+      expect(env.releaseLock).not.toHaveBeenCalled();
+      expect(env.hasLock()).toBe(true);
+    });
+
+    expect(env.waitLock).toHaveBeenCalledTimes(1);
+    expect(env.releaseLock).toHaveBeenCalledTimes(1);
+  });
+
+  test("tx 内の createMany の採番でも lock は解放されない", () => {
+    const env = buildTxTestEnv({ autoincrement: true });
+
+    env.client.$transaction((tx) => {
+      tx.Users.createMany({
+        data: [
+          { name: "Carol", age: 40 },
+          { name: "Dave", age: 50 },
+        ],
+      });
+      expect(env.releaseLock).not.toHaveBeenCalled();
+    });
+
+    expect(env.releaseLock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("$transaction が使う lock", () => {
+  test("client に渡した lock を使う", () => {
+    const env = buildTxTestEnv();
+
+    env.client.$transaction((tx) => tx.Users.count({}));
+
+    expect(env.lock.waitLock).toBe(env.waitLock);
+    expect(env.waitLock).toHaveBeenCalledTimes(1);
+    expect(env.releaseLock).toHaveBeenCalledTimes(1);
+  });
+
+  test("lock を渡していない client では fn を呼ばずに失敗する", () => {
+    const env = buildTxTestEnv({ noLock: true });
+    const fn = jest.fn();
+
+    expect(() => env.client.$transaction(fn)).toThrow(
+      GassmaTransactionLockRequiredError,
+    );
+    expect(fn).not.toHaveBeenCalled();
+    expect(env.users.writes).toEqual([]);
   });
 });
 

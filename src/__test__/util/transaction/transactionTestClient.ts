@@ -1,5 +1,5 @@
 import { GassmaClient } from "../../../gassma";
-import type { GassmaClientOptions } from "../../../types/relationTypes";
+import type { GassmaClientOptions, Lock } from "../../../types/relationTypes";
 
 type WriteCall = { method: string; args: unknown[] };
 
@@ -153,6 +153,7 @@ type TxTestEnvConfig = {
   cascade?: boolean;
   autoincrement?: boolean;
   waitLockError?: boolean;
+  noLock?: boolean;
   usersConfig?: SheetMockConfig;
   postsConfig?: SheetMockConfig;
 };
@@ -163,8 +164,10 @@ type TxTestEnv = {
   client: GassmaClient;
   users: LoggedSheet;
   posts: LoggedSheet;
+  lock: Lock;
   waitLock: jest.Mock;
   releaseLock: jest.Mock;
+  hasLock: jest.Mock;
   propsStore: Record<string, string>;
   propsLog: PropsCall[];
   spreadsheet: any;
@@ -209,19 +212,29 @@ const buildTxTestEnv = (config?: TxTestEnvConfig): TxTestEnv => {
   };
   users.setParent(spreadsheet);
   posts.setParent(spreadsheet);
+  let held = false;
   const waitLock = jest.fn(
     config?.waitLockError
       ? () => {
           throw new Error("Lock timeout");
         }
-      : () => {},
+      : () => {
+          held = true;
+        },
   );
-  const releaseLock = jest.fn();
+  const releaseLock = jest.fn(() => {
+    held = false;
+  });
+  const hasLock = jest.fn(() => held);
+  const lock: Lock = {
+    waitLock,
+    releaseLock,
+    hasLock,
+  };
   const propsStore: Record<string, string> = {};
   const propsLog: PropsCall[] = [];
   Object.assign(globalThis, {
     SpreadsheetApp: { getActiveSpreadsheet: () => spreadsheet },
-    LockService: { getScriptLock: () => ({ waitLock, releaseLock }) },
     PropertiesService: {
       getScriptProperties: () => ({
         getProperty: (key: string) => propsStore[key] ?? null,
@@ -237,7 +250,7 @@ const buildTxTestEnv = (config?: TxTestEnvConfig): TxTestEnv => {
       }),
     },
   });
-  const options: GassmaClientOptions = {};
+  const options: GassmaClientOptions = config?.noLock ? {} : { lock };
   if (config?.relations) {
     options.relations = {
       Users: {
@@ -264,16 +277,15 @@ const buildTxTestEnv = (config?: TxTestEnvConfig): TxTestEnv => {
   if (config?.autoincrement) {
     options.autoincrement = { Users: "id" };
   }
-  const client =
-    config?.relations || config?.autoincrement
-      ? new GassmaClient(options)
-      : new GassmaClient();
+  const client = new GassmaClient(options);
   return {
     client,
     users,
     posts,
+    lock,
     waitLock,
     releaseLock,
+    hasLock,
     propsStore,
     propsLog,
     spreadsheet,
@@ -284,7 +296,6 @@ const buildTxTestEnv = (config?: TxTestEnvConfig): TxTestEnv => {
 const clearGasGlobals = () => {
   Object.assign(globalThis, {
     SpreadsheetApp: undefined,
-    LockService: undefined,
     PropertiesService: undefined,
   });
 };

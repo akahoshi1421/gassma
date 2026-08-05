@@ -321,6 +321,12 @@ declare namespace Gassma {
     [codeName: string]: string;
   };
 
+  type Lock = {
+    waitLock(timeoutInMillis: number): void;
+    releaseLock(): void;
+    hasLock(): boolean;
+  };
+
   type GassmaClientOptions = {
     id?: string;
     relations?: RelationsConfig;
@@ -333,6 +339,7 @@ declare namespace Gassma {
     map?: MapConfig;
     mapSheets?: MapSheetsConfig;
     strictUndefinedChecks?: boolean;
+    lock?: Lock;
   };
 
   type MigrateModel = {
@@ -721,6 +728,12 @@ declare namespace Gassma {
   class GassmaTransactionRollbackError extends Error {
     constructor(backupSheetNames: string[]);
     readonly backupSheetNames: string[];
+  }
+  class GassmaTransactionLockRequiredError extends Error {
+    constructor();
+  }
+  class GassmaInvalidLockError extends Error {
+    constructor();
   }
 }
 

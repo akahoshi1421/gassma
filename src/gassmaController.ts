@@ -34,7 +34,7 @@ import type {
 } from "./types/findTypes";
 import type { GassmaControllerUtil } from "./types/gassmaControllerUtilType";
 import type { GroupByData } from "./types/groupByType";
-import type { RelationContext } from "./types/relationTypes";
+import type { Lock, RelationContext } from "./types/relationTypes";
 import type { SheetIo } from "./types/transactionTypes";
 import { aggregateFunc } from "./util/aggregate/aggregate";
 import { changeSettingsFunc } from "./util/changeSettings/changeSettings";
@@ -121,6 +121,7 @@ class GassmaController {
   private fieldMapping: FieldMapping | null = null;
   private codeName: string | null = null;
   private strictUndefinedChecks: boolean = false;
+  private lock: Lock | null = null;
   private writer: SheetWriter = immediateSheetWriter;
   private reader: SheetReader = immediateSheetReader;
 
@@ -192,6 +193,10 @@ class GassmaController {
 
   public _setStrictUndefinedChecks(enabled: boolean) {
     this.strictUndefinedChecks = enabled;
+  }
+
+  public _setLock(lock: Lock) {
+    this.lock = lock;
   }
 
   private normalizeInput<T>(input: T, operation: ValidatedOperation): T;
@@ -278,6 +283,7 @@ class GassmaController {
     const values = generateAutoincrementValues(
       this.autoincrementFields,
       keyBase,
+      this.lock,
     );
     return applyAutoincrement(
       data,
@@ -381,6 +387,7 @@ class GassmaController {
       ? generateAutoincrementValues(
           aiFields,
           `${this.spreadsheetId}_${this.sheet.getName()}`,
+          this.lock,
           createdData.data.length,
         )
       : null;

@@ -1,7 +1,9 @@
 import {
   GassmaNestedTransactionError,
+  GassmaTransactionLockRequiredError,
   GassmaTransactionLockTimeoutError,
 } from "../../errors/transaction/transactionError";
+import type { Lock } from "../../types/relationTypes";
 import type {
   GassmaTransactionClient,
   GassmaTransactionOptions,
@@ -20,28 +22,32 @@ const DEFAULT_TIMEOUT_MS = 60000;
 
 let transactionInProgress = false;
 
-const acquireScriptLock = (maxWaitMs: number): GoogleAppsScript.Lock.Lock => {
-  const lock = LockService.getScriptLock();
+const acquireLock = (lock: Lock, maxWaitMs: number): boolean => {
+  if (lock.hasLock()) return false;
   try {
     lock.waitLock(maxWaitMs);
   } catch {
     throw new GassmaTransactionLockTimeoutError(maxWaitMs);
   }
-  return lock;
+  return true;
 };
 
 const runTransaction = <T>(
   fn: (tx: GassmaTransactionClient) => T,
   options: GassmaTransactionOptions | undefined,
   buildBufferedClient: (sheetIo: SheetIo) => object,
+  lock: Lock | undefined,
 ): T => {
   if (transactionInProgress) {
     throw new GassmaNestedTransactionError();
   }
+  if (!lock) {
+    throw new GassmaTransactionLockRequiredError();
+  }
   const maxWaitMs = options?.maxWait ?? DEFAULT_MAX_WAIT_MS;
   const timeoutMs = options?.timeout ?? DEFAULT_TIMEOUT_MS;
   const rollback = options?.rollback ?? true;
-  const lock = acquireScriptLock(maxWaitMs);
+  const acquired = acquireLock(lock, maxWaitMs);
   transactionInProgress = true;
   try {
     warnStaleTransactionBackups();
@@ -62,7 +68,7 @@ const runTransaction = <T>(
     return result;
   } finally {
     transactionInProgress = false;
-    lock.releaseLock();
+    if (acquired) lock.releaseLock();
   }
 };
 
