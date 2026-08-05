@@ -222,6 +222,17 @@ describe("読み取り専用クエリの往復回数", () => {
     });
     expect(env.totalTrips()).toBe(3);
   });
+
+  test("groupBy は集計 orderBy と take 付きでも3往復", () => {
+    const env = buildEnv(selfRelations);
+    sheetOf(env.client, "Users").groupBy({
+      by: ["parentId"],
+      _count: { id: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 1,
+    });
+    expect(env.totalTrips()).toBe(3);
+  });
 });
 
 describe("キャッシュの寿命(トップレベル呼び出しごとに破棄)", () => {

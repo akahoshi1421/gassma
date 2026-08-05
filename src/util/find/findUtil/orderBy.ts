@@ -2,11 +2,7 @@ import {
   GassmaInvalidValueError,
   GassmaUnknownArgumentError,
 } from "../../../errors/argument/argumentError";
-import type {
-  OrderBy,
-  SortOrderInput,
-  RelationOrderBy,
-} from "../../../types/coreTypes";
+import type { OrderBy, SortOrderInput } from "../../../types/coreTypes";
 import { isDict } from "../../other/isDict";
 import { isMissingValue } from "../../other/isMissingValue";
 
@@ -16,22 +12,20 @@ type ParsedOrderByEntry = [
   "first" | "last" | undefined,
 ];
 
-const isSortOrderInput = (
-  value: "asc" | "desc" | SortOrderInput | RelationOrderBy,
-): value is SortOrderInput => {
+const isSortOrderInput = (value: unknown): value is SortOrderInput => {
   // biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn は ES2022 のため target ES2019 ではコンパイルできない
   return isDict(value) && Object.prototype.hasOwnProperty.call(value, "sort");
 };
 
-const isScalarDirection = (
-  value: "asc" | "desc" | SortOrderInput | RelationOrderBy,
-): value is "asc" | "desc" => {
+const isScalarDirection = (value: unknown): value is "asc" | "desc" => {
   return value === "asc" || value === "desc";
 };
 
 const SORT_INPUT_KEYS = ["sort", "nulls"];
 
-const parseOrderByEntry = (option: OrderBy): ParsedOrderByEntry => {
+const parseOrderByEntry = (
+  option: Record<string, unknown>,
+): ParsedOrderByEntry => {
   const [key, value] = Object.entries(option)[0];
   if (isSortOrderInput(value)) {
     Object.keys(value).forEach((inputKey) => {
@@ -108,15 +102,20 @@ const search = (
   return search(a, b, keys, cnt + 1);
 };
 
+const buildOrderByComparator = (orderByOptions: Record<string, unknown>[]) => {
+  const orderByOptionArray = orderByOptions.map(parseOrderByEntry);
+  return (a: Record<string, unknown>, b: Record<string, unknown>) =>
+    search(a, b, orderByOptionArray);
+};
+
 const orderByFunc = (
   result: Record<string, unknown>[],
   orderByOptions: OrderBy[],
 ) => {
   if (orderByOptions.length === 0) return result;
 
-  const orderByOptionArray = orderByOptions.map(parseOrderByEntry);
-  const sortedResult = result.sort((a, b) => search(a, b, orderByOptionArray));
+  const sortedResult = result.sort(buildOrderByComparator(orderByOptions));
   return sortedResult;
 };
 
-export { orderByFunc };
+export { orderByFunc, buildOrderByComparator };
