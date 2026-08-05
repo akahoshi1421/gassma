@@ -666,6 +666,9 @@ declare namespace Gassma {
   class GassmaGroupByHavingDontWriteByError extends Error {
     constructor();
   }
+  class GassmaGroupByOrderByRequiredError extends Error {
+    constructor(...paginationArguments: string[]);
+  }
   class GassmaAggregateMaxError extends Error {
     constructor();
   }

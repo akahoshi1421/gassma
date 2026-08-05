@@ -13,7 +13,10 @@ import {
   GassmaFindSelectOmitConflictError,
   NotFoundError,
 } from "../../errors/find/findError";
-import { GassmaGroupByHavingDontWriteByError } from "../../errors/groupBy/groupByError";
+import {
+  GassmaGroupByHavingDontWriteByError,
+  GassmaGroupByOrderByRequiredError,
+} from "../../errors/groupBy/groupByError";
 import { NestedWriteTargetNotFoundError } from "../../errors/relation/nestedWriteError";
 import {
   GassmaIncludeSelectConflictError,
@@ -68,6 +71,11 @@ const cases: ErrorCase[] = [
     className: "GassmaGroupByHavingDontWriteByError",
     ctor: GassmaGroupByHavingDontWriteByError,
     create: () => new GassmaGroupByHavingDontWriteByError(),
+  },
+  {
+    className: "GassmaGroupByOrderByRequiredError",
+    ctor: GassmaGroupByOrderByRequiredError,
+    create: () => new GassmaGroupByOrderByRequiredError("take"),
   },
   {
     className: "GassmaFindSelectOmitConflictError",

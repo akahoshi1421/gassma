@@ -1,8 +1,8 @@
 import {
-  GassmaMissingArgumentError,
   GassmaInvalidValueError,
   GassmaUnknownArgumentError,
 } from "../../../errors/argument/argumentError";
+import { GassmaGroupByOrderByRequiredError } from "../../../errors/groupBy/groupByError";
 import { groupByFunc } from "../../../util/groupby/groupby";
 import {
   getExtendedMockControllerUtil,
@@ -255,7 +255,7 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         _count: { 名前: true },
         take: 2,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
   });
 
   test("take: 0 単体もエラー", () => {
@@ -265,7 +265,7 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         _count: { 名前: true },
         take: 0,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
   });
 
   test("skip 単体はエラー", () => {
@@ -275,7 +275,7 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         _count: { 名前: true },
         skip: 3,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
   });
 
   test("skip: 0 と take の組み合わせもエラー", () => {
@@ -286,7 +286,7 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         skip: 0,
         take: 2,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
   });
 
   test("空の orderBy は orderBy として数えない", () => {
@@ -297,7 +297,7 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         orderBy: {},
         take: 2,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
   });
 
   test("空配列の orderBy も orderBy として数えない", () => {
@@ -308,7 +308,7 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         orderBy: [],
         take: 2,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
   });
 
   test("空エントリだけの orderBy 配列も orderBy として数えない", () => {
@@ -319,7 +319,57 @@ describe("groupBy の take / skip は orderBy を要求する", () => {
         orderBy: [{}],
         take: 2,
       }),
-    ).toThrow(GassmaMissingArgumentError);
+    ).toThrow(GassmaGroupByOrderByRequiredError);
+  });
+
+  test("take 単体のときは take だけが文言に出る", () => {
+    expect(() =>
+      groupByFunc(extended(), {
+        by: "住所",
+        _count: { 名前: true },
+        take: 2,
+      }),
+    ).toThrow(
+      "groupBy requires `orderBy` when using `take`. Specify `orderBy` with at least one field, or remove `take`.",
+    );
+  });
+
+  test("skip 単体のときは skip だけが文言に出る", () => {
+    expect(() =>
+      groupByFunc(extended(), {
+        by: "住所",
+        _count: { 名前: true },
+        skip: 3,
+      }),
+    ).toThrow(
+      "groupBy requires `orderBy` when using `skip`. Specify `orderBy` with at least one field, or remove `skip`.",
+    );
+  });
+
+  test("take と skip の両方のときは両方が文言に出る", () => {
+    expect(() =>
+      groupByFunc(extended(), {
+        by: "住所",
+        _count: { 名前: true },
+        take: 2,
+        skip: 1,
+      }),
+    ).toThrow(
+      "groupBy requires `orderBy` when using `take` and `skip`. Specify `orderBy` with at least one field, or remove `take` and `skip`.",
+    );
+  });
+
+  test("skip: 0 と take の組み合わせでは引き金の take だけが文言に出る", () => {
+    expect(() =>
+      groupByFunc(extended(), {
+        by: "住所",
+        _count: { 名前: true },
+        skip: 0,
+        take: 2,
+      }),
+    ).toThrow(
+      "groupBy requires `orderBy` when using `take`. Specify `orderBy` with at least one field, or remove `take`.",
+    );
   });
 
   test("skip: 0 単体はエラーにならず全グループが返る", () => {
