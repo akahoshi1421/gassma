@@ -903,6 +903,132 @@ describe("migrateSheets 既定の空シート削除", () => {
   });
 });
 
+describe("migrateSheets columns が空のモデル", () => {
+  const NO_COLUMNS_LOG =
+    'Gassma.migrateSheets: model "Memo" declares no columns. The columns of sheet "Memo" are left untouched.';
+
+  test("acceptDataLoss: true でも既存の列とデータを1つも失わない", () => {
+    const memo = makeSheet("Memo", [
+      ["title", "body"],
+      ["a", "b"],
+      ["c", "d"],
+      ["e", "f"],
+    ]);
+    const env = makeSpreadsheet("active", [memo]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "Memo", columns: [] }],
+      acceptDataLoss: true,
+    });
+
+    expect(memo.snapshot()).toEqual([
+      ["title", "body"],
+      ["a", "b"],
+      ["c", "d"],
+      ["e", "f"],
+    ]);
+    expect(memo.deletedColumns).toEqual([]);
+    expect(memo.writes).toEqual([]);
+    expect(env.sheetNames()).toEqual(["Memo"]);
+    expect(env.deletedNames).toEqual([]);
+  });
+
+  test("acceptDataLoss: false では schema に無い列として警告しない", () => {
+    const memo = makeSheet("Memo", [
+      ["title", "body"],
+      ["a", "b"],
+    ]);
+    const env = makeSpreadsheet("active", [memo]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [{ name: "Memo", columns: [] }],
+      acceptDataLoss: false,
+    });
+
+    expect(memo.snapshot()).toEqual([
+      ["title", "body"],
+      ["a", "b"],
+    ]);
+    expect(messagesOf(warnSpy)).toEqual([]);
+  });
+
+  test("is up to date と報告せず列を管理していないログを出す", () => {
+    const memo = makeSheet("Memo", [["title"], ["a"]]);
+    const env = makeSpreadsheet("active", [memo]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "Memo", columns: [] }] });
+
+    const logs = messagesOf(logSpy);
+    expect(logs.some((log) => log.includes("up to date"))).toBe(false);
+    expect(logs).toContain(NO_COLUMNS_LOG);
+  });
+
+  test("シートが存在しない場合は今までどおり作成しヘッダーを書かない", () => {
+    const env = makeSpreadsheet("active", []);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "Memo", columns: [] }] });
+
+    expect(env.insertedNames).toEqual(["Memo"]);
+    expect(env.handleOf("Memo").snapshot()).toEqual([]);
+    expect(env.handleOf("Memo").writes).toEqual([]);
+    expect(messagesOf(logSpy).some((log) => log.includes("created"))).toBe(
+      true,
+    );
+  });
+
+  test("2回実行しても列とデータが変わらない", () => {
+    const memo = makeSheet("Memo", [
+      ["title", "body"],
+      ["a", "b"],
+    ]);
+    const env = makeSpreadsheet("active", [memo]);
+    installSpreadsheetApp(env);
+    const options = {
+      models: [{ name: "Memo", columns: [] }],
+      acceptDataLoss: true,
+    };
+
+    migrateSheets(options);
+    const snapshotAfterFirst = memo.snapshot();
+
+    migrateSheets(options);
+
+    expect(memo.snapshot()).toEqual(snapshotAfterFirst);
+    expect(memo.deletedColumns).toEqual([]);
+    expect(memo.writes).toEqual([]);
+  });
+
+  test("同じ実行に含まれる columns があるモデルの挙動は変わらない", () => {
+    const memo = makeSheet("Memo", [["title"], ["a"]]);
+    const users = makeSheet("User", [
+      ["id", "legacy"],
+      [1, "x"],
+    ]);
+    const env = makeSpreadsheet("active", [memo, users]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [
+        { name: "Memo", columns: [] },
+        { name: "User", columns: ["id", "name"] },
+      ],
+      acceptDataLoss: true,
+    });
+
+    expect(memo.snapshot()).toEqual([["title"], ["a"]]);
+    expect(memo.deletedColumns).toEqual([]);
+    expect(users.snapshot()).toEqual([["id", "name"], [1]]);
+    expect(users.deletedColumns).toEqual([2]);
+    expect(messagesOf(warnSpy)).toContain(
+      'Gassma.migrateSheets: You are about to drop the column "legacy" on the sheet "User", which still contains 1 non-empty values.',
+    );
+  });
+});
+
 describe("migrateSheets 引数の検証", () => {
   test("models が無い場合は GassmaMissingArgumentError を投げる", () => {
     installSpreadsheetApp(makeSpreadsheet("active", []));

@@ -365,7 +365,11 @@ declare namespace Gassma {
    * with `acceptDataLoss: true` they are dropped after a warning that reports
    * how much data they still contain (silently when they are empty; the last
    * remaining sheet is kept, since a spreadsheet must contain at least one
-   * sheet). Never reorders existing columns, never writes to data rows.
+   * sheet). The empty sheet Google puts in every new spreadsheet is dropped
+   * regardless of `acceptDataLoss`, as it holds no data. A model without
+   * columns manages no column at all: an existing sheet keeps every column it
+   * has, even with `acceptDataLoss: true`. Never reorders existing columns,
+   * never writes to data rows.
    */
   function migrateSheets(options: MigrateSheetsOptions): void;
 
