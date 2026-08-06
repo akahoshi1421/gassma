@@ -121,6 +121,19 @@ const makeSheet = (
   };
 };
 
+const withExtents = (
+  handle: SheetHandle,
+  lastRow: number,
+  lastColumn: number,
+): SheetHandle => ({
+  ...handle,
+  sheet: {
+    ...handle.sheet,
+    getLastRow: () => lastRow,
+    getLastColumn: () => lastColumn,
+  },
+});
+
 type MockSpreadsheet = {
   getId: () => string;
   getSheets: () => MockSheet[];
@@ -731,6 +744,162 @@ describe("migrateSheets acceptDataLoss 冪等性", () => {
     expect(env.deletedNames).toEqual(deletedNamesAfterFirst);
     expect(env.sheetNames()).toEqual(["User"]);
     expect(warnSpy.mock.calls.length).toBe(warnCountAfterFirst);
+  });
+});
+
+describe("migrateSheets 既定の空シート削除", () => {
+  test("空のシート1枚だけのスプレッドシートでは既定シートを削除する", () => {
+    const env = makeSpreadsheet("active", [makeSheet("シート1", [])]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id", "name"] }] });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["シート1"]);
+    expect(env.handleOf("User").snapshot()).toEqual([["id", "name"]]);
+    const logs = messagesOf(logSpy);
+    expect(
+      logs.some((log) => log.includes("deleted") && log.includes('"シート1"')),
+    ).toBe(true);
+  });
+
+  test("削除した既定シートについては It is left untouched. を警告しない", () => {
+    const env = makeSpreadsheet("active", [makeSheet("Sheet1", [])]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id"] }] });
+
+    expect(env.deletedNames).toEqual(["Sheet1"]);
+    expect(messagesOf(warnSpy)).toEqual([]);
+  });
+
+  test("名前がモデル名と一致する空シートは削除せずそのモデルのシートにする", () => {
+    const env = makeSpreadsheet("active", [makeSheet("User", [])]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({
+      models: [
+        { name: "User", columns: ["id", "name"] },
+        { name: "Post", columns: ["id", "title"] },
+      ],
+    });
+
+    expect(env.sheetNames()).toEqual(["User", "Post"]);
+    expect(env.deletedNames).toEqual([]);
+    expect(env.insertedNames).toEqual(["Post"]);
+    expect(env.handleOf("User").snapshot()).toEqual([["id", "name"]]);
+  });
+
+  test("1枚でもデータがあるシートは削除しない", () => {
+    const legacy = makeSheet("Legacy", [["a"], [1]]);
+    const env = makeSpreadsheet("active", [legacy]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id"] }] });
+
+    expect(env.sheetNames()).toEqual(["Legacy", "User"]);
+    expect(env.deletedNames).toEqual([]);
+    expect(legacy.snapshot()).toEqual([["a"], [1]]);
+  });
+
+  test("見出し行だけのシートも削除しない", () => {
+    const env = makeSpreadsheet("active", [makeSheet("Legacy", [["a"]])]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id"] }] });
+
+    expect(env.sheetNames()).toEqual(["Legacy", "User"]);
+    expect(env.deletedNames).toEqual([]);
+  });
+
+  test("最終行だけが 0 でないシートは削除しない", () => {
+    const env = makeSpreadsheet("active", [
+      withExtents(makeSheet("シート1", []), 1, 0),
+    ]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id"] }] });
+
+    expect(env.sheetNames()).toEqual(["シート1", "User"]);
+    expect(env.deletedNames).toEqual([]);
+  });
+
+  test("最終列だけが 0 でないシートは削除しない", () => {
+    const env = makeSpreadsheet("active", [
+      withExtents(makeSheet("シート1", []), 0, 1),
+    ]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id"] }] });
+
+    expect(env.sheetNames()).toEqual(["シート1", "User"]);
+    expect(env.deletedNames).toEqual([]);
+  });
+
+  test("シートが2枚以上ある場合は空の1枚があっても削除しない", () => {
+    const env = makeSpreadsheet("active", [
+      makeSheet("シート1", []),
+      makeSheet("Old", [["a"]]),
+    ]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [{ name: "User", columns: ["id"] }] });
+
+    expect(env.sheetNames()).toEqual(["シート1", "Old", "User"]);
+    expect(env.deletedNames).toEqual([]);
+  });
+
+  test("models が空配列なら最後の1枚になるので削除しない", () => {
+    const env = makeSpreadsheet("active", [makeSheet("シート1", [])]);
+    installSpreadsheetApp(env);
+
+    migrateSheets({ models: [] });
+
+    expect(env.sheetNames()).toEqual(["シート1"]);
+    expect(env.deletedNames).toEqual([]);
+  });
+
+  [true, false].forEach((acceptDataLoss) => {
+    test(`acceptDataLoss: ${acceptDataLoss} でも既定の空シートを削除する`, () => {
+      const env = makeSpreadsheet("active", [makeSheet("シート1", [])]);
+      installSpreadsheetApp(env);
+
+      migrateSheets({
+        models: [{ name: "User", columns: ["id"] }],
+        acceptDataLoss,
+      });
+
+      expect(env.sheetNames()).toEqual(["User"]);
+      expect(env.deletedNames).toEqual(["シート1"]);
+    });
+
+    test(`acceptDataLoss: ${acceptDataLoss} でも models が空配列なら削除しない`, () => {
+      const env = makeSpreadsheet("active", [makeSheet("シート1", [])]);
+      installSpreadsheetApp(env);
+
+      migrateSheets({ models: [], acceptDataLoss });
+
+      expect(env.sheetNames()).toEqual(["シート1"]);
+      expect(env.deletedNames).toEqual([]);
+    });
+  });
+
+  test("2回続けて実行しても2回目は削除も作成も起きない", () => {
+    const env = makeSpreadsheet("active", [makeSheet("シート1", [])]);
+    installSpreadsheetApp(env);
+    const models = [{ name: "User", columns: ["id", "name"] }];
+
+    migrateSheets({ models });
+    const snapshotAfterFirst = env.handleOf("User").snapshot();
+    const writeCountAfterFirst = env.handleOf("User").writes.length;
+
+    migrateSheets({ models });
+
+    expect(env.sheetNames()).toEqual(["User"]);
+    expect(env.deletedNames).toEqual(["シート1"]);
+    expect(env.insertedNames).toEqual(["User"]);
+    expect(env.handleOf("User").snapshot()).toEqual(snapshotAfterFirst);
+    expect(env.handleOf("User").writes.length).toBe(writeCountAfterFirst);
   });
 });
 

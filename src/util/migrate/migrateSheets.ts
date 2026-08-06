@@ -3,11 +3,14 @@ import type {
   MigrateModel,
   MigrateSheetsOptions,
 } from "../../types/migrateTypes";
+import { LOG_PREFIX } from "./logPrefix";
+import {
+  dropPristineDefaultSheet,
+  findPristineDefaultSheet,
+} from "./pristineDefaultSheet";
 
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
-
-const LOG_PREFIX = "Gassma.migrateSheets:";
 
 const readHeaders = (sheet: Sheet): string[] => {
   const lastColumn = sheet.getLastColumn();
@@ -153,7 +156,9 @@ const dropExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
  * with `acceptDataLoss: true` they are dropped after a warning that reports
  * how much data they still contain (silently when they are empty; the last
  * remaining sheet is kept, since a spreadsheet must contain at least one
- * sheet). Never reorders existing columns, never writes to data rows.
+ * sheet). The empty sheet Google puts in every new spreadsheet is dropped
+ * regardless of `acceptDataLoss`, as it holds no data. Never reorders existing
+ * columns, never writes to data rows.
  */
 const migrateSheets = (options: MigrateSheetsOptions): void => {
   if (!options || !options.models) {
@@ -164,6 +169,11 @@ const migrateSheets = (options: MigrateSheetsOptions): void => {
     ? SpreadsheetApp.openById(options.spreadsheetId)
     : SpreadsheetApp.getActiveSpreadsheet();
 
+  const pristineDefaultSheet = findPristineDefaultSheet(
+    spreadsheet,
+    options.models,
+  );
+
   options.models.forEach((model) => {
     const sheet = spreadsheet.getSheetByName(model.name);
     if (sheet === null) {
@@ -172,6 +182,8 @@ const migrateSheets = (options: MigrateSheetsOptions): void => {
     }
     syncExistingSheet(sheet, model, acceptDataLoss);
   });
+
+  dropPristineDefaultSheet(spreadsheet, pristineDefaultSheet);
 
   if (acceptDataLoss) {
     dropExtraSheets(spreadsheet, options.models);
