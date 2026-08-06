@@ -104,6 +104,12 @@ const syncExistingSheet = (
   model: MigrateModel,
   acceptDataLoss: boolean,
 ) => {
+  if (model.columns.length === 0) {
+    console.log(
+      `${LOG_PREFIX} model "${model.name}" declares no columns. The columns of sheet "${model.name}" are left untouched.`,
+    );
+    return;
+  }
   const headers = readHeaders(sheet);
   appendMissingColumns(sheet, model, headers);
   if (acceptDataLoss) {
@@ -157,8 +163,10 @@ const dropExtraSheets = (spreadsheet: Spreadsheet, models: MigrateModel[]) => {
  * how much data they still contain (silently when they are empty; the last
  * remaining sheet is kept, since a spreadsheet must contain at least one
  * sheet). The empty sheet Google puts in every new spreadsheet is dropped
- * regardless of `acceptDataLoss`, as it holds no data. Never reorders existing
- * columns, never writes to data rows.
+ * regardless of `acceptDataLoss`, as it holds no data. A model without columns
+ * manages no column at all: an existing sheet keeps every column it has, even
+ * with `acceptDataLoss: true`. Never reorders existing columns, never writes to
+ * data rows.
  */
 const migrateSheets = (options: MigrateSheetsOptions): void => {
   if (!options || !options.models) {
