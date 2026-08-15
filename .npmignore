@@ -3,3 +3,4 @@
 .clasp.json
 .gitignore
 package-lock.json
+esbuild.mjs
