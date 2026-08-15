@@ -4,7 +4,7 @@
   "description": "GASsma is Google Apps Script(GAS) of SpreadSheet library that can be used like prisma.",
   "types": "src/index.d.ts",
   "scripts": {
-    "build": "node esbuild.mjs",
+    "build": "tsc --noEmit && node esbuild.mjs",
     "verify:bundle": "npm run build && node scripts/verifyBundleGlobals.js",
     "push": "npm run build && clasp push",
     "test": "jest",
