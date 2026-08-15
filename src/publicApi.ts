@@ -19,8 +19,7 @@ import { raw as rawFunc } from "./util/raw/raw";
 import { skip as skipSymbol } from "./util/skip/skip";
 
 // GAS ライブラリとして公開する実体。src/index.d.ts の namespace Gassma と 1:1 に保つ。
-// gas-webpack-plugin が検出できるのは `exports.X = ...` 代入式のみのため、
-// re-export 構文ではなく `export const X = 実体` の形にしている。
+// グローバルへの公開は src/publicApiGlobals.ts が行う。
 export const GassmaClient = GassmaClientClass;
 export const GassmaController = GassmaControllerClass;
 export const FieldRef = FieldRefClass;

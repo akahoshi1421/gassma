@@ -3,4 +3,4 @@
 .clasp.json
 .gitignore
 package-lock.json
-webpack.config.js
+esbuild.mjs
